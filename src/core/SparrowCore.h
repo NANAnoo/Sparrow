@@ -1,0 +1,8 @@
+//
+// Created by 60207 on 2/8/2023.
+//
+
+#ifndef SPARROW_SPARROWCORE_H
+#define SPARROW_SPARROWCORE_H
+
+#endif //SPARROW_SPARROWCORE_H

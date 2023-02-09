@@ -1,0 +1,1 @@
+set(ExternalFolder "external")
