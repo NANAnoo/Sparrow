@@ -2,12 +2,17 @@ cmake_minimum_required(VERSION 3.22)
 
 set(CMAKE_CXX_STANDARD 17)
 
-project(Sparrow LANGUAGES CXX)
+project(Sparrow LANGUAGES CXX C)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 set(ProjectRootDir "${CMAKE_CURRENT_SOURCE_DIR}")
+set(SparrowResourcesDir "${ProjectRootDir}/resources")
+set(SparrowSRCDir "${ProjectRootDir}/src")
+set(SparrowCoreDir "${SparrowSRCDir}/core")
+set(SparrowExamplesDir "${SparrowSRCDir}/examples")
+set(SparrowExternalDir "${ProjectRootDir}/external")
 
 add_subdirectory(external)
 add_subdirectory(src)

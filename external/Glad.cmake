@@ -1,4 +1,4 @@
-set(GladSourceDir ${ThirdPartyDir}/Glad)
+set(GladSourceDir ${ExternalDir}/Glad)
 
 set(GladSrc 
     "${GladSourceDir}/include/glad/glad.h"

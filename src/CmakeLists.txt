@@ -1,14 +1,7 @@
-set(SparrowResourcesDir "${ProjectRootDir}/resources")
-set(SparrowSRCDir "${ProjectRootDir}/src")
-set(SparrowCoreDir "${SparrowSRCDir}/core")
-set(SparrowExamplesDir "${SparrowSRCDir}/examples")
-set(SparrowExternalDir "${ProjectRootDir}/external")
-
 # set up default cmake build type
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
-
 
 # find OpenGL 
 find_package(OpenGL 4.5 REQUIRED)

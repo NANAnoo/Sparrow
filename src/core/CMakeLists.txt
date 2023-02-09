@@ -13,18 +13,23 @@ endmacro(CORE_ADD_SOURCE)
 
 set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h")
 
+# --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(ApplicationFramework)
+# --------------------------- ALL SUBMODULES HERE --------------------------
+
+message("Core Sources:" ${CoreSourceFiles})
 
 source_group(TREE "${SparrowSRCDir}" FILES ${CoreSourceFiles})
 
 add_library(SparrowCore STATIC ${CoreSourceFiles})
 
 target_include_directories(SparrowCore
-        PRIVATE "${ExternalFolder}"
+        PRIVATE "${SparrowExternalDir}"
         PRIVATE "${SparrowCoreDir}"
         )
 
 target_link_libraries(SparrowCore PUBLIC glfw
+        PUBLIC headers
         PUBLIC Glad
         PUBLIC glm
         PUBLIC imgui
