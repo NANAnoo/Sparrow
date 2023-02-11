@@ -1,8 +1,28 @@
 //
-// Created by 60207 on 2/9/2023.
+// Created by NANAnoo on 2/9/2023.
 //
 
 #ifndef SPARROW_APPLICATION_H
 #define SPARROW_APPLICATION_H
+
+#include <vector>
+
+namespace SPW {
+    class Application;
+    class Event;
+    // application delegate interface
+    class AppDelegateI {
+    public:
+        // life cycle of application
+        virtual void onAppInit(const Application &app) = 0;
+        virtual void beforeAppUpdate(const Application &app) = 0;
+        virtual void onAppUpdate(const Application &app) = 0;
+        virtual void afterAppUpdate(const Application &app) = 0;
+        virtual void onEvent(const Application &app, const Event &e) = 0;
+        virtual void onUnConsumedEvents(const Application &app, std::vector<Event> &) = 0;
+        virtual void onAppStopped(const Application &app) = 0;
+        virtual void onAppDestroy() = 0;
+    };
+};
 
 #endif //SPARROW_APPLICATION_H

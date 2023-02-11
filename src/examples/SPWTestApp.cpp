@@ -1,8 +1,8 @@
 #include <iostream>
-#include "ApplicationFramework/Application/Application.h"
+#include "SparrowCore.h"
 
 int main() {
-    Application app("hello");
+    SPW::Application app("hello");
     std::printf("Hello World, %s", app._name);
     return 0;
 }

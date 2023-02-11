@@ -14,7 +14,10 @@ endmacro(CORE_ADD_SOURCE)
 set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h")
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
+add_subdirectory(Utils)
+add_subdirectory(Event)
 add_subdirectory(ApplicationFramework)
+add_subdirectory(Platforms)
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Core Sources:" ${CoreSourceFiles})
@@ -22,6 +25,13 @@ message("Core Sources:" ${CoreSourceFiles})
 source_group(TREE "${SparrowSRCDir}" FILES ${CoreSourceFiles})
 
 add_library(SparrowCore STATIC ${CoreSourceFiles})
+
+if(CMAKE_BUILD_TYPE EQUAL Release)
+    add_definitions(-DSPW_RELEASE)
+else()
+    add_definitions(-DSPW_DEBUG)
+endif()
+
 
 target_include_directories(SparrowCore
         PRIVATE "${SparrowExternalDir}"
