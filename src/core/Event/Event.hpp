@@ -15,20 +15,15 @@
 #include <functional>
 
 namespace SPW {
-    class Event {
+    class EventI {
     public:
-        using EventHanlder = std::function<void(const Event &e)>;
-        explicit Event()= default;
-
-        EventType type = UnknownType;
-        EventValue value = UnknownValue;
-
-        bool inKindOf(EventType which) {
-            return (which & type) > 0;
+        using EventHanlder = std::function<void(const EventI &e)>;
+        virtual EventType type() {return UnknownType;}
+        virtual EventCategory category() {return UnknownCategory;}
+        bool isIn(EventCategory c) {
+            return (type() & c) > 0;
         }
-
-        std::shared_ptr<void *> userData;
-        bool isConsumed = false;
+        bool consumed = false;
 DEBUG_PROPERTY(std::vector<std::string> processChain = {})
     };
 }

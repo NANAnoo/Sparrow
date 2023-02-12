@@ -7,8 +7,8 @@
 #define SPARROW_EVENTDEFINES_H
 
 namespace SPW {
-    enum EventValue {
-        UnknownValue = 0
+    enum EventCategory {
+        UnknownCategory = 0
     };
     enum EventType {
         UnknownType = 0

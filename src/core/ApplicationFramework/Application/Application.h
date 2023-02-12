@@ -9,8 +9,7 @@
 namespace SPW {
     class Application {
     public:
-        const char *_name;
-        explicit Application(const char *name);
+        explicit Application();
         ~Application();
 
         // run with an exit code
@@ -28,7 +27,7 @@ namespace SPW {
         void init();
         std::vector<std::weak_ptr<AppDelegateI>> delegates;
         std::vector<std::string> arguments;
-        std::vector<Event> unhandledEvents;
+        std::vector<EventI> unhandledEvents;
 
         bool isRunning = false;
     };

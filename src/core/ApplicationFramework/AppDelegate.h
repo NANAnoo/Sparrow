@@ -10,7 +10,7 @@
 
 namespace SPW {
     class Application;
-    class Event;
+    class EventI;
     // application delegate interface
     class AppDelegateI {
     public:
@@ -19,8 +19,8 @@ namespace SPW {
         virtual void beforeAppUpdate(const Application &app) = 0;
         virtual void onAppUpdate(const Application &app, const TimeDuration &) = 0;
         virtual void afterAppUpdate(const Application &app) = 0;
-        virtual void onEvent(const Application &app, const Event &e) = 0;
-        virtual void onUnConsumedEvents(const Application &app, std::vector<Event> &) = 0;
+        virtual void onEvent(const Application &app, const EventI &e) = 0;
+        virtual void onUnConsumedEvents(const Application &app, std::vector<EventI> &) = 0;
         virtual void onAppStopped(const Application &app) = 0;
         virtual void onAppDestroy() = 0;
     };

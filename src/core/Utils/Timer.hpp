@@ -76,7 +76,7 @@ namespace SPW {
     public:
         TimeDuration operator -(const TimeStamp &other) const {
             TimeDuration d{};
-            d.value = value + other.value;
+            d.value = value - other.value;
             return d;
         }
         double value;
@@ -96,10 +96,7 @@ namespace SPW {
     public:
          TimeStamp current() override {
             TimeStamp ts{};
-            std::time_t t;
-            std::time(&t);
-            auto info = std::localtime(&t);
-            ts.value = info->tm_sec;
+            ts.value = static_cast<double >(std::clock()) / CLOCKS_PER_SEC;
             return ts;
         }
         explicit DefaultTimer() = default;

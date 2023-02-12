@@ -13,6 +13,7 @@ namespace SPW {
     class GlfwWindow : public WindowI{
     public:
         explicit GlfwWindow() = default;
+        GlfwWindow(const GlfwWindow &other);
         ~GlfwWindow();
         void init(WindowMeta meta) override;
         void onUpdate() override;

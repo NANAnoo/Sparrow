@@ -13,8 +13,7 @@ do {                                            \
     }                                           \
  }while(0)
 
-SPW::Application::Application(const char *name) {
-    _name = name;
+SPW::Application::Application() {
     POST_MSG(SPW::kMsgApplicationCreated)
 }
 
@@ -70,9 +69,9 @@ void SPW::Application::addDelegate(const std::weak_ptr<AppDelegateI> &delegate) 
 
 void SPW::Application::init() {
     isRunning = true;
-    Event::EventHanlder handler = [this](const Event &e){
+    EventI::EventHanlder handler = [this](const EventI &e){
         LIFE_CYCLE(onEvent(*this, e));
-        if (!e.isConsumed) {
+        if (!e.consumed) {
             unhandledEvents.emplace_back(e);
         }
     };

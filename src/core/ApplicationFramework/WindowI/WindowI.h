@@ -12,7 +12,7 @@ namespace SPW {
         const char *title;
         int width;
         int height;
-        Event::EventHanlder handler;
+        EventI::EventHanlder handler;
     };
     class WindowI {
     public:

@@ -13,7 +13,7 @@ if(NOT TARGET glfw)
     option(GLFW_BUILD_DOCS "" OFF)
     option(GLFW_INSTALL "" OFF)
     add_subdirectory(glfw)
-    set_target_properties(glfw PROPERTIES FOLDER ${ExternalFolder}/GLFW)
+    set_target_properties(glfw PROPERTIES FOLDER ${ExternalFolder}/glfw)
 endif()
 
 if(NOT TARGET glm)

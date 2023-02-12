@@ -27,10 +27,12 @@ namespace SPW {
 
         // observe a message once, handler will be deleted after being triggered
         void observeOnce(Message msg, const MessageHandler& handler) {
-            std::pair<int, MessageHandler> p = getHandlerPair([handler, this, &p](Message msg){
+            std::pair<int, MessageHandler> p = getHandlerPair(handler);
+            int id = p.first;
+            p.second = [&handler, this, id](Message msg){
                 handler(msg);
-                handlerMap[msg].erase(p.first);
-            });
+                handlerMap[msg].erase(id);
+            };
             handlerMap[msg].insert(p);
         }
 
@@ -47,7 +49,7 @@ namespace SPW {
     protected:
         // store all callbacks that register to a message
         // using another map as value for delete a handler
-        std::unordered_map<Message, std::unordered_map<int, MessageHandler>> handlerMap;
+        std::unordered_map<std::string , std::unordered_map<int, MessageHandler>> handlerMap;
     };
 
 
