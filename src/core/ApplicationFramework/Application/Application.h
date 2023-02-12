@@ -21,13 +21,15 @@ namespace SPW {
         void addDelegate(const std::weak_ptr<AppDelegateI> &delegate);
         // get arguments
         std::vector<std::string> &getArgumentList() {return arguments;}
+        // window
+        std::shared_ptr<WindowI> window = nullptr;
 
     private:
         void init();
         std::vector<std::weak_ptr<AppDelegateI>> delegates;
         std::vector<std::string> arguments;
         std::vector<Event> unhandledEvents;
-        std::shared_ptr<WindowI> window = nullptr;
+
         bool isRunning = false;
     };
 }

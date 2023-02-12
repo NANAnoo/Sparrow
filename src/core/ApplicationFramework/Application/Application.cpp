@@ -1,6 +1,7 @@
 #include "Application.h"
 #include <iostream>
 #include "Utils/MessageDefines.h"
+#include "Utils/Timer.hpp"
 
 #define LIFE_CYCLE(stage)                       \
 do {                                            \
@@ -30,11 +31,25 @@ int SPW::Application::run(int argc, char **argv) {
     }
     // init app
     init();
+    // record time gap
     // main loop of application
+    static SPW::TimeStamp begin{};
     while (isRunning) {
+        // calculate duration
+        TimeDuration du = SPW::Timer::current() - begin;
+        // update time stamp
+        begin = SPW::Timer::current();
+
+        // one life cycle
+        // before update
         POST_MSG(SPW::kMsgBeforeAppUpdate);
         LIFE_CYCLE(beforeAppUpdate(*this));
-        LIFE_CYCLE(onAppUpdate(*this));
+
+        // on update
+        LIFE_CYCLE(onAppUpdate(*this, du));
+        window->onUpdate();
+
+        // after update
         POST_MSG(SPW::kMsgAfterAppUpdate);
         LIFE_CYCLE(afterAppUpdate(*this));
         // pull events
@@ -61,7 +76,7 @@ void SPW::Application::init() {
             unhandledEvents.emplace_back(e);
         }
     };
-    window->init(WindowMeta({"Sparrow", 1600, 900, handler}));
     LIFE_CYCLE(onAppInit(*this));
+    window->init(WindowMeta({window->title(), window->width(), window->height(), handler}));
     POST_MSG(SPW::kMsgApplicationInited)
 }
