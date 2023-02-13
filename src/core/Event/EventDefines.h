@@ -10,10 +10,12 @@ namespace SPW {
     enum EventCategory {
         UnknownCategory = 0,
         MouthCategory = 1 << 1,
-        KeyCategory = 2 << 1,
+        KeyCategory = 1 << 2,
+        WindowCategory = 1 << 3
     };
     enum EventType {
         UnknownType = 0,
+        WindowResizeType,
     };
 }
 

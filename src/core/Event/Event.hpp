@@ -20,6 +20,8 @@
 
 namespace SPW {
 
+#define EVENT_RESPONDER(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+
     class EventI {
     public:
         using EventHanlder = std::function<void(EventI &e)>;
@@ -31,6 +33,18 @@ namespace SPW {
 
         DEBUG_PROPERTY(std::vector<std::string> processChain = {})
         bool consumed = false;
+
+        template<typename T>
+        using EventFunc = std::function<bool(T *)>;
+
+        // dispatcher
+        template<EventType type, typename T>
+        void dispatch(EventFunc<T> func) {
+            if (!this->consumed && this->type() == type) {
+                T *te = (T *)this;
+                this->consumed = func(te);
+            }
+        }
     };
 
     class EventResponderI {

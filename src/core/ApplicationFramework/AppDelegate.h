@@ -7,13 +7,12 @@
 
 #include <vector>
 #include "Utils/Timer.hpp"
-#include "Event/Event.hpp"
 
 namespace SPW {
     class Application;
     class EventI;
     // application delegate interface
-    class AppDelegateI : EventResponderI {
+    class AppDelegateI {
     public:
 // life cycle of application
         virtual void onAppInit(std::shared_ptr<Application> app) = 0;

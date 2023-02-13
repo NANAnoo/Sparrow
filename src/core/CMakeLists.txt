@@ -18,6 +18,7 @@ add_subdirectory(Utils)
 add_subdirectory(Event)
 add_subdirectory(Control)
 add_subdirectory(ApplicationFramework)
+add_subdirectory(EcsFramework)
 add_subdirectory(Platforms)
 # --------------------------- ALL SUBMODULES HERE --------------------------
 

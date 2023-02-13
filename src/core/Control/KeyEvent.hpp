@@ -10,7 +10,10 @@
 namespace SPW {
     class KeyEvent : public EventI {
     public:
-        EventCategory category() override {return EventCategory::KeyCategory;}
+        EventCategory category() final {return EventCategory::KeyCategory;}
+        EventType type() final {return _type;}
+    private:
+        EventType _type = UnknownType;
     };
 
     class KeyEventResponder : public EventResponderI {
@@ -19,6 +22,7 @@ namespace SPW {
                 EventResponderI(parent) {
         }
         void onEvent(EventI *e) final {
+            // TODO dispatch event to different type
             e->consumed = onKeyDown((KeyEvent *)e);
             if (!e->consumed) {
                 EventResponderI::onEvent(e);
@@ -30,7 +34,14 @@ namespace SPW {
             return KeyCategory;
         }
 
+        // interfaces for responding key events:
+
+        // key down
         virtual bool onKeyDown(KeyEvent *e) = 0;
+
+        // TODO more event type
+        // ...
+
     };
 }
 #endif //SPARROW_KEYEVENT_HPP

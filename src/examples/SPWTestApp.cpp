@@ -5,13 +5,17 @@
 
 #include "Control/MouseEvent.hpp"
 #include "Control/KeyEvent.hpp"
+#include "ApplicationFramework/WindowI/WindowEvent.h"
 
 // event test class
-class wtf : public SPW::KeyEventResponder, public SPW::MouthEventResponder{
+class wtf : public SPW::KeyEventResponder,
+        public SPW::MouthEventResponder,
+        public SPW::WindowEventResponder{
 public:
     explicit wtf(std::shared_ptr<SPW::Application> &app) :
-            SPW::MouthEventResponder(app), SPW::KeyEventResponder(app){
-
+            SPW::MouthEventResponder(app),
+            SPW::KeyEventResponder(app),
+            SPW::WindowEventResponder(app){
     }
 
     bool onMouthDown(SPW::MouthEvent *e) override {
@@ -21,6 +25,11 @@ public:
 
     bool onKeyDown(SPW::KeyEvent *e) override {
         std::cout << "onKeyDown" << std::endl;
+        return true;
+    }
+
+    bool onWindowResize(int w, int h) override {
+        std::cout << "Window resize" << "(" << w << " ," << h <<")" <<std::endl;
         return true;
     }
 
@@ -79,8 +88,10 @@ class TestDelegate : public SPW::AppDelegateI {
         auto wc = std::make_shared<woc>(nim);
         SPW::MouthEvent me;
         SPW::KeyEvent ke;
+        SPW::WindowEvent we(SPW::WindowResizeType, app->window->width(), app->window->height());
         app->onEvent(&me);
         app->onEvent(&ke);
+        app->onEvent(&we);
         DEBUG_EXPRESSION(
                 for (auto &name:ke.processChain) {
                     std::cout << name << "->";
@@ -133,8 +144,7 @@ int main(int argc, char **argv) {
 
     // app test
     auto delegate = std::shared_ptr<SPW::AppDelegateI>(new TestDelegate());
-    auto app = std::make_shared<SPW::Application>(delegate);
-    app->weakThis = app;
+    auto app = SPW::Application::create(delegate);
     return app->run(argc, argv);
 
 }

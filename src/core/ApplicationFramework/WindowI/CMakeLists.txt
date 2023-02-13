@@ -1,1 +1,1 @@
-CORE_ADD_SOURCE(WindowI.h)
+CORE_ADD_SOURCE(WindowI.h WindowEvent.h)

@@ -8,6 +8,7 @@
 #include <memory>
 
 namespace SPW {
+    // root node of event responder
     class Application : public EventResponderI {
     public:
         Application() = delete;
@@ -29,6 +30,13 @@ namespace SPW {
 
         // event
         const char *getName() override {return "Application";}
+
+        // init app with create
+        static std::shared_ptr<Application> create(std::shared_ptr<AppDelegateI> &delegate) {
+            auto app = std::make_shared<Application>(delegate);
+            app->weakThis = app;
+            return app;
+        }
     private:
         void init();
         std::weak_ptr<AppDelegateI> delegate;
@@ -36,5 +44,6 @@ namespace SPW {
         std::vector<EventI> unhandledEvents;
         bool isRunning = false;
     };
+
 }
 

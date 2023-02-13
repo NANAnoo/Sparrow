@@ -10,7 +10,10 @@
 namespace SPW {
     class MouthEvent : public EventI {
     public:
-        EventCategory category() override {return EventCategory::MouthCategory;}
+        EventCategory category() final {return EventCategory::MouthCategory;}
+        EventType type() final {return _type;}
+    private:
+        EventType _type = UnknownType;
     };
 
     class MouthEventResponder : public EventResponderI {
