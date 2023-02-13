@@ -7,7 +7,7 @@
 #include "Control/KeyEvent.hpp"
 
 // event test class
-class wtf : public SPW::KeyEventResponder, SPW::MouthEventResponder {
+class wtf : public SPW::KeyEventResponder, public SPW::MouthEventResponder{
 public:
     explicit wtf(std::shared_ptr<SPW::Application> &app) :
             SPW::MouthEventResponder(app), SPW::KeyEventResponder(app){
@@ -29,6 +29,44 @@ public:
     }
 };
 
+class nima : public SPW::KeyEventResponder, public SPW::MouthEventResponder{
+public:
+    explicit nima(std::shared_ptr<wtf> &parent) :
+     SPW::KeyEventResponder(std::shared_ptr<SPW::KeyEventResponder> (parent)),
+     SPW::MouthEventResponder(std::shared_ptr<SPW::MouthEventResponder> (parent))
+    {
+    }
+
+    bool onMouthDown(SPW::MouthEvent *e) override {
+        std::cout << "onMouthDown" << std::endl;
+        return false;
+    }
+
+    bool onKeyDown(SPW::KeyEvent *e) override {
+        std::cout << "onKeyDown" << std::endl;
+        return true;
+    }
+
+    const char *getName() override {
+        return "nima";
+    }
+};
+
+class woc : public SPW::MouthEventResponder{
+public:
+    explicit woc(std::shared_ptr<nima> &parent):
+    SPW::MouthEventResponder(std::shared_ptr<SPW::MouthEventResponder> (parent)) {
+
+    }
+    bool onMouthDown(SPW::MouthEvent *e) override {
+        std::cout << "onMouthDown" << std::endl;
+        return true;
+    }
+    const char *getName() override {
+        return "woc";
+    }
+};
+
 class TestDelegate : public SPW::AppDelegateI {
     void onAppInit(std::shared_ptr<SPW::Application> app) final {
         app->window = std::make_shared<SPW::GlfwWindow>();
@@ -37,6 +75,8 @@ class TestDelegate : public SPW::AppDelegateI {
 
         // event test
         auto test = std::make_shared<wtf>(app);
+        auto nim = std::make_shared<nima>(test);
+        auto wc = std::make_shared<woc>(nim);
         SPW::MouthEvent me;
         SPW::KeyEvent ke;
         app->onEvent(&me);
