@@ -16,6 +16,7 @@ set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h")
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(Utils)
 add_subdirectory(Event)
+add_subdirectory(Control)
 add_subdirectory(ApplicationFramework)
 add_subdirectory(Platforms)
 # --------------------------- ALL SUBMODULES HERE --------------------------

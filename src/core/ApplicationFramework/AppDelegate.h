@@ -7,21 +7,21 @@
 
 #include <vector>
 #include "Utils/Timer.hpp"
+#include "Event/Event.hpp"
 
 namespace SPW {
     class Application;
     class EventI;
     // application delegate interface
-    class AppDelegateI {
+    class AppDelegateI : EventResponderI {
     public:
-        // life cycle of application
-        virtual void onAppInit(Application &app) = 0;
-        virtual void beforeAppUpdate(const Application &app) = 0;
-        virtual void onAppUpdate(const Application &app, const TimeDuration &) = 0;
-        virtual void afterAppUpdate(const Application &app) = 0;
-        virtual void onEvent(const Application &app, const EventI &e) = 0;
-        virtual void onUnConsumedEvents(const Application &app, std::vector<EventI> &) = 0;
-        virtual void onAppStopped(const Application &app) = 0;
+// life cycle of application
+        virtual void onAppInit(std::shared_ptr<Application> app) = 0;
+        virtual void beforeAppUpdate(std::shared_ptr<Application> app) = 0;
+        virtual void onAppUpdate(std::shared_ptr<Application> app, const TimeDuration &) = 0;
+        virtual void afterAppUpdate(std::shared_ptr<Application> app) = 0;
+        virtual void onUnConsumedEvents(std::shared_ptr<Application> app, std::vector<EventI> &) = 0;
+        virtual void onAppStopped(std::shared_ptr<Application> app) = 0;
         virtual void onAppDestroy() = 0;
     };
 };

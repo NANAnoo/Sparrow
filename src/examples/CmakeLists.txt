@@ -8,6 +8,8 @@ macro(LoadSparrow)
 
 endmacro(LoadSparrow)
 
+add_definitions(-DSPW_DEBUG)
+
 add_executable(SPWTestApp "SPWTestApp.cpp")
 
 # add_compile_definitions("ENGINE_ROOT_DIR=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")

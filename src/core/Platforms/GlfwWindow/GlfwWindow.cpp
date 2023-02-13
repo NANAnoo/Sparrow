@@ -56,11 +56,11 @@ namespace SPW {
     }
 
     GlfwWindow::~GlfwWindow() {
-        for (auto &pair : all_windows) {
-            if (pair.second == this) {
-                all_windows.erase(pair.first);
-            }
-        }
+//        for (auto &pair : all_windows) {
+//            if (pair.second == this) {
+//                all_windows.erase(pair.first);
+//            }
+//        }
         stop();
     }
 }

@@ -12,7 +12,6 @@ namespace SPW {
     template <typename T>
     class SingletonBase {
     public:
-        virtual T *init() = 0;
         static T* getInstance() {
             static std::once_flag flag;
             // basically, a singleton won't be dealloc

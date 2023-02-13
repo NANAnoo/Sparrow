@@ -3,93 +3,98 @@
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include "Utils/MessageDefines.h"
 
+#include "Control/MouseEvent.hpp"
+#include "Control/KeyEvent.hpp"
+
+// event test class
+class wtf : public SPW::KeyEventResponder, SPW::MouthEventResponder {
+public:
+    explicit wtf(std::shared_ptr<SPW::Application> &app) :
+            SPW::MouthEventResponder(app), SPW::KeyEventResponder(app){
+
+    }
+
+    bool onMouthDown(SPW::MouthEvent *e) override {
+        std::cout << "onMouthDown" << std::endl;
+        return false;
+    }
+
+    bool onKeyDown(SPW::KeyEvent *e) override {
+        std::cout << "onKeyDown" << std::endl;
+        return true;
+    }
+
+    const char *getName() override {
+        return "wtf";
+    }
+};
+
 class TestDelegate : public SPW::AppDelegateI {
+    void onAppInit(std::shared_ptr<SPW::Application> app) final {
+        app->window = std::make_shared<SPW::GlfwWindow>();
+        app->window->setSize(1920, 1080);
+        app->window->setTitle("SPWTestApp");
 
-    void onAppInit(SPW::Application &app) final {
-        app.window = std::make_shared<SPW::GlfwWindow>();
-        app.window->setSize(1920, 1080);
-        app.window->setTitle("SPWTestApp");
-    }
-    void beforeAppUpdate(const SPW::Application &app) final{
+        // event test
+        auto test = std::make_shared<wtf>(app);
+        SPW::MouthEvent me;
+        SPW::KeyEvent ke;
+        app->onEvent(&me);
+        app->onEvent(&ke);
+        DEBUG_EXPRESSION(
+                for (auto &name:ke.processChain) {
+                    std::cout << name << "->";
+                }
+                std::cout << (ke.consumed ? "[consumed]" : "[not consumed]") << std::endl;
+
+                for (auto &name:me.processChain) {
+                    std::cout << name << "->";
+                }
+                std::cout << (me.consumed ? "[consumed]" : "[not consumed]") << std::endl;
+                )
 
     }
-    void onAppUpdate(const SPW::Application &app, const SPW::TimeDuration &du) final{
-        std::cout << du.toSecond() << std::endl;
-    }
-    void afterAppUpdate(const SPW::Application &app) final{
+    void beforeAppUpdate(std::shared_ptr<SPW::Application> app) final{
 
     }
-    void onEvent(const SPW::Application &app, const SPW::EventI &e) final {
+    void onAppUpdate(std::shared_ptr<SPW::Application> app, const SPW::TimeDuration &du) final{
+        std::cout << du.toMs() << " ms" << std::endl;
+    }
+
+    void afterAppUpdate(std::shared_ptr<SPW::Application> app) final{
+        static int count = 0;
+        if (count ++ > 10) {
+            app->stop();
+        }
+    }
+    void onUnConsumedEvents(std::shared_ptr<SPW::Application> app, std::vector<SPW::EventI> &) final{
 
     }
-    void onUnConsumedEvents(const SPW::Application &app, std::vector<SPW::EventI> &) final{
-
-    }
-    void onAppStopped(const SPW::Application &app) final{
-
+    void onAppStopped(std::shared_ptr<SPW::Application> app) final{
+        std::cout << "app stopped" << std::endl;
     }
     void onAppDestroy() final{
-
+        std::cout << "app destroyed" << std::endl;
     }
 };
 
-
-class base {
-public:
-    base() {
-        std::cout << "base" << std::endl;
-    };
-    virtual void test() = 0;
-    virtual ~base() {
-        std::cout << "~base" << std::endl;
-    };
-};
-
-class son : public base{
-public:
-    son() {
-        std::cout << "son" << std::endl;
-    }
-    void test() final {
-        why();
-    }
-    virtual void why() = 0;
-    virtual ~son() {
-        std::cout << "~son" << std::endl;
-    }
-};
-
-class father : public son{
-public:
-    father() {
-        std::cout << "father" << std::endl;
-    }
-    void why() override {
-        std::cout << "why" << std::endl;
-    }
-    virtual ~father() {
-        std::cout << "~father" << std::endl;
-    }
-};
 int main(int argc, char **argv) {
-    {
-        std::vector<base *> b;
-        father a;
-        b.emplace_back(&a);
-        b.front()->test();
-    }
-//    SPW::Application app;
-//    SPW::REGISTER_MSG(SPW::kMsgBeforeAppUpdate, [](SPW::Message msg){
-//        std::cout << "what" << std::endl;
-//    })
-//    SPW::REGISTER_MSG(SPW::kMsgAfterAppUpdate, [](SPW::Message msg){
-//        std::cout << "fuck \n" << std::endl;
-//    })
-//    SPW::OBSERVE_MSG_ONCE(SPW::kMsgAfterAppUpdate, [](SPW::Message msg){
-//        std::cout << "only once" << std::endl;
-//    })
-//    auto delegate = std::shared_ptr<SPW::AppDelegateI>(new TestDelegate());
-//    app.addDelegate(delegate);
-//
-//    return app.run(argc, argv);
+    // message center test
+    SPW::REGISTER_MSG(SPW::kMsgBeforeAppUpdate, [](SPW::Message msg){
+        std::cout << "----------------------" << std::endl;
+        std::cout << "what" << std::endl;
+    })
+    SPW::REGISTER_MSG(SPW::kMsgAfterAppUpdate, [](SPW::Message msg){
+        std::cout << "fuck" << std::endl;
+    })
+    SPW::OBSERVE_MSG_ONCE(SPW::kMsgAfterAppUpdate, [](SPW::Message msg){
+        std::cout << "only once" << std::endl;
+    })
+
+    // app test
+    auto delegate = std::shared_ptr<SPW::AppDelegateI>(new TestDelegate());
+    auto app = std::make_shared<SPW::Application>(delegate);
+    app->weakThis = app;
+    return app->run(argc, argv);
+
 }

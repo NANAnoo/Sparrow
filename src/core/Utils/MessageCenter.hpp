@@ -15,8 +15,6 @@ namespace SPW {
     using MessageHandler = std::function<void(Message)>;
     class MessageCenter : public SingletonBase<MessageCenter>{
     public:
-        MessageCenter * init() override {return new MessageCenter();}
-
         // notify all handler when a msg is posted
         void postMessage(Message msg) {
             auto handlers = this->handlerMap[msg];

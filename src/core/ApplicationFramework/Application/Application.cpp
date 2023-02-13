@@ -1,26 +1,19 @@
 #include "Application.h"
-#include <iostream>
+
 #include "Utils/MessageDefines.h"
 #include "Utils/Timer.hpp"
 
-#define LIFE_CYCLE(stage)                       \
-do {                                            \
-    for (auto &wk_delegate : delegates) {       \
-        if (!wk_delegate.expired()) {           \
-            auto strong = wk_delegate.lock();   \
-            strong->stage;                      \
-        }                                       \
-    }                                           \
- }while(0)
+SPW::Application::Application(const std::shared_ptr<AppDelegateI>& delegate)
+        :EventResponderI() {
 
-SPW::Application::Application() {
+    this->delegate = delegate;
     POST_MSG(SPW::kMsgApplicationCreated)
 }
 
 SPW::Application::~Application() {
     stop();
-    // notify delegates
-    LIFE_CYCLE(onAppDestroy());
+    // notify delegate
+    delegate.lock()->onAppDestroy();
 }
 
 int SPW::Application::run(int argc, char **argv) {
@@ -41,41 +34,38 @@ int SPW::Application::run(int argc, char **argv) {
 
         // one life cycle
         // before update
-        POST_MSG(SPW::kMsgBeforeAppUpdate);
-        LIFE_CYCLE(beforeAppUpdate(*this));
+        POST_MSG(SPW::kMsgBeforeAppUpdate)
+        delegate.lock()->beforeAppUpdate(weakThis.lock());
 
         // on update
-        LIFE_CYCLE(onAppUpdate(*this, du));
+        delegate.lock()->onAppUpdate(weakThis.lock(), du);
         window->onUpdate();
 
         // after update
-        POST_MSG(SPW::kMsgAfterAppUpdate);
-        LIFE_CYCLE(afterAppUpdate(*this));
+        POST_MSG(SPW::kMsgAfterAppUpdate)
+        delegate.lock()->afterAppUpdate(weakThis.lock());
         // pull events
-        LIFE_CYCLE(onUnConsumedEvents(*this, unhandledEvents));
+        delegate.lock()->onUnConsumedEvents(weakThis.lock(), unhandledEvents);
     }
     return 0;
 }
 
 void SPW::Application::stop() {
+    if (!isRunning) return;
     isRunning = false;
-    LIFE_CYCLE(onAppStopped(*this));
-    POST_MSG(SPW::kMsgApplicationStopped);
-}
-
-void SPW::Application::addDelegate(const std::weak_ptr<AppDelegateI> &delegate) {
-    delegates.emplace_back(delegate);
+    delegate.lock()->onAppStopped(weakThis.lock());
+    POST_MSG(SPW::kMsgApplicationStopped)
 }
 
 void SPW::Application::init() {
     isRunning = true;
-    EventI::EventHanlder handler = [this](const EventI &e){
-        LIFE_CYCLE(onEvent(*this, e));
+    EventI::EventHanlder handler = [this] (EventI &e){
+        onEvent(&e);
         if (!e.consumed) {
             unhandledEvents.emplace_back(e);
         }
     };
-    LIFE_CYCLE(onAppInit(*this));
+    delegate.lock()->onAppInit(weakThis.lock());
     window->init(WindowMeta({window->title(), window->width(), window->height(), handler}));
     POST_MSG(SPW::kMsgApplicationInited)
 }
