@@ -3,7 +3,7 @@
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include "Utils/MessageDefines.h"
 
-#include "Event/WindowEvent.h"
+#include "ApplicationFramework/WindowI/WindowEvent.h"
 
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
@@ -69,13 +69,17 @@ class TestDelegate : public SPW::AppDelegateI {
         })
     }
     void beforeAppUpdate(std::shared_ptr<SPW::Application> app) final{
+        bool should_update = false;
         if (transformer->width < 500) {
             transformer->width = 500;
+            should_update = true;
         }
         if (transformer->height < 500) {
             transformer->height = 400;
+            should_update = true;
         }
-        app->window->setSize(transformer->width, transformer->height);
+        if (should_update)
+            app->window->setSize(transformer->width, transformer->height);
     }
     void onAppUpdate(std::shared_ptr<SPW::Application> app, const SPW::TimeDuration &du) final{
         render->render();

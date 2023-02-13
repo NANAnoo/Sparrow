@@ -2,7 +2,7 @@
 
 #include "Utils/MessageDefines.h"
 #include "Utils/Timer.hpp"
-#include "Event/WindowEvent.h"
+#include "ApplicationFramework/WindowI/WindowEvent.h"
 
 SPW::Application::Application(const std::shared_ptr<AppDelegateI>& delegate)
         :EventResponderI() {

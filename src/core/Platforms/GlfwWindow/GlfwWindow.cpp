@@ -6,7 +6,7 @@
 
 #include <unordered_map>
 #include <iostream>
-#include "Event/WindowEvent.h"
+#include "ApplicationFramework/WindowI/WindowEvent.h"
 
 namespace SPW {
     // pass callback from glfw window to GLWindow

@@ -1,1 +1,1 @@
-CORE_ADD_SOURCE(Event.h EventDefines.h WindowEvent.h Event.cpp)
+CORE_ADD_SOURCE(Event.h EventDefines.h Event.cpp)
