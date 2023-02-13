@@ -19,7 +19,7 @@ namespace SPW {
         virtual void beforeAppUpdate(std::shared_ptr<Application> app) = 0;
         virtual void onAppUpdate(std::shared_ptr<Application> app, const TimeDuration &) = 0;
         virtual void afterAppUpdate(std::shared_ptr<Application> app) = 0;
-        virtual void onUnConsumedEvents(std::shared_ptr<Application> app, std::vector<EventI> &) = 0;
+        virtual void onUnConsumedEvents(std::shared_ptr<Application> app, std::vector<std::shared_ptr<EventI>> &) = 0;
         virtual void onAppStopped(std::shared_ptr<Application> app) = 0;
         virtual void onAppDestroy() = 0;
     };

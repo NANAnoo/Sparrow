@@ -2,6 +2,7 @@
 
 #include "Utils/MessageDefines.h"
 #include "Utils/Timer.hpp"
+#include "Event/WindowEvent.h"
 
 SPW::Application::Application(const std::shared_ptr<AppDelegateI>& delegate)
         :EventResponderI() {
@@ -46,8 +47,21 @@ int SPW::Application::run(int argc, char **argv) {
         delegate.lock()->afterAppUpdate(weakThis.lock());
         // pull events
         delegate.lock()->onUnConsumedEvents(weakThis.lock(), unhandledEvents);
+        unhandledEvents.clear();
     }
     return 0;
+}
+
+void SPW::Application::onEvent(const std::shared_ptr<EventI> &e) {
+    e->dispatch<WindowCloseType, WindowEvent>([this](WindowEvent *e){
+        this->stop();
+        return true;
+    });
+    if (!e->consumed) {
+        EventResponderI::onEvent(e);
+    } else {
+        DEBUG_EXPRESSION(e->processChain.emplace_back(getName());)
+    }
 }
 
 void SPW::Application::stop() {
@@ -59,9 +73,9 @@ void SPW::Application::stop() {
 
 void SPW::Application::init() {
     isRunning = true;
-    EventI::EventHanlder handler = [this] (EventI &e){
-        onEvent(&e);
-        if (!e.consumed) {
+    EventI::EventHanlder handler = [this] (const std::shared_ptr<EventI> &e){
+        onEvent(e);
+        if (!e->consumed) {
             unhandledEvents.emplace_back(e);
         }
     };

@@ -11,12 +11,23 @@ namespace SPW {
         UnknownCategory = 0,
         MouthCategory = 1 << 1,
         KeyCategory = 1 << 2,
-        WindowCategory = 1 << 3
+        WindowCategory = 1 << 3,
     };
     enum EventType {
         UnknownType = 0,
         WindowResizeType,
+        WindowCloseType,
+        WindowFrameResizeType
     };
+
+    constexpr const char *toString(EventType type) {
+        switch (type) {
+            case UnknownType: return "Event";
+            case WindowResizeType: return "WindowResizeEvent";
+            case WindowCloseType: return "WindowCloseEvent";
+            case WindowFrameResizeType: return "WindowFrameResizeEvent";
+        }
+    }
 }
 
 #endif //SPARROW_EVENTDEFINES_H

@@ -5,7 +5,7 @@
 #ifndef SPARROW_MOUSEEVENT_HPP
 #define SPARROW_MOUSEEVENT_HPP
 
-#include "Event/Event.hpp"
+#include "Event/Event.h"
 
 namespace SPW {
     class MouthEvent : public EventI {

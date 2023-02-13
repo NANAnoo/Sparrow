@@ -18,10 +18,21 @@ namespace SPW {
         void init(WindowMeta meta) override;
         void onUpdate() override;
         const char *title() override {return data.title;}
-        void setTitle(const char *t) override { data.title = t;}
+        void setTitle(const char *t) override {
+            data.title = t;
+            if (window) {
+                glfwSetWindowTitle(window, t);
+            }
+        }
         int width() override {return data.width;}
         int height() override {return data.height;}
-        void setSize(int w, int h) override {data.width = w; data.height = h;};
+        void setSize(int w, int h) override {
+            data.width = w;
+            data.height = h;
+            if (window) {
+                glfwSetWindowSize(window, w, h);
+            }
+        }
         void stop();
     private:
         GLFWwindow *window = nullptr;

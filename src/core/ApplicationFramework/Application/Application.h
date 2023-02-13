@@ -29,6 +29,7 @@ namespace SPW {
         std::weak_ptr<Application> weakThis;
 
         // event
+        void onEvent(const std::shared_ptr<EventI> &e) override;
         const char *getName() override {return "Application";}
 
         // init app with create
@@ -41,7 +42,7 @@ namespace SPW {
         void init();
         std::weak_ptr<AppDelegateI> delegate;
         std::vector<std::string> arguments;
-        std::vector<EventI> unhandledEvents;
+        std::vector<std::shared_ptr<EventI>> unhandledEvents;
         bool isRunning = false;
     };
 

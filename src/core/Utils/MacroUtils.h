@@ -9,7 +9,7 @@
 #define DEBUG_EXPRESSION(expr) do{expr;}while(0);
 #define DEBUG_PROPERTY(expr) expr;
 #else
-#define DEBUG_EXPRESSION(expr) do{}while(0);
+#define DEBUG_EXPRESSION(expr)
 #define DEBUG_PROPERTY(expr)
 #endif
 

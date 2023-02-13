@@ -3,8 +3,8 @@
 // define event structure , producer and consumer interface
 //
 
-#ifndef SPARROW_EVENT_HPP
-#define SPARROW_EVENT_HPP
+#ifndef SPARROW_EVENT_H
+#define SPARROW_EVENT_H
 
 #include "Utils/MacroUtils.h"
 #include "EventDefines.h"
@@ -24,11 +24,14 @@ namespace SPW {
 
     class EventI {
     public:
-        using EventHanlder = std::function<void(EventI &e)>;
+        using EventHanlder = std::function<void(const std::shared_ptr<EventI> &e)>;
         virtual EventType type() {return UnknownType;}
         virtual EventCategory category() {return UnknownCategory;}
         bool isIn(EventCategory c) {
             return (category() & c) > 0;
+        }
+        const char *name() {
+            return toString(this->type());
         }
 
         DEBUG_PROPERTY(std::vector<std::string> processChain = {})
@@ -45,6 +48,7 @@ namespace SPW {
                 this->consumed = func(te);
             }
         }
+        friend std::ostream &operator<<(std::ostream &os, EventI *e);
     };
 
     class EventResponderI {
@@ -63,7 +67,7 @@ namespace SPW {
             }
         }
         virtual const char* getName() {return "Unknown";}
-        virtual void onEvent(EventI *e) {
+        virtual void onEvent(const std::shared_ptr<EventI> &e) {
             // use for debugging
             DEBUG_EXPRESSION(e->processChain.emplace_back(getName());)
 
@@ -71,6 +75,7 @@ namespace SPW {
                 // pass through event
                 if (!e->consumed && e->isIn(sub->listeningCategory())) {
                     sub->onEvent(e);
+                    DEBUG_EXPRESSION(if (e->consumed) {std::cout << e << std::endl;})
                 }
             }
 
@@ -83,4 +88,4 @@ namespace SPW {
     };
 }
 
-#endif //SPARROW_EVENT_HPP
+#endif //SPARROW_EVENT_H

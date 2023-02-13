@@ -28,13 +28,6 @@ source_group(TREE "${SparrowSRCDir}" FILES ${CoreSourceFiles})
 
 add_library(SparrowCore STATIC ${CoreSourceFiles})
 
-if(CMAKE_BUILD_TYPE EQUAL Release)
-    add_definitions(-DSPW_RELEASE)
-else()
-    add_definitions(-DSPW_DEBUG)
-endif()
-
-
 target_include_directories(SparrowCore
         PRIVATE "${SparrowExternalDir}"
         PRIVATE "${SparrowCoreDir}"

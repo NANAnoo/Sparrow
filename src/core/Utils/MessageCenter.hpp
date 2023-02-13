@@ -24,10 +24,10 @@ namespace SPW {
         }
 
         // observe a message once, handler will be deleted after being triggered
-        void observeOnce(Message msg, const MessageHandler& handler) {
+        void observeOnce(Message msg, const MessageHandler &handler) {
             std::pair<int, MessageHandler> p = getHandlerPair(handler);
             int id = p.first;
-            p.second = [&handler, this, id](Message msg){
+            p.second = [handler, this, id](Message msg){
                 handler(msg);
                 handlerMap[msg].erase(id);
             };

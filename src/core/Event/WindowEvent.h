@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#include "Event/Event.hpp"
-#include <glm/glm.hpp>
+#include "Event/Event.h"
+#include "glm/glm/glm.hpp"
 
 namespace SPW {
     class WindowEvent : public EventI {
@@ -22,9 +22,11 @@ namespace SPW {
         EventCategory listeningCategory() final {
             return WindowCategory;
         }
-        void onEvent(EventI *e) final {
+        void onEvent(const std::shared_ptr<EventI> &e) final {
             // TODO dispatch event to different type
             e->dispatch<WindowResizeType, WindowEvent>(EVENT_RESPONDER(onWindowResize));
+            e->dispatch<WindowFrameResizeType, WindowEvent>(EVENT_RESPONDER(onFrameResize));
+            e->dispatch<WindowCloseType, WindowEvent>(EVENT_RESPONDER(onWindowClosed));
             if (!e->consumed) {
                 EventResponderI::onEvent(e);
             } else {
@@ -35,11 +37,19 @@ namespace SPW {
         bool onWindowResize(WindowEvent *e) {
             return onWindowResize(e->width, e->height);
         }
+        bool onFrameResize(WindowEvent *e) {
+            return onFrameResize(e->width, e->height);
+        }
+        bool onWindowClosed(WindowEvent *e) {
+            return onWindowClosed();
+        }
     public:
         explicit WindowEventResponder(std::shared_ptr<EventResponderI> parent) :
             EventResponderI(parent){}
 
-        virtual bool onWindowResize(int w, int h) = 0;
+        virtual bool onWindowResize(int w, int h) {return false;}
+        virtual bool onFrameResize(int w, int h) {return false;}
+        virtual bool onWindowClosed() {return false;}
     };
 }
 

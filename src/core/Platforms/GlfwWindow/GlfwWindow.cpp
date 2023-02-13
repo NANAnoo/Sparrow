@@ -6,6 +6,7 @@
 
 #include <unordered_map>
 #include <iostream>
+#include "Event/WindowEvent.h"
 
 namespace SPW {
     // pass callback from glfw window to GLWindow
@@ -22,6 +23,8 @@ namespace SPW {
             if (int success = glfwInit(); GLFW_TRUE != success) {
                 std::cout << "GLFW init failed !" << std::endl;
             }
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwSetErrorCallback(glfw_error_callback);
         }
         window = glfwCreateWindow(meta.width, meta.height, meta.title, nullptr, nullptr);
@@ -33,12 +36,33 @@ namespace SPW {
                 glfwMakeContextCurrent(window);
                 gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
             }
-
         } else {
             std::cout << "Window create failed !" << std::endl;
         }
         // set up event callbacks
+        glfwSetWindowCloseCallback(window, [](GLFWwindow *win) {
+            auto realWindow = all_windows[win];
+            realWindow->data.handler(std::make_shared<WindowEvent>(
+                    WindowCloseType,
+                    realWindow->width(),
+                    realWindow->height()));
+        });
 
+        glfwSetWindowSizeCallback(window, [](GLFWwindow *win, int w, int h) {
+            auto realWindow = all_windows[win];
+            realWindow->data.width = w;
+            realWindow->data.height = h;
+            realWindow->data.handler(std::make_shared<WindowEvent>(
+                    WindowResizeType,
+                    realWindow->width(),
+                    realWindow->height()));
+        });
+
+        glfwSetFramebufferSizeCallback(window, [](GLFWwindow *win, int w, int h) {
+            auto realWindow = all_windows[win];
+            realWindow->data.handler(std::make_shared<WindowEvent>(
+                    WindowFrameResizeType, w, h));
+        });
     }
 
     void GlfwWindow::stop() {
@@ -56,11 +80,6 @@ namespace SPW {
     }
 
     GlfwWindow::~GlfwWindow() {
-//        for (auto &pair : all_windows) {
-//            if (pair.second == this) {
-//                all_windows.erase(pair.first);
-//            }
-//        }
         stop();
     }
 }

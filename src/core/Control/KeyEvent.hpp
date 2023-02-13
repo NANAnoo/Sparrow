@@ -5,7 +5,7 @@
 #ifndef SPARROW_KEYEVENT_HPP
 #define SPARROW_KEYEVENT_HPP
 
-#include "Event/Event.hpp"
+#include "Event/Event.h"
 
 namespace SPW {
     class KeyEvent : public EventI {

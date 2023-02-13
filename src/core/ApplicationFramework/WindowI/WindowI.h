@@ -5,7 +5,7 @@
 #ifndef SPARROW_WINDOWI_H
 #define SPARROW_WINDOWI_H
 
-#include "Event/Event.hpp"
+#include "Event/Event.h"
 
 namespace SPW {
     struct WindowMeta {
