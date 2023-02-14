@@ -27,17 +27,17 @@ int SPW::Application::run(int argc, char **argv) {
         // one life cycle
         // before update
         POST_MSG(SPW::kMsgBeforeAppUpdate)
-        delegate.lock()->beforeAppUpdate(weakThis.lock());
+        delegate.lock()->beforeAppUpdate();
 
         // on update
-        delegate.lock()->onAppUpdate(weakThis.lock(), du);
+        delegate.lock()->onAppUpdate(du);
         window->onUpdate();
 
         // after update
         POST_MSG(SPW::kMsgAfterAppUpdate)
-        delegate.lock()->afterAppUpdate(weakThis.lock());
+        delegate.lock()->afterAppUpdate();
         // pull events
-        delegate.lock()->onUnConsumedEvents(weakThis.lock(), unhandledEvents);
+        delegate.lock()->onUnConsumedEvents(unhandledEvents);
         unhandledEvents.clear();
     }
     return 0;
@@ -46,7 +46,7 @@ int SPW::Application::run(int argc, char **argv) {
 void SPW::Application::stop() {
     if (!isRunning) return;
     isRunning = false;
-    delegate.lock()->onAppStopped(weakThis.lock());
+    delegate.lock()->onAppStopped();
     POST_MSG(SPW::kMsgApplicationStopped)
 }
 
@@ -58,7 +58,7 @@ void SPW::Application::init() {
             unhandledEvents.emplace_back(e);
         }
     };
-    delegate.lock()->onAppInit(weakThis.lock());
+    delegate.lock()->onAppInit();
     window->init(WindowMeta({window->title(), window->width(), window->height(), handler}));
     POST_MSG(SPW::kMsgApplicationInited)
 }

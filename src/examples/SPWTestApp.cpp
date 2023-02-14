@@ -90,11 +90,10 @@ public:
     explicit TestDelegate(std::shared_ptr<SPW::EventResponderI> &app, const char *name) :
             SPW::AppDelegateI(app), _name(name) {
     }
-    void onAppInit(std::shared_ptr<SPW::Application> app) final {
+    void onAppInit() final {
         app->window = std::make_shared<SPW::GlfwWindow>();
         app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
-        auto ptr = std::shared_ptr<SPW::EventResponderI>(app->weakThis);
         transformer = std::make_shared<Transformer>(app->delegate.lock());
         transformer->width = app->window->width();
         transformer->height = app->window->height();
@@ -111,7 +110,7 @@ public:
         auto G = std::make_shared<WOC>(E, "G");
         app->postEvent(std::make_shared<SPW::KeyEvent>(SPW::KeyDownType));
     }
-    void beforeAppUpdate(std::shared_ptr<SPW::Application> app) final{
+    void beforeAppUpdate() final{
         bool should_update = false;
         if (transformer->width < 500) {
             transformer->width = 500;
@@ -124,19 +123,19 @@ public:
         if (should_update)
             app->window->setSize(transformer->width, transformer->height);
     }
-    void onAppUpdate(std::shared_ptr<SPW::Application> app, const SPW::TimeDuration &du) final{
+    void onAppUpdate(const SPW::TimeDuration &du) final{
         render->render();
     }
 
-    void afterAppUpdate(std::shared_ptr<SPW::Application> app) final{
+    void afterAppUpdate() final{
 
     }
-    void onUnConsumedEvents(std::shared_ptr<SPW::Application> app, std::vector<std::shared_ptr<SPW::EventI>> &events) final{
+    void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
         for (auto &e : events) {
             DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
         }
     }
-    void onAppStopped(std::shared_ptr<SPW::Application> app) final{
+    void onAppStopped() final{
         std::cout << "app stopped" << std::endl;
     }
 
@@ -160,9 +159,7 @@ public:
 int main(int argc, char **argv) {
     // app test
     auto appProxy =
-        SPW::Application::create<TestDelegate>(
-            "SPWTestApp"
-            );
+        SPW::Application::create<TestDelegate>("SPWTestApp");
     return appProxy->app->run(argc, argv);
 }
 

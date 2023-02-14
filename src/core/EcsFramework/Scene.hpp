@@ -3,6 +3,16 @@
 //
 #pragma once
 
-#include "Control/KeyEvent.hpp"
-#include "Control/MouseEvent.hpp"
+#include "Event/Event.h"
+
+namespace SPW {
+    // contains all entities, .eg Game world ...
+    class Scene : public EventResponderI {
+    public:
+        explicit Scene(std::shared_ptr<EventResponderI> &parent)
+            : EventResponderI(parent) {
+        }
+    private:
+    };
+}
 

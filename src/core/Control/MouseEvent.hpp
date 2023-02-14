@@ -23,9 +23,7 @@ namespace SPW {
                 EventResponderI(parent) {
         }
         void solveEvent(const std::shared_ptr<EventI> &e) final {
-            e->dispatch<MouthDownType, MouthEvent>([this](MouthEvent *e){
-                return onMouthDown(e);
-            });
+            e->dispatch<MouthDownType, MouthEvent>(EVENT_RESPONDER(onMouthDown));
         }
         EventCategory listeningCategory() final {
             return MouthCategory;

@@ -24,9 +24,7 @@ namespace SPW {
         }
         void solveEvent(const std::shared_ptr<EventI> &e) final {
             // TODO dispatch event to different type
-            e->dispatch<KeyDownType, KeyEvent>([this](KeyEvent *e){
-                return onKeyDown(e);
-            });
+            e->dispatch<KeyDownType, KeyEvent>(EVENT_RESPONDER(onKeyDown));
         }
         EventCategory listeningCategory() final {
             return KeyCategory;
