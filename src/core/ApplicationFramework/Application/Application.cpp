@@ -2,19 +2,10 @@
 
 #include "Utils/MessageDefines.h"
 #include "Utils/Timer.hpp"
-#include "ApplicationFramework/WindowI/WindowEvent.h"
 
-SPW::Application::Application(const std::shared_ptr<AppDelegateI>& delegate)
+SPW::Application::Application()
         :EventResponderI() {
-
-    this->delegate = delegate;
     POST_MSG(SPW::kMsgApplicationCreated)
-}
-
-SPW::Application::~Application() {
-    stop();
-    // notify delegate
-    delegate.lock()->onAppDestroy();
 }
 
 int SPW::Application::run(int argc, char **argv) {
@@ -50,18 +41,6 @@ int SPW::Application::run(int argc, char **argv) {
         unhandledEvents.clear();
     }
     return 0;
-}
-
-void SPW::Application::onEvent(const std::shared_ptr<EventI> &e) {
-    e->dispatch<WindowCloseType, WindowEvent>([this](WindowEvent *e){
-        this->stop();
-        return true;
-    });
-    if (!e->consumed) {
-        EventResponderI::onEvent(e);
-    } else {
-        DEBUG_EXPRESSION(e->processChain.emplace_back(getName());)
-    }
 }
 
 void SPW::Application::stop() {

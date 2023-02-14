@@ -22,16 +22,11 @@ namespace SPW {
         EventCategory listeningCategory() final {
             return WindowCategory;
         }
-        void onEvent(const std::shared_ptr<EventI> &e) final {
+        void solveEvent(const std::shared_ptr<EventI> &e) final {
             // TODO dispatch event to different type
             e->dispatch<WindowResizeType, WindowEvent>(EVENT_RESPONDER(onWindowResize));
             e->dispatch<WindowFrameResizeType, WindowEvent>(EVENT_RESPONDER(onFrameResize));
             e->dispatch<WindowCloseType, WindowEvent>(EVENT_RESPONDER(onWindowClosed));
-            if (!e->consumed) {
-                EventResponderI::onEvent(e);
-            } else {
-                DEBUG_EXPRESSION(e->processChain.emplace_back(getName()))
-            }
         }
         // dispatch event to different interface
         bool onWindowResize(WindowEvent *e) {

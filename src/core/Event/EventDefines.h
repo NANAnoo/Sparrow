@@ -12,12 +12,15 @@ namespace SPW {
         MouthCategory = 1 << 1,
         KeyCategory = 1 << 2,
         WindowCategory = 1 << 3,
+        AllCategory = MouthCategory | KeyCategory | WindowCategory,
     };
     enum EventType {
         UnknownType = 0,
         WindowResizeType,
         WindowCloseType,
-        WindowFrameResizeType
+        WindowFrameResizeType,
+        KeyDownType,
+        MouthDownType
     };
 
     constexpr const char *toString(EventType type) {
@@ -26,6 +29,8 @@ namespace SPW {
             case WindowResizeType: return "WindowResizeEvent";
             case WindowCloseType: return "WindowCloseEvent";
             case WindowFrameResizeType: return "WindowFrameResizeEvent";
+            case KeyDownType: return "KeyDownEvent";
+            case MouthDownType: return "MouthDownType";
         }
     }
 }

@@ -4,6 +4,8 @@
 #include "Utils/MessageDefines.h"
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
+#include "Control/KeyEvent.hpp"
+#include "Control/MouseEvent.hpp"
 
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
@@ -26,12 +28,40 @@ public:
     GLuint VBO = 0;
 };
 
+class WOC :
+        public SPW::WindowEventResponder,
+        public SPW::KeyEventResponder,
+        public SPW::MouthEventResponder {
+public:
+    explicit WOC(const std::shared_ptr<SPW::EventResponderI> &parent, const char *name):
+            SPW::WindowEventResponder(parent),
+            SPW::KeyEventResponder(parent),
+            SPW::MouthEventResponder(parent),
+            _name(name){
+        }
+    explicit WOC(const std::shared_ptr<WOC> &parent, const char *name):
+            SPW::WindowEventResponder(std::shared_ptr<SPW::WindowEventResponder>(parent)),
+            SPW::KeyEventResponder(std::shared_ptr<SPW::KeyEventResponder>(parent)),
+            SPW::MouthEventResponder(std::shared_ptr<SPW::MouthEventResponder>(parent)),
+            _name(name){
+    }
+    bool onKeyDown(SPW::KeyEvent *e) override {
+        if (_name[0] == 'C') {
+            std::cout << "onKeyDown" << std::endl;
+            return true;
+        }
+        return false;
+    }
+    const char *_name;
+    const char *getName() final {return _name;}
+};
+
 // test usage
 class Transformer :
-        public SPW::WindowEventResponder{
+        public SPW::WindowEventResponder {
 public:
-    explicit Transformer (std::shared_ptr<SPW::EventResponderI> &parent)
-            : SPW::WindowEventResponder(parent){
+    explicit Transformer (const std::shared_ptr<SPW::EventResponderI> &parent)
+            : SPW::WindowEventResponder(parent) {
     }
 
     bool onWindowResize(int w, int h) override {
@@ -56,6 +86,10 @@ public:
 };
 
 class TestDelegate : public SPW::AppDelegateI {
+public:
+    explicit TestDelegate(std::shared_ptr<SPW::EventResponderI> &app, const char *name) :
+            SPW::AppDelegateI(app), _name(name) {
+    }
     void onAppInit(std::shared_ptr<SPW::Application> app) final {
         app->window = std::make_shared<SPW::GlfwWindow>();
         app->window->setSize(800, 600);
@@ -67,6 +101,15 @@ class TestDelegate : public SPW::AppDelegateI {
         SPW::OBSERVE_MSG_ONCE(SPW::kMsgApplicationInited, [this](SPW::Message msg) {
             this->render = std::make_shared<SimpleRender>();
         })
+
+        auto A = std::make_shared<WOC>(app, "A");
+        auto B = std::make_shared<WOC>(A, "B");
+        auto C = std::make_shared<WOC>(B, "C");
+        auto D = std::make_shared<WOC>(B, "D");
+        auto E = std::make_shared<WOC>(A, "E");
+        auto F = std::make_shared<WOC>(E, "F");
+        auto G = std::make_shared<WOC>(E, "G");
+        app->postEvent(std::make_shared<SPW::KeyEvent>(SPW::KeyDownType));
     }
     void beforeAppUpdate(std::shared_ptr<SPW::Application> app) final{
         bool should_update = false;
@@ -96,10 +139,19 @@ class TestDelegate : public SPW::AppDelegateI {
     void onAppStopped(std::shared_ptr<SPW::Application> app) final{
         std::cout << "app stopped" << std::endl;
     }
-    void onAppDestroy() final{
-        std::cout << "app destroyed" << std::endl;
+
+    void solveEvent(const std::shared_ptr<SPW::EventI> &e) final {
+        e->dispatch<SPW::WindowCloseType, SPW::WindowEvent>(
+                [this](SPW::WindowEvent *e){
+                    // close application
+                    app->stop();
+                    return true;
+                });
+        SPW::EventResponderI::solveEvent(e);
     }
 
+    const char *getName() final {return _name;}
+    const char *_name;
     std::shared_ptr<Transformer> transformer;
     std::shared_ptr<SimpleRender> render;
 };
@@ -107,9 +159,11 @@ class TestDelegate : public SPW::AppDelegateI {
 // main entrance
 int main(int argc, char **argv) {
     // app test
-    auto delegate = std::shared_ptr<SPW::AppDelegateI>(new TestDelegate());
-    auto app = SPW::Application::create(delegate);
-    return app->run(argc, argv);
+    auto appProxy =
+        SPW::Application::create<TestDelegate>(
+            "SPWTestApp"
+            );
+    return appProxy->app->run(argc, argv);
 }
 
 

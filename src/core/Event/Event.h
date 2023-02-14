@@ -19,11 +19,16 @@
 #include <functional>
 
 namespace SPW {
-
+    class Application;
+    class EventResponderI;
 #define EVENT_RESPONDER(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
     class EventI {
     public:
+        EventI() = default;
+        EventI(const EventI& other) {
+            consumed = other.consumed;
+        }
         using EventHanlder = std::function<void(const std::shared_ptr<EventI> &e)>;
         virtual EventType type() {return UnknownType;}
         virtual EventCategory category() {return UnknownCategory;}
@@ -33,9 +38,6 @@ namespace SPW {
         const char *name() {
             return toString(this->type());
         }
-
-        DEBUG_PROPERTY(std::vector<std::string> processChain = {})
-        bool consumed = false;
 
         template<typename T>
         using EventFunc = std::function<bool(T *)>;
@@ -49,6 +51,11 @@ namespace SPW {
             }
         }
         friend std::ostream &operator<<(std::ostream &os, EventI *e);
+    private:
+        bool consumed = false;
+        DEBUG_PROPERTY(std::vector<std::vector<std::string>> processChain = {})
+        friend EventResponderI;
+        friend Application;
     };
 
     class EventResponderI {
@@ -67,24 +74,41 @@ namespace SPW {
             }
         }
         virtual const char* getName() {return "Unknown";}
-        virtual void onEvent(const std::shared_ptr<EventI> &e) {
-            // use for debugging
-            DEBUG_EXPRESSION(e->processChain.emplace_back(getName());)
+        virtual void solveEvent(const std::shared_ptr<EventI> &e) {}
 
-            for (auto &sub : subResponders) {
-                // pass through event
-                if (!e->consumed && e->isIn(sub->listeningCategory())) {
-                    sub->onEvent(e);
-                    DEBUG_EXPRESSION(if (e->consumed) {std::cout << e << std::endl;})
-                }
-            }
-
-        }
-
-        virtual EventCategory listeningCategory() {return UnknownCategory;}
+        virtual EventCategory listeningCategory() {return AllCategory;}
     private:
         std::unordered_set<EventResponderI*> subResponders;
         std::weak_ptr<EventResponderI> parent;
+
+        // private logic
+        void onEvent(const std::shared_ptr<EventI> &e) {
+            // use for debugging
+            if (e->consumed) return;
+            for (auto sub : subResponders) {
+                // pass through event
+                if (!e->consumed) {
+                    sub->onEvent(e);
+                }
+            }
+            if (subResponders.empty() && e->isIn(listeningCategory())) {
+                // dispatch event from leaf
+                DEBUG_EXPRESSION(e->processChain.emplace_back();)
+                dispatchEvent(e);
+            }
+        }
+        void dispatchEvent(const std::shared_ptr<EventI> &e) {
+            DEBUG_EXPRESSION(e->processChain.back().emplace_back(getName());)
+            solveEvent(e);
+            if (!e->consumed && !parent.expired()) {
+                // using parent to dispatch event
+                parent.lock()->dispatchEvent(e);
+            } else {
+                DEBUG_EXPRESSION(if (e->consumed)std::cout << e << std::endl;)
+
+            }
+        }
+    friend Application;
     };
 }
 
