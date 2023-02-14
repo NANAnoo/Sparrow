@@ -15,4 +15,3 @@ cmake --build ./ --target SPWTestApp -j 16
 | Library | Version |
 |---------|---------|
 | OpenGL  | >=4.5   |
-| Lua     | >=5.3   |
