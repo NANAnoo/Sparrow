@@ -2,19 +2,10 @@
 
 #include "Utils/MessageDefines.h"
 #include "Utils/Timer.hpp"
-#include "ApplicationFramework/WindowI/WindowEvent.h"
 
-SPW::Application::Application(const std::shared_ptr<AppDelegateI>& delegate)
+SPW::Application::Application()
         :EventResponderI() {
-
-    this->delegate = delegate;
     POST_MSG(SPW::kMsgApplicationCreated)
-}
-
-SPW::Application::~Application() {
-    stop();
-    // notify delegate
-    delegate.lock()->onAppDestroy();
 }
 
 int SPW::Application::run(int argc, char **argv) {
@@ -36,38 +27,26 @@ int SPW::Application::run(int argc, char **argv) {
         // one life cycle
         // before update
         POST_MSG(SPW::kMsgBeforeAppUpdate)
-        delegate.lock()->beforeAppUpdate(weakThis.lock());
+        delegate.lock()->beforeAppUpdate();
 
         // on update
-        delegate.lock()->onAppUpdate(weakThis.lock(), du);
+        delegate.lock()->onAppUpdate(du);
         window->onUpdate();
 
         // after update
         POST_MSG(SPW::kMsgAfterAppUpdate)
-        delegate.lock()->afterAppUpdate(weakThis.lock());
+        delegate.lock()->afterAppUpdate();
         // pull events
-        delegate.lock()->onUnConsumedEvents(weakThis.lock(), unhandledEvents);
+        delegate.lock()->onUnConsumedEvents(unhandledEvents);
         unhandledEvents.clear();
     }
     return 0;
 }
 
-void SPW::Application::onEvent(const std::shared_ptr<EventI> &e) {
-    e->dispatch<WindowCloseType, WindowEvent>([this](WindowEvent *e){
-        this->stop();
-        return true;
-    });
-    if (!e->consumed) {
-        EventResponderI::onEvent(e);
-    } else {
-        DEBUG_EXPRESSION(e->processChain.emplace_back(getName());)
-    }
-}
-
 void SPW::Application::stop() {
     if (!isRunning) return;
     isRunning = false;
-    delegate.lock()->onAppStopped(weakThis.lock());
+    delegate.lock()->onAppStopped();
     POST_MSG(SPW::kMsgApplicationStopped)
 }
 
@@ -79,7 +58,7 @@ void SPW::Application::init() {
             unhandledEvents.emplace_back(e);
         }
     };
-    delegate.lock()->onAppInit(weakThis.lock());
+    delegate.lock()->onAppInit();
     window->init(WindowMeta({window->title(), window->width(), window->height(), handler}));
     POST_MSG(SPW::kMsgApplicationInited)
 }

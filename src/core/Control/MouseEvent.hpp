@@ -10,6 +10,7 @@
 namespace SPW {
     class MouthEvent : public EventI {
     public:
+        explicit MouthEvent(EventType type):_type(type){}
         EventCategory category() final {return EventCategory::MouthCategory;}
         EventType type() final {return _type;}
     private:
@@ -21,18 +22,13 @@ namespace SPW {
         explicit MouthEventResponder(std::shared_ptr<EventResponderI> parent) :
                 EventResponderI(parent) {
         }
-        void onEvent(EventI *e) final {
-            e->consumed = onMouthDown((MouthEvent *)e);
-            if (!e->consumed) {
-                EventResponderI::onEvent(e);
-            } else {
-                DEBUG_EXPRESSION(e->processChain.emplace_back(getName()))
-            }
+        void solveEvent(const std::shared_ptr<EventI> &e) final {
+            e->dispatch<MouthDownType, MouthEvent>(EVENT_RESPONDER(onMouthDown));
         }
         EventCategory listeningCategory() final {
             return MouthCategory;
         }
-        virtual bool onMouthDown(MouthEvent *e) = 0;
+        virtual bool onMouthDown(MouthEvent *e) {return false;};
     };
 }
 
