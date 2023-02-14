@@ -1,0 +1,10 @@
+^D:\PROJECT\SHAOWENSPPROW\SPARROW\BUILD\CMAKEFILES\EE30DEE1F1E2ACA0EAC235C9B1AD25F0\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Project/shaowenSpprow/Sparrow -BD:/Project/shaowenSpprow/Sparrow/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Project/shaowenSpprow/Sparrow/build/Sparrow.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

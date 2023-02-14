@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "src/core/ApplicationFramework/WindowI",
+		"source" : "src/core/ApplicationFramework/WindowI"
+	}
+}

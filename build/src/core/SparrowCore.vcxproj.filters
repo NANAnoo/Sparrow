@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\Project\shaowenSpprow\Sparrow\src\core\Event\Event.cpp">
+      <Filter>core\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Project\shaowenSpprow\Sparrow\src\core\ApplicationFramework\Application\Application.cpp">
+      <Filter>core\ApplicationFramework\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Project\shaowenSpprow\Sparrow\src\core\Platforms\GlfwWindow\GlfwWindow.cpp">
+      <Filter>core\Platforms\GlfwWindow</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\SparrowCore.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Utils\MacroUtils.h">
+      <Filter>core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Utils\MessageCenter.hpp">
+      <Filter>core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Utils\SingletonBase.h">
+      <Filter>core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Utils\MessageDefines.h">
+      <Filter>core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Utils\Timer.hpp">
+      <Filter>core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Event\Event.h">
+      <Filter>core\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Event\EventDefines.h">
+      <Filter>core\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Control\MouseEvent.hpp">
+      <Filter>core\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Control\KeyEvent.hpp">
+      <Filter>core\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\ApplicationFramework\Application\Application.h">
+      <Filter>core\ApplicationFramework\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\ApplicationFramework\WindowI\WindowI.h">
+      <Filter>core\ApplicationFramework\WindowI</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\ApplicationFramework\WindowI\WindowEvent.h">
+      <Filter>core\ApplicationFramework\WindowI</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\ApplicationFramework\AppDelegate.h">
+      <Filter>core\ApplicationFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\EcsFramework\Scene.hpp">
+      <Filter>core\EcsFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Platforms\GlfwWindow\GlfwWindow.h">
+      <Filter>core\Platforms\GlfwWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Project\shaowenSpprow\Sparrow\src\core\Platforms\Platform.h">
+      <Filter>core\Platforms</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Project\shaowenSpprow\Sparrow\src\core\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="core">
+      <UniqueIdentifier>{49594D68-D0A8-3672-8A65-75AF2A517160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\ApplicationFramework">
+      <UniqueIdentifier>{59CB38CA-F607-318B-B578-E30348CABD72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\ApplicationFramework\Application">
+      <UniqueIdentifier>{3CCACB66-682E-3A2E-98E3-297F8E2F794B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\ApplicationFramework\WindowI">
+      <UniqueIdentifier>{DBD691EB-1EF8-3D19-806A-23027F17B8E1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\Control">
+      <UniqueIdentifier>{30CFB674-F784-3610-9D3E-FDCD06FBF9E2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\EcsFramework">
+      <UniqueIdentifier>{97DAAEE8-8DC4-3356-BD6D-C6709C03956A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\Event">
+      <UniqueIdentifier>{2797EB27-A805-3E83-9190-3E3DE5EE4F52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\Platforms">
+      <UniqueIdentifier>{9309D20F-C24B-3EFE-893F-90B737BBEB65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\Platforms\GlfwWindow">
+      <UniqueIdentifier>{8413A7F2-F7D0-3657-8C25-570A8B4F5BE1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\Utils">
+      <UniqueIdentifier>{639E03FE-19E7-394E-ABEF-49E0BBCCD015}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
