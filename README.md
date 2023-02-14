@@ -1,6 +1,8 @@
 # Sparrow
 COMP5530 Group Project
 
+
+
 ## How to build
 
 ```bash
@@ -8,3 +10,9 @@ mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Debug # or Release
 cmake --build ./ --target SPWTestApp -j 16
 ```
+### environment required
+
+| Library | Version |
+|---------|---------|
+| OpenGL  | >=4.5   |
+| Lua     | >=5.3   |

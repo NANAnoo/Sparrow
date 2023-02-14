@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Event/Event.h"
+#include "entt.hpp"
 
 namespace SPW {
     // contains all entities, .eg Game world ...
@@ -11,8 +12,10 @@ namespace SPW {
     public:
         explicit Scene(std::shared_ptr<EventResponderI> &parent)
             : EventResponderI(parent) {
+
         }
     private:
+        entt::registry registry;
     };
 }
 

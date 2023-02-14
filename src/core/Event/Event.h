@@ -82,13 +82,10 @@ namespace SPW {
 
         // private logic
         void onEvent(const std::shared_ptr<EventI> &e) {
-            // use for debugging
             if (e->consumed) return;
+            // pass event to children nodes
             for (auto sub : subResponders) {
-                // pass through event
-                if (!e->consumed) {
-                    sub->onEvent(e);
-                }
+                sub->onEvent(e);
             }
             if (subResponders.empty() && e->isIn(listeningCategory())) {
                 // dispatch event from leaf
@@ -97,14 +94,16 @@ namespace SPW {
             }
         }
         void dispatchEvent(const std::shared_ptr<EventI> &e) {
+            // track event processing chain in debug mode
             DEBUG_EXPRESSION(e->processChain.back().emplace_back(getName());)
+            // try to consume event
             solveEvent(e);
+            // event not consumed at current node, dispatch to parent node
             if (!e->consumed && !parent.expired()) {
-                // using parent to dispatch event
                 parent.lock()->dispatchEvent(e);
             } else {
+                // track event processing chain in debug mode
                 DEBUG_EXPRESSION(if (e->consumed)std::cout << e << std::endl;)
-
             }
         }
     friend Application;

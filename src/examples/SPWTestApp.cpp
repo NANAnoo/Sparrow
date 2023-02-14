@@ -1,4 +1,7 @@
 #include <iostream>
+
+#include <sol/sol.hpp>
+
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include "Utils/MessageDefines.h"
@@ -136,6 +139,19 @@ public:
         }
     }
     void onAppStopped() final{
+        sol::state state;
+        state.open_libraries(sol::lib::base);
+        try {
+            if(state.script_file("./resources/scripts/lua/test.lua").valid()) {
+                sol::protected_function main_function=state["main"];
+                sol::protected_function_result result=main_function();
+                if (!result.valid()) {
+                    std::cout << "execution error" << std::endl;
+                }
+            }
+        } catch (sol::error &e) {
+            std::cout << e.what() << std::endl;
+        }
         std::cout << "app stopped" << std::endl;
     }
 
@@ -162,7 +178,6 @@ int main(int argc, char **argv) {
         SPW::Application::create<TestDelegate>("SPWTestApp");
     return appProxy->app->run(argc, argv);
 }
-
 
 SimpleRender::SimpleRender() {
     // Compile shaders

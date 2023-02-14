@@ -6,10 +6,20 @@ endif()
 # find OpenGL 
 find_package(OpenGL 4.5 REQUIRED)
 
+find_package(Lua 5.3 REQUIRED)
+
+message("lua " ${LUA_LIBRARIES})
+
 if (OPENGL_FOUND)
     message("Found OpenGL")
 else()
     message("Not Found OpenGL")
+endif()
+
+if(LUA_FOUND)
+    message("Found Lua")
+else()
+    message("Not Found Lua")
 endif()
 
 file(COPY ${SparrowResourcesDir}
