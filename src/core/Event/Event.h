@@ -41,7 +41,6 @@ namespace SPW {
 
         template<typename T>
         using EventFunc = std::function<bool(T *)>;
-
         // dispatcher
         template<EventType type, typename T>
         void dispatch(EventFunc<T> func) {
@@ -50,12 +49,12 @@ namespace SPW {
                 this->consumed = func(te);
             }
         }
-        friend std::ostream &operator<<(std::ostream &os, EventI *e);
     private:
         bool consumed = false;
         DEBUG_PROPERTY(std::vector<std::vector<std::string>> processChain = {})
         friend EventResponderI;
         friend Application;
+        friend std::ostream &operator<<(std::ostream &os, EventI *e);
     };
 
     class EventResponderI {

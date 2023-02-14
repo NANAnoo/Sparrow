@@ -95,14 +95,14 @@ public:
         app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
         auto ptr = std::shared_ptr<SPW::EventResponderI>(app->weakThis);
-        transformer = std::make_shared<Transformer>(ptr);
+        transformer = std::make_shared<Transformer>(app->delegate.lock());
         transformer->width = app->window->width();
         transformer->height = app->window->height();
         SPW::OBSERVE_MSG_ONCE(SPW::kMsgApplicationInited, [this](SPW::Message msg) {
             this->render = std::make_shared<SimpleRender>();
         })
 
-        auto A = std::make_shared<WOC>(app, "A");
+        auto A = std::make_shared<WOC>(app->delegate.lock(), "A");
         auto B = std::make_shared<WOC>(A, "B");
         auto C = std::make_shared<WOC>(B, "C");
         auto D = std::make_shared<WOC>(B, "D");
