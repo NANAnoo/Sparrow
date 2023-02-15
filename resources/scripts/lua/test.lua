@@ -4,5 +4,5 @@
 --- DateTime: 2023/2/14 21:41
 ---
 function main()
-    print("hello lua")
+    print("hello how")
 end
