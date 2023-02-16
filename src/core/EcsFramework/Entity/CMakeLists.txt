@@ -1,1 +1,1 @@
-CORE_ADD_SOURCE(Entity.cpp Entity.h)
+CORE_ADD_SOURCE(Entity.hpp)

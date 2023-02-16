@@ -19,7 +19,7 @@ namespace SPW {
         explicit NameComponent(const std::string &aName) {
             name = aName;
         }
-        const std::string &getName() {
+        [[nodiscard]] const std::string &getName() const {
             return name;
         }
         void updateName(const std::string &aName) {

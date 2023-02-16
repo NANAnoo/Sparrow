@@ -23,6 +23,10 @@ namespace SPW {
             id = other.id;
         }
 
+        [[nodiscard]] std::string toString() const {
+            return to_string(id);
+        }
+
         // NULL id
         static UUID noneID() {
             UUID id;

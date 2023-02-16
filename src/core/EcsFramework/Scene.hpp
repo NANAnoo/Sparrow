@@ -6,38 +6,47 @@
 #include "Event/Event.h"
 #include "entt.hpp"
 #include "Utils/Timer.hpp"
-#include "Entity/Entity.h"
+
+#include "EcsFramework/Entity/Entity.hpp"
 #include "System/SystemI.h"
+#include "Component/ComponentI.h"
+#include "Component/BasicComponent/IDComponent.h"
+#include "Component/BasicComponent/NameComponent.h"
+#include "Utils/UUID.hpp"
+
+#include "Utils/MacroUtils.h"
 
 #include <vector>
 
 namespace SPW {
+#define forEach(func, C...) _forEach<C>(static_cast<SPW::Scene::ForeachFunc<C>>(func))
     // contains all entities, .eg Game world ...
     class Scene : public EventResponderI {
     public:
-        explicit Scene(std::shared_ptr<EventResponderI> &parent)
+        explicit Scene(const std::shared_ptr<EventResponderI> &parent)
             : EventResponderI(parent) {
-
+            registry = std::make_shared<entt::registry>();
         }
         // create scene with this line
-        static std::shared_ptr<Scene> create(std::shared_ptr<EventResponderI> &parent) {
+        static std::shared_ptr<Scene> create(const std::shared_ptr<EventResponderI> &parent) {
             auto scene = std::make_shared<Scene>(parent);
+            // TODO
+            //scene->systems.emplace_back(system);
+            //scene->systems.emplace_back(system);
             return scene;
         }
 
         // create new entity in scene
-        static std::shared_ptr<Entity> createEntity(const std::shared_ptr<Scene> &scene,
-                                              const std::string &name,
-                                              const UUID &uid) {
-            auto ent = std::make_shared<Entity>(scene);
-            ent->emplace<IDComponent>(uid);
-            ent->emplace<NameComponent>(name);
+        std::shared_ptr<Entity> createEntity(const std::string &name,
+                                              const UUID &uid)  {
+            auto ent = std::make_shared<SPW::Entity>(registry);
+            ent->emplace<SPW::IDComponent>(uid);
+            ent->emplace<SPW::NameComponent>(name);
             return ent;
         }
 
-        static std::shared_ptr<Entity> createEntity(const std::shared_ptr<Scene> &scene,
-                                              const std::string &name) {
-            return createEntity(scene, name, UUID::randomUUID());
+        std::shared_ptr<Entity> createEntity(const std::string &name) {
+            return createEntity(name, UUID::randomUUID());
         }
 
         // delete entity
@@ -46,11 +55,28 @@ namespace SPW {
         }
 
         // for each
+        // iterate all entities with selected component
+        //
+        // usage:
+        // aScene.forEach([](Type1 &, Type2 &){
+        //      // your code
+        // }, Type1, Type2);
         template<Component ...C>
-        static void forEach(const std::shared_ptr<Scene> &scene,
-                            const std::function<void(const Entity &e)> &func) {
-            for (auto &view : scene->getEntitiesWith<C...>(scene)) {
-                func({view, scene});
+        using ForeachFunc = std::function<void(const C& ...c)>;
+        template<Component ...C>
+        void _forEach(const ForeachFunc<C...> &func) {
+            using TupleIndex = typename X_Build_index_tuple<std::tuple_size<std::tuple<C...>>::value>::type;
+            for (auto &view : getEntitiesWith<C...>()) {
+                Entity e = {view, registry};
+                auto res = e.combined<C...>();
+                InvokeTupleFunc_Address(res, func, TupleIndex());
+            }
+        }
+
+        template<Component ...C>
+        void forEachEntity(const std::function<void(const Entity &)> &func) {
+            for (auto &view : getEntitiesWith<C...>()) {
+                func({view, registry});
             }
         }
 
@@ -80,16 +106,23 @@ namespace SPW {
             }
         };
 
+        // Event
+        const char *getName() override {
+            return "SPWDefaultScene";
+        }
+
     private:
         // get entity with components
         template<Component ...C>
-        auto getEntitiesWith(const std::shared_ptr<Scene> &scene) {
-            return registry->view<std::shared_ptr<C>...>();
+        auto getEntitiesWith() {
+            auto res = registry->view<C...>();
+            return res;
         }
 
         std::shared_ptr<entt::registry> registry;
         std::vector<std::shared_ptr<SystemI>> systems;
         friend Entity;
     };
+
 }
 

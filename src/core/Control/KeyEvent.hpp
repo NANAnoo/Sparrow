@@ -19,7 +19,7 @@ namespace SPW {
 
     class KeyEventResponder : public EventResponderI {
     public:
-        explicit KeyEventResponder(std::shared_ptr<EventResponderI> parent) :
+        explicit KeyEventResponder(const std::shared_ptr<EventResponderI> &parent) :
                 EventResponderI(parent) {
         }
         void solveEvent(const std::shared_ptr<EventI> &e) final {

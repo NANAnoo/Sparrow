@@ -14,7 +14,8 @@ namespace SPW {
     class IDComponent : public ComponentI {
     public:
         IDComponent() = delete;
-        const UUID &getID() {
+        explicit IDComponent(const UUID &other_id) : id(other_id) {}
+        [[nodiscard]] const UUID &getID() const {
             return id;
         }
     private:
