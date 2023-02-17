@@ -39,7 +39,11 @@ namespace SPW {
             return onWindowClosed();
         }
     public:
+<<<<<<< HEAD
         explicit WindowEventResponder(std::shared_ptr<EventResponderI> parent) :
+=======
+        explicit WindowEventResponder(const std::shared_ptr<EventResponderI> &parent) :
+>>>>>>> main
             EventResponderI(parent){}
 
         virtual bool onWindowResize(int w, int h) {return false;}

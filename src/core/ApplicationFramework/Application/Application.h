@@ -22,9 +22,6 @@ namespace SPW {
         // window
         std::shared_ptr<WindowI> window = nullptr;
 
-        // weak this
-        std::weak_ptr<Application> weakThis;
-
         // post event
         void postEvent(const std::shared_ptr<EventI> &e) {
             onEvent(e);
@@ -39,7 +36,6 @@ namespace SPW {
             auto app = std::make_shared<Application>();
             auto ptr = std::shared_ptr<EventResponderI>(app);
             auto delegate = std::shared_ptr<AppDelegateI>(new T(ptr, std::forward<Args>(args)...));
-            app->weakThis = app;
             app->delegate = delegate;
             delegate->app = app;
             return delegate;

@@ -8,29 +8,27 @@
 #include "Event/Event.h"
 
 namespace SPW {
-    class MouthEvent : public EventI {
+    class MouseEvent : public EventI {
     public:
-        explicit MouthEvent(EventType type):_type(type){}
-        EventCategory category() final {return EventCategory::MouthCategory;}
+        explicit MouseEvent(EventType type): _type(type){}
+        EventCategory category() final {return EventCategory::MouseCategory;}
         EventType type() final {return _type;}
     private:
         EventType _type = UnknownType;
     };
 
-    class MouthEventResponder : public EventResponderI {
+    class MouseEventResponder : public EventResponderI {
     public:
-        explicit MouthEventResponder(std::shared_ptr<EventResponderI> parent) :
+        explicit MouseEventResponder(const std::shared_ptr<EventResponderI> &parent) :
                 EventResponderI(parent) {
         }
         void solveEvent(const std::shared_ptr<EventI> &e) final {
-            e->dispatch<MouthDownType, MouthEvent>([this](MouthEvent *e){
-                return onMouthDown(e);
-            });
+            e->dispatch<MouseDownType, MouseEvent>(EVENT_RESPONDER(onMouseDown));
         }
         EventCategory listeningCategory() final {
-            return MouthCategory;
+            return MouseCategory;
         }
-        virtual bool onMouthDown(MouthEvent *e) {return false;};
+        virtual bool onMouseDown(MouseEvent *e) {return false;};
     };
 }
 
