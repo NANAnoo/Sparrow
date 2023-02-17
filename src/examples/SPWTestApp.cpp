@@ -9,6 +9,7 @@
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
 #include "Control/MouseEvent.hpp"
+
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
 
@@ -61,7 +62,6 @@ public:
         }
         return false;
     }
-
     bool onMouseDown(SPW::MouseEvent *e) override {
         if (_name[0] == 'B') {
             std::cout << "onMouseDown" << std::endl;
@@ -116,7 +116,6 @@ public:
         app->window = std::make_shared<SPW::GlfwWindow>();
         app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
-
         transformer = std::make_shared<Transformer>(app->delegate.lock());
         transformer->width = app->window->width();
         transformer->height = app->window->height();
@@ -132,8 +131,6 @@ public:
         auto F = std::make_shared<WOC>(E, "F");
         auto G = std::make_shared<WOC>(E, "G");
         app->postEvent(std::make_shared<SPW::KeyEvent>(SPW::KeyDownType));
-    }
-    void beforeAppUpdate() final{
         app->postEvent(std::make_shared<SPW::MouseEvent>(SPW::MouseDownType));
 
         // ECS test
@@ -171,7 +168,19 @@ public:
             std::cout << id.getID().toString() << std::endl;
         }, SPW::IDComponent);
     }
-
+    void beforeAppUpdate() final{
+        bool should_update = false;
+        if (transformer->width < 500) {
+            transformer->width = 500;
+            should_update = true;
+        }
+        if (transformer->height < 500) {
+            transformer->height = 400;
+            should_update = true;
+        }
+        if (should_update)
+            app->window->setSize(transformer->width, transformer->height);
+    }
     void onAppUpdate(const SPW::TimeDuration &du) final{
         // physics, computation
     }
@@ -222,10 +231,7 @@ public:
 int main(int argc, char **argv) {
     // app test
     auto appProxy =
-        SPW::Application::create<TestDelegate>(
-            "SPWTestApp"
-            );
-
+        SPW::Application::create<TestDelegate>("SPWTestApp");
     return appProxy->app->run(argc, argv);
 }
 

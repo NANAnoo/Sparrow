@@ -20,8 +20,6 @@ add_subdirectory(Control)
 add_subdirectory(ApplicationFramework)
 add_subdirectory(EcsFramework)
 add_subdirectory(Platforms)
-add_subdirectory(Model)
-add_subdirectory(Render)
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Core Sources:" ${CoreSourceFiles})
@@ -40,10 +38,7 @@ target_link_libraries(SparrowCore PUBLIC glfw
         PUBLIC Glad
         PUBLIC glm
         PUBLIC imgui
-<<<<<<< HEAD
-=======
         PUBLIC sol2
         PUBLIC lua_static
->>>>>>> main
         PUBLIC ${OPENGL_LIBRARIES}
         )
