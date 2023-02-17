@@ -163,6 +163,7 @@ int main(int argc, char **argv) {
         SPW::Application::create<TestDelegate>(
             "SPWTestApp"
             );
+
     return appProxy->app->run(argc, argv);
 }
 
@@ -214,3 +215,5 @@ void SimpleRender::render() const {
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
+
+
