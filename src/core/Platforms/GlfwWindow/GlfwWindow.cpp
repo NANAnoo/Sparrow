@@ -63,6 +63,10 @@ namespace SPW {
             realWindow->data.handler(std::make_shared<WindowEvent>(
                     WindowFrameResizeType, w, h));
         });
+
+        glfwSetKeyCallback(window, [](GLFWwindow *win, int key, int scancode, int action, int mods) {
+
+        });
     }
 
     void GlfwWindow::stop() {
