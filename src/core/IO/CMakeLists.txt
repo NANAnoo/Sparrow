@@ -10,6 +10,8 @@ CORE_ADD_SOURCE(
     Model.h
     Model.cpp
 
+    MeshFactory.h
+
     # RHI Classes
     RHI/Definitions.h
 
@@ -18,4 +20,8 @@ CORE_ADD_SOURCE(
 
     RHI/Shader.h
     RHI/Shader.cpp
+
+    # Model Loader Classes
+    ModelLoader/OBJLoader.cpp
+
     )

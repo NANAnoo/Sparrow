@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include "Mesh.h"
-#include "Material.h"
+#include "IO/Mesh.h"
+#include "IO/Material.h"
 #include "Utils/MacroUtils.h"
 
 namespace SPW

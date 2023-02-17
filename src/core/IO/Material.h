@@ -8,8 +8,8 @@
 #include "Utils/MacroUtils.h"
 #include "Maths/MathUtils.hpp"
 
-#include "Shader.h"
-#include "Texture.h"
+#include "IO/RHI/Shader.h"
+#include "IO/RHI/Texture.h"
 
 namespace SPW
 {

@@ -7,8 +7,8 @@
 #pragma once
 
 #include <glm/fwd.hpp>
-#include "Mesh.h"
-#include "Material.h"
+#include "IO/Mesh.h"
+#include "IO/Material.h"
 
 namespace SPW
 {
