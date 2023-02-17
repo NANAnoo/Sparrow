@@ -20,11 +20,8 @@ add_subdirectory(Control)
 add_subdirectory(ApplicationFramework)
 add_subdirectory(EcsFramework)
 add_subdirectory(Platforms)
-<<<<<<< HEAD
 add_subdirectory(Model)
 add_subdirectory(Render)
-=======
->>>>>>> main
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Core Sources:" ${CoreSourceFiles})

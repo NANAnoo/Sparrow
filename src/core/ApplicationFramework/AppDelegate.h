@@ -19,21 +19,12 @@ namespace SPW {
             EventResponderI(app){
         }
 // life cycle of application
-<<<<<<< HEAD
-        virtual void onAppInit(std::shared_ptr<Application> app) = 0;
-        virtual void beforeAppUpdate(std::shared_ptr<Application> app) = 0;
-        virtual void onAppUpdate(std::shared_ptr<Application> app, const TimeDuration &) = 0;
-        virtual void afterAppUpdate(std::shared_ptr<Application> app) = 0;
-        virtual void onUnConsumedEvents(std::shared_ptr<Application> app, std::vector<std::shared_ptr<EventI>> &) = 0;
-        virtual void onAppStopped(std::shared_ptr<Application> app) = 0;
-=======
         virtual void onAppInit() = 0;
         virtual void beforeAppUpdate() = 0;
         virtual void onAppUpdate(const TimeDuration &) = 0;
         virtual void afterAppUpdate() = 0;
         virtual void onUnConsumedEvents(std::vector<std::shared_ptr<EventI>> &) = 0;
         virtual void onAppStopped() = 0;
->>>>>>> main
         std::shared_ptr<Application> app;
     };
 };

@@ -18,14 +18,9 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DSPW_DEBUG)
 endif()
 
-<<<<<<< HEAD
-add_subdirectory(external)
-add_subdirectory(src)
-=======
 add_custom_target(copy_resources)
 add_custom_command(TARGET copy_resources PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${SparrowResourcesDir} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/)
 
 add_subdirectory(external)
 add_subdirectory(src)
->>>>>>> main
