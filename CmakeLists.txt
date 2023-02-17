@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 project(Sparrow LANGUAGES CXX C)
 
@@ -17,6 +17,10 @@ set(SparrowExternalDir "${ProjectRootDir}/external")
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DSPW_DEBUG)
 endif()
+
+add_custom_target(copy_resources)
+add_custom_command(TARGET copy_resources PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${SparrowResourcesDir} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/)
 
 add_subdirectory(external)
 add_subdirectory(src)

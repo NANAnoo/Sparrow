@@ -51,7 +51,7 @@ namespace SPW {
         }
     private:
         bool consumed = false;
-        DEBUG_PROPERTY(std::vector<std::vector<std::string>> processChain = {})
+        DEBUG_PROPERTY(std::vector<std::string> processChain = {})
         friend EventResponderI;
         friend Application;
         friend std::ostream &operator<<(std::ostream &os, EventI *e);
@@ -60,7 +60,7 @@ namespace SPW {
     class EventResponderI {
     public:
         EventResponderI() = default;
-        explicit EventResponderI(std::shared_ptr<EventResponderI> &p) {
+        explicit EventResponderI(const std::shared_ptr<EventResponderI> &p) {
             if (p) {
                 p->subResponders.insert(this);
                 parent = p;
@@ -72,7 +72,12 @@ namespace SPW {
                 strong_p->subResponders.erase(this);
             }
         }
-        virtual const char* getName() {return "Unknown";}
+        virtual const char* getName() {
+            return "Unknown";
+        }
+        virtual bool canRespondTo(const std::shared_ptr<EventI> &e) {
+            return true;
+        }
         virtual void solveEvent(const std::shared_ptr<EventI> &e) {}
 
         virtual EventCategory listeningCategory() {return AllCategory;}
@@ -82,30 +87,22 @@ namespace SPW {
 
         // private logic
         void onEvent(const std::shared_ptr<EventI> &e) {
-            // use for debugging
-            if (e->consumed) return;
+            if (e->consumed || !canRespondTo(e)) return;
+            // pass event to children nodes
             for (auto sub : subResponders) {
-                // pass through event
-                if (!e->consumed) {
+                if (e->isIn(sub->listeningCategory()))
                     sub->onEvent(e);
-                }
             }
-            if (subResponders.empty() && e->isIn(listeningCategory())) {
-                // dispatch event from leaf
-                DEBUG_EXPRESSION(e->processChain.emplace_back();)
+            // try to consume event
+            if (!e->consumed)
                 dispatchEvent(e);
-            }
         }
         void dispatchEvent(const std::shared_ptr<EventI> &e) {
-            DEBUG_EXPRESSION(e->processChain.back().emplace_back(getName());)
+            // track event processing chain in debug mode
+            DEBUG_EXPRESSION(e->processChain.emplace_back(getName());)
+            // try to consume event
             solveEvent(e);
-            if (!e->consumed && !parent.expired()) {
-                // using parent to dispatch event
-                parent.lock()->dispatchEvent(e);
-            } else {
-                DEBUG_EXPRESSION(if (e->consumed)std::cout << e << std::endl;)
-
-            }
+            DEBUG_EXPRESSION(if (e->consumed)std::cout << e << std::endl;)
         }
     friend Application;
     };

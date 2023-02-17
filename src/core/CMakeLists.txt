@@ -40,5 +40,7 @@ target_link_libraries(SparrowCore PUBLIC glfw
         PUBLIC Glad
         PUBLIC glm
         PUBLIC imgui
+        PUBLIC sol2
+        PUBLIC lua_static
         PUBLIC ${OPENGL_LIBRARIES}
         )
