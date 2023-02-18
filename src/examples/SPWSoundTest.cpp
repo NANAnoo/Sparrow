@@ -73,6 +73,11 @@ public:
         }
     }
     void onAppStopped() final{
+        bool isPlaying;
+        channel->isPlaying(&isPlaying);
+        if (isPlaying) {
+            channel->stop();
+        }
         sound->release();
         system->close();
         system->release();
