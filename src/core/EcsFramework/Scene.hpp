@@ -19,7 +19,7 @@
 #include <vector>
 
 namespace SPW {
-#define forEach(func, C...) _forEach<C>(static_cast<SPW::Scene::ForeachFunc<C>>(func))
+#define forEach(func, ...) _forEach<__VA_ARGS__>(static_cast<SPW::Scene::ForeachFunc<__VA_ARGS__>>(func))
     // contains all entities, .eg Game world ...
     class Scene : public EventResponderI {
     public:
