@@ -13,11 +13,11 @@ namespace SPW
     {
     public:
         static std::shared_ptr<VertexBufferI> CreateVertexBuffer();
-        virtual void GenVertexBuffer();
-        virtual void GenVertexArray();
-        virtual void VertexBufferData(std::vector<AttribVertex> vertices);
-        virtual void Bind();
-        virtual void UnBind();
+        virtual void GenVertexBuffer()=0;
+        virtual void GenVertexArray()=0;
+        virtual void VertexBufferData(std::vector<AttribVertex> vertices)=0;
+        virtual void Bind()=0;
+        virtual void UnBind()=0;
 
     };
 

@@ -10,12 +10,14 @@ void SPW::OpenGLVertexBuffer::GenVertexBuffer()
 }
 
 void SPW::OpenGLVertexBuffer::GenVertexArray() {
-    glGenBuffers(1,&VAO);
+    glGenVertexArrays(1,&VAO);
 }
 
 void SPW::OpenGLVertexBuffer::VertexBufferData(std::vector<AttribVertex> vertices)
 {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(VAO);
+    auto x = sizeof(AttribVertex);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(AttribVertex), &vertices[0], GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(AttribVertex), (void*)0);

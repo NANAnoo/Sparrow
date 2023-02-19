@@ -16,7 +16,7 @@ namespace SPW
         void Bind() final;
         void UnBind() final;
 
-        OpenGLIndexBuffer(std::vector<unsigned int>& indices):m_indices(indices)
+        OpenGLIndexBuffer(std::vector<unsigned int>& indices): IndexBuffer(indices), m_indices(indices)
         {
             glGenBuffers(1,&EBO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
