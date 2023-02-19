@@ -8,8 +8,8 @@ macro(LoadSparrow)
 
 endmacro(LoadSparrow)
 
-add_executable(SPWTestApp "SPWTestApp.cpp")
-add_executable(SPWSoundTest "SPWSoundTest.cpp")
+add_executable(SPWTestApp "SPWTestApp.cpp" Render.h)
+add_executable(SPWSoundTest "SPWSoundTest.cpp" Render.h)
 
 # add_compile_definitions("ENGINE_ROOT_DIR=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
