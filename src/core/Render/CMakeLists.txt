@@ -10,4 +10,7 @@ CORE_ADD_SOURCE(
         shader.h
         VertexBuffer.cpp
         VertexBuffer.h
+        RenderCommand.hpp
+        RenderCommandsQueue.hpp
+        RenderPass.hpp
 )
