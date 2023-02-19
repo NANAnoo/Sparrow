@@ -11,7 +11,7 @@ macro(CORE_ADD_SOURCE)
     set(CoreSourceFiles ${CoreSourceFiles} ${SOURCE_FILES} PARENT_SCOPE)
 endmacro(CORE_ADD_SOURCE)
 
-set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h")
+set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h" IO/AttriVertex.h)
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(Utils)
@@ -21,6 +21,7 @@ add_subdirectory(ApplicationFramework)
 add_subdirectory(EcsFramework)
 add_subdirectory(Platforms)
 add_subdirectory(Render)
+add_subdirectory(IO)
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Core Sources:" ${CoreSourceFiles})

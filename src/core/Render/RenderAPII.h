@@ -4,6 +4,8 @@
 
 #ifndef SPARROW_RENDERAPII_H
 #define SPARROW_RENDERAPII_H
+
+#include <memory>
 namespace SPW
 {
     class RenderAPII
@@ -18,9 +20,10 @@ namespace SPW
     public:
         virtual void Init() = 0;
         static RenderAPIType getCurrent() { return currentRenderAPI;}
+        virtual ~RenderAPII() = default;
 
     private:
-        static RenderAPIType currentRenderAPI = RenderAPIType::OpenGL;
+        static inline RenderAPIType currentRenderAPI = RenderAPIType::OpenGL;
 
     };
 
