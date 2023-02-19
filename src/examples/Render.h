@@ -9,8 +9,8 @@
 #include "Render/VertexBuffer.h"
 #include "glm/glm.hpp"
 #include "vector"
-#include "Render/RenderAPII.h"
-#include "Platforms/OPENGL/OpenGLAPI.h"
+#include "Render/RenderBackEndI.h"
+#include "Platforms/OPENGL/OpenGLBackEnd.h"
 #include "Render/IndexBuffer.h"
 #include "Platforms/OPENGL/OpenGLIndexBuffer.h"
 std::vector<SPW::AttribVertex> vertices;
@@ -50,7 +50,7 @@ public:
 
     void render() const
     {
-        SPW::RenderAPII* APII = new SPW::OpenGLAPI();
+        SPW::RenderBackEndI* APII = new SPW::OpenGLBackEnd();
         APII->SetClearColor(glm::vec4(0.7,0.7,0.7,1.0f));
         APII->Clear();
 

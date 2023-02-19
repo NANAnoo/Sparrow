@@ -23,7 +23,7 @@ namespace SPW{
         void pushCommand(const RenderCommand &command) {
             queue->pushCommand(command);
         }
-        void executeWithAPI(RenderAPII &API) {
+        void executeWithAPI(RenderBackEndI &API) {
             queue->executeWithAPI(API);
         }
     private:

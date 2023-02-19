@@ -18,7 +18,7 @@ void SPW::RenderSystem::onUpdate(SPW::TimeDuration dt) {
 
 void SPW::RenderSystem::afterUpdate() {
     // create different pass
-
+    // modelPass.pushCommand()
 }
 
 void SPW::RenderSystem::onStop() {

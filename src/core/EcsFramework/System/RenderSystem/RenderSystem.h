@@ -5,14 +5,14 @@
 #ifndef SPARROW_RENDERSYSTEM_H
 #define SPARROW_RENDERSYSTEM_H
 
-#include "Render/RenderAPII.h"
+#include "Render/RenderBackEndI.h"
 #include "Render/RenderPass.hpp"
 #include "EcsFramework/System/SystemI.h"
 
 namespace SPW {
     class RenderSystem : public SystemI{
     public:
-        void setupRenderBackEnd(const std::shared_ptr<RenderAPII> &backEnd) {
+        void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
             api = backEnd;
         };
         void initial() final;
@@ -21,7 +21,7 @@ namespace SPW {
         void afterUpdate() final;
         void onStop() final;
     private:
-        std::shared_ptr<RenderAPII> api;
+        std::shared_ptr<RenderBackEndI> api;
         RenderPass shadowPass;
         RenderPass modelPass;
         RenderCommand postProcess;

@@ -3,16 +3,16 @@
 //
 
 #include "VertexBuffer.h"
-#include "RenderAPII.h"
+#include "RenderBackEndI.h"
 #include "Platforms/OPENGL/OpenGLVertexBuffer.h"
 namespace SPW
 {
     std::shared_ptr<VertexBufferI> VertexBufferI::CreateVertexBuffer()
     {
-        switch (RenderAPII::getCurrent())
+        switch (RenderBackEndI::getCurrent())
         {
-            case RenderAPII::RenderAPIType::None: return nullptr;
-            case RenderAPII::RenderAPIType::OpenGL: return std::make_shared<OpenGLVertexBuffer>();
+            case RenderBackEndI::RenderAPIType::None: return nullptr;
+            case RenderBackEndI::RenderAPIType::OpenGL: return std::make_shared<OpenGLVertexBuffer>();
 
         }
     }

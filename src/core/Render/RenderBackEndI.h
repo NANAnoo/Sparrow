@@ -2,8 +2,8 @@
 // Created by sgsdi on 2023/2/17.
 //
 
-#ifndef SPARROW_RENDERAPII_H
-#define SPARROW_RENDERAPII_H
+#ifndef SPARROW_RENDERBACKENDI_H
+#define SPARROW_RENDERBACKENDI_H
 
 #include <memory>
 #include <glm/glm.hpp>
@@ -20,7 +20,7 @@ namespace SPW
         LESS
     };
 
-    class RenderAPII
+    class RenderBackEndI
     {
     public:
         enum class RenderAPIType
@@ -42,7 +42,7 @@ namespace SPW
     public:
         virtual void Init() = 0;
         static RenderAPIType getCurrent() { return currentRenderAPI;}
-        virtual ~RenderAPII() = default;
+        virtual ~RenderBackEndI() = default;
     private:
         static inline RenderAPIType currentRenderAPI = RenderAPIType::OpenGL;
 
@@ -50,4 +50,4 @@ namespace SPW
 
 }
 
-#endif //SPARROW_RENDERAPII_H
+#endif //SPARROW_RENDERBACKENDI_H

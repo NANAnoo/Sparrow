@@ -6,12 +6,12 @@
 #define SPARROW_RENDERCOMMANDSQUEUE_HPP
 
 #include "RenderCommand.hpp"
-#include "RenderAPII.h"
+#include "RenderBackEndI.h"
 
 namespace SPW {
     class RenderCommandsQueue{
     public:
-        void executeWithAPI(RenderAPII &api) {
+        void executeWithAPI(RenderBackEndI &api) {
             for (auto &command : commands) {
                 command.execute(api);
             }

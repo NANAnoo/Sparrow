@@ -2,13 +2,13 @@
 // Created by sgsdi on 2023/2/17.
 //
 
-#ifndef SPARROW_OPENGLAPI_H
-#define SPARROW_OPENGLAPI_H
-#include "Render/RenderAPII.h"
+#ifndef SPARROW_OPENGLBACKEND_H
+#define SPARROW_OPENGLBACKEND_H
+#include "Render/RenderBackEndI.h"
 #include <glad/glad.h>
 namespace SPW
 {
-    class OpenGLAPI:public RenderAPII
+    class OpenGLBackEnd: public RenderBackEndI
     {
         virtual void Init();
         virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
@@ -27,4 +27,4 @@ namespace SPW
 
 
 
-#endif //SPARROW_OPENGLAPI_H
+#endif //SPARROW_OPENGLBACKEND_H

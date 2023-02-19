@@ -5,7 +5,7 @@
 #ifndef SPARROW_RENDERCOMMAND_HPP
 #define SPARROW_RENDERCOMMAND_HPP
 
-#include "RenderAPII.h"
+#include "RenderBackEndI.h"
 #include <memory>
 #include <functional>
 
@@ -14,18 +14,18 @@ namespace SPW {
     public:
         RenderCommand() = delete;
 
-        // APIName from RenderAPII
+        // APIName from RenderBackEndI
         template<typename ...Args>
-        explicit RenderCommand(void(RenderAPII::*MenFn)(const Args& ...), const Args& ...args) {
-            apiCaller = [=](const RenderAPII &api){
+        explicit RenderCommand(void(RenderBackEndI::*MenFn)(const Args& ...), const Args& ...args) {
+            apiCaller = [=](const RenderBackEndI &api){
                 (api.*MenFn)(std::forward<Args>(args)...);
             };
         }
 
 
         template<typename ...Args>
-        explicit RenderCommand(void(RenderAPII::*MenFn)(Args ...), Args ...args) {
-            apiCaller = [=](RenderAPII &api){
+        explicit RenderCommand(void(RenderBackEndI::*MenFn)(Args ...), Args ...args) {
+            apiCaller = [=](RenderBackEndI &api){
                 (api.*MenFn)(args ...);
             };
         }
@@ -43,12 +43,12 @@ namespace SPW {
         }
 
         // execute with an api
-        void execute(RenderAPII &api) {
+        void execute(RenderBackEndI &api) {
             apiCaller(api);
         }
 
     private:
-        std::function<void(RenderAPII &api)> apiCaller;
+        std::function<void(RenderBackEndI &api)> apiCaller;
     };
 }
 
