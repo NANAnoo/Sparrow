@@ -5,9 +5,8 @@
 #ifndef SPARROW_ATTRIVERTEX_H
 #define SPARROW_ATTRIVERTEX_H
 #include <glm/glm.hpp>
-namespace SPW {
-
-
+namespace SPW
+{
     struct AttribVertex {
         AttribVertex()
                 : position(glm::vec3(0.0f)), colors(glm::vec4(0.0f)), texCoords(glm::vec2(0.0f)),
