@@ -42,7 +42,7 @@ namespace SPW
     };
 
     template<class TupleType, typename FuncType, size_t... index>
-    constexpr void InvokeTupleFunc(TupleType && tuple_value, const FuncType &func, X_Index_tuple< index... >)
+    constexpr void InvokeTupleFunc(TupleType && tuple_value, FuncType &&func, X_Index_tuple< index... >)
     {
         func(std::get<index>(tuple_value)...);
     }

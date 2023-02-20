@@ -97,11 +97,11 @@ public:
 
     const char *getName() final {return _name;}
     const char *_name;
-    std::shared_ptr<SimpleRender> render;
-    std::shared_ptr<SPW::Scene> scene;
-    FMOD::System *system;
-    FMOD::Sound *sound;
-    FMOD::Channel *channel;
+    std::shared_ptr<SimpleRender> render = nullptr;
+    std::shared_ptr<SPW::Scene> scene = nullptr;
+    FMOD::System *system = nullptr;
+    FMOD::Sound *sound = nullptr;
+    FMOD::Channel *channel = nullptr;
 };
 
 // main entrance

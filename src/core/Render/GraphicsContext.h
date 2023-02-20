@@ -15,7 +15,7 @@ namespace SPW
         virtual void SwapBuffers() = 0;
 
         static std::shared_ptr<GraphicsContext> Create(void* window);
-
+        ~GraphicsContext() = default;
     };
 }
 

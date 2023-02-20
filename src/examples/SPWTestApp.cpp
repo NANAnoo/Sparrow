@@ -15,9 +15,35 @@
 
 #include "EcsFramework/Component/BasicComponent/NameComponent.h"
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
+#include "EcsFramework/Component/ModelComponent.h"
+
+#include "Model/Model.h"
+
 #include "Utils/UUID.hpp"
 
+#include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "Platforms/OPENGL/OpenGLBackEnd.h"
+
 #include "SimpleRender.h"
+
+
+std::shared_ptr<SPW::Model> createModel() {
+    auto model = std::make_shared<SPW::Model>("");
+    std::vector<SPW::Vertex> vertices = {
+        {
+            {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
+        },
+        {
+            {- 0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
+        },
+        {
+            {+0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
+        }
+    };
+    SPW::Mesh mesh(vertices, {0, 1, 2});
+    model->meshes.push_back(mesh);
+    return model;
+}
 
 class WOC :
         public SPW::WindowEventResponder,
@@ -114,40 +140,20 @@ public:
         app->postEvent(std::make_shared<SPW::KeyEvent>(SPW::KeyDownType));
         app->postEvent(std::make_shared<SPW::MouseEvent>(SPW::MouseDownType));
 
-        // ECS test
         scene = SPW::Scene::create(app->delegate.lock());
-        scene->createEntity("Game Object 1");
-        scene->createEntity("Game Object 2");
-        scene->createEntity("Game Object 3");
 
-        std::cout << "------------------------" << std::endl;
-        std::cout << "Print ID and names 1" << std::endl;
-        scene->forEachEntity<SPW::IDComponent, SPW::NameComponent>(
-            [](const SPW::Entity &e) {
-                auto [id, name] =
-                    e.combined<SPW::IDComponent, SPW::NameComponent>();
-                std::cout << id->getID().toString() << std::endl;
-                std::cout << name->getName() << std::endl;
-        });
+        renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
+        scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
 
-        std::cout << "------------------------" << std::endl;
-        std::cout << "Print ID and names 2" << std::endl;
-        scene->forEach([](const SPW::IDComponent &id, const SPW::NameComponent &name) {
-            std::cout << id.getID().toString() << std::endl;
-            std::cout << name.getName() << std::endl;
-        }, SPW::IDComponent, SPW::NameComponent);
+        auto triangle = scene->createEntity("test");
+        triangle->emplace<SPW::ModelComponent>();
+        auto model = triangle->component<SPW::ModelComponent>();
+        model->name = "";
+        model->frag_shader_path = "./resources/shaders/simpleVs.vert";
+        model->vertex_shader_path = "./resources/shaders/simplefrag.frag";
+        model->model = createModel();
 
-        std::cout << "------------------------" << std::endl;
-        std::cout << "Print Names" << std::endl;
-        scene->forEach([](const SPW::NameComponent &name) {
-            std::cout << name.getName() << std::endl;
-        }, SPW::NameComponent);
-
-        std::cout << "------------------------" << std::endl;
-        std::cout << "Print ID" << std::endl;
-        scene->forEach([](const SPW::IDComponent &id) {
-            std::cout << id.getID().toString() << std::endl;
-        }, SPW::IDComponent);
+        scene->initial();
     }
     void beforeAppUpdate() final{
         bool should_update = false;
@@ -161,13 +167,16 @@ public:
         }
         if (should_update)
             app->window->setSize(transformer->width, transformer->height);
+
+        scene->beforeUpdate();
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
         // physics, computation
+        scene->onUpdate(du);
     }
 
     void afterAppUpdate() final{
-        render->render();
+        scene->afterUpdate();
     }
     void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
         for (auto &e : events) {
@@ -189,6 +198,7 @@ public:
             std::cout << e.what() << std::endl;
         }
         std::cout << "app stopped" << std::endl;
+        scene->onStop();
     }
 
     void solveEvent(const std::shared_ptr<SPW::EventI> &e) final {
@@ -206,6 +216,7 @@ public:
     std::shared_ptr<Transformer> transformer;
     std::shared_ptr<SimpleRender> render;
     std::shared_ptr<SPW::Scene> scene;
+    std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
 };
 
 // main entrance
