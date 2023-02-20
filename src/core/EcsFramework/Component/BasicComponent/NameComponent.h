@@ -15,6 +15,7 @@ namespace SPW {
     public:
         NameComponent() {
             name = "Unknown";
+            std::cout<< name << std::endl;
         };
         explicit NameComponent(const std::string &aName) {
             name = aName;
