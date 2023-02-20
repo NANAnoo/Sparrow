@@ -53,7 +53,8 @@ namespace SPW
             }
             else
             {
-                return createShader(name,vertexSrc,fragmentSrc);
+                shaderMap[vertexSrc+fragmentSrc] = createShader(name,vertexSrc,fragmentSrc);
+                return shaderMap[vertexSrc+fragmentSrc];
             }
 
         }
