@@ -30,10 +30,11 @@ namespace SPW {
         // create scene with this line
         static std::shared_ptr<Scene> create(const std::shared_ptr<EventResponderI> &parent) {
             auto scene = std::make_shared<Scene>(parent);
-            // TODO
-            //scene->systems.emplace_back(system);
-            //scene->systems.emplace_back(system);
             return scene;
+        }
+
+        void addSystem(std::shared_ptr<SystemI> &&system) {
+            systems.push_back(system);
         }
 
         // create new entity in scene
@@ -62,14 +63,14 @@ namespace SPW {
         //      // your code
         // }, Type1, Type2);
         template<Component ...C>
-        using ForeachFunc = std::function<void(const C& ...c)>;
+        using ForeachFunc = std::function<void(C* ...c)>;
         template<Component ...C>
-        void _forEach(const ForeachFunc<C...> &func) {
-            using TupleIndex = typename X_Build_index_tuple<std::tuple_size<std::tuple<C...>>::value>::type;
+        void _forEach(ForeachFunc<C...> &&func) {
+            using TupleIndex = typename X_Build_index_tuple<std::tuple_size<std::tuple<C *...>>::value>::type;
             for (auto &view : getEntitiesWith<C...>()) {
                 Entity e = {view, registry};
                 auto res = e.combined<C...>();
-                InvokeTupleFunc_Address(res, func, TupleIndex());
+                InvokeTupleFunc(res, func, TupleIndex());
             }
         }
 

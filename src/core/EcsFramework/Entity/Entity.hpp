@@ -34,16 +34,16 @@ namespace SPW {
 
         // get a component with type C
         template<Component C>
-        [[nodiscard]] const C & component() const {
+        [[nodiscard]] C * component() const {
             // check validation of weak_scene
             assert(!registry.expired());
-            return registry.lock()->get<C>(entity);
+            return &registry.lock()->get<C>(entity);
         }
 
         // get a tuple of components with selected types
         template<Component ...C>
-        std::tuple<const C *...> combined() const {
-            return std::make_tuple<const C *...>((&component<C>())...);
+        std::tuple<C *...> combined() const {
+            return std::make_tuple<C *...>((component<C>())...);
         }
 
         // check if a component with type C is existed in this entity
@@ -65,14 +65,14 @@ namespace SPW {
         UUID getUUID() {
             // check validation of weak_scene
             if (!registry.expired())
-                return component<SPW::IDComponent>().getID();
+                return component<SPW::IDComponent>()->getID();
             else
                 return SPW::UUID::noneID();
         }
         const std::string& getName() {
             // check validation of weak_scene
             if (!registry.expired())
-                return component<SPW::NameComponent>().getName();
+                return component<SPW::NameComponent>()->getName();
             else
                 return NameComponent().getName();
         }
