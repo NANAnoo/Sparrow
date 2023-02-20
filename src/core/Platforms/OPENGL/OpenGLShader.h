@@ -11,6 +11,10 @@ namespace SPW
     {
     public:
         OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
+        virtual std::shared_ptr<Shader>createShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)final
+        {
+            return std::make_shared<OpenGLShader>(name,vertexSrc,fragmentSrc);
+        }
 
         virtual void Bind() const
         {

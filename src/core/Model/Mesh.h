@@ -22,27 +22,34 @@ namespace SPW
         std::vector<Vertex>       vertices;
         std::vector<unsigned int> indices;
 
-        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,std::shared_ptr<RenderBackEndI> renderBackEnd)
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,const std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
             this->vertices = vertices;
             this->indices = indices;
             // now that we have all the required data, set the vertex buffers and its attribute pointers.
             setupMesh(renderBackEnd);
         }
-        void Draw(std::shared_ptr<RenderBackEndI> renderBackEnd)
+        void Draw(const std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
-
+            EBO->Bind();
+            VBuffer->Bind();
+            shader->Bind();
             renderBackEnd->DrawElement(VBuffer,EBO);
         }
-        void setupMesh(std::shared_ptr<RenderBackEndI> renderBackEnd)
+        void setupMesh(const std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
             EBO = renderBackEnd->createIndexBuffer(indices);
             VBuffer = renderBackEnd->createVertexBuffer();
             VBuffer->VertexBufferData(vertices);
         }
+        void setshader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc,const std::shared_ptr<RenderBackEndI>& renderBackEnd)
+        {
+            shader = renderBackEnd->getshader(name,vertexSrc,fragmentSrc);
+        }
     public:
         std::shared_ptr<IndexBuffer> EBO = nullptr;
         std::shared_ptr<VertexBufferI> VBuffer = nullptr;
+        std::shared_ptr<Shader> shader = nullptr;
     };
 }
 
