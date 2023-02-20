@@ -14,9 +14,11 @@ void SPW::RenderSystem::beforeUpdate() {
         if (!modelCom->ready) {
             modelCom->model->setUpModel(renderBackEnd);
             modelCom->ready = true;
+
             for (auto &mesh : modelCom->model->meshes) {
                 mesh.setShader(modelCom->name, modelCom->vertex_shader_path, modelCom->frag_shader_path, renderBackEnd);
             }
+
         }
     }, SPW::ModelComponent);
 }

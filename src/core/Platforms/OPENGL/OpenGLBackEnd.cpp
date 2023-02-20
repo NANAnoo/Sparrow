@@ -36,7 +36,7 @@ namespace SPW
         indexBuffer->Bind();
         vertexBuffer->Bind();
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indexBuffer->size), GL_UNSIGNED_INT, 0);
-        indexBuffer->UnBind();
+//        indexBuffer->UnBind();
         vertexBuffer->UnBind();
     }
 
