@@ -7,7 +7,6 @@ CORE_ADD_SOURCE(
         RenderBackEndI.h
         shader.cpp
         shader.h
-        VertexBuffer.cpp
         VertexBuffer.h
         RenderCommand.hpp
         RenderCommandsQueue.hpp
