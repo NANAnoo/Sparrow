@@ -17,8 +17,7 @@
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "Utils/UUID.hpp"
 
-//#include "SimpleRender.h"
-#include "Render.h"
+#include "SimpleRender.h"
 
 class WOC :
         public SPW::WindowEventResponder,
@@ -102,7 +101,7 @@ public:
         transformer->width = app->window->width();
         transformer->height = app->window->height();
         SPW::OBSERVE_MSG_ONCE(SPW::kMsgApplicationInited, [this](SPW::Message msg) {
-            this->render = std::make_shared<Render>();
+            this->render = std::make_shared<SimpleRender>();
         })
 
         auto A = std::make_shared<WOC>(app->delegate.lock(), "A");
@@ -206,7 +205,7 @@ public:
     const char *getName() final {return _name;}
     const char *_name;
     std::shared_ptr<Transformer> transformer;
-    std::shared_ptr<Render> render;
+    std::shared_ptr<SimpleRender> render;
     std::shared_ptr<SPW::Scene> scene;
 };
 

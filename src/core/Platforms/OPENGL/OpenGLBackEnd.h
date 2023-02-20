@@ -6,6 +6,8 @@
 #define SPARROW_OPENGLBACKEND_H
 #include "Render/RenderBackEndI.h"
 #include <glad/glad.h>
+#include "OpenGLIndexBuffer.h"
+#include "OpenGLVertexBuffer.h"
 namespace SPW
 {
     class OpenGLBackEnd: public RenderBackEndI
@@ -22,6 +24,20 @@ namespace SPW
         //cull
         virtual void Cull(int32_t Bit);
         virtual void CullFrontOrBack(bool bFront);
+
+        //for draw
+        virtual std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) final
+        {
+            return std::make_shared<OpenGLIndexBuffer>(indices);
+        }
+
+        virtual std::shared_ptr<VertexBufferI> createVertexBuffer() final
+        {
+            std::shared_ptr<VertexBufferI> VB = std::make_shared<OpenGLVertexBuffer>();
+            VB->GenVertexArray();
+            VB->GenVertexBuffer();
+            return VB;
+        }
     };
 }
 

@@ -21,7 +21,6 @@ namespace SPW
         virtual void Unbind() const = 0;
         template<class T>
         void SetUniformValue(const std::string& str,T& value);
-        Shader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 
     private:
         virtual void setBool(const std::string& name, bool value) const = 0;

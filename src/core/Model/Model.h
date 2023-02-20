@@ -6,6 +6,7 @@
 #define SPARROW_MODEL_H
 #include "Mesh.h"
 #include <string>
+#include "Render/RenderBackEndI.h"
 namespace SPW
 {
     class Model
@@ -17,19 +18,19 @@ namespace SPW
         bool gammaCorrection;
 
         // constructor, expects a filepath to a 3D model.
-        Model(std::string const& path, bool gamma = false) : directory(path),gammaCorrection(gamma)
+        Model(std::string const& path, std::shared_ptr<RenderBackEndI> renderBackEnd,bool gamma = false) : directory(path),gammaCorrection(gamma)
         {
-            //loadModel(path);
+            loadModel(path,renderBackEnd);
             //can not use virtual function in constractor;
         }
 
-        virtual void loadModel(std::string& path) = 0;
+        void loadModel(const std::string& path,std::shared_ptr<RenderBackEndI> renderBackEnd);
 
         // draws the model, and thus all its meshes
-        void Draw()
+        void Draw(std::shared_ptr<RenderBackEndI> renderBackEnd)
         {
             for (unsigned int i = 0; i < meshes.size(); i++)
-                meshes[i].Draw();
+                meshes[i].Draw(renderBackEnd);
         }
 
     };

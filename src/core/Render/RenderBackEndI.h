@@ -7,7 +7,6 @@
 
 #include <memory>
 #include <glm/glm.hpp>
-#include <IO/AttriVertex.h>
 #include <vector>
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -19,7 +18,6 @@ namespace SPW
         LEQUAL,
         LESS
     };
-
     class RenderBackEndI
     {
     public:
@@ -39,6 +37,10 @@ namespace SPW
         //cull
         virtual void Cull(int32_t Bit) = 0;
         virtual void CullFrontOrBack(bool bFront) = 0;
+
+        //creat structure;
+        virtual std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) = 0;
+        virtual std::shared_ptr<VertexBufferI> createVertexBuffer() = 0;
     public:
         virtual void Init() = 0;
         static RenderAPIType getCurrent() { return currentRenderAPI;}
