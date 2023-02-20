@@ -6,21 +6,20 @@
 #define SPARROW_INDEXBUFFER_H
 
 #include <vector>
-#include <IO/AttriVertex.h>
 #include <memory>
-#include <Render/RenderAPII.h>
 
 namespace SPW
 {
     class IndexBuffer
     {
     public:
+        IndexBuffer() = default;
+        IndexBuffer(std::vector<unsigned int>& indices):size(indices.size()){ }
         virtual void Bind()=0;
         virtual void UnBind()=0;
-        //virtual void Bind();
-        static std::shared_ptr<IndexBuffer> GenIndexBuffer(std::vector<unsigned int>& indices);
-
         ~IndexBuffer() = default;
+    public:
+        unsigned int size;
 
     };
 }

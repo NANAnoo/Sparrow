@@ -3,19 +3,10 @@
 //
 
 #include "shader.h"
-#include "RenderAPII.h"
+#include "RenderBackEndI.h"
 #include "Platforms/OPENGL/OpenGLShader.h"
 namespace SPW
 {
-    std::shared_ptr<Shader> Shader::Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
-    {
-        switch (RenderAPII::getCurrent())
-        {
-            case RenderAPII::RenderAPIType::OpenGL:
-                return std::make_shared<OpenGLShader>(name,vertexSrc,fragmentSrc);
-        }
-        return nullptr;
-    }
 
     template<class T>
     void Shader::SetUniformValue(const std::string& str,T& value)

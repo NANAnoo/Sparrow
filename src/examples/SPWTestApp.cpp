@@ -168,6 +168,7 @@ public:
 
     void afterAppUpdate() final{
         render->render();
+
     }
     void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
         for (auto &e : events) {

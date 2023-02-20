@@ -10,26 +10,24 @@ void SPW::OpenGLVertexBuffer::GenVertexBuffer()
 }
 
 void SPW::OpenGLVertexBuffer::GenVertexArray() {
-    glGenBuffers(1,&VAO);
+    glGenVertexArrays(1,&VAO);
 }
 
-void SPW::OpenGLVertexBuffer::VertexBufferData(std::vector<AttribVertex> vertices)
+void SPW::OpenGLVertexBuffer::VertexBufferData(std::vector<Vertex> vertices)
 {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(AttribVertex), &vertices[0], GL_STATIC_DRAW);
+    glBindVertexArray(VAO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(AttribVertex), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     // vertex normals
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(AttribVertex), (void*)offsetof(AttribVertex, normal));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
     // vertex texture coords
     glEnableVertexAttribArray(2);
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(AttribVertex), (void*)offsetof(AttribVertex, texCoords));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
     // vertex tangent
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(AttribVertex), (void*)offsetof(AttribVertex, tangent));
-    // vertex bitangent
-    //glEnableVertexAttribArray(4);
-    //glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(AttribVertex), (void*)offsetof(AttribVertex, Bitangent));
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
 }

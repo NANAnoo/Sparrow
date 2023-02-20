@@ -9,15 +9,16 @@
 #include <vector>
 namespace SPW
 {
+    struct Vertex;
     class VertexBufferI
     {
     public:
-        static std::shared_ptr<VertexBufferI> CreateVertexBuffer();
-        virtual void GenVertexBuffer();
-        virtual void GenVertexArray();
-        virtual void VertexBufferData(std::vector<AttribVertex> vertices);
-        virtual void Bind();
-        virtual void UnBind();
+        VertexBufferI()= default;
+        virtual void GenVertexBuffer()=0;
+        virtual void GenVertexArray()=0;
+        virtual void VertexBufferData(std::vector<Vertex> vertices)=0;
+        virtual void Bind()=0;
+        virtual void UnBind()=0;
 
     };
 

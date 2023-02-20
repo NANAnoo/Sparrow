@@ -3,6 +3,7 @@
 //
 
 #include "OpenGLIndexBuffer.h"
+#include "assert.h"
 
 namespace SPW
 {
