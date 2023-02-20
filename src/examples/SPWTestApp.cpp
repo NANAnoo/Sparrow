@@ -149,8 +149,8 @@ public:
         triangle->emplace<SPW::ModelComponent>();
         auto model = triangle->component<SPW::ModelComponent>();
         model->name = "";
-        model->frag_shader_path = "./resources/shaders/simpleVs.vert";
-        model->vertex_shader_path = "./resources/shaders/simplefrag.frag";
+        model->vertex_shader_path = "./resources/shaders/simpleVs.vert";
+        model->frag_shader_path = "./resources/shaders/simplefrag.frag";
         model->model = createModel();
 
         scene->initial();
