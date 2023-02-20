@@ -11,6 +11,7 @@
 #include "Render/IndexBuffer.h"
 #include "Render/VertexBuffer.h"
 #include "Render/RenderBackEndI.h"
+#include "Render/RenderPass.hpp"
 #include "Vertex.h"
 
 namespace SPW
@@ -22,29 +23,26 @@ namespace SPW
         std::vector<Vertex>       vertices;
         std::vector<unsigned int> indices;
 
-        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,const std::shared_ptr<RenderBackEndI>& renderBackEnd)
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices)
         {
-            this->vertices = vertices;
-            this->indices = indices;
-            // now that we have all the required data, set the vertex buffers and its attribute pointers.
-            setupMesh(renderBackEnd);
+            this->vertices = std::move(vertices);
+            this->indices = std::move(indices);
         }
+
         void Draw(const std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
-            EBO->Bind();
-            VBuffer->Bind();
             shader->Bind();
             renderBackEnd->DrawElement(VBuffer,EBO);
         }
-        void setupMesh(const std::shared_ptr<RenderBackEndI>& renderBackEnd)
+        void setupMesh(std::shared_ptr<RenderBackEndI> &renderBackEnd)
         {
             EBO = renderBackEnd->createIndexBuffer(indices);
             VBuffer = renderBackEnd->createVertexBuffer();
             VBuffer->VertexBufferData(vertices);
         }
-        void setshader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc,const std::shared_ptr<RenderBackEndI>& renderBackEnd)
+        void setShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc,const std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
-            shader = renderBackEnd->getshader(name,vertexSrc,fragmentSrc);
+            shader = renderBackEnd->getShader(name,vertexSrc,fragmentSrc);
         }
     public:
         std::shared_ptr<IndexBuffer> EBO = nullptr;

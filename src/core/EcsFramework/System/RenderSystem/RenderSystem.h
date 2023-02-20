@@ -12,8 +12,11 @@
 namespace SPW {
     class RenderSystem : public SystemI{
     public:
+        explicit RenderSystem(std::shared_ptr<Scene> &scene, std::shared_ptr<RenderBackEndI> backEnd) :
+            SystemI(scene), renderBackEnd(std::move(backEnd)) {
+        }
         void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
-            api = backEnd;
+            renderBackEnd = backEnd;
         };
         void initial() final;
         void beforeUpdate() final;
@@ -21,7 +24,7 @@ namespace SPW {
         void afterUpdate() final;
         void onStop() final;
     private:
-        std::shared_ptr<RenderBackEndI> api;
+        std::shared_ptr<RenderBackEndI> renderBackEnd;
         RenderPass shadowPass;
         RenderPass modelPass;
         RenderCommand postProcess;

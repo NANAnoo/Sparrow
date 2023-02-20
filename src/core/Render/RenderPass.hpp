@@ -20,8 +20,8 @@ namespace SPW{
         RenderPass(const RenderPass &other) {
             queue = other.queue;
         }
-        void pushCommand(const RenderCommand &command) {
-            queue->pushCommand(command);
+        void pushCommand(RenderCommand &&command) {
+            queue->pushCommand(std::move(command));
         }
         void executeWithAPI(RenderBackEndI &API) {
             queue->executeWithAPI(API);

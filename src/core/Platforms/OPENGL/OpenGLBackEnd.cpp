@@ -30,8 +30,8 @@ namespace SPW
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
-    void OpenGLBackEnd::DrawElement(const std::shared_ptr<VertexBufferI> &vertexBuffer,
-                                    const std::shared_ptr<IndexBuffer> &indexBuffer)
+    void OpenGLBackEnd::DrawElement(std::shared_ptr<VertexBufferI> &vertexBuffer,
+                                    std::shared_ptr<IndexBuffer> &indexBuffer)
     {
         indexBuffer->Bind();
         vertexBuffer->Bind();

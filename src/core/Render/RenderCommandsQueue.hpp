@@ -17,7 +17,7 @@ namespace SPW {
             }
             commands.clear();
         }
-        void pushCommand(const RenderCommand &command) {
+        void pushCommand(RenderCommand &&command) {
             commands.emplace_back(command);
         }
     private:

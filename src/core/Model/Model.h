@@ -18,21 +18,23 @@ namespace SPW
         bool gammaCorrection;
 
         // constructor, expects a filepath to a 3D model.
-        Model(std::string const& path, std::shared_ptr<RenderBackEndI> renderBackEnd,bool gamma = false) : directory(path),gammaCorrection(gamma)
+        Model(std::string path, bool gamma = false) :
+            directory(std::move(path)), gammaCorrection(gamma)
         {
-            loadModel(path,renderBackEnd);
-            //can not use virtual function in constractor;
+            // loadModel(path,renderBackEnd);
         }
-
-        void loadModel(const std::string& path,std::shared_ptr<RenderBackEndI> renderBackEnd);
 
         // draws the model, and thus all its meshes
-        void Draw(std::shared_ptr<RenderBackEndI> renderBackEnd)
+        void Draw(std::shared_ptr<RenderBackEndI> &renderBackEnd)
         {
-            for (unsigned int i = 0; i < meshes.size(); i++)
-                meshes[i].Draw(renderBackEnd);
+            for (auto & mesh : meshes)
+                mesh.Draw(renderBackEnd);
         }
 
+        void setUpModel(std::shared_ptr<RenderBackEndI> &renderBackEnd) {
+            for (auto & mesh : meshes)
+                mesh.setupMesh(renderBackEnd);
+        }
     };
 }
 #endif //SPARROW_MODEL_H

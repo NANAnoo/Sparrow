@@ -12,27 +12,27 @@
 namespace SPW {
     class RenderCommand {
     public:
-        RenderCommand() = delete;
+        RenderCommand() = default;
 
         // APIName from RenderBackEndI
         template<typename ...Args>
-        explicit RenderCommand(void(RenderBackEndI::*MenFn)(const Args& ...), const Args& ...args) {
-            apiCaller = [=](const RenderBackEndI &api){
-                (api.*MenFn)(std::forward<Args>(args)...);
-            };
-        }
-
-
-        template<typename ...Args>
-        explicit RenderCommand(void(RenderBackEndI::*MenFn)(Args ...), Args ...args) {
+        explicit RenderCommand(void(RenderBackEndI::*MenFn)(Args& ...), Args& ...args) {
             apiCaller = [=](RenderBackEndI &api){
                 (api.*MenFn)(args ...);
             };
         }
 
+
+//        template<typename ...Args>
+//        explicit RenderCommand(void(RenderBackEndI::*MenFn)(Args ...), Args ...args) {
+//            apiCaller = [=](RenderBackEndI &api){
+//                (api.*MenFn)(args ...);
+//            };
+//        }
+
         // move
         template<typename ...Args>
-        explicit RenderCommand(const RenderCommand &&other) {
+        explicit RenderCommand(RenderCommand &&other) {
             apiCaller = other.apiCaller;
         }
 
