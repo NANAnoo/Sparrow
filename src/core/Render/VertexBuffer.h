@@ -12,7 +12,7 @@ namespace SPW
     class VertexBufferI
     {
     public:
-        static std::shared_ptr<VertexBufferI> CreateVertexBuffer();
+        VertexBufferI()= default;
         virtual void GenVertexBuffer()=0;
         virtual void GenVertexArray()=0;
         virtual void VertexBufferData(std::vector<AttribVertex> vertices)=0;

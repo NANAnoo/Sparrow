@@ -23,6 +23,7 @@ namespace SPW
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_DRAW);
         }
 
+
     private:
         std::vector<unsigned int> m_indices;
         unsigned int EBO;

@@ -31,7 +31,4 @@ void SPW::OpenGLVertexBuffer::VertexBufferData(std::vector<AttribVertex> vertice
     // vertex tangent
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(AttribVertex), (void*)offsetof(AttribVertex, tangent));
-    // vertex bitangent
-    //glEnableVertexAttribArray(4);
-    //glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(AttribVertex), (void*)offsetof(AttribVertex, Bitangent));
 }

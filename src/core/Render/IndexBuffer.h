@@ -15,7 +15,8 @@ namespace SPW
     {
     public:
         IndexBuffer() = default;
-        IndexBuffer(std::vector<unsigned int>& indices):size(indices.size()){}
+        IndexBuffer(std::vector<unsigned int>& indices):size(indices.size()){ }
+        virtual void create()=0;
         virtual void Bind()=0;
         virtual void UnBind()=0;
         ~IndexBuffer() = default;
