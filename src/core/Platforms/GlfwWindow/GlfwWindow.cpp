@@ -64,6 +64,8 @@ namespace SPW {
                     WindowFrameResizeType, w, h));
         });
 
+
+
         glfwSetKeyCallback(window, [](GLFWwindow *win, int key, int scancode, int action, int mods) {
 
         });
