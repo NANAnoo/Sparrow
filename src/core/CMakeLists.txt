@@ -43,5 +43,6 @@ target_link_libraries(SparrowCore PUBLIC glfw
         PUBLIC sol2
         PUBLIC lua_static
         PUBLIC FMOD::Core FMOD::Fsbank FMOD::Studio
+        PUBLIC assimp
         PUBLIC ${OPENGL_LIBRARIES}
         )
