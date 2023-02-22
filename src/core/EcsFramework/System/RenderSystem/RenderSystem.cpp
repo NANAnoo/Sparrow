@@ -5,12 +5,14 @@
 #include "RenderSystem.h"
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/ModelComponent.h"
-void SPW::RenderSystem::initial() {
 
+void SPW::RenderSystem::initial() {
+    renderBackEnd->Init();
 }
 
 void SPW::RenderSystem::beforeUpdate() {
-
+    // clear buffer
+    renderBackEnd->Clear();
 }
 
 void SPW::RenderSystem::onUpdate(SPW::TimeDuration dt) {

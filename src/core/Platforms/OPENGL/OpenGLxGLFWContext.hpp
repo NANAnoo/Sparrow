@@ -22,6 +22,7 @@ namespace SPW
             int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
             if(!status)
                 assert("glad init false");
+            glfwSwapInterval(1);
         }
 
         void SwapBuffers() override {

@@ -80,7 +80,6 @@ namespace SPW {
 
     void GlfwWindow::onUpdate() {
         glfwPollEvents();
-        glfwSwapBuffers(window);
     }
 
     GlfwWindow::~GlfwWindow() {

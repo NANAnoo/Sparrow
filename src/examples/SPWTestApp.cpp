@@ -90,7 +90,7 @@ public:
 
         // weak strong dance
         std::weak_ptr<SPW::GlfwWindow> weak_window = window;
-        window->onWindowCreated([weak_window](GLFWwindow *handle){
+        window->onWindowCreated([weak_window, this](GLFWwindow *handle){
             if (weak_window.expired()) {
                 return;
             }
@@ -98,40 +98,40 @@ public:
             weak_window.lock()->graphicsContext = std::make_shared<SPW::OpenGLxGLFWContext>(handle);
             // initial context
             weak_window.lock()->graphicsContext->Init();
+
+            // create render back end
+            renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
+
+            // create scene
+            scene = SPW::Scene::create(app->delegate.lock());
+
+            // add system
+            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
+
+            // add a camera entity
+            auto camera = scene->createEntity("main camera");
+            camera->emplace<SPW::TransformComponent>();
+            camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+
+            SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
+
+            // add a test game object
+            auto triangle = scene->createEntity("test");
+            triangle->emplace<SPW::TransformComponent>();
+
+            // add a model to show
+            auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
+            SPW::ShaderHandle shaderHandle({
+                                         "basic",
+                                         "./resources/shaders/simpleVs.vert",
+                                         "./resources/shaders/simplefrag.frag"
+                                     });
+            model->modelProgram = shaderHandle;
+            model->model = createModel();
+
+            // init scene
+            scene->initial();
         });
-
-        // create render back end
-        renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
-
-        // create scene
-        scene = SPW::Scene::create(app->delegate.lock());
-
-        // add system
-        scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
-
-        // add a camera entity
-        auto camera = scene->createEntity("main camera");
-        camera->emplace<SPW::TransformComponent>();
-        camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
-
-        SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
-
-        // add a test game object
-        auto triangle = scene->createEntity("test");
-        triangle->emplace<SPW::TransformComponent>();
-
-        // add a model to show
-        auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
-        SPW::ShaderHandle handle({
-             "basic",
-             "./resources/shaders/simpleVs.vert",
-             "./resources/shaders/simplefrag.frag"
-        });
-        model->modelProgram = handle;
-        model->model = createModel();
-
-        // init scene
-        scene->initial();
     }
     void beforeAppUpdate() final{
         bool should_update = false;
