@@ -21,15 +21,6 @@ namespace SPW {
                 ((*api).*MenFn)(args ...);
             };
         }
-
-
-//        template<typename ...Args>
-//        explicit RenderCommand(void(RenderBackEndI::*MenFn)(Args ...), Args ...args) {
-//            apiCaller = [=](RenderBackEndI &api){
-//                (api.*MenFn)(args ...);
-//            };
-//        }
-
         // move
         template<typename ...Args>
         explicit RenderCommand(RenderCommand &&other) {

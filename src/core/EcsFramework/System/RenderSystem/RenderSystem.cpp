@@ -21,9 +21,6 @@ void SPW::RenderSystem::beforeUpdate() {
 
         }
     }, SPW::ModelComponent);
-
-    RenderCommand(&RenderBackEndI::SetClearColor, {0.1, 0, 0, 1}).execute(renderBackEnd);
-    RenderCommand(&RenderBackEndI::Clear).execute(renderBackEnd);
 }
 
 void SPW::RenderSystem::onUpdate(SPW::TimeDuration dt) {
