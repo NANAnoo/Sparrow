@@ -45,17 +45,17 @@ namespace SPW
         //creat structure;
         virtual std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) = 0;
         virtual std::shared_ptr<VertexBufferI> createVertexBuffer() = 0;
-        virtual std::shared_ptr<Shader>createShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)=0;
-        std::shared_ptr<Shader> getShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
+        virtual std::shared_ptr<Shader>createShader(const ShaderHandle &handle) = 0;
+        std::shared_ptr<Shader> getShader(const ShaderHandle &handle)
         {
-            if(shaderMap.find(vertexSrc+fragmentSrc)!=shaderMap.end())
+            if(shaderMap.find(handle)!=shaderMap.end())
             {
-                return shaderMap[vertexSrc+fragmentSrc];
+                return shaderMap[handle];
             }
             else
             {
-                shaderMap[vertexSrc+fragmentSrc] = createShader(name,vertexSrc,fragmentSrc);
-                return shaderMap[vertexSrc+fragmentSrc];
+                shaderMap[handle] = createShader(handle);
+                return shaderMap[handle];
             }
 
         }
@@ -63,8 +63,7 @@ namespace SPW
         virtual void Init() = 0;
         virtual ~RenderBackEndI() = default;
     protected:
-        std::map<std::string,std::shared_ptr<Shader>> shaderMap;
-
+        ShaderTable shaderMap;
     };
 
 }

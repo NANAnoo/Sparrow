@@ -27,6 +27,10 @@ namespace SPW {
             return to_string(id);
         }
 
+        bool operator==(const UUID &other) const {
+            return id == other.id;
+        }
+
         // NULL id
         static UUID noneID() {
             UUID id;

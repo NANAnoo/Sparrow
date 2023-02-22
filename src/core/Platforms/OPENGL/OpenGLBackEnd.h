@@ -19,9 +19,9 @@ namespace SPW
         void Clear() override;
         void DrawElement(std::shared_ptr<VertexBufferI>& vertexBuffer , std::shared_ptr<IndexBuffer>& indexBuffer) override;
         //depth
-        virtual void DepthTest(bool enable);
-        virtual void DepthMask(bool maskFlag);
-        virtual void DepthFunc(DepthComp comp);
+        void DepthTest(bool enable) override;
+        void DepthMask(bool maskFlag) override;
+        void DepthFunc(DepthComp comp) override;
         //cull
         void Cull(int32_t Bit) override;
         void CullFrontOrBack(bool bFront) override;
@@ -40,9 +40,9 @@ namespace SPW
             return VB;
         }
 
-        std::shared_ptr<Shader>createShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)final
+        std::shared_ptr<Shader>createShader( const ShaderHandle &handle)final
         {
-            return std::make_shared<OpenGLShader>(name,vertexSrc,fragmentSrc);
+            return std::make_shared<OpenGLShader>(handle);
         }
     };
 }

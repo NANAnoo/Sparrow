@@ -8,8 +8,14 @@
 #include "Render/RenderBackEndI.h"
 #include "Render/RenderPass.hpp"
 #include "EcsFramework/System/SystemI.h"
+#include "EcsFramework/Component/CameraComponent.hpp"
+#include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/BasicComponent/IDComponent.h"
+
+
 
 namespace SPW {
+    using RenderCamera = std::tuple<IDComponent *, CameraComponent *, TransformComponent *>;
     class RenderSystem : public SystemI{
     public:
         explicit RenderSystem(std::shared_ptr<Scene> &scene, std::shared_ptr<RenderBackEndI> backEnd) :
@@ -24,10 +30,9 @@ namespace SPW {
         void afterUpdate() final;
         void onStop() final;
     private:
+        void renderModelsWithCamera(const RenderCamera &camera);
         std::shared_ptr<RenderBackEndI> renderBackEnd;
-        RenderPass shadowPass;
-        RenderPass modelPass;
-        RenderCommand postProcess;
+        RenderPass postProcessPass;
     };
 }
 

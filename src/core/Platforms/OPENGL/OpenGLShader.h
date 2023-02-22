@@ -10,7 +10,7 @@ namespace SPW
     class OpenGLShader:public Shader
     {
     public:
-        OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
+        explicit OpenGLShader( const ShaderHandle &handle);
 
         void Bind() const override
         {

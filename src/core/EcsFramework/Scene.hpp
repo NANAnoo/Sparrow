@@ -56,7 +56,7 @@ namespace SPW {
         }
 
         // for each
-        // iterate all entities with selected component
+        // iterate components of every entity that has required components
         //
         // usage:
         // aScene.forEach([](Type1 &, Type2 &){
@@ -74,11 +74,23 @@ namespace SPW {
             }
         }
 
+        // for loop with a callback.
+        // Components ...C: Required components in an entity
+        // func: call back Entities that have required components
         template<Component ...C>
         void forEachEntity(const std::function<void(const Entity &)> &func) {
-            for (auto &view : getEntitiesWith<C...>()) {
+            auto views = getEntitiesWith<C...>();
+            for (auto &view : views) {
                 func({view, registry});
             }
+        }
+
+        // for loop with a callback.
+        // ComponentGroup<C...>, required components group
+        // func: call back Entities that have required components
+        template<Component ...C>
+        void forEachEntityInGroup(ComponentGroup<C...>, const std::function<void(const Entity &)> &func) {
+            forEachEntity<C...>(func);
         }
 
         virtual void initial() {

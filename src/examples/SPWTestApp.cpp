@@ -4,18 +4,17 @@
 
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
-#include "Utils/MessageDefines.h"
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
-#include "Control/MouseEvent.hpp"
 
 #include "EcsFramework/Scene.hpp"
-#include "EcsFramework/Entity/Entity.hpp"
 
-#include "EcsFramework/Component/BasicComponent/NameComponent.h"
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "EcsFramework/Component/ModelComponent.h"
+#include "EcsFramework/Component/CameraComponent.hpp"
+#include "EcsFramework/Component/TransformComponent.hpp"
+
 
 #include "Model/Model.h"
 
@@ -45,44 +44,6 @@ std::shared_ptr<SPW::Model> createModel() {
     model->meshes.push_back(mesh);
     return model;
 }
-
-class WOC :
-        public SPW::WindowEventResponder,
-        public SPW::KeyEventResponder,
-        public SPW::MouseEventResponder {
-public:
-    explicit WOC(const std::shared_ptr<SPW::EventResponderI> &parent, const char *name):
-            SPW::WindowEventResponder(parent),
-            SPW::KeyEventResponder(parent),
-            SPW::MouseEventResponder(parent),
-            _name(name){
-        }
-    explicit WOC(const std::shared_ptr<WOC> &parent, const char *name):
-            SPW::WindowEventResponder(std::shared_ptr<SPW::WindowEventResponder>(parent)),
-            SPW::KeyEventResponder(std::shared_ptr<SPW::KeyEventResponder>(parent)),
-            SPW::MouseEventResponder(std::shared_ptr<SPW::MouseEventResponder>(parent)),
-            _name(name){
-    }
-    bool onKeyDown(SPW::KeyEvent *e) override {
-        if (_name[0] == 'C') {
-            std::cout << "onKeyDown" << std::endl;
-            return true;
-        }
-        return false;
-    }
-    bool onMouseDown(SPW::MouseEvent *e) override {
-        if (_name[0] == 'B') {
-            std::cout << "onMouseDown" << std::endl;
-            return true;
-        }
-        return false;
-    }
-    bool canRespondTo(const std::shared_ptr<SPW::EventI> &e) final {
-        return _name[0] != 'E' || e->category() == SPW::MouseCategory;
-    }
-    const char *_name;
-    const char *getName() final {return _name;}
-};
 
 // test usage
 class Transformer :
@@ -129,7 +90,7 @@ public:
 
         // weak strong dance
         std::weak_ptr<SPW::GlfwWindow> weak_window = window;
-        window->onWindowCreated([weak_window, this](GLFWwindow *handle){
+        window->onWindowCreated([weak_window](GLFWwindow *handle){
             if (weak_window.expired()) {
                 return;
             }
@@ -148,14 +109,25 @@ public:
         // add system
         scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
 
+        // add a camera entity
+        auto camera = scene->createEntity("main camera");
+        camera->emplace<SPW::TransformComponent>();
+        camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+
+        SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
+
         // add a test game object
         auto triangle = scene->createEntity("test");
+        triangle->emplace<SPW::TransformComponent>();
 
         // add a model to show
-        auto model = triangle->emplace<SPW::ModelComponent>();
-        model->name = "triangle";
-        model->vertex_shader_path = "./resources/shaders/simpleVs.vert";
-        model->frag_shader_path = "./resources/shaders/simplefrag.frag";
+        auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
+        SPW::ShaderHandle handle({
+             "basic",
+             "./resources/shaders/simpleVs.vert",
+             "./resources/shaders/simplefrag.frag"
+        });
+        model->modelProgram = handle;
         model->model = createModel();
 
         // init scene
@@ -191,7 +163,9 @@ public:
     }
     void onAppStopped() final{
         sol::state state;
-        state.open_libraries(sol::lib::base);
+        state.open_libraries(sol::lib::base, sol::lib::package);
+        std::string x = state["package"]["path"];
+        state["package"]["path"] = x + ";./resources/scripts/lua/?.lua";
         try {
             if(state.script_file("./resources/scripts/lua/test.lua").valid()) {
                 sol::protected_function main_function=state["main"];
