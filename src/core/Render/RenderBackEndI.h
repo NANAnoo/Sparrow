@@ -13,6 +13,7 @@
 #include <map>
 #include <string>
 #include "Render/shader.h"
+#include "Render/Material.h"
 namespace SPW
 {
     enum class DepthComp
@@ -41,6 +42,9 @@ namespace SPW
         //cull
         virtual void Cull(int32_t Bit) = 0;
         virtual void CullFrontOrBack(bool bFront) = 0;
+
+        //create texture
+        virtual void BindTexture(std::shared_ptr<Shader>shader,std::shared_ptr<Material> material) = 0;
 
         //creat structure;
         virtual std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) = 0;
