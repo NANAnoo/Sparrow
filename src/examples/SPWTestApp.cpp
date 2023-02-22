@@ -55,8 +55,17 @@ public:
 
     bool onWindowResize(int w, int h) override {
         std::cout << "window resize" << "(" << w << ", " << h << ")" <<std::endl;
-        width = w;
-        height = h;
+        bool should_update = false;
+        if (w < 500) {
+            w = 500;
+            should_update = true;
+        }
+        if (h < 400) {
+            h = 400;
+            should_update = true;
+        }
+        if (should_update && ! window.expired())
+            window.lock()->setSize(w, h);
         // set projection
         return true;
     }
@@ -68,12 +77,10 @@ public:
         // set projection
         return false;
     }
-
-    int width = -1;
-    int height = -1;
     const char *getName() final {
         return "Transformer";
     }
+    std::weak_ptr<SPW::WindowI> window;
 };
 
 class TestDelegate : public SPW::AppDelegateI {
@@ -82,11 +89,13 @@ public:
             SPW::AppDelegateI(app), _name(name) {
     }
     void onAppInit() final {
-        transformer = std::make_shared<Transformer>(app->delegate.lock());
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
         app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
+
+        transformer = std::make_shared<Transformer>(app->delegate.lock());
+        transformer->window = window;
 
         // weak strong dance
         std::weak_ptr<SPW::GlfwWindow> weak_window = window;
@@ -134,18 +143,6 @@ public:
         });
     }
     void beforeAppUpdate() final{
-        bool should_update = false;
-        if (transformer->width < 500) {
-            transformer->width = 500;
-            should_update = true;
-        }
-        if (transformer->height < 500) {
-            transformer->height = 400;
-            should_update = true;
-        }
-        if (should_update)
-            app->window->setSize(transformer->width, transformer->height);
-
         scene->beforeUpdate();
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{

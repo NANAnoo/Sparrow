@@ -5,7 +5,7 @@
 ---
 ---
 
-require "print"
+require "test/print"
 
 function main()
     my_func("hello lua")
