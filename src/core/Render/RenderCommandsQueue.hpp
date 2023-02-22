@@ -11,9 +11,9 @@
 namespace SPW {
     class RenderCommandsQueue{
     public:
-        void executeWithAPI(RenderBackEndI &api) {
+        void executeWithAPI(std::shared_ptr<RenderBackEndI> &backEnd) {
             for (auto &command : commands) {
-                command.execute(api);
+                command.execute(backEnd);
             }
             commands.clear();
         }

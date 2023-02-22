@@ -23,6 +23,7 @@
 
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
+#include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
 
@@ -120,39 +121,44 @@ public:
             SPW::AppDelegateI(app), _name(name) {
     }
     void onAppInit() final {
-        app->window = std::make_shared<SPW::GlfwWindow>();
+        transformer = std::make_shared<Transformer>(app->delegate.lock());
+        auto window = std::make_shared<SPW::GlfwWindow>();
+        app->window = window;
         app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
-        transformer = std::make_shared<Transformer>(app->delegate.lock());
-        transformer->width = app->window->width();
-        transformer->height = app->window->height();
-        SPW::OBSERVE_MSG_ONCE(SPW::kMsgApplicationInited, [this](SPW::Message msg) {
-            this->render = std::make_shared<SimpleRender>();
-        })
 
-        auto A = std::make_shared<WOC>(app->delegate.lock(), "A");
-        auto B = std::make_shared<WOC>(A, "B");
-        auto C = std::make_shared<WOC>(B, "C");
-        auto D = std::make_shared<WOC>(B, "D");
-        auto E = std::make_shared<WOC>(A, "E");
-        auto F = std::make_shared<WOC>(E, "F");
-        auto G = std::make_shared<WOC>(E, "G");
-        app->postEvent(std::make_shared<SPW::KeyEvent>(SPW::KeyDownType));
-        app->postEvent(std::make_shared<SPW::MouseEvent>(SPW::MouseDownType));
+        // weak strong dance
+        std::weak_ptr<SPW::GlfwWindow> weak_window = window;
+        window->onWindowCreated([weak_window, this](GLFWwindow *handle){
+            if (weak_window.expired()) {
+                return;
+            }
+            // create graphics context
+            weak_window.lock()->graphicsContext = std::make_shared<SPW::OpenGLxGLFWContext>(handle);
+            // initial context
+            weak_window.lock()->graphicsContext->Init();
+        });
 
+        // create render back end
+        renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
+
+        // create scene
         scene = SPW::Scene::create(app->delegate.lock());
 
-        renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
+        // add system
         scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
 
+        // add a test game object
         auto triangle = scene->createEntity("test");
-        triangle->emplace<SPW::ModelComponent>();
-        auto model = triangle->component<SPW::ModelComponent>();
-        model->name = "";
+
+        // add a model to show
+        auto model = triangle->emplace<SPW::ModelComponent>();
+        model->name = "triangle";
         model->vertex_shader_path = "./resources/shaders/simpleVs.vert";
         model->frag_shader_path = "./resources/shaders/simplefrag.frag";
         model->model = createModel();
 
+        // init scene
         scene->initial();
     }
     void beforeAppUpdate() final{

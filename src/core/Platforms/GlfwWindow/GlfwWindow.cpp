@@ -31,10 +31,8 @@ namespace SPW {
 
         if (window) {
             all_windows[window] = this;
-            {
-                // TODO, move this block to render module
-                glfwMakeContextCurrent(window);
-                gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+            if (windowCreatedCallback) {
+                windowCreatedCallback(window);
             }
         } else {
             std::cout << "Window create failed !" << std::endl;

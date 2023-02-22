@@ -16,6 +16,6 @@ namespace SPW {
         std::string vertex_shader_path;
         std::string frag_shader_path;
         std::shared_ptr<Model> model;
-        bool ready;
+        bool ready = false;
     };
 }

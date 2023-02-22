@@ -29,6 +29,7 @@ namespace SPW
             None = 0,
             OpenGL,
         };
+
         virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
         virtual void SetClearColor(const glm::vec4& color) = 0;
         virtual void Clear() = 0;
@@ -60,10 +61,7 @@ namespace SPW
         }
     public:
         virtual void Init() = 0;
-        static RenderAPIType getCurrent() { return currentRenderAPI;}
         virtual ~RenderBackEndI() = default;
-    private:
-        static inline RenderAPIType currentRenderAPI = RenderAPIType::OpenGL;
     protected:
         std::map<std::string,std::shared_ptr<Shader>> shaderMap;
 

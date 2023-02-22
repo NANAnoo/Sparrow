@@ -25,11 +25,11 @@ namespace SPW {
 
         // insert a component
         template<Component C, typename ...Args>
-        C &emplace(Args&& ...args) {
+        C *emplace(Args&& ...args) {
             // check validation of weak_scene
             assert(!registry.expired());
             // add component to the registry
-            return registry.lock()->emplace<C>(entity, std::forward<Args>(args)...);
+            return &registry.lock()->emplace<C>(entity, std::forward<Args>(args)...);
         }
 
         // get a component with type C

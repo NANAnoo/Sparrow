@@ -1,5 +1,4 @@
 CORE_ADD_SOURCE(
-        GraphicsContext.cpp
         GraphicsContext.h
         IndexBuffer.h
         Render.cpp

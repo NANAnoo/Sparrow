@@ -31,12 +31,13 @@ int SPW::Application::run(int argc, char **argv) {
 
         // on update
         delegate.lock()->onAppUpdate(du);
-        window->onUpdate();
 
         // after update
         POST_MSG(SPW::kMsgAfterAppUpdate)
         delegate.lock()->afterAppUpdate();
-        // pull events
+
+        // pull events, update window
+        window->onUpdate();
         delegate.lock()->onUnConsumedEvents(unhandledEvents);
         unhandledEvents.clear();
     }

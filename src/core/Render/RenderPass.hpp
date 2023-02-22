@@ -23,8 +23,8 @@ namespace SPW{
         void pushCommand(RenderCommand &&command) {
             queue->pushCommand(std::move(command));
         }
-        void executeWithAPI(RenderBackEndI &API) {
-            queue->executeWithAPI(API);
+        void executeWithAPI(std::shared_ptr<RenderBackEndI> &backEnd) {
+            queue->executeWithAPI(backEnd);
         }
     private:
         std::shared_ptr<RenderCommandsQueue> queue;
