@@ -121,13 +121,19 @@ public:
             // add a camera entity
             auto camera = scene->createEntity("main camera");
             camera->emplace<SPW::TransformComponent>();
-            camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+            auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+            cam->fov = 60;
+            cam->aspect = 1;
+            cam->near = 0.01;
+            cam->far = 100;
 
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
 
             // add a test game object
             auto triangle = scene->createEntity("test");
             auto transform = triangle->emplace<SPW::TransformComponent>();
+            transform->rotation.z = 90;
+            transform->position.y = -0.5;
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
