@@ -19,6 +19,9 @@ int SPW::Application::run(int argc, char **argv) {
     // main loop of application
     static SPW::TimeStamp begin{};
     while (isRunning) {
+        // pull events, update window
+        window->getGraphicsContext()->SwapBuffers();
+        window->onUpdate();
         // calculate duration
         TimeDuration du = SPW::Timer::current() - begin;
         // update time stamp
@@ -31,12 +34,11 @@ int SPW::Application::run(int argc, char **argv) {
 
         // on update
         delegate.lock()->onAppUpdate(du);
-        window->onUpdate();
 
         // after update
         POST_MSG(SPW::kMsgAfterAppUpdate)
         delegate.lock()->afterAppUpdate();
-        // pull events
+
         delegate.lock()->onUnConsumedEvents(unhandledEvents);
         unhandledEvents.clear();
     }

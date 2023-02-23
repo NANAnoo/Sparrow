@@ -3,6 +3,10 @@
 --- Created by nanorth.
 --- DateTime: 2023/2/14 21:41
 ---
+---
+
+require "test/print"
+
 function main()
-    print("hello lua")
+    my_func("hello lua")
 end

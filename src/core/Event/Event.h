@@ -29,6 +29,7 @@ namespace SPW {
         EventI(const EventI& other) {
             consumed = other.consumed;
         }
+        virtual ~EventI() = default;
         using EventHanlder = std::function<void(const std::shared_ptr<EventI> &e)>;
         virtual EventType type() {return UnknownType;}
         virtual EventCategory category() {return UnknownCategory;}

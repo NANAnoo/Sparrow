@@ -43,7 +43,12 @@ else()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
-
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    message(STATUS "Set up ccache ...")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif()
 
 set(ProjectRootDir "${CMAKE_CURRENT_SOURCE_DIR}")
 set(SparrowResourcesDir "${ProjectRootDir}/resources")
