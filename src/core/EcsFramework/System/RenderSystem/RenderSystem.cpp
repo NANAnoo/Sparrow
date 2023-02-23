@@ -6,6 +6,9 @@
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/ModelComponent.h"
 
+#include <glm/glm/ext.hpp>
+#include <glm/glm/gtx/euler_angles.hpp>
+
 void SPW::RenderSystem::initial() {
     renderBackEnd->Init();
 }
@@ -78,13 +81,31 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
     });
 
     // 2. calculate VP from camera
-    glm::mat4x4 VP = glm::mat4(1.0f);
-    // TODO @Ding : calculate VP from a transformed camera.
+    glm::mat4x4 V, P;
+    glm::mat4x4 cameraTransform = glm::eulerAngleYXZ(transformCom->rotation.y,
+                                        transformCom->rotation.x,
+                                        transformCom->rotation.z);
+    glm::translate(cameraTransform, transformCom->position);
+    glm::vec4 eye(0, 0, 0, 1), look_at(0, 0, -1, 1), up(0, 1, 0, 0);
+    V = glm::lookAt(glm::vec3(cameraTransform * eye),
+                    glm::vec3(cameraTransform *look_at),
+                    glm::vec3(cameraTransform * up));
+    if (cameraCom->getType() == SPW::PerspectiveType) {
+        P = glm::perspective(cameraCom->fov,
+                             cameraCom->aspect,
+                             cameraCom->near,
+                             cameraCom->far);
+
+    } else {
+        P = glm::ortho(cameraCom->left, cameraCom->right,
+                       cameraCom->bottom, cameraCom->top);
+    }
+
 
     // RenderPass 1, shadow
     // sort models with program, build a map with shadow_program -> models[]
 
-    auto renderPass = [this, &renderModels, &VP](bool isShadow){
+    auto renderPass = [this, &renderModels, &V, &P](bool isShadow){
         ShaderModelMap programModelMap;
         for (auto &en : renderModels) {
             // get program that used in shadow rendering
@@ -102,16 +123,23 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
         for (auto [handle, entities] : programModelMap) {
             for (auto &model : entities) {
                 auto modelCom = model.component<ModelComponent>();
+                auto transformCom = model.component<TransformComponent>();
 
-                // TODO: calculate MVP here
-                // TODO: MVP = m * VP;
+                glm::mat4x4 M = glm::eulerAngleYXZ(transformCom->rotation.y,
+                                                   transformCom->rotation.x,
+                                                   transformCom->rotation.z);
+                glm::translate(M, transformCom->position);
+                glm::scale(M, transformCom->scale);
+
                 for(auto &mesh : modelCom->model->meshes) {
                     // set up mesh with current shader
                     mesh.setShader(renderBackEnd, handle);
                     // TODO: maybe add animation data to uniform here?
 
-                    // TODO: set up MVP here
-                    // mesh.shader->SetUniformValue<glm::mat4>(MVP);
+                    // set up MVP
+                    mesh.shader->SetUniformValue<glm::mat4x4>("M", M);
+                    mesh.shader->SetUniformValue<glm::mat4x4>("V", V);
+                    mesh.shader->SetUniformValue<glm::mat4x4>("P", P);
                     // draw current model
                     mesh.Draw(renderBackEnd);
                 }

@@ -18,7 +18,17 @@ namespace SPW {
     public:
         CameraComponent() = delete;
         explicit CameraComponent(CameraType type) : cameraType(type) {}
+        // PerspectiveType
         float fov = 1.0;
+        float aspect = 1.0;
+        float near = 0.1;
+        float far = 10;
+
+        // ortho type
+        float left = 0;
+        float right = 0;
+        float bottom = 1;
+        float top = 1;
         [[nodiscard]] CameraType getType() const { return cameraType;}
     private:
         CameraType cameraType = PerspectiveType;
