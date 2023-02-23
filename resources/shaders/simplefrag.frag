@@ -1,6 +1,6 @@
-#version 420 core
+#version 410 core
 #extension GL_ARB_shading_language_include : require
-#include<D:/Project/shaowenSpprow/Sparrow/resources/shaders/structure.glsl>
+#include </structure.glsl>
 
 out vec4 FragColor;
 uniform sampler2D albedoMap;

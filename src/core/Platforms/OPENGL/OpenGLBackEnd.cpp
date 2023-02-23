@@ -7,6 +7,9 @@
 #include "OpenGLIndexBuffer.h"
 #include "OpenGLTextureManager.h"
 #include "OpenGLTexture2D.h"
+
+#include <fstream>
+
 namespace SPW
 {
 
@@ -14,6 +17,15 @@ namespace SPW
     {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
+        std::string shader_lib = "./resources/shaders/structure.glsl";
+
+        std::stringstream ss;
+        std::ifstream fs(shader_lib);
+        ss << fs.rdbuf();
+        auto code = ss.str();
+        shader_lib = "/structure.glsl";
+        glNamedStringARB(GL_SHADER_INCLUDE_ARB, shader_lib.size(), shader_lib.c_str(),
+                         code.size(), code.c_str());
     }
 
     void OpenGLBackEnd::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

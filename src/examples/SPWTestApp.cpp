@@ -127,7 +127,7 @@ public:
 
             // add a test game object
             auto triangle = scene->createEntity("test");
-            triangle->emplace<SPW::TransformComponent>();
+            auto transform = triangle->emplace<SPW::TransformComponent>();
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
