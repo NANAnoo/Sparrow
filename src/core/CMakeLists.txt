@@ -21,8 +21,11 @@ add_subdirectory(ApplicationFramework)
 add_subdirectory(EcsFramework)
 add_subdirectory(Platforms)
 add_subdirectory(IO)
-add_subdirectory(Maths)
 add_subdirectory(Render)
+<<<<<<< Updated upstream
+=======
+add_subdirectory(Model)
+>>>>>>> Stashed changes
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Core Sources:" ${CoreSourceFiles})

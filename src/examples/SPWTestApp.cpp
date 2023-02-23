@@ -19,6 +19,7 @@
 
 #include "SimpleRender.h"
 
+<<<<<<< Updated upstream
 class WOC :
         public SPW::WindowEventResponder,
         public SPW::KeyEventResponder,
@@ -56,6 +57,26 @@ public:
     const char *_name;
     const char *getName() final {return _name;}
 };
+=======
+
+std::shared_ptr<SPW::Model> createModel() {
+    auto model = std::make_shared<SPW::Model>(" ");
+    std::vector<SPW::Vertex> vertices = {
+        {
+            {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
+        },
+        {
+            {- 0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
+        },
+        {
+            {+0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
+        }
+    };
+    std::shared_ptr<SPW::Mesh> mesh = std::make_shared<SPW::Mesh>(vertices, std::vector<unsigned int>{0, 1, 2});
+    model->AddMesh(mesh);
+    return model;
+}
+>>>>>>> Stashed changes
 
 // test usage
 class Transformer :
