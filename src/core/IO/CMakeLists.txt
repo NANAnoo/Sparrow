@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 CORE_ADD_SOURCE(
 
     Mesh.h
@@ -24,9 +23,6 @@ CORE_ADD_SOURCE(
 
     # Model Loader Classes
     ModelLoader/OBJLoader.cpp
+    AttriVertex.h
 
     )
-=======
-CORE_ADD_SOURCE(AttriVertex.h)
-
->>>>>>> Stashed changes

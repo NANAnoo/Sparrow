@@ -21,11 +21,15 @@ add_subdirectory(ApplicationFramework)
 add_subdirectory(EcsFramework)
 add_subdirectory(Platforms)
 add_subdirectory(IO)
+<<<<<<< HEAD
 add_subdirectory(Render)
 <<<<<<< Updated upstream
 =======
 add_subdirectory(Model)
 >>>>>>> Stashed changes
+=======
+add_subdirectory(Maths)
+>>>>>>> 9cd465d ([fix] Fix cmakeLists dependencies)
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Core Sources:" ${CoreSourceFiles})
