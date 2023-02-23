@@ -34,13 +34,14 @@ std::shared_ptr<SPW::Model> createModel() {
             {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
         },
         {
-            {- 0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
+            {- 0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0.5, 0.5}, {0, 0, 0}, {0, 0, 0}
         },
         {
-            {+0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
+            {+0.3f, 0.0f, 0.0f}, {0, 0, 0}, {1.0, 0}, {0, 0, 0}, {0, 0, 0}
         }
     };
     SPW::Mesh mesh(vertices, {0, 1, 2});
+    mesh.mMaterial->updateTexture(SPW::TextureType::Albedo,"./resources/texture/container.jpg");
     model->meshes.push_back(mesh);
     return model;
 }
