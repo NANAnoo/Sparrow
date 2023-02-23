@@ -11,11 +11,12 @@
 namespace SPW {
     class ModelComponent : public ComponentI {
     public:
-        ModelComponent() = default;
-        std::string name;
-        std::string vertex_shader_path;
-        std::string frag_shader_path;
+        ModelComponent() = delete;
+        explicit ModelComponent(const UUID &id) : cameraID(id) {}
+        ShaderHandle shadowProgram;
+        ShaderHandle modelProgram;
         std::shared_ptr<Model> model;
-        bool ready;
+        bool ready = false;
+        UUID cameraID;
     };
 }

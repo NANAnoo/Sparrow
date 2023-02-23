@@ -17,19 +17,10 @@ namespace SPW {
         // APIName from RenderBackEndI
         template<typename ...Args>
         explicit RenderCommand(void(RenderBackEndI::*MenFn)(Args& ...), Args& ...args) {
-            apiCaller = [=](RenderBackEndI &api){
-                (api.*MenFn)(args ...);
+            apiCaller = [=](std::shared_ptr<RenderBackEndI> &api){
+                ((*api).*MenFn)(args ...);
             };
         }
-
-
-//        template<typename ...Args>
-//        explicit RenderCommand(void(RenderBackEndI::*MenFn)(Args ...), Args ...args) {
-//            apiCaller = [=](RenderBackEndI &api){
-//                (api.*MenFn)(args ...);
-//            };
-//        }
-
         // move
         template<typename ...Args>
         explicit RenderCommand(RenderCommand &&other) {
@@ -43,12 +34,12 @@ namespace SPW {
         }
 
         // execute with an api
-        void execute(RenderBackEndI &api) {
+        void execute(std::shared_ptr<RenderBackEndI> &api) {
             apiCaller(api);
         }
 
     private:
-        std::function<void(RenderBackEndI &api)> apiCaller;
+        std::function<void(std::shared_ptr<RenderBackEndI> &api)> apiCaller;
     };
 }
 

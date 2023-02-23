@@ -8,7 +8,7 @@
 #include <iostream>
 namespace SPW
 {
-    OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc):m_name(name)
+    OpenGLShader::OpenGLShader( const ShaderHandle &handle):m_name(handle.name)
     {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
@@ -21,8 +21,8 @@ namespace SPW
         try
         {
             // open files
-            vShaderFile.open(vertexSrc);
-            fShaderFile.open(fragmentSrc);
+            vShaderFile.open(handle.vertex_shader_path);
+            fShaderFile.open(handle.frag_shader_path);
             std::stringstream vShaderStream, fShaderStream;
             // read file's buffer contents into streams
             vShaderStream << vShaderFile.rdbuf();

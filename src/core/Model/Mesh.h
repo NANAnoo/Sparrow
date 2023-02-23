@@ -40,9 +40,9 @@ namespace SPW
             VBuffer = renderBackEnd->createVertexBuffer();
             VBuffer->VertexBufferData(vertices);
         }
-        void setShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc,const std::shared_ptr<RenderBackEndI>& renderBackEnd)
+        void setShader(std::shared_ptr<RenderBackEndI>& renderBackEnd, const ShaderHandle &handle)
         {
-            shader = renderBackEnd->getShader(name,vertexSrc,fragmentSrc);
+            shader = renderBackEnd->getShader(handle);
         }
     public:
         std::shared_ptr<IndexBuffer> EBO = nullptr;

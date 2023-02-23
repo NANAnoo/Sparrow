@@ -12,7 +12,6 @@ namespace SPW
     {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
-
     }
 
     void OpenGLBackEnd::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

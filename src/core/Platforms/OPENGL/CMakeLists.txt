@@ -1,8 +1,7 @@
 CORE_ADD_SOURCE(
         OpenGLBackEnd.cpp
         OpenGLBackEnd.h
-        OpenGLContext.cpp
-        OpenGLContext.h
+        OpenGLxGLFWContext.hpp
         OpenGLIndexBuffer.cpp
         OpenGLIndexBuffer.h
         OpenGLShader.cpp

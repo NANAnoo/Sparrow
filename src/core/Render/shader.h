@@ -9,10 +9,11 @@
 #include <type_traits>
 #include <glad/glad.h>
 #include <memory>
+#include <unordered_map>
+#include <utility>
 
 namespace SPW
 {
-
     class Shader
     {
     public:
@@ -34,7 +35,38 @@ namespace SPW
         virtual void setMat4(const std::string& name, const glm::mat4& mat) const = 0;
     };
 
+    struct ShaderHandle {
+        std::string name;
+        std::string vertex_shader_path;
+        std::string frag_shader_path;
+        ShaderHandle()= default;
+        ShaderHandle(std::string aName,
+                              std::string vert,
+                              std::string frag):
+            name(std::move(aName)), vertex_shader_path(std::move(vert)), frag_shader_path(std::move(frag))
+        {}
+        [[nodiscard]] bool isValid() const {
+            return !vertex_shader_path.empty() && !frag_shader_path.empty();
+        }
+    };
 
+    struct ShaderHash {
+        std::size_t operator()(const ShaderHandle& handle) const
+        {
+            return std::hash<std::string>()(handle.vertex_shader_path) ^
+                   (std::hash<std::string>()(handle.frag_shader_path) << 1);
+        }
+    };
+
+    struct ShaderEqual {
+        std::size_t operator()(const ShaderHandle& handle1, const ShaderHandle& handle2) const
+        {
+            return handle1.vertex_shader_path == handle2.vertex_shader_path &&
+                handle1.frag_shader_path == handle2.frag_shader_path;
+        }
+    };
+
+    using ShaderTable = std::unordered_map<ShaderHandle, std::shared_ptr<Shader>, ShaderHash, ShaderEqual>;
 }
 
 

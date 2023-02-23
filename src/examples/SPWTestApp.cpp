@@ -4,18 +4,17 @@
 
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
-#include "Utils/MessageDefines.h"
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
-#include "Control/MouseEvent.hpp"
 
 #include "EcsFramework/Scene.hpp"
-#include "EcsFramework/Entity/Entity.hpp"
 
-#include "EcsFramework/Component/BasicComponent/NameComponent.h"
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "EcsFramework/Component/ModelComponent.h"
+#include "EcsFramework/Component/CameraComponent.hpp"
+#include "EcsFramework/Component/TransformComponent.hpp"
+
 
 #include "Model/Model.h"
 
@@ -23,6 +22,7 @@
 
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
+#include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
 
@@ -45,44 +45,6 @@ std::shared_ptr<SPW::Model> createModel() {
     return model;
 }
 
-class WOC :
-        public SPW::WindowEventResponder,
-        public SPW::KeyEventResponder,
-        public SPW::MouseEventResponder {
-public:
-    explicit WOC(const std::shared_ptr<SPW::EventResponderI> &parent, const char *name):
-            SPW::WindowEventResponder(parent),
-            SPW::KeyEventResponder(parent),
-            SPW::MouseEventResponder(parent),
-            _name(name){
-        }
-    explicit WOC(const std::shared_ptr<WOC> &parent, const char *name):
-            SPW::WindowEventResponder(std::shared_ptr<SPW::WindowEventResponder>(parent)),
-            SPW::KeyEventResponder(std::shared_ptr<SPW::KeyEventResponder>(parent)),
-            SPW::MouseEventResponder(std::shared_ptr<SPW::MouseEventResponder>(parent)),
-            _name(name){
-    }
-    bool onKeyDown(SPW::KeyEvent *e) override {
-        if (_name[0] == 'C') {
-            std::cout << "onKeyDown" << std::endl;
-            return true;
-        }
-        return false;
-    }
-    bool onMouseDown(SPW::MouseEvent *e) override {
-        if (_name[0] == 'B') {
-            std::cout << "onMouseDown" << std::endl;
-            return true;
-        }
-        return false;
-    }
-    bool canRespondTo(const std::shared_ptr<SPW::EventI> &e) final {
-        return _name[0] != 'E' || e->category() == SPW::MouseCategory;
-    }
-    const char *_name;
-    const char *getName() final {return _name;}
-};
-
 // test usage
 class Transformer :
         public SPW::WindowEventResponder {
@@ -93,8 +55,17 @@ public:
 
     bool onWindowResize(int w, int h) override {
         std::cout << "window resize" << "(" << w << ", " << h << ")" <<std::endl;
-        width = w;
-        height = h;
+        bool should_update = false;
+        if (w < 500) {
+            w = 500;
+            should_update = true;
+        }
+        if (h < 400) {
+            h = 400;
+            should_update = true;
+        }
+        if (should_update && ! window.expired())
+            window.lock()->setSize(w, h);
         // set projection
         return true;
     }
@@ -106,12 +77,10 @@ public:
         // set projection
         return false;
     }
-
-    int width = -1;
-    int height = -1;
     const char *getName() final {
         return "Transformer";
     }
+    std::weak_ptr<SPW::WindowI> window;
 };
 
 class TestDelegate : public SPW::AppDelegateI {
@@ -120,54 +89,60 @@ public:
             SPW::AppDelegateI(app), _name(name) {
     }
     void onAppInit() final {
-        app->window = std::make_shared<SPW::GlfwWindow>();
+        auto window = std::make_shared<SPW::GlfwWindow>();
+        app->window = window;
         app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
+
         transformer = std::make_shared<Transformer>(app->delegate.lock());
-        transformer->width = app->window->width();
-        transformer->height = app->window->height();
-        SPW::OBSERVE_MSG_ONCE(SPW::kMsgApplicationInited, [this](SPW::Message msg) {
-            this->render = std::make_shared<SimpleRender>();
-        })
+        transformer->window = window;
 
-        auto A = std::make_shared<WOC>(app->delegate.lock(), "A");
-        auto B = std::make_shared<WOC>(A, "B");
-        auto C = std::make_shared<WOC>(B, "C");
-        auto D = std::make_shared<WOC>(B, "D");
-        auto E = std::make_shared<WOC>(A, "E");
-        auto F = std::make_shared<WOC>(E, "F");
-        auto G = std::make_shared<WOC>(E, "G");
-        app->postEvent(std::make_shared<SPW::KeyEvent>(SPW::KeyDownType));
-        app->postEvent(std::make_shared<SPW::MouseEvent>(SPW::MouseDownType));
+        // weak strong dance
+        std::weak_ptr<SPW::GlfwWindow> weak_window = window;
+        window->onWindowCreated([weak_window, this](GLFWwindow *handle){
+            if (weak_window.expired()) {
+                return;
+            }
+            // create graphics context
+            weak_window.lock()->graphicsContext = std::make_shared<SPW::OpenGLxGLFWContext>(handle);
+            // initial context
+            weak_window.lock()->graphicsContext->Init();
 
-        scene = SPW::Scene::create(app->delegate.lock());
+            // create render back end
+            renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
 
-        renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
-        scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
+            // create scene
+            scene = SPW::Scene::create(app->delegate.lock());
 
-        auto triangle = scene->createEntity("test");
-        triangle->emplace<SPW::ModelComponent>();
-        auto model = triangle->component<SPW::ModelComponent>();
-        model->name = "";
-        model->vertex_shader_path = "./resources/shaders/simpleVs.vert";
-        model->frag_shader_path = "./resources/shaders/simplefrag.frag";
-        model->model = createModel();
+            // add system
+            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
 
-        scene->initial();
+            // add a camera entity
+            auto camera = scene->createEntity("main camera");
+            camera->emplace<SPW::TransformComponent>();
+            camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+
+            SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
+
+            // add a test game object
+            auto triangle = scene->createEntity("test");
+            triangle->emplace<SPW::TransformComponent>();
+
+            // add a model to show
+            auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
+            SPW::ShaderHandle shaderHandle({
+                                         "basic",
+                                         "./resources/shaders/simpleVs.vert",
+                                         "./resources/shaders/simplefrag.frag"
+                                     });
+            model->modelProgram = shaderHandle;
+            model->model = createModel();
+
+            // init scene
+            scene->initial();
+        });
     }
     void beforeAppUpdate() final{
-        bool should_update = false;
-        if (transformer->width < 500) {
-            transformer->width = 500;
-            should_update = true;
-        }
-        if (transformer->height < 500) {
-            transformer->height = 400;
-            should_update = true;
-        }
-        if (should_update)
-            app->window->setSize(transformer->width, transformer->height);
-
         scene->beforeUpdate();
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
@@ -185,7 +160,9 @@ public:
     }
     void onAppStopped() final{
         sol::state state;
-        state.open_libraries(sol::lib::base);
+        state.open_libraries(sol::lib::base, sol::lib::package);
+        std::string x = state["package"]["path"];
+        state["package"]["path"] = x + ";./resources/scripts/lua/?.lua";
         try {
             if(state.script_file("./resources/scripts/lua/test.lua").valid()) {
                 sol::protected_function main_function=state["main"];

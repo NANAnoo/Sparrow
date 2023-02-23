@@ -9,12 +9,8 @@
 namespace SPW {
     class TransformComponent : public ComponentI {
     public:
+        TransformComponent() = default;
         TransformComponent(const TransformComponent &other) {
-            position = other.position;
-            rotation = other.rotation;
-            scale = other.scale;
-        };
-        TransformComponent(TransformComponent &&other)  noexcept {
             position = other.position;
             rotation = other.rotation;
             scale = other.scale;

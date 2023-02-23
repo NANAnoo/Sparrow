@@ -18,7 +18,7 @@ namespace SPW
         bool gammaCorrection;
 
         // constructor, expects a filepath to a 3D model.
-        Model(std::string path, bool gamma = false) :
+        explicit Model(std::string path, bool gamma = false) :
             directory(std::move(path)), gammaCorrection(gamma)
         {
             // loadModel(path,renderBackEnd);

@@ -21,15 +21,18 @@ namespace SPW {
         }
         Entity(const entt::entity &e, const std::shared_ptr<entt::registry> &located_registry):
             registry(located_registry), entity(e) {}
-        Entity(const Entity &other) = default;
+        Entity(const Entity &other) {
+            registry = other.registry;
+            entity = other.entity;
+        };
 
         // insert a component
         template<Component C, typename ...Args>
-        C &emplace(Args&& ...args) {
+        C *emplace(Args&& ...args) {
             // check validation of weak_scene
             assert(!registry.expired());
             // add component to the registry
-            return registry.lock()->emplace<C>(entity, std::forward<Args>(args)...);
+            return &registry.lock()->emplace<C>(entity, std::forward<Args>(args)...);
         }
 
         // get a component with type C
@@ -44,6 +47,10 @@ namespace SPW {
         template<Component ...C>
         std::tuple<C *...> combined() const {
             return std::make_tuple<C *...>((component<C>())...);
+        }
+        template<Component ...C>
+        std::tuple<C *...> combinedInGroup(ComponentGroup<C...>) const {
+            return combined<C...>();
         }
 
         // check if a component with type C is existed in this entity
