@@ -25,6 +25,7 @@
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
+#include "Control/MouseEvent.hpp"
 
 class WOC :
         public SPW::WindowEventResponder,
@@ -65,7 +66,7 @@ public:
 };
 
 std::shared_ptr<SPW::Model> createModel() {
-    auto model = std::make_shared<SPW::Model>(" ");
+    auto model = std::make_shared<SPW::Model>("Take your own model path!");
     std::vector<SPW::Vertex> vertices = {
         {
             {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
