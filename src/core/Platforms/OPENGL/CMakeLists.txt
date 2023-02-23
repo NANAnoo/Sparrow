@@ -1,0 +1,12 @@
+CORE_ADD_SOURCE(
+        OpenGLAPI.cpp
+        OpenGLAPI.h
+        OpenGLContext.cpp
+        OpenGLContext.h
+        OpenGLIndexBuffer.cpp
+        OpenGLIndexBuffer.h
+        OpenGLShader.cpp
+        OpenGLShader.h
+        OpenGLVertexBuffer.cpp
+        OpenGLVertexBuffer.h
+)
