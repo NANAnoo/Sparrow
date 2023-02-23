@@ -98,7 +98,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
     } else {
         P = glm::ortho(cameraCom->left, cameraCom->right,
-                       cameraCom->bottom, cameraCom->top);
+                       cameraCom->bottom, cameraCom->top, cameraCom->near, cameraCom->far);
     }
 
 
@@ -124,10 +124,11 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
             for (auto &model : entities) {
                 auto modelCom = model.component<ModelComponent>();
                 auto transformCom = model.component<TransformComponent>();
-                glm::mat4x4 M = glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
-                                                   glm::radians(transformCom->rotation.x),
-                                                   glm::radians(transformCom->rotation.z));
+                glm::mat4x4 M = glm::mat4(1.0f);
                 M = glm::translate(M, transformCom->position);
+                M = M * glm::eulerAngleXYZ(glm::radians(transformCom->rotation.x),
+                                           glm::radians(transformCom->rotation.y),
+                                           glm::radians(transformCom->rotation.z));
                 M = glm::scale(M, transformCom->scale);
 
                 for(auto &mesh : modelCom->model->meshes) {
@@ -155,4 +156,10 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
 void SPW::RenderSystem::onStop() {
 
+}
+
+bool SPW::RenderSystem::onFrameResize(int w, int h) {
+    std::cout << "RenderSystem frame changed" << std::endl;
+    // TODO update frame buffer here
+    return false;
 }
