@@ -5,7 +5,7 @@
 #ifndef SPARROW_SIMPLERENDER_H
 #define SPARROW_SIMPLERENDER_H
 
-#include <Glad/glad.h>
+#include <glad/glad.h>
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
                                  "void main()\n"
