@@ -13,6 +13,7 @@
 
 #include "Model/Mesh.h"
 #include "Render/RenderBackEndI.h"
+#include "iostream"
 
 namespace SPW
 {
@@ -72,8 +73,14 @@ namespace SPW
     public:
         Model() = default;
         explicit Model(const std::filesystem::path& _filePath, bool gamma = false);
-	    Model(const std::shared_ptr<Mesh>& _meshes);
-        ~Model() = default;
+	    Model(std::vector<std::shared_ptr<Mesh>>&& _meshes)
+	    {
+            m_Meshes = std::move(_meshes);
+	    }
+
+    	~Model() {
+            std::cout << " ";
+        };
 
         [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return m_Meshes; }
         void AddMesh(std::shared_ptr<Mesh> _mesh) { m_Meshes.emplace_back(std::move(_mesh)); }
@@ -90,9 +97,6 @@ namespace SPW
                 mesh->setupMesh(renderBackEnd);
         }
 
-        // TODO: Save Methods, Load Methods, Materials, and Animationclips
-        void LoadModel(const std::filesystem::path& _filePath);
-
     private:
         // TODO: Add PrimitiveType type
         std::filesystem::path m_FilePath;
@@ -101,17 +105,6 @@ namespace SPW
         std::vector<std::shared_ptr<AnimationClip>>  m_AnimationClips;
         std::vector<std::shared_ptr<BoneInfo>>  m_BoneInfos;
         bool m_GammaCorrection;
-
-//        void LoadOBJ(const std::filesystem::path& _filePath);
-//        void LoadFBX(const std::filesystem::path& _filePath);
-//        void LoadGLTF(const char* _filePath);
-
-        //TODO Animation Parts
-        std::shared_ptr<AnimationClip> ProcessAnimationNode(aiAnimation* anim, const aiScene* scene);
-        void ProcessAnimationClips(aiNode* node, const aiScene* scene);
-        std::shared_ptr<Mesh> ProcessMeshNode(aiMesh* mesh, const aiScene* scene);
-        void ProcessNodes(aiNode* node, const aiScene* scene);
-        void LoadAssimp(const std::filesystem::path& _filePath);
     };
 }
 #endif //SPARROW_MODEL_H
