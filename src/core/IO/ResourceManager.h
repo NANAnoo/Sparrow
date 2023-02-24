@@ -6,21 +6,10 @@
 
 namespace SPW
 {
-	class Model;
-
-	enum class ResourceType
-	{
-		MODEL,
-		SHADER,
-		TEXTURE,
-	};
-
-	class ResourceManager : public SPW::SingletonBase<ResourceManager> 
+	class ResourceManager : public SingletonBase<ResourceManager> 
 	{
 	public:
 		std::shared_ptr<Model> LoadModel(const std::filesystem::path& filePath);
-
-	private:
 	};
 
 }

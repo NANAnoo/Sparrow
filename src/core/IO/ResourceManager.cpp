@@ -86,10 +86,11 @@ namespace SPW
 	    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
 			const aiBone* bone = mesh->mBones[i];
 
+			// TODO Open Animation Branch to DO
 			// Weights
-			std::vector<Weight> weights;
-			for (unsigned int j = 0; j < bone->mNumWeights; j++)
-				weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
+			// std::vector<Weight> weights;
+			// for (unsigned int j = 0; j < bone->mNumWeights; j++)
+			// 	weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
 
 			// m_BoneInfos.emplace_back(
 			// 	std::make_shared<BoneInfo>(bone->mName.C_Str(), bone->mNumWeights, std::move(weights), toMat4(bone->mOffsetMatrix))
@@ -125,6 +126,7 @@ namespace SPW
         // Iterate through each bone and get its children indices
         for (int i = 0; i < mesh->mNumBones; i++)
         {
+        	// TODO Open Animation Branch to DO
             // const auto& parentID = m_BoneInfos[i]->parentID;
             // if (parentID == -1) continue;
             // m_BoneInfos[parentID]->childrenIDs.emplace_back(i);

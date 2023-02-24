@@ -21,12 +21,7 @@ namespace SPW
     {
     public:
         Model() = default;
-        explicit Model(const std::filesystem::path& _filePath, bool gamma = false);
-	    Model(std::vector<std::shared_ptr<Mesh>>&& _meshes)
-	    {
-            m_Meshes = std::move(_meshes);
-	    }
-
+        explicit Model(std::vector<std::shared_ptr<Mesh>>&& _meshes) { m_Meshes = std::move(_meshes); }
     	~Model() {}
 
         [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return m_Meshes; }
@@ -45,13 +40,9 @@ namespace SPW
         }
 
     private:
-        // TODO: Add PrimitiveType type
         std::filesystem::path m_FilePath;
         std::filesystem::path m_Directory;
         std::vector<std::shared_ptr<Mesh>>  m_Meshes;
-        std::vector<std::shared_ptr<AnimationClip>>  m_AnimationClips;
-        std::vector<std::shared_ptr<BoneInfo>>  m_BoneInfos;
-        bool m_GammaCorrection;
     };
 }
 #endif //SPARROW_MODEL_H
