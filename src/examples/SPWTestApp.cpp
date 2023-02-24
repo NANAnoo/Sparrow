@@ -69,10 +69,7 @@ public:
 
 std::shared_ptr<SPW::Model> createModel() {
 
-    
-
-    auto tmp = SPW::ResourceManager::getInstance();
-    tmp->LoadModel("C:/Dev/Sparrow Renderer/res/Models/hhd.fbx");
+    auto tmp = SPW::ResourceManager::getInstance()->LoadModel("C:/Dev/Sparrow Renderer/res/Models/hhd.fbx");
 	// auto vs = tmp->GetMeshes()[0]->vertices;
     // for(const auto& v: vs)
     // {

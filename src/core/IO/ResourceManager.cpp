@@ -170,7 +170,7 @@ namespace SPW
 			return nullptr;
 		}
 
-		std::cout << "Sucess::ASSIMP::" << _filePath << std::endl;
+		std::cout << "SUCESS::ASSIMP::" << _filePath << std::endl;
 		
 		std::shared_ptr<Model> model = std::make_shared<Model>(ProcessNodes(scene->mRootNode, scene));
 
