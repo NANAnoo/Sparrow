@@ -27,6 +27,7 @@
 #include "SimpleRender.h"
 #include "Control/MouseEvent.hpp"
 #include "IO/ResourceManager.h"
+#include "Model/Model.h"
 
 class WOC :
         public SPW::WindowEventResponder,
@@ -67,32 +68,19 @@ public:
 };
 
 std::shared_ptr<SPW::Model> createModel() {
-    //
-    // auto model = std::make_shared<SPW::Model>("Take your own model path!");
-    // std::vector<SPW::Vertex> vertices = {
-    //     {
-    //         {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
-    //     },
-    //     {
-    //         {- 0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
-    //     },
-    //     {
-    //         {+0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
-    //     }
-    // };
-    // std::shared_ptr<SPW::Mesh> mesh = std::make_shared<SPW::Mesh>(vertices, std::vector<unsigned int>{0, 1, 2});
-    // model->AddMesh(mesh);
-    // return model;
 
-    auto tmp = SPW::ResourceManager::getInstance()->LoadModel("C:/Dev/Sparrow Renderer/res/Models/hhd.fbx");
-    std::cout << tmp->GetMeshes().size();
+    
+
+    auto tmp = SPW::ResourceManager::getInstance();
+    tmp->LoadModel("C:/Dev/Sparrow Renderer/res/Models/hhd.fbx");
 	// auto vs = tmp->GetMeshes()[0]->vertices;
     // for(const auto& v: vs)
     // {
     //     std::cout << v.Position.x << v.Position.y << v.Position.z << "\n";
-    // }
-    //
-    return tmp;
+    // }    
+    // return tmp;
+
+    return nullptr;
 }
 
 // test usage

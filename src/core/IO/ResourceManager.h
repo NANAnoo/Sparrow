@@ -6,37 +6,21 @@
 
 namespace SPW
 {
+	class Model;
 
-
-enum class ResourceType
-{
-	MODEL,
-	SHADER,
-	TEXTURE,
-};
-
-class ResourceManager : public SPW::SingletonBase<ResourceManager> 
-{
-public:
-	std::shared_ptr<Model> LoadModel(const std::filesystem::path& filePath);
-
-
-	auto GetResouces() const
+	enum class ResourceType
 	{
-		return m_Resources;
-	}
+		MODEL,
+		SHADER,
+		TEXTURE,
+	};
 
-	auto GetModels() const
+	class ResourceManager : public SPW::SingletonBase<ResourceManager> 
 	{
-		return m_Models;
-	}
+	public:
+		std::shared_ptr<Model> LoadModel(const std::filesystem::path& filePath);
 
-
-private:
-	float m_AGenertor = 1.0f;
-
-	std::unordered_map<std::string, ResourceType> m_Resources;
-	std::unordered_map<std::string, std::shared_ptr<Model>> m_Models;
-};
+	private:
+	};
 
 }

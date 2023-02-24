@@ -10,9 +10,4 @@ namespace SPW
         m_Meshes.resize(0);
     }
 
-    // void Model::LoadModel(const std::filesystem::path& _filePath)
-    // {
-    //     const auto& fileExtension = _filePath.extension();
-    //     LoadAssimp(_filePath);
-    // }
 }

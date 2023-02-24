@@ -3,5 +3,4 @@ CORE_ADD_SOURCE(
     Model.h 
     Model.cpp 
     Vertex.h
-    AssimpLoader.cpp
     )
