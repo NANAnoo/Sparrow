@@ -105,15 +105,16 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
                 // TODO: calculate MVP here
                 // TODO: MVP = m * VP;
-                for(auto &mesh : modelCom->model->meshes) {
+                const auto& meshes = modelCom->model->GetMeshes();
+                for(auto &mesh : meshes) {
                     // set up mesh with current shader
-                    mesh.setShader(renderBackEnd, handle);
+                    mesh->setShader(renderBackEnd, handle);
                     // TODO: maybe add animation data to uniform here?
 
                     // TODO: set up MVP here
                     // mesh.shader->SetUniformValue<glm::mat4>(MVP);
                     // draw current model
-                    mesh.Draw(renderBackEnd);
+                    mesh->Draw(renderBackEnd);
                 }
             }
         }

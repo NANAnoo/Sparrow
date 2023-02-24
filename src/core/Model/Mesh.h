@@ -12,6 +12,7 @@
 #include "Render/VertexBuffer.h"
 #include "Render/RenderBackEndI.h"
 #include "Render/RenderPass.hpp"
+#include "Render/shader.h"
 #include "Vertex.h"
 
 namespace SPW
@@ -22,6 +23,8 @@ namespace SPW
         // mesh Data
         std::vector<Vertex>       vertices;
         std::vector<unsigned int> indices;
+
+        Mesh() = default;
 
         Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices)
         {
@@ -34,16 +37,19 @@ namespace SPW
             shader->Bind();
             renderBackEnd->DrawElement(VBuffer,EBO);
         }
-        void setupMesh(std::shared_ptr<RenderBackEndI> &renderBackEnd)
+
+        void setupMesh(std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
             EBO = renderBackEnd->createIndexBuffer(indices);
             VBuffer = renderBackEnd->createVertexBuffer();
             VBuffer->VertexBufferData(vertices);
         }
-        void setShader(std::shared_ptr<RenderBackEndI>& renderBackEnd, const ShaderHandle &handle)
+
+    	void setShader(std::shared_ptr<RenderBackEndI>& renderBackEnd, const ShaderHandle& handle)
         {
             shader = renderBackEnd->getShader(handle);
         }
+
     public:
         std::shared_ptr<IndexBuffer> EBO = nullptr;
         std::shared_ptr<VertexBufferI> VBuffer = nullptr;

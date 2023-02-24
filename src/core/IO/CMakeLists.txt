@@ -1,1 +1,4 @@
-CORE_ADD_SOURCE(AttriVertex.h)
+CORE_ADD_SOURCE(
+	ResourceManager.h
+	ResourceManager.cpp
+	)
