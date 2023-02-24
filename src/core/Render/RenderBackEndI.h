@@ -14,6 +14,7 @@
 #include <string>
 #include "Render/shader.h"
 #include "Render/Material.h"
+#include "Render/FrameBuffer.h"
 namespace SPW
 {
     enum class DepthComp
@@ -24,6 +25,8 @@ namespace SPW
     };
     class RenderBackEndI
     {
+    public:
+        std::shared_ptr<FrameBuffer> scenceFrameBuffer = nullptr;
     public:
         enum class RenderAPIType
         {
@@ -45,6 +48,10 @@ namespace SPW
 
         //create texture
         virtual void BindTexture(std::shared_ptr<Shader>shader,std::shared_ptr<Material> material) = 0;
+
+        //frambuffer
+        virtual std::shared_ptr<FrameBuffer> creatSenceFrameBuffer()=0;
+        virtual void drawInTexture()=0;
 
         //creat structure;
         virtual std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) = 0;

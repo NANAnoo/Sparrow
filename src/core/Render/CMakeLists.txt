@@ -12,4 +12,5 @@ CORE_ADD_SOURCE(
         RenderPass.hpp
         Material.h
         stb_image.h
+        FrameBuffer.h
 )

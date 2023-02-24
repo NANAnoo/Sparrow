@@ -33,8 +33,9 @@ namespace SPW
         void Draw(const std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
             shader->Bind();
-            renderBackEnd->DrawElement(VBuffer,EBO);
             renderBackEnd->BindTexture(shader,mMaterial);
+            renderBackEnd->DrawElement(VBuffer,EBO);
+
         }
         void setupMesh(std::shared_ptr<RenderBackEndI> &renderBackEnd)
         {

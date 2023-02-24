@@ -13,6 +13,7 @@ namespace SPW
 {
     class OpenGLBackEnd: public RenderBackEndI
     {
+    public:
         void Init() override;
         void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
         void SetClearColor(const glm::vec4& color) override;
@@ -47,6 +48,11 @@ namespace SPW
         {
             return std::make_shared<OpenGLShader>(handle);
         }
+
+        std::shared_ptr<FrameBuffer> creatSenceFrameBuffer() final;
+        void drawInTexture() final;
+    private:
+        unsigned int quadVAO, quadVBO;
     };
 }
 

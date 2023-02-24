@@ -11,6 +11,6 @@ uniform mat4 P;
 out vec2 TexCoords;
 void main()
 {
-    gl_Position = P * V * M * vec4(aPos, 1.0);
+    gl_Position = P*V*M*vec4(aPos, 1.0);
     TexCoords = aCoords;
 }

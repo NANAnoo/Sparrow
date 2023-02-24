@@ -7,8 +7,19 @@
 #include "OpenGLIndexBuffer.h"
 #include "OpenGLTextureManager.h"
 #include "OpenGLTexture2D.h"
-
+#include "OpenGLFrameBuffer.h"
 #include <fstream>
+float quadVertices[] =
+{
+                // positions   // texCoords
+                -1.0f,  1.0f,  0.0f, 1.0f,
+                -1.0f, -1.0f,  0.0f, 0.0f,
+                1.0f, -1.0f,  1.0f, 0.0f,
+
+                -1.0f,  1.0f,  0.0f, 1.0f,
+                1.0f, -1.0f,  1.0f, 0.0f,
+                1.0f,  1.0f,  1.0f, 1.0f
+ };
 
 namespace SPW
 {
@@ -26,6 +37,16 @@ namespace SPW
         shader_lib = "/structure.glsl";
         glNamedStringARB(GL_SHADER_INCLUDE_ARB, shader_lib.size(), shader_lib.c_str(),
                          code.size(), code.c_str());
+
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     }
 
     void OpenGLBackEnd::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -92,10 +113,31 @@ namespace SPW
             std::shared_ptr<OpenGLtexture2D> AlbedoMap =
                     OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
             shader->Bind();
+            shader->SetUniformValue<int>("albedoMap",0);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, AlbedoMap->ID);
-            shader->SetUniformValue<int>("albedoMap",0);
+
         }
 
+    }
+    std::shared_ptr<FrameBuffer> OpenGLBackEnd::creatSenceFrameBuffer()
+    {
+        scenceFrameBuffer = std::make_shared<OpenGLFrameBuffer>();
+        return scenceFrameBuffer;
+    }
+
+    void OpenGLBackEnd::drawInTexture()
+    {
+        SPW::ShaderHandle screenHandle({
+                                               "drawIntexture",
+                                               "./resources/shaders/screen.vert",
+                                               "./resources/shaders/screen.frag"
+                                       });
+        std::shared_ptr<Shader> screenShader = this->getShader(screenHandle);
+        screenShader->Bind();
+        screenShader->SetUniformValue<int>("screenTexture",0);
+        glBindVertexArray(quadVAO);
+        scenceFrameBuffer->drawinTexture();
+        glBindVertexArray(0);
     }
 }
