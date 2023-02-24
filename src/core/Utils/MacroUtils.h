@@ -59,6 +59,21 @@ namespace SPW
         func(*std::get<index>(tuple_value)...);
     }
 
+
+    unsigned constexpr hash_str(const char* s)
+    {
+        unsigned A = 54059; /* a prime */
+        unsigned B = 76963; /* another prime */
+        unsigned C = 86969; /* yet another prime */
+        unsigned FIRST_H = 37; /* also prime */
+        unsigned h = FIRST_H;
+        while (*s) {
+            h = (h * A) ^ (s[0] * B);
+            s++;
+        }
+        return h % C;
+    }
+
 }; // namespace SPW
 
 #endif //SPARROW_MACROUTILS_H

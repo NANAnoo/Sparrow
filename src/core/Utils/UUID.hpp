@@ -6,6 +6,7 @@
 #define SPARROW_UUID_HPP
 
 #include <uuid.h>
+#include "MacroUtils.h"
 
 namespace SPW {
     // UUID

@@ -68,6 +68,14 @@ public:
         if (should_update && ! window.expired())
             window.lock()->setSize(w, h);
         // set projection
+        // TODO: add a responder to each camera
+        scene.lock()->forEach([=](SPW::CameraComponent *cam) {
+            cam->aspect = float(w) / float(h);
+            if (cam->getType() == SPW::UIOrthoType) {
+                cam->right = w;
+                cam->top = h;
+            }
+        }, SPW::CameraComponent);
         return true;
     }
 
@@ -82,6 +90,7 @@ public:
         return "Transformer";
     }
     std::weak_ptr<SPW::WindowI> window;
+    std::weak_ptr<SPW::Scene> scene;
 };
 
 class TestDelegate : public SPW::AppDelegateI {
@@ -123,20 +132,31 @@ public:
             camera->emplace<SPW::TransformComponent>();
             auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
             cam->fov = 60;
-            cam->aspect = 1;
+            cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
             cam->near = 0.01;
             cam->far = 100;
 
+            // add a camera entity
+            auto camera2 = scene->createEntity("main camera");
+            auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
+            cam2_tran->position.y = 0.3;
+            cam2_tran->rotation.z = 90;
+            auto cam2 = camera2->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+            cam2->fov = 75;
+            cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
+            cam2->near = 0.01;
+            cam2->far = 100;
+
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
+            SPW::UUID camera_id_2 = camera2->component<SPW::IDComponent>()->getID();
 
             // add a test game object
             auto triangle = scene->createEntity("test");
             auto transform = triangle->emplace<SPW::TransformComponent>();
-            //transform->rotation.z = 90;
-            //transform->position.y = -0.5;
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
+            model->bindCameras.insert(camera_id_2);
             SPW::ShaderHandle shaderHandle({
                                          "basic",
                                          "./resources/shaders/simpleVs.vert",
@@ -147,6 +167,7 @@ public:
 
             // init scene
             scene->initial();
+            transformer->scene = scene;
         });
     }
     void beforeAppUpdate() final{

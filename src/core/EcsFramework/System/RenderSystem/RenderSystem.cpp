@@ -99,7 +99,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
         [&currentID, &renderModels, this](const Entity &en) {
             auto modelCom = en.component<SPW::ModelComponent>();
             // passing data to GPU
-            if (modelCom->cameraID == currentID) {
+            if (modelCom->bindCameras.find(currentID) != modelCom->bindCameras.end()) {
                 if (!modelCom->ready) {
                     modelCom->model->setUpModel(renderBackEnd);
                 }
@@ -109,10 +109,12 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
     // 2. calculate VP from camera
     glm::mat4x4 V, P;
-    glm::mat4x4 cameraTransform = glm::eulerAngleYXZ(transformCom->rotation.y,
-                                        transformCom->rotation.x,
-                                        transformCom->rotation.z);
-    glm::translate(cameraTransform, transformCom->position);
+    glm::mat4x4 cameraTransform = glm::mat4(1.0f);
+    cameraTransform = glm::translate(cameraTransform, transformCom->position);
+    cameraTransform = cameraTransform * glm::eulerAngleXYZ(glm::radians(transformCom->rotation.x),
+                       glm::radians(transformCom->rotation.y),
+                       glm::radians(transformCom->rotation.z));
+
     glm::vec4 eye(0, 0, 1, 1), look_at(0, 0, 0, 1), up(0, 1, 0, 0);
     V = glm::lookAt(glm::vec3(cameraTransform * eye),
                     glm::vec3(cameraTransform *look_at),
@@ -125,7 +127,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
     } else {
         P = glm::ortho(cameraCom->left, cameraCom->right,
-                       cameraCom->bottom, cameraCom->top);
+                       cameraCom->bottom, cameraCom->top, cameraCom->near, cameraCom->far);
     }
 
 
@@ -187,4 +189,10 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
 void SPW::RenderSystem::onStop() {
 
+}
+
+bool SPW::RenderSystem::onFrameResize(int w, int h) {
+    std::cout << "RenderSystem frame changed" << std::endl;
+    // TODO update frame buffer here
+    return false;
 }

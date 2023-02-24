@@ -12,11 +12,13 @@ namespace SPW {
     class ModelComponent : public ComponentI {
     public:
         ModelComponent() = delete;
-        explicit ModelComponent(const UUID &id) : cameraID(id) {}
+        explicit ModelComponent(const UUID &id) {
+            bindCameras.insert(id);
+        }
         ShaderHandle shadowProgram;
         ShaderHandle modelProgram;
         std::shared_ptr<Model> model;
         bool ready = false;
-        UUID cameraID;
+        std::unordered_set<UUID, UUID::hash> bindCameras;
     };
 }
