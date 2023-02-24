@@ -136,7 +136,19 @@ public:
             cam->near = 0.01;
             cam->far = 100;
 
+            // add a camera entity
+            auto camera2 = scene->createEntity("main camera");
+            auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
+            cam2_tran->position.y = 0.3;
+            cam2_tran->rotation.z = 90;
+            auto cam2 = camera2->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+            cam2->fov = 75;
+            cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
+            cam2->near = 0.01;
+            cam2->far = 100;
+
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
+            SPW::UUID camera_id_2 = camera2->component<SPW::IDComponent>()->getID();
 
             // add a test game object
             auto triangle = scene->createEntity("test");
@@ -145,6 +157,7 @@ public:
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
+            model->bindCameras.insert(camera_id_2);
             SPW::ShaderHandle shaderHandle({
                                          "basic",
                                          "./resources/shaders/simpleVs.vert",
