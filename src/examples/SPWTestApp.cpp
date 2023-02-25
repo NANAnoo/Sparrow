@@ -1,7 +1,9 @@
 #include <iostream>
 
+#include <memory>
 #include <sol/sol.hpp>
 
+#include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 
@@ -25,10 +27,50 @@
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
+#include "Control/MouseEvent.hpp"
+#include "IO/ResourceManager.h"
+#include "Model/Model.h"
 
+class WOC :
+        public SPW::WindowEventResponder,
+        public SPW::KeyEventResponder,
+        public SPW::MouseEventResponder {
+public:
+    explicit WOC(const std::shared_ptr<SPW::EventResponderI> &parent, const char *name):
+            SPW::WindowEventResponder(parent),
+            SPW::KeyEventResponder(parent),
+            SPW::MouseEventResponder(parent),
+            _name(name){
+        }
+    explicit WOC(const std::shared_ptr<WOC> &parent, const char *name):
+            SPW::WindowEventResponder(std::shared_ptr<SPW::WindowEventResponder>(parent)),
+            SPW::KeyEventResponder(std::shared_ptr<SPW::KeyEventResponder>(parent)),
+            SPW::MouseEventResponder(std::shared_ptr<SPW::MouseEventResponder>(parent)),
+            _name(name){
+    }
+    bool onKeyDown(SPW::KeyEvent *e) override {
+        if (_name[0] == 'C') {
+            std::cout << "onKeyDown" << std::endl;
+            return true;
+        }
+        return false;
+    }
+    bool onMouseDown(SPW::MouseEvent *e) override {
+        if (_name[0] == 'B') {
+            std::cout << "onMouseDown" << std::endl;
+            return true;
+        }
+        return false;
+    }
+    bool canRespondTo(const std::shared_ptr<SPW::EventI> &e) final {
+        return _name[0] != 'E' || e->category() == SPW::MouseCategory;
+    }
+    const char *_name;
+    const char *getName() final {return _name;}
+};
 
 std::shared_ptr<SPW::Model> createModel() {
-    auto model = std::make_shared<SPW::Model>("");
+    auto model = std::make_shared<SPW::Model>();
     std::vector<SPW::Vertex> vertices = {
         {
             {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
@@ -40,10 +82,21 @@ std::shared_ptr<SPW::Model> createModel() {
             {+0.3f, 0.0f, 0.0f}, {0, 0, 0}, {1.0, 0}, {0, 0, 0}, {0, 0, 0}
         }
     };
-    SPW::Mesh mesh(vertices, {0, 1, 2});
-    mesh.mMaterial->updateTexture(SPW::TextureType::Albedo,"./resources/texture/container.jpg");
-    model->meshes.push_back(mesh);
+    std::vector<unsigned int> indices = {0, 1, 2};
+    
+    auto mesh = std::make_shared<SPW::Mesh>(vertices, indices);
+    mesh->mMaterial->updateTexture(SPW::TextureType::Albedo,"./resources/texture/container.jpg");
+    model->AddMesh(mesh);
     return model;
+
+    // auto tmp = SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sf_cube/scene.gltf");
+	// // auto vs = tmp->GetMeshes()[0]->vertices;
+    // // for(const auto& v: vs)
+    // // {
+    // //     std::cout << v.Position.x << v.Position.y << v.Position.z << "\n";
+    // // }    
+    // return tmp;
+    // return nullptr;
 }
 
 // test usage
