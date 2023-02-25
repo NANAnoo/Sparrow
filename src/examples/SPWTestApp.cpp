@@ -1,7 +1,9 @@
 #include <iostream>
 
+#include <memory>
 #include <sol/sol.hpp>
 
+#include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 
@@ -68,15 +70,33 @@ public:
 };
 
 std::shared_ptr<SPW::Model> createModel() {
+    auto model = std::make_shared<SPW::Model>();
+    std::vector<SPW::Vertex> vertices = {
+        {
+            {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
+        },
+        {
+            {- 0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0.5, 0.5}, {0, 0, 0}, {0, 0, 0}
+        },
+        {
+            {+0.3f, 0.0f, 0.0f}, {0, 0, 0}, {1.0, 0}, {0, 0, 0}, {0, 0, 0}
+        }
+    };
+    std::vector<unsigned int> indices = {0, 1, 2};
+    
+    auto mesh = std::make_shared<SPW::Mesh>(vertices, indices);
+    mesh->mMaterial->updateTexture(SPW::TextureType::Albedo,"./resources/texture/container.jpg");
+    model->AddMesh(mesh);
+    return model;
 
-    auto tmp = SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sf_cube/scene.gltf");
-	// auto vs = tmp->GetMeshes()[0]->vertices;
-    // for(const auto& v: vs)
-    // {
-    //     std::cout << v.Position.x << v.Position.y << v.Position.z << "\n";
-    // }    
-    return tmp;
-    return nullptr;
+    // auto tmp = SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sf_cube/scene.gltf");
+	// // auto vs = tmp->GetMeshes()[0]->vertices;
+    // // for(const auto& v: vs)
+    // // {
+    // //     std::cout << v.Position.x << v.Position.y << v.Position.z << "\n";
+    // // }    
+    // return tmp;
+    // return nullptr;
 }
 
 // test usage
@@ -101,6 +121,14 @@ public:
         if (should_update && ! window.expired())
             window.lock()->setSize(w, h);
         // set projection
+        // TODO: add a responder to each camera
+        scene.lock()->forEach([=](SPW::CameraComponent *cam) {
+            cam->aspect = float(w) / float(h);
+            if (cam->getType() == SPW::UIOrthoType) {
+                cam->right = w;
+                cam->top = h;
+            }
+        }, SPW::CameraComponent);
         return true;
     }
 
@@ -115,6 +143,7 @@ public:
         return "Transformer";
     }
     std::weak_ptr<SPW::WindowI> window;
+    std::weak_ptr<SPW::Scene> scene;
 };
 
 class TestDelegate : public SPW::AppDelegateI {
@@ -154,13 +183,18 @@ public:
             // add a camera entity
             auto camera = scene->createEntity("main camera");
             camera->emplace<SPW::TransformComponent>();
-            camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+            auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+            cam->fov = 60;
+            cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
+            cam->near = 0.01;
+            cam->far = 100;
 
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
 
             // add a test game object
             auto triangle = scene->createEntity("test");
-            triangle->emplace<SPW::TransformComponent>();
+            auto transform = triangle->emplace<SPW::TransformComponent>();
+            transform->scale = {0.5, 0.5, 0.5};
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
@@ -174,6 +208,7 @@ public:
 
             // init scene
             scene->initial();
+            transformer->scene = scene;
         });
     }
     void beforeAppUpdate() final{

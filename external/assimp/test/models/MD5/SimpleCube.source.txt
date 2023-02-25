@@ -1,1 +1,3 @@
-From http://www.doom3world.org/phpbb2/viewtopic.php?f=3&t=16842 (thanks, Rayne, whoever you are)
+version https://git-lfs.github.com/spec/v1
+oid sha256:9cf6878dba89bcd2f6727cd5e5b117c45c5ff3a3b4c3b1b643bcfbcfe02774cc
+size 97

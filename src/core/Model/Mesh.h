@@ -14,6 +14,7 @@
 #include "Render/RenderPass.hpp"
 #include "Render/shader.h"
 #include "Vertex.h"
+#include "Render/Material.h"
 
 namespace SPW
 {
@@ -36,6 +37,7 @@ namespace SPW
         {
             shader->Bind();
             renderBackEnd->DrawElement(VBuffer,EBO);
+            renderBackEnd->BindTexture(shader,mMaterial);
         }
 
         void setupMesh(std::shared_ptr<RenderBackEndI>& renderBackEnd)
@@ -54,6 +56,7 @@ namespace SPW
         std::shared_ptr<IndexBuffer> EBO = nullptr;
         std::shared_ptr<VertexBufferI> VBuffer = nullptr;
         std::shared_ptr<Shader> shader = nullptr;
+        std::shared_ptr<Material> mMaterial = std::make_shared<Material>();
     };
 }
 

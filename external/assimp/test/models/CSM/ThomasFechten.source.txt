@@ -1,1 +1,3 @@
-Recorded with vicon IQ, july 2008. Free for any purpose.
+version https://git-lfs.github.com/spec/v1
+oid sha256:246e5a00cb841163822001441407372774cbf89bd39848a707291d34112cc91f
+size 57
