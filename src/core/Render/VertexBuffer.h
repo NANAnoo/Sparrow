@@ -4,7 +4,6 @@
 
 #ifndef SPARROW_VERTEXBUFFER_H
 #define SPARROW_VERTEXBUFFER_H
-#include <IO/AttriVertex.h>
 #include <memory>
 #include <vector>
 namespace SPW
