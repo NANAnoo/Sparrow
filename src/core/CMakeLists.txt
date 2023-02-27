@@ -11,7 +11,11 @@ macro(CORE_ADD_SOURCE)
     set(CoreSourceFiles ${CoreSourceFiles} ${SOURCE_FILES} PARENT_SCOPE)
 endmacro(CORE_ADD_SOURCE)
 
-set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h")
+set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h" EcsFramework/System/ControlSystem/KeyControlSystem.hpp EcsFramework/System/ControlSystem/MouseControlSystem.hpp EcsFramework/Component/MouseComponent.hpp)
+#<<<<<<< Updated upstream
+#=======
+#
+#>>>>>>> Stashed changes
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(Utils)

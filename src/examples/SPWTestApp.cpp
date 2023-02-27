@@ -16,6 +16,7 @@
 #include "EcsFramework/Component/ModelComponent.h"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/KeyComponent.hpp"
 
 
 #include "Model/Model.h"
@@ -30,44 +31,8 @@
 #include "Control/MouseEvent.hpp"
 #include "IO/ResourceManager.h"
 #include "Model/Model.h"
-
-class WOC :
-        public SPW::WindowEventResponder,
-        public SPW::KeyEventResponder,
-        public SPW::MouseEventResponder {
-public:
-    explicit WOC(const std::shared_ptr<SPW::EventResponderI> &parent, const char *name):
-            SPW::WindowEventResponder(parent),
-            SPW::KeyEventResponder(parent),
-            SPW::MouseEventResponder(parent),
-            _name(name){
-        }
-    explicit WOC(const std::shared_ptr<WOC> &parent, const char *name):
-            SPW::WindowEventResponder(std::shared_ptr<SPW::WindowEventResponder>(parent)),
-            SPW::KeyEventResponder(std::shared_ptr<SPW::KeyEventResponder>(parent)),
-            SPW::MouseEventResponder(std::shared_ptr<SPW::MouseEventResponder>(parent)),
-            _name(name){
-    }
-    bool onKeyDown(SPW::KeyEvent *e) override {
-        if (_name[0] == 'C') {
-            std::cout << "onKeyDown" << std::endl;
-            return true;
-        }
-        return false;
-    }
-    bool onMouseDown(SPW::MouseEvent *e) override {
-        if (_name[0] == 'B') {
-            std::cout << "onMouseDown" << std::endl;
-            return true;
-        }
-        return false;
-    }
-    bool canRespondTo(const std::shared_ptr<SPW::EventI> &e) final {
-        return _name[0] != 'E' || e->category() == SPW::MouseCategory;
-    }
-    const char *_name;
-    const char *getName() final {return _name;}
-};
+#include "Control/KeyCodes.h"
+#include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 
 std::shared_ptr<SPW::Model> createModel() {
     auto model = std::make_shared<SPW::Model>();
@@ -175,10 +140,12 @@ public:
             renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
 
             // create scene
+            std::make_shared<SPW::KeyControlSystem>(app->delegate.lock(), scene);
             scene = SPW::Scene::create(app->delegate.lock());
 
             // add system
             scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
+            scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
@@ -195,6 +162,7 @@ public:
             auto triangle = scene->createEntity("test");
             auto transform = triangle->emplace<SPW::TransformComponent>();
             transform->scale = {0.5, 0.5, 0.5};
+            auto key = triangle->emplace<SPW::KeyComponent>();
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
@@ -203,6 +171,7 @@ public:
                                          "./resources/shaders/simpleVs.vert",
                                          "./resources/shaders/simplefrag.frag"
                                      });
+
             model->modelProgram = shaderHandle;
             model->model = createModel();
 
