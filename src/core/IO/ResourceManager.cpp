@@ -261,8 +261,8 @@ namespace SPW
 			{
 				const auto time = channel->mPositionKeys[k].mTime;
 				const auto pos = toVec3(channel->mPositionKeys[k].mValue);
-				const auto rot = toVec3(channel->mPositionKeys[k].mValue);
-				const auto scaling = toVec3(channel->mPositionKeys[k].mValue);
+				const auto rot = toQuat(channel->mRotationKeys[k].mValue);
+				const auto scaling = toVec3(channel->mScalingKeys[k].mValue);
 				tmp->nodeAnimations[j].keyFrames.emplace_back(KeyFrame{ time, pos, rot, scaling });
 			}
 			if (channel->mNumPositionKeys > tmp->frameCount) tmp->frameCount = channel->mNumPositionKeys;
