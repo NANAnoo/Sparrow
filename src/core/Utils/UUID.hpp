@@ -5,8 +5,10 @@
 #ifndef SPARROW_UUID_HPP
 #define SPARROW_UUID_HPP
 
+#include <cstddef>
 #include <uuid.h>
 #include "MacroUtils.h"
+#include <assert.h>
 
 namespace SPW {
     // UUID
@@ -46,6 +48,12 @@ namespace SPW {
         static UUID fromString(const char *str) {
             return {str};
         }
+
+        struct hash {
+            std::size_t operator()(const UUID *other) {
+                return std::hash<std::string>()(other->toString());
+            }
+        };
     private:
         static uuids::uuid IDFromString(const char *str) {
             return uuids::uuid::from_string(str).value();
