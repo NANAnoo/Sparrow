@@ -4,4 +4,6 @@ CORE_ADD_SOURCE(ComponentI.h
         TransformComponent.hpp
         LightComponent.hpp
         CameraComponent.hpp
-        ModelComponent.h)
+        ModelComponent.h
+        KeyComponent.hpp
+        MouseComponent.hpp)

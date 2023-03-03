@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <iostream>
 #include "ApplicationFramework/WindowI/WindowEvent.h"
+#include "Control/KeyEvent.hpp"
+#include "Control/MouseEvent.hpp"
 
 namespace SPW {
     // pass callback from glfw window to GLWindow
@@ -62,10 +64,44 @@ namespace SPW {
                     WindowFrameResizeType, w, h));
         });
 
-
-
         glfwSetKeyCallback(window, [](GLFWwindow *win, int key, int scancode, int action, int mods) {
+            auto realWindow = all_windows[win];
+            if(action == GLFW_RELEASE){
+                realWindow->data.handler(std::make_shared<KeyEvent>(
+                    KeyReleasedType, key));
+            }
+            else if(action == GLFW_PRESS){
+                realWindow->data.handler(std::make_shared<KeyEvent>(
+                        KeyDownType, key));
+            }
+            else if(action == GLFW_REPEAT){
+                realWindow->data.handler(std::make_shared<KeyEvent>(
+                        KeyHeldType, key));
+            }
+        });
 
+
+        glfwSetMouseButtonCallback(window, [](GLFWwindow* win, int button, int action, int mods){
+
+            auto realWindow = all_windows[win];
+            if(action == GLFW_PRESS){
+                realWindow->data.handler(std::make_shared<MouseEvent>(
+                        MouseDownType, button, 0));
+            }
+            else if(action == GLFW_RELEASE){
+                realWindow->data.handler(std::make_shared<MouseEvent>(
+                        MouseReleasedType, button, 0));
+            }
+            else if(action == GLFW_REPEAT){
+                realWindow->data.handler(std::make_shared<MouseEvent>(
+                        MouseHeldType, button, 0));
+            }
+        });
+
+        glfwSetScrollCallback(window, [](GLFWwindow* win, double x_offset, double y_offset){
+            auto realWindow = all_windows[win];
+            realWindow->data.handler(std::make_shared<MouseEvent>(
+                    MouseScrollType, GLFW_MOUSE_BUTTON_MIDDLE, y_offset));
         });
     }
 
@@ -78,8 +114,22 @@ namespace SPW {
         }
     }
 
+    double sCursorLastX_Pos = 0;
+    double sCursorLastY_Pos = 0;
+    double sCursorX_PosBias = 0;
+    double sCursorY_PosBias = 0;
     void GlfwWindow::onUpdate() {
         glfwPollEvents();
+        glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos){
+
+            auto realWindow = all_windows[win];
+            sCursorX_PosBias = xpos - sCursorLastX_Pos;
+            sCursorY_PosBias = ypos - sCursorLastY_Pos;
+            sCursorLastX_Pos = xpos;
+            sCursorLastY_Pos = ypos;
+            auto cursor_e = std::make_shared<MouseEvent>(CursorMovementType, xpos, ypos, sCursorX_PosBias , sCursorY_PosBias);
+            realWindow->data.handler(cursor_e);
+        });
     }
 
     GlfwWindow::~GlfwWindow() {
