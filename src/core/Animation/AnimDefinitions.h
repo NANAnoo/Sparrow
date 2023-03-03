@@ -47,6 +47,6 @@ struct KeyFrame
 {
     double time;
     glm::vec3 position;
-    glm::vec3 rotation;
+    glm::quat rotation;
     glm::vec3 sacling;
 };
