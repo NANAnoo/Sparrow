@@ -46,6 +46,13 @@ namespace SPW {
         static UUID fromString(const char *str) {
             return {str};
         }
+
+        // hash
+        struct hash {
+            std::size_t operator()(const UUID &uuid) const {
+                return hash_str(to_string(uuid.id).c_str());
+            }
+        };
     private:
         static uuids::uuid IDFromString(const char *str) {
             return uuids::uuid::from_string(str).value();

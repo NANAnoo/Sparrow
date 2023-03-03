@@ -63,13 +63,12 @@ void SPW::RenderSystem::afterUpdate(){
         });
 
     frameBuffer->unbind();
-    renderBackEnd->DepthTest(false);
-    renderBackEnd->SetClearColor(glm::vec4(0.5));
-    renderBackEnd->Clear();
-    renderBackEnd->drawInTexture();
-
 
     // RenderPass n-1, PostProcessing
+    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::DepthTest, false));
+    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::SetClearColor,glm::vec4(0.5)));
+    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::Clear));
+    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::drawInTexture,PostProcessingEffects::Gauss));
     postProcessPass.executeWithAPI(renderBackEnd);
 
     // RenderPass n, render in Game GUI

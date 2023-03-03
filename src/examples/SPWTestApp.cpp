@@ -125,7 +125,9 @@ public:
             scene = SPW::Scene::create(app->delegate.lock());
 
             // add system
-            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
+            auto renderSystem = std::make_shared<SPW::RenderSystem>(scene, renderBackEnd);
+            scene->addSystem(renderSystem);
+            renderSystem->postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::Clear));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");

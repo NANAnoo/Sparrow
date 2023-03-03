@@ -35,11 +35,12 @@ namespace SPW {
         // events
         const char *getName() override {return "SPW_RENDER_SYSTEM";}
         bool onFrameResize(int w, int h) override;
+        RenderPass postProcessPass;
 
     private:
         void renderModelsWithCamera(const RenderCamera &camera);
         std::shared_ptr<RenderBackEndI> renderBackEnd;
-        RenderPass postProcessPass;
+
     };
 }
 
