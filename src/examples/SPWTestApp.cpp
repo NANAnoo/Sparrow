@@ -40,7 +40,7 @@
 
 
 std::shared_ptr<SPW::Model> createModel() {
-    auto model = std::make_shared<SPW::Model>();
+    auto model = std::make_shared<SPW::Model>(" ");
     std::vector<SPW::Vertex> vertices = {
         {
             {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
