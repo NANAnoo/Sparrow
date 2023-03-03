@@ -89,14 +89,6 @@ std::shared_ptr<SPW::Model> createModel() {
     model->AddMesh(mesh);
     return model;
 
-    // auto tmp = SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sf_cube/scene.gltf");
-	// // auto vs = tmp->GetMeshes()[0]->vertices;
-    // // for(const auto& v: vs)
-    // // {
-    // //     std::cout << v.Position.x << v.Position.y << v.Position.z << "\n";
-    // // }    
-    // return tmp;
-    // return nullptr;
 }
 
 // test usage
@@ -194,7 +186,7 @@ public:
             // add a test game object
             auto triangle = scene->createEntity("test");
             auto transform = triangle->emplace<SPW::TransformComponent>();
-            transform->scale = {0.5, 0.5, 0.5};
+            transform->scale = {0.05, 0.05, 0.05};
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
