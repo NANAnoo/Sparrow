@@ -8,9 +8,9 @@ namespace SPW {
 
     class KeyComponent : public ComponentI {
     public:
-        std::function<void(SPW::Entity* e, int keycode)> onKeyDownCallBack;
-        std::function<void(SPW::Entity* e, int keycode)> onKeyHeldCallBack;
-        std::function<void(SPW::Entity* e, int keycode)> onKeyReleasedCallBack;
+        std::function<void(const SPW::Entity& e, int keycode)> onKeyDownCallBack;
+        std::function<void(const SPW::Entity& e, int keycode)> onKeyHeldCallBack;
+        std::function<void(const SPW::Entity& e, int keycode)> onKeyReleasedCallBack;
     };
 
 }

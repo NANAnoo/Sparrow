@@ -9,6 +9,10 @@
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
+#include "Control/MouseEvent.hpp"
+
+#include "Control/KeyCodes.h"
+#include "Control/MouseCodes.h"
 
 #include "EcsFramework/Scene.hpp"
 
@@ -17,22 +21,23 @@
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/KeyComponent.hpp"
+#include "EcsFramework/Component/MouseComponent.hpp"
 
+#include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
+#include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 
 #include "Model/Model.h"
 
 #include "Utils/UUID.hpp"
 
-#include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
-#include "Control/MouseEvent.hpp"
 #include "IO/ResourceManager.h"
 #include "Model/Model.h"
-#include "Control/KeyCodes.h"
-#include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
+
 
 std::shared_ptr<SPW::Model> createModel() {
     auto model = std::make_shared<SPW::Model>();
@@ -140,12 +145,12 @@ public:
             renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
 
             // create scene
-            std::make_shared<SPW::KeyControlSystem>(app->delegate.lock(), scene);
             scene = SPW::Scene::create(app->delegate.lock());
 
             // add system
             scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
@@ -162,7 +167,25 @@ public:
             auto triangle = scene->createEntity("test");
             auto transform = triangle->emplace<SPW::TransformComponent>();
             transform->scale = {0.5, 0.5, 0.5};
+
+            //add a key component for testing, press R to rotate
             auto key = triangle->emplace<SPW::KeyComponent>();
+            key->onKeyDownCallBack = [transform](const SPW::Entity& e, int keycode){
+                if(keycode == static_cast<int>(SPW::Key::R))
+                    transform->rotation.y += 5.0f;
+            };
+
+            //add a mouse component for testing, press left button to rotate, scroll to scale
+            auto mouse = triangle->emplace<SPW::MouseComponent>();
+            mouse->onMouseDownCallBack = [transform](const SPW::Entity& e, int button_code){
+                if(button_code == static_cast<int>(SPW::Mouse::ButtonLeft))
+                    transform->rotation.y -= 5.0f;
+            };
+            mouse->onMouseScrollCallBack = [transform](const SPW::Entity& e, double scroll_offset){
+                transform->scale.x += scroll_offset;
+                transform->scale.y += scroll_offset;
+                transform->scale.z += scroll_offset;
+            };
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);

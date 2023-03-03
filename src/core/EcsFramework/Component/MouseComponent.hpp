@@ -9,10 +9,10 @@ namespace SPW {
 
     class MouseComponent : public ComponentI {
     public:
-        std::function<void(SPW::Entity* e, int button_code)> onMouseDownCallBack;
-        std::function<void(SPW::Entity* e, int button_code)> onMouseHeldCallBack;
-        std::function<void(SPW::Entity* e, int button_code)> onMouseReleasedCallBack;
-        std::function<void(SPW::Entity* e, int button_code, double scroll_offset)> onMouseScrollCallBack;
+        std::function<void(const SPW::Entity& e, int button_code)> onMouseDownCallBack;
+        std::function<void(const SPW::Entity& e, int button_code)> onMouseHeldCallBack;
+        std::function<void(const SPW::Entity& e, int button_code)> onMouseReleasedCallBack;
+        std::function<void(const SPW::Entity& e, double scroll_offset)> onMouseScrollCallBack;
     };
 
 }
