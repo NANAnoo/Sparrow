@@ -14,8 +14,8 @@
 #include "IO/ResourceManager.h"
 #include "Render/Material.h"
 
-// #define STB_IMAGE_IMPLEMENTATION
-// #include <stb_image.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 namespace SPW
 {
@@ -62,8 +62,18 @@ namespace SPW
 			{
 				aiString texturePath;
 				material->GetTexture(textureType, k, &texturePath);
-
-				tmp->m_TexturePaths.emplace_back(texturePath.C_Str());
+				if (j == 1 || j == 12 || j == 16)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Albedo, texturePath.C_Str()));
+				else if (j == 6)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Normal, texturePath.C_Str()));
+				else if (j == 16)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Roughness, texturePath.C_Str()));
+				else if (j == 17)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::AmbientOcclusion, texturePath.C_Str()));
+				else if (j == 15)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Metalness, texturePath.C_Str()));
+				else 
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Unknown, texturePath.C_Str()));
 			}
 		}
 
@@ -213,7 +223,7 @@ namespace SPW
 		FileSystem fs;
 		for(auto& mesh: model->GetMeshes())
 		{
-			for(auto&v : mesh->GetMaterial()->m_TexturePaths)
+			for(auto&[k, v] : mesh->GetMaterial()->TextureMap)
 				v = fs.JoinFileRoute(_filePath.parent_path(), v);
 		}
 
@@ -222,30 +232,10 @@ namespace SPW
 		// if (scene->HasAnimations()) ProcessAnimationClips(scene->mRootNode, scene);
 	}
 
-	// void ResourceManager::LoadTexture()
-	// {
-	// 	stbi_set_flip_vertically_on_load(true);
-	//
-	// 	m_localBuffer = stbi_load(m_filePath.string().c_str(), &m_width, &m_height, &m_bpp, STBI_rgb_alpha);
-	//
-	// 	GLCall(glGenTextures(1, &m_rendererId));
-	// 	GLCall(glBindTexture(GL_TEXTURE_2D, m_rendererId));
-	//
-	// 	// setup default texture settings
-	// 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	// 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	// 	//GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-	// 	//GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-	//
-	// 	// repeat for going 3D test
-	// 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-	// 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-	//
-	// 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_localBuffer));
-	// 	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-	//
-	// 	if (m_localBuffer)
-	// 		stbi_image_free(m_localBuffer);
-	//
-	// }
+	auto ResourceManager::LoadTexture(bool flip, const std::filesystem::path& filePath, int width, int height, int bpp)
+	{
+		stbi_set_flip_vertically_on_load(flip);
+
+		return stbi_load(filePath.string().c_str(), &width, &height, &bpp, STBI_rgb_alpha);
+	}
 }

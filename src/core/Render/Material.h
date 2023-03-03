@@ -16,14 +16,13 @@ namespace SPW
         Metalness,
         Roughness,
         AmbientOcclusion,
-        Unknown = 21,
+        Unknown = 18,
     };
 
     class Material
     {
     public:
         Material() = default;
-        std::vector<std::string> m_TexturePaths;
 
     	std::map<TextureType, std::string> TextureMap;
 

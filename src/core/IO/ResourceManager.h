@@ -10,7 +10,7 @@ namespace SPW
 	{
 	public:
 		std::shared_ptr<Model> LoadModel(const std::filesystem::path& filePath);
-		void LoadTexture();
+		auto LoadTexture(bool flip, const std::filesystem::path& filePath, int width, int height, int bpp);
 	};
 
 }
