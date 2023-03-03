@@ -7,6 +7,8 @@
 #include "ComponentI.h"
 #include "Model/Model.h"
 #include <string>
+#include <unordered_set>
+#include "Utils/UUID.hpp"
 
 namespace SPW {
     class ModelComponent : public ComponentI {

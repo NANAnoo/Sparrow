@@ -5,8 +5,10 @@
 #ifndef SPARROW_UUID_HPP
 #define SPARROW_UUID_HPP
 
+#include <cstddef>
 #include <uuid.h>
 #include "MacroUtils.h"
+#include <assert.h>
 
 namespace SPW {
     // UUID

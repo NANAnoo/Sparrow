@@ -4,37 +4,45 @@
 
 #ifndef SPARROW_MODEL_H
 #define SPARROW_MODEL_H
-#include "Mesh.h"
 #include <string>
+#include <filesystem>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#include "Model/Mesh.h"
 #include "Render/RenderBackEndI.h"
+#include "iostream"
+
 namespace SPW
 {
     class Model
     {
     public:
-        // model data
-        std::vector<Mesh>  meshes;
-        std::string directory;
-        bool gammaCorrection;
+        Model() = default;
+        explicit Model(std::vector<std::shared_ptr<Mesh>>&& _meshes) { m_Meshes = std::move(_meshes); }
+    	~Model() {}
 
-        // constructor, expects a filepath to a 3D model.
-        explicit Model(std::string path, bool gamma = false) :
-            directory(std::move(path)), gammaCorrection(gamma)
-        {
-            // loadModel(path,renderBackEnd);
-        }
+        [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return m_Meshes; }
+        void AddMesh(std::shared_ptr<Mesh> _mesh) { m_Meshes.emplace_back(std::move(_mesh)); }
 
         // draws the model, and thus all its meshes
         void Draw(std::shared_ptr<RenderBackEndI> &renderBackEnd)
         {
-            for (auto & mesh : meshes)
-                mesh.Draw(renderBackEnd);
+            for (auto & mesh : m_Meshes)
+                mesh->Draw(renderBackEnd);
         }
 
         void setUpModel(std::shared_ptr<RenderBackEndI> &renderBackEnd) {
-            for (auto & mesh : meshes)
-                mesh.setupMesh(renderBackEnd);
+            for (auto& mesh : m_Meshes)
+                mesh->setupMesh(renderBackEnd);
         }
+
+    private:
+        std::filesystem::path m_FilePath;
+        std::filesystem::path m_Directory;
+        std::vector<std::shared_ptr<Mesh>>  m_Meshes;
     };
 }
 #endif //SPARROW_MODEL_H
