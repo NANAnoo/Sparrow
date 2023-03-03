@@ -17,7 +17,7 @@ namespace SPW
     {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
-        std::string shader_lib = "./resources/shaders/structure.glsl";
+        std::string shader_lib = "./resources/shaders/baselib/structure.glsl";
 
         std::stringstream ss;
         std::ifstream fs(shader_lib);
