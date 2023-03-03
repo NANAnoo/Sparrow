@@ -1,1 +1,6 @@
-CORE_ADD_SOURCE(Mesh.h Model.h Vertex.h)
+CORE_ADD_SOURCE(
+    Mesh.h 
+    Model.h 
+    Model.cpp 
+    Vertex.h
+    )

@@ -1,15 +1,3 @@
-From http://telias.free.fr
-
-
-Downloaded 4th November 2008 (Obama ftw!).
-Notice found on the page:
-
-"
-Free the models is a site that offers free 3d models in 3ds, bryce, poser, lightwave and md2 format. Also a great collection of textures to use in your favorite modelling and rendering program.
-All the content is free for any use.
-In the future more 3d formats will be added and some other sections such as wallpapers, 3d screensavers, 3d coding source code and tutorials.
-"
-
-
-CHANGES:
-Paths have been modified
+version https://git-lfs.github.com/spec/v1
+oid sha256:8ffefa9da7c0bce34d005901d92e6a2b30c0df739842e24555a33c816cd4e3ae
+size 512

@@ -1,31 +1,3 @@
-
-----------------------------------------------------------------------------------------------
-TITLE : Bob, MD5 character source file
-AUTHOR : Ken Beyer (kat)
-EMAIL ADDRESS : info@katsbits.com
-HOMEPAGE URL : http://www.katsbits.com
-
-
-MODEL NAME/s
-Zip file contains *.blend source file and TGA texture assets for MD5 format testing.
-Files and media are provided "as is" without any explicit or implied warranty of fuctionality.
-
-
-DISTRIBUTION
-Copyright © 2009 KatsBits. Distribution MUST include this readme and authorship attribution.
-Commercial use is permitted with written licensed permission.
-----------------------------------------------------------------------------------------------
-
-Files:
- - Bob.md5mesh
- - Bob.md5anim
- - Bob.blend
- - ./*.png
-
-Changes:
- - converted all tga's to png, updated .blend and .md5mesh accordingly
- - removed absolute texture paths from the md5mesh file
- - minor downscaling of all textures to fit in less bytes
-
-
-
+version https://git-lfs.github.com/spec/v1
+oid sha256:abfe83d619da435d9fae4e6704857a109db37f30ad6268b53c1dfa01c8933e18
+size 953
