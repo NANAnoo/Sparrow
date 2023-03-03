@@ -7,6 +7,7 @@
 #include "ComponentI.h"
 #include "Model/Model.h"
 #include <string>
+#include "Utils/UUID.hpp"
 
 namespace SPW {
     class ModelComponent : public ComponentI {
