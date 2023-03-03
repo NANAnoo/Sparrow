@@ -29,7 +29,7 @@ namespace SPW {
             e->dispatch<MouseHeldType, MouseEvent>(EVENT_RESPONDER(onMouseHeld));
             e->dispatch<MouseReleasedType, MouseEvent>(EVENT_RESPONDER(onMouseReleased));
             e->dispatch<MouseScrollType, MouseEvent>(EVENT_RESPONDER(onMouseScroll));
-//            e->dispatch<CursorMovementType, MouseEvent>(EVENT_RESPONDER(cursorMovement));
+            e->dispatch<CursorMovementType, MouseEvent>(EVENT_RESPONDER(cursorMovement));
         }
         EventCategory listeningCategory() final {
             return MouseCategory;
@@ -43,6 +43,7 @@ namespace SPW {
         virtual bool onMouseHeld(MouseEvent *e) {return false;};
         virtual bool onMouseReleased(MouseEvent *e) {return false;};
         virtual bool onMouseScroll(MouseEvent *e) {return false;};
+        virtual bool cursorMovement(MouseEvent *e) {return false;};
     };
 }
 

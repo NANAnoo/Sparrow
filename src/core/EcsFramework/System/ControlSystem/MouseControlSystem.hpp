@@ -51,6 +51,16 @@ namespace SPW {
             return false;
         };
 
+        bool cursorMovement(MouseEvent *e) {
+
+            locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity &entity){
+                if(entity.component<MouseComponent>()->cursorMovementCallBack)
+                    entity.component<MouseComponent>()->cursorMovementCallBack(entity, e->cursor_xpos_bias, e->cursor_ypos_bias);
+            });
+            
+            return false;
+        };
+
         void initial(){};
         void beforeUpdate(){};
         void onUpdate(TimeDuration dt){};
