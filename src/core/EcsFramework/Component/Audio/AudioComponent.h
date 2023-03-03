@@ -19,10 +19,11 @@ namespace SPW
 
         std::string AudioPath = "None";
         bool Play;
+        bool is3D;
 
-        FMOD::Sound* Sound;
+        FMOD::Sound* Sound = nullptr;
         FMOD::Channel* Channel = nullptr;
-        FMOD_MODE mode = FMOD_DEFAULT;
+        FMOD_MODE ModeType = FMOD_DEFAULT;
     private:
 
     };

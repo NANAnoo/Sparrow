@@ -6,7 +6,7 @@
 #define SPARROW_NAMECOMPONENT_H
 
 #include "../ComponentI.h"
-
+#include <iostream>
 #include <string>
 
 namespace SPW {

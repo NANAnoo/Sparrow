@@ -16,6 +16,7 @@
 #include "EcsFramework/Component/ModelComponent.h"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/Audio/AudioComponent.h"
 
 
 #include "Model/Model.h"
@@ -23,6 +24,7 @@
 #include "Utils/UUID.hpp"
 
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "EcsFramework/System/AudioSystem/AudioSystem.h"
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
@@ -179,7 +181,7 @@ public:
 
             // add system
             scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
-
+            //scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             // add a camera entity
             auto camera = scene->createEntity("main camera");
             camera->emplace<SPW::TransformComponent>();

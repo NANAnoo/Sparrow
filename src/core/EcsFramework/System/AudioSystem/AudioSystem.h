@@ -9,21 +9,34 @@
 #include "fmod.hpp"
 #include "fmod.h"
 #include "string"
+#include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/BasicComponent/IDComponent.h"
+#include "EcsFramework/Component/Audio/AudioComponent.h"
 
 namespace SPW
 {
-
+    using Music = std::tuple<IDComponent *,TransformComponent *,AudioComponent*>;
     class AudioSystem : public SystemI{
 
     public:
-        AudioSystem(std::shared_ptr<Scene> &scene);
+        explicit AudioSystem(std::shared_ptr<Scene> &scene);
         virtual ~AudioSystem() = default;
 
-        void initial() override;
-        void beforeUpdate() override;
-        void onUpdate(TimeDuration dt) override;
-        void afterUpdate() override;
-        void onStop() override;
+        void set3DModule(FMOD_MODE f);
+
+
+
+        void initial() final;
+        void beforeUpdate() final;
+        void onUpdate(TimeDuration dt) final;
+        void afterUpdate() final;
+        void onStop() final;
+
+    private:
+        FMOD::System* mFmodSystem{};
+        FMOD_SYSTEM* f_system{};
+
+
     };
 }
 

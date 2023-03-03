@@ -19,6 +19,11 @@ namespace SPW
         glDepthFunc(GL_LESS);
         std::string shader_lib = "./resources/shaders/structure.glsl";
 
+        const GLubyte* byteGlVersion = glGetString(GL_VERSION);
+        const GLubyte* byteGlVendor = glGetString(GL_VENDOR);
+        const GLubyte* byteGlRenderer = glGetString(GL_RENDERER);
+        const GLubyte* byteSLVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
         std::stringstream ss;
         std::ifstream fs(shader_lib);
         ss << fs.rdbuf();
