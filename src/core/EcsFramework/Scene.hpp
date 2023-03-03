@@ -30,10 +30,11 @@ namespace SPW {
         // create scene with this line
         static std::shared_ptr<Scene> create(const std::shared_ptr<EventResponderI> &parent) {
             auto scene = std::make_shared<Scene>(parent);
-            // TODO
-            //scene->systems.emplace_back(system);
-            //scene->systems.emplace_back(system);
             return scene;
+        }
+
+        void addSystem(std::shared_ptr<SystemI> &&system) {
+            systems.push_back(system);
         }
 
         // create new entity in scene
@@ -55,29 +56,41 @@ namespace SPW {
         }
 
         // for each
-        // iterate all entities with selected component
+        // iterate components of every entity that has required components
         //
         // usage:
         // aScene.forEach([](Type1 &, Type2 &){
         //      // your code
         // }, Type1, Type2);
         template<Component ...C>
-        using ForeachFunc = std::function<void(const C& ...c)>;
+        using ForeachFunc = std::function<void(C* ...c)>;
         template<Component ...C>
-        void _forEach(const ForeachFunc<C...> &func) {
-            using TupleIndex = typename X_Build_index_tuple<std::tuple_size<std::tuple<C...>>::value>::type;
+        void _forEach(ForeachFunc<C...> &&func) {
+            using TupleIndex = typename X_Build_index_tuple<std::tuple_size<std::tuple<C *...>>::value>::type;
             for (auto &view : getEntitiesWith<C...>()) {
                 Entity e = {view, registry};
                 auto res = e.combined<C...>();
-                InvokeTupleFunc_Address(res, func, TupleIndex());
+                InvokeTupleFunc(res, func, TupleIndex());
             }
         }
 
+        // for loop with a callback.
+        // Components ...C: Required components in an entity
+        // func: call back Entities that have required components
         template<Component ...C>
         void forEachEntity(const std::function<void(const Entity &)> &func) {
-            for (auto &view : getEntitiesWith<C...>()) {
+            auto views = getEntitiesWith<C...>();
+            for (auto &view : views) {
                 func({view, registry});
             }
+        }
+
+        // for loop with a callback.
+        // ComponentGroup<C...>, required components group
+        // func: call back Entities that have required components
+        template<Component ...C>
+        void forEachEntityInGroup(ComponentGroup<C...>, const std::function<void(const Entity &)> &func) {
+            forEachEntity<C...>(func);
         }
 
         virtual void initial() {

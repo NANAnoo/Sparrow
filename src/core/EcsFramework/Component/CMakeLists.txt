@@ -1,4 +1,8 @@
 add_subdirectory(BasicComponent)
 add_subdirectory(Audio)
 
-CORE_ADD_SOURCE(ComponentI.h)
+CORE_ADD_SOURCE(ComponentI.h
+        TransformComponent.hpp
+        LightComponent.hpp
+        CameraComponent.hpp
+        ModelComponent.h)

@@ -1,13 +1,15 @@
 CORE_ADD_SOURCE(
-        GraphicsContext.cpp
         GraphicsContext.h
-        IndexBuffer.cpp
         IndexBuffer.h
         Render.cpp
         Render.h
-        RenderAPII.h
+        RenderBackEndI.h
         shader.cpp
         shader.h
-        VertexBuffer.cpp
         VertexBuffer.h
+        RenderCommand.hpp
+        RenderCommandsQueue.hpp
+        RenderPass.hpp
+        Material.h
+        stb_image.h
 )

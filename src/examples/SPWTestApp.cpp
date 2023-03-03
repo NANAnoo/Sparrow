@@ -1,23 +1,35 @@
 #include <iostream>
 
+#include <memory>
 #include <sol/sol.hpp>
 
+#include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
-#include "Utils/MessageDefines.h"
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
-#include "Control/MouseEvent.hpp"
 
 #include "EcsFramework/Scene.hpp"
-#include "EcsFramework/Entity/Entity.hpp"
 
-#include "EcsFramework/Component/BasicComponent/NameComponent.h"
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
+#include "EcsFramework/Component/ModelComponent.h"
+#include "EcsFramework/Component/CameraComponent.hpp"
+#include "EcsFramework/Component/TransformComponent.hpp"
+
+
+#include "Model/Model.h"
+
 #include "Utils/UUID.hpp"
 
+#include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "Platforms/OPENGL/OpenGLBackEnd.h"
+#include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
+
 #include "SimpleRender.h"
+#include "Control/MouseEvent.hpp"
+#include "IO/ResourceManager.h"
+#include "Model/Model.h"
 
 class WOC :
         public SPW::WindowEventResponder,
@@ -57,6 +69,36 @@ public:
     const char *getName() final {return _name;}
 };
 
+std::shared_ptr<SPW::Model> createModel() {
+    auto model = std::make_shared<SPW::Model>();
+    std::vector<SPW::Vertex> vertices = {
+        {
+            {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
+        },
+        {
+            {- 0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0.5, 0.5}, {0, 0, 0}, {0, 0, 0}
+        },
+        {
+            {+0.3f, 0.0f, 0.0f}, {0, 0, 0}, {1.0, 0}, {0, 0, 0}, {0, 0, 0}
+        }
+    };
+    std::vector<unsigned int> indices = {0, 1, 2};
+    
+    auto mesh = std::make_shared<SPW::Mesh>(vertices, indices);
+    mesh->mMaterial->updateTexture(SPW::TextureType::Albedo,"./resources/texture/container.jpg");
+    model->AddMesh(mesh);
+    return model;
+
+    // auto tmp = SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sf_cube/scene.gltf");
+	// // auto vs = tmp->GetMeshes()[0]->vertices;
+    // // for(const auto& v: vs)
+    // // {
+    // //     std::cout << v.Position.x << v.Position.y << v.Position.z << "\n";
+    // // }    
+    // return tmp;
+    // return nullptr;
+}
+
 // test usage
 class Transformer :
         public SPW::WindowEventResponder {
@@ -67,9 +109,26 @@ public:
 
     bool onWindowResize(int w, int h) override {
         std::cout << "window resize" << "(" << w << ", " << h << ")" <<std::endl;
-        width = w;
-        height = h;
+        bool should_update = false;
+        if (w < 500) {
+            w = 500;
+            should_update = true;
+        }
+        if (h < 400) {
+            h = 400;
+            should_update = true;
+        }
+        if (should_update && ! window.expired())
+            window.lock()->setSize(w, h);
         // set projection
+        // TODO: add a responder to each camera
+        scene.lock()->forEach([=](SPW::CameraComponent *cam) {
+            cam->aspect = float(w) / float(h);
+            if (cam->getType() == SPW::UIOrthoType) {
+                cam->right = w;
+                cam->top = h;
+            }
+        }, SPW::CameraComponent);
         return true;
     }
 
@@ -80,12 +139,11 @@ public:
         // set projection
         return false;
     }
-
-    int width = -1;
-    int height = -1;
     const char *getName() final {
         return "Transformer";
     }
+    std::weak_ptr<SPW::WindowI> window;
+    std::weak_ptr<SPW::Scene> scene;
 };
 
 class TestDelegate : public SPW::AppDelegateI {
@@ -94,80 +152,75 @@ public:
             SPW::AppDelegateI(app), _name(name) {
     }
     void onAppInit() final {
-        app->window = std::make_shared<SPW::GlfwWindow>();
+        auto window = std::make_shared<SPW::GlfwWindow>();
+        app->window = window;
         app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
+
         transformer = std::make_shared<Transformer>(app->delegate.lock());
-        transformer->width = app->window->width();
-        transformer->height = app->window->height();
-        SPW::OBSERVE_MSG_ONCE(SPW::kMsgApplicationInited, [this](SPW::Message msg) {
-            this->render = std::make_shared<SimpleRender>();
-        })
+        transformer->window = window;
 
-        auto A = std::make_shared<WOC>(app->delegate.lock(), "A");
-        auto B = std::make_shared<WOC>(A, "B");
-        auto C = std::make_shared<WOC>(B, "C");
-        auto D = std::make_shared<WOC>(B, "D");
-        auto E = std::make_shared<WOC>(A, "E");
-        auto F = std::make_shared<WOC>(E, "F");
-        auto G = std::make_shared<WOC>(E, "G");
-        app->postEvent(std::make_shared<SPW::KeyEvent>(SPW::KeyDownType));
-        app->postEvent(std::make_shared<SPW::MouseEvent>(SPW::MouseDownType));
+        // weak strong dance
+        std::weak_ptr<SPW::GlfwWindow> weak_window = window;
+        window->onWindowCreated([weak_window, this](GLFWwindow *handle){
+            if (weak_window.expired()) {
+                return;
+            }
+            // create graphics context
+            weak_window.lock()->graphicsContext = std::make_shared<SPW::OpenGLxGLFWContext>(handle);
+            // initial context
+            weak_window.lock()->graphicsContext->Init();
 
-        // ECS test
-        scene = SPW::Scene::create(app->delegate.lock());
-        scene->createEntity("Game Object 1");
-        scene->createEntity("Game Object 2");
-        scene->createEntity("Game Object 3");
+            // create render back end
+            renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
 
-        std::cout << "------------------------" << std::endl;
-        std::cout << "Print ID and names 1" << std::endl;
-        scene->forEachEntity<SPW::IDComponent, SPW::NameComponent>(
-            [](const SPW::Entity &e) {
-                auto [id, name] =
-                    e.combined<SPW::IDComponent, SPW::NameComponent>();
-                std::cout << id->getID().toString() << std::endl;
-                std::cout << name->getName() << std::endl;
+            // create scene
+            scene = SPW::Scene::create(app->delegate.lock());
+
+            // add system
+            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
+
+            // add a camera entity
+            auto camera = scene->createEntity("main camera");
+            camera->emplace<SPW::TransformComponent>();
+            auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+            cam->fov = 60;
+            cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
+            cam->near = 0.01;
+            cam->far = 100;
+
+            SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
+
+            // add a test game object
+            auto triangle = scene->createEntity("test");
+            auto transform = triangle->emplace<SPW::TransformComponent>();
+            transform->scale = {0.5, 0.5, 0.5};
+
+            // add a model to show
+            auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
+            SPW::ShaderHandle shaderHandle({
+                                         "basic",
+                                         "./resources/shaders/simpleVs.vert",
+                                         "./resources/shaders/simplefrag.frag"
+                                     });
+            model->modelProgram = shaderHandle;
+            model->model = createModel();
+
+            // init scene
+            scene->initial();
+            transformer->scene = scene;
         });
-
-        std::cout << "------------------------" << std::endl;
-        std::cout << "Print ID and names 2" << std::endl;
-        scene->forEach([](const SPW::IDComponent &id, const SPW::NameComponent &name) {
-            std::cout << id.getID().toString() << std::endl;
-            std::cout << name.getName() << std::endl;
-        }, SPW::IDComponent, SPW::NameComponent);
-
-        std::cout << "------------------------" << std::endl;
-        std::cout << "Print Names" << std::endl;
-        scene->forEach([](const SPW::NameComponent &name) {
-            std::cout << name.getName() << std::endl;
-        }, SPW::NameComponent);
-
-        std::cout << "------------------------" << std::endl;
-        std::cout << "Print ID" << std::endl;
-        scene->forEach([](const SPW::IDComponent &id) {
-            std::cout << id.getID().toString() << std::endl;
-        }, SPW::IDComponent);
     }
     void beforeAppUpdate() final{
-        bool should_update = false;
-        if (transformer->width < 500) {
-            transformer->width = 500;
-            should_update = true;
-        }
-        if (transformer->height < 500) {
-            transformer->height = 400;
-            should_update = true;
-        }
-        if (should_update)
-            app->window->setSize(transformer->width, transformer->height);
+        scene->beforeUpdate();
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
         // physics, computation
+        scene->onUpdate(du);
     }
 
     void afterAppUpdate() final{
-        render->render();
+        scene->afterUpdate();
     }
     void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
         for (auto &e : events) {
@@ -176,7 +229,9 @@ public:
     }
     void onAppStopped() final{
         sol::state state;
-        state.open_libraries(sol::lib::base);
+        state.open_libraries(sol::lib::base, sol::lib::package);
+        std::string x = state["package"]["path"];
+        state["package"]["path"] = x + ";./resources/scripts/lua/?.lua";
         try {
             if(state.script_file("./resources/scripts/lua/test.lua").valid()) {
                 sol::protected_function main_function=state["main"];
@@ -189,6 +244,7 @@ public:
             std::cout << e.what() << std::endl;
         }
         std::cout << "app stopped" << std::endl;
+        scene->onStop();
     }
 
     void solveEvent(const std::shared_ptr<SPW::EventI> &e) final {
@@ -206,6 +262,7 @@ public:
     std::shared_ptr<Transformer> transformer;
     std::shared_ptr<SimpleRender> render;
     std::shared_ptr<SPW::Scene> scene;
+    std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
 };
 
 // main entrance

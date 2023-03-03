@@ -22,7 +22,7 @@ namespace SPW {
         virtual void afterUpdate() = 0;
         virtual void onStop() = 0;
 
-    private:
+    protected:
         std::weak_ptr<Scene> locatedScene;
     };
 }

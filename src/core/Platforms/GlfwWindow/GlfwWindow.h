@@ -34,9 +34,18 @@ namespace SPW {
             }
         }
         void stop();
+        std::shared_ptr<GraphicsContext> getGraphicsContext() override {
+            return graphicsContext;
+        }
+        void onWindowCreated(const std::function<void(GLFWwindow *handle)> &callback) {
+            windowCreatedCallback = callback;
+        }
+        std::shared_ptr<GraphicsContext> graphicsContext;
     private:
         GLFWwindow *window = nullptr;
         WindowMeta data = {"", 0, 0, nullptr};
+
+        std::function<void(GLFWwindow *handle)> windowCreatedCallback;
     };
 }
 

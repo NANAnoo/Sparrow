@@ -15,15 +15,16 @@
 #include "Control/MouseEvent.hpp"
 
 #include "EcsFramework/Scene.hpp"
-#include "EcsFramework/Entity/Entity.hpp"
+#include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
-#include "EcsFramework/Component/BasicComponent/NameComponent.h"
-#include "EcsFramework/Component/BasicComponent/IDComponent.h"
+
+
 #include "Utils/UUID.hpp"
 
 #include "SimpleRender.h"
 
 #include <fmod.hpp>
+
 
 class TestDelegate : public SPW::AppDelegateI {
 public:
@@ -31,9 +32,21 @@ public:
             SPW::AppDelegateI(app), _name(name) {
     }
     void onAppInit() final {
-        app->window = std::make_shared<SPW::GlfwWindow>();
+        auto window = std::make_shared<SPW::GlfwWindow>();
+        app->window = window;
         app->window->setSize(800, 600);
-        app->window->setTitle("SPWTestApp");
+        app->window->setTitle("SPWSoundTest");
+        std::weak_ptr<SPW::GlfwWindow> weak_window = window;
+        window->onWindowCreated([weak_window](GLFWwindow *handle){
+            if (weak_window.expired()) {
+                return;
+            }
+            // create graphics context
+            weak_window.lock()->graphicsContext = std::make_shared<SPW::OpenGLxGLFWContext>(handle);
+            // initial context
+            weak_window.lock()->graphicsContext->Init();
+        });
+
         SPW::OBSERVE_MSG_ONCE(SPW::kMsgApplicationInited, [this](SPW::Message msg) {
             this->render = std::make_shared<SimpleRender>();
         })
@@ -97,11 +110,11 @@ public:
 
     const char *getName() final {return _name;}
     const char *_name;
-    std::shared_ptr<SimpleRender> render;
-    std::shared_ptr<SPW::Scene> scene;
-    FMOD::System *system;
-    FMOD::Sound *sound;
-    FMOD::Channel *channel;
+    std::shared_ptr<SimpleRender> render = nullptr;
+    std::shared_ptr<SPW::Scene> scene = nullptr;
+    FMOD::System *system = nullptr;
+    FMOD::Sound *sound = nullptr;
+    FMOD::Channel *channel = nullptr;
 };
 
 // main entrance

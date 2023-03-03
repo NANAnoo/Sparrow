@@ -5,7 +5,7 @@
 #ifndef SPARROW_SIMPLERENDER_H
 #define SPARROW_SIMPLERENDER_H
 
-#include <Glad/glad.h>
+#include <glad/glad.h>
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
                                  "void main()\n"
@@ -18,7 +18,8 @@ const char *fragmentShaderSource = "#version 330 core\n"
                                    "{\n"
                                    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
                                    "}\n\0";
-class SimpleRender {
+class SimpleRender
+{
 public:
     SimpleRender() {
         // Compile shaders
@@ -63,8 +64,8 @@ public:
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
+        glUseProgram(shaderProgram);
         glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 private:

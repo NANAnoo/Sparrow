@@ -31,10 +31,8 @@ namespace SPW {
 
         if (window) {
             all_windows[window] = this;
-            {
-                // TODO, move this block to render module
-                glfwMakeContextCurrent(window);
-                gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+            if (windowCreatedCallback) {
+                windowCreatedCallback(window);
             }
         } else {
             std::cout << "Window create failed !" << std::endl;
@@ -64,6 +62,8 @@ namespace SPW {
                     WindowFrameResizeType, w, h));
         });
 
+
+
         glfwSetKeyCallback(window, [](GLFWwindow *win, int key, int scancode, int action, int mods) {
 
         });
@@ -80,7 +80,6 @@ namespace SPW {
 
     void GlfwWindow::onUpdate() {
         glfwPollEvents();
-        glfwSwapBuffers(window);
     }
 
     GlfwWindow::~GlfwWindow() {
