@@ -39,6 +39,12 @@ namespace SPW
                 mesh->setupMesh(renderBackEnd);
         }
 
+        void SetFilePath(const std::filesystem::path filePath)
+        {
+            m_FilePath = filePath;
+            m_Directory = filePath.parent_path();
+        }
+
     private:
         std::filesystem::path m_FilePath;
         std::filesystem::path m_Directory;

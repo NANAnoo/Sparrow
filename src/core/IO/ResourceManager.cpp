@@ -10,7 +10,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Model/Model.h"
+#include "IO/FileSystem.h"
 #include "IO/ResourceManager.h"
+#include "Render/Material.h"
+
+// #define STB_IMAGE_IMPLEMENTATION
+// #include <stb_image.h>
 
 namespace SPW
 {
@@ -40,6 +45,31 @@ namespace SPW
     }
 
 	namespace fs = std::filesystem;
+
+
+	std::shared_ptr<Material> LoadMaterial(aiMaterial* material)
+	{
+		std::shared_ptr<Material> tmp = std::make_shared<Material>();
+
+		// Iterate through the texture slots of the material
+		for (unsigned int j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+		{
+			aiTextureType textureType = static_cast<aiTextureType>(j);
+			unsigned int textureCount = material->GetTextureCount(textureType);
+
+			// Iterate through the textures of the current slot
+			for (unsigned int k = 0; k < textureCount; k++) 
+			{
+				aiString texturePath;
+				material->GetTexture(textureType, k, &texturePath);
+
+				tmp->m_TexturePaths.emplace_back(texturePath.C_Str());
+			}
+		}
+
+		return tmp;
+	}
+
 
 	[[nodiscard]] std::shared_ptr<Mesh> ProcessMeshNode(aiMesh* mesh, const aiScene* scene)
 	{
@@ -133,6 +163,7 @@ namespace SPW
         }
 
     	// TODO Deal with Materials
+		tmp->SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
 
 		return tmp;
 	}
@@ -173,11 +204,48 @@ namespace SPW
 		}
 
 		std::cout << "SUCESS::ASSIMP::" << _filePath << std::endl;
-		
+
+
 		std::shared_ptr<Model> model = std::make_shared<Model>(ProcessNodes(scene->mRootNode, scene));
+
+		model->SetFilePath(_filePath);
+
+		FileSystem fs;
+		for(auto& mesh: model->GetMeshes())
+		{
+			for(auto&v : mesh->GetMaterial()->m_TexturePaths)
+				v = fs.JoinFileRoute(_filePath.parent_path(), v);
+		}
 
 		return model;
 
 		// if (scene->HasAnimations()) ProcessAnimationClips(scene->mRootNode, scene);
 	}
+
+	// void ResourceManager::LoadTexture()
+	// {
+	// 	stbi_set_flip_vertically_on_load(true);
+	//
+	// 	m_localBuffer = stbi_load(m_filePath.string().c_str(), &m_width, &m_height, &m_bpp, STBI_rgb_alpha);
+	//
+	// 	GLCall(glGenTextures(1, &m_rendererId));
+	// 	GLCall(glBindTexture(GL_TEXTURE_2D, m_rendererId));
+	//
+	// 	// setup default texture settings
+	// 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	// 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	// 	//GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	// 	//GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	//
+	// 	// repeat for going 3D test
+	// 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	// 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+	//
+	// 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_localBuffer));
+	// 	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+	//
+	// 	if (m_localBuffer)
+	// 		stbi_image_free(m_localBuffer);
+	//
+	// }
 }
