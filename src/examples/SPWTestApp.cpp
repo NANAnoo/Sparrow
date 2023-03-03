@@ -170,7 +170,9 @@ public:
             scene = SPW::Scene::create(app->delegate.lock());
 
             // add system
-            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
+            auto renderSystem = std::make_shared<SPW::RenderSystem>(scene, renderBackEnd);
+            scene->addSystem(renderSystem);
+            renderSystem->postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::Clear));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
@@ -198,7 +200,7 @@ public:
             // add a test game object
             auto triangle = scene->createEntity("test");
             auto transform = triangle->emplace<SPW::TransformComponent>();
-            transform->scale = {0.05, 0.05, 0.05};
+            transform->scale = {0.5, 0.5, 0.5};
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);

@@ -49,9 +49,10 @@ namespace SPW {
             return {str};
         }
 
+        // hash
         struct hash {
-            std::size_t operator()(const UUID *other) {
-                return std::hash<std::string>()(other->toString());
+            std::size_t operator()(const UUID &uuid) const {
+                return hash_str(to_string(uuid.id).c_str());
             }
         };
     private:

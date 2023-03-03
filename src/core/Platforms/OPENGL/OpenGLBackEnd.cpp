@@ -54,7 +54,7 @@ namespace SPW
         glViewport(x, y, width, height);
     }
 
-    void OpenGLBackEnd::SetClearColor(const glm::vec4 &color)
+    void OpenGLBackEnd::SetClearColor(const glm::vec4 color)
     {
         glClearColor(color.r, color.g, color.b, color.a);
     }
@@ -129,14 +129,26 @@ namespace SPW
         return scenceFrameBuffer;
     }
 
-    void OpenGLBackEnd::drawInTexture()
+    void OpenGLBackEnd::drawInTexture(SPW::PostProcessingEffects effect)
     {
-        SPW::ShaderHandle screenHandle({
+        SPW::ShaderHandle handle;
+        if(effect==SPW::PostProcessingEffects::None)
+        {
+            handle = SPW::ShaderHandle({
                                                "drawIntexture",
                                                "./resources/shaders/screen.vert",
                                                "./resources/shaders/screen.frag"
                                        });
-        std::shared_ptr<Shader> screenShader = this->getShader(screenHandle);
+        }
+        else if(effect==SPW::PostProcessingEffects::Gauss)
+        {
+            handle = SPW::ShaderHandle({
+                                               "drawIntexture",
+                                               "./resources/shaders/screen.vert",
+                                               "./resources/shaders/Gauss.frag"
+                                       });
+        }
+        std::shared_ptr<Shader> screenShader = this->getShader(handle);
         screenShader->Bind();
         screenShader->SetUniformValue<int>("screenTexture",0);
         glBindVertexArray(quadVAO);
