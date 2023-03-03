@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <tuple>
 #include <functional>
+#include <memory>
 
 #ifdef SPW_DEBUG
 #define DEBUG_EXPRESSION(expr) do{expr;}while(0);

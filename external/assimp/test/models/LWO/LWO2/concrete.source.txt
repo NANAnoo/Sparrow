@@ -1,2 +1,3 @@
-cgtextures.com - free, even for commercial use. See the licensing conditions and the FAQ the site for more details.
-Great source for free textures, btw!
+version https://git-lfs.github.com/spec/v1
+oid sha256:bdef754f43c5b67f610828dc07f2c8393e377a18c3b60851b88f361f9e615b8d
+size 153

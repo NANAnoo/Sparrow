@@ -10,7 +10,8 @@
 namespace SPW {
     class KeyEvent : public EventI {
     public:
-        explicit KeyEvent(EventType type):_type(type){}
+        int keycode;
+        explicit KeyEvent(EventType type, int code):_type(type), keycode(code) {}
         EventCategory category() final {return EventCategory::KeyCategory;}
         EventType type() final {return _type;}
     private:
@@ -19,25 +20,27 @@ namespace SPW {
 
     class KeyEventResponder : public EventResponderI {
     public:
+
         explicit KeyEventResponder(const std::shared_ptr<EventResponderI> &parent) :
                 EventResponderI(parent) {
         }
+
         void solveEvent(const std::shared_ptr<EventI> &e) final {
-            // TODO dispatch event to different type
             e->dispatch<KeyDownType, KeyEvent>(EVENT_RESPONDER(onKeyDown));
+            e->dispatch<KeyHeldType, KeyEvent>(EVENT_RESPONDER(onKeyHeld));
+            e->dispatch<KeyReleasedType, KeyEvent>(EVENT_RESPONDER(onKeyReleased));
         }
         EventCategory listeningCategory() final {
             return KeyCategory;
         }
 
         // interfaces for responding key events:
-
         // key down
         virtual bool onKeyDown(KeyEvent *e) { return false;};
-
-        // TODO more event type
-        // ...
-
+        //key released
+        virtual bool onKeyReleased(KeyEvent *e) { return false;};
+        //key held
+        virtual bool onKeyHeld(KeyEvent *e) { return false;};
     };
 }
 #endif //SPARROW_KEYEVENT_HPP

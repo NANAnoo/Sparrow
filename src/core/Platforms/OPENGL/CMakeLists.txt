@@ -8,4 +8,6 @@ CORE_ADD_SOURCE(
         OpenGLShader.h
         OpenGLVertexBuffer.cpp
         OpenGLVertexBuffer.h
+        OpenGLTextureManager.h
+        OpenGLTexture2D.h
 )

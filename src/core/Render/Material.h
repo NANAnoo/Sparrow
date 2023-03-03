@@ -19,12 +19,11 @@ namespace SPW
         Unknown = 18,
     };
 
+
     class Material
     {
     public:
-        Material() = default;
-
-    	std::map<TextureType, std::string> TextureMap;
+        std::map<TextureType, std::string> TextureMap;
 
         void updateTexture(TextureType type,std::string texturePath)
         {
@@ -41,3 +40,4 @@ namespace SPW
 }
 
 #endif //SPARROW_MATERIAL_H
+

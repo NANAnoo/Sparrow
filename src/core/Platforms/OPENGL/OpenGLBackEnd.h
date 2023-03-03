@@ -26,6 +26,9 @@ namespace SPW
         void Cull(int32_t Bit) override;
         void CullFrontOrBack(bool bFront) override;
 
+        //Texture
+        void BindTexture(std::shared_ptr<Shader>shader,std::shared_ptr<Material>material) final;
+
         //for draw
         std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) final
         {

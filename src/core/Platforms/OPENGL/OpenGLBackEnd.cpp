@@ -5,6 +5,11 @@
 #include "OpenGLBackEnd.h"
 #include "OpenGLVertexBuffer.h"
 #include "OpenGLIndexBuffer.h"
+#include "OpenGLTextureManager.h"
+#include "OpenGLTexture2D.h"
+
+#include <fstream>
+
 namespace SPW
 {
 
@@ -12,6 +17,15 @@ namespace SPW
     {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
+        std::string shader_lib = "./resources/shaders/structure.glsl";
+
+        std::stringstream ss;
+        std::ifstream fs(shader_lib);
+        ss << fs.rdbuf();
+        auto code = ss.str();
+        shader_lib = "/structure.glsl";
+        glNamedStringARB(GL_SHADER_INCLUDE_ARB, shader_lib.size(), shader_lib.c_str(),
+                         code.size(), code.c_str());
     }
 
     void OpenGLBackEnd::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -67,5 +81,21 @@ namespace SPW
     {
         if (bFront) glCullFace(GL_FRONT);
         else glCullFace(GL_BACK);
+    }
+
+    void OpenGLBackEnd::BindTexture(std::shared_ptr<Shader> shader, std::shared_ptr<Material>material)
+    {
+        //albeo map
+        if(material->TextureMap.find(TextureType::Albedo)!=material->TextureMap.end())
+        {
+            std::string path = material->TextureMap[TextureType::Albedo];
+            std::shared_ptr<OpenGLtexture2D> AlbedoMap =
+                    OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
+            shader->Bind();
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, AlbedoMap->ID);
+            shader->SetUniformValue<int>("albedoMap",0);
+        }
+
     }
 }
