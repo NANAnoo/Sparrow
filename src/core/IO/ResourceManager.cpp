@@ -19,6 +19,7 @@
 
 namespace SPW
 {
+
     glm::vec3 toVec3(const aiVector3D& _val)
     {
         return glm::vec3(_val.x, _val.y, _val.z);
@@ -217,11 +218,10 @@ namespace SPW
 
 		model->SetFilePath(_filePath);
 
-		FileSystem fs;
 		for(auto& mesh: model->GetMeshes())
 		{
 			for(auto&[k, v] : mesh->GetMaterial()->TextureMap)
-				v = fs.JoinFileRoute(_filePath.parent_path(), v);
+				v = FileSystem::JoinFileRoute(_filePath.parent_path(), v);
 		}
 
 		return model;

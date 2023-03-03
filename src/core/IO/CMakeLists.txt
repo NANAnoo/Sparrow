@@ -3,5 +3,4 @@ CORE_ADD_SOURCE(
 	ResourceManager.cpp
 	
 	FileSystem.h
-	FileSystem.cpp
 	)
