@@ -13,7 +13,7 @@ namespace SPW {
         std::function<void(const SPW::Entity& e, int button_code)> onMouseHeldCallBack;
         std::function<void(const SPW::Entity& e, int button_code)> onMouseReleasedCallBack;
         std::function<void(const SPW::Entity& e, double scroll_offset)> onMouseScrollCallBack;
-        std::function<void(const SPW::Entity& e, double cursor_X_bias, double cursor_Y_bias)> cursorMovementCallBack;
+        std::function<void(const SPW::Entity& e, double cursor_x, double cursor_y, double cursor_X_bias, double cursor_Y_bias)> cursorMovementCallBack;
     };
 
 }

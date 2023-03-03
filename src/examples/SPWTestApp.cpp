@@ -177,13 +177,17 @@ public:
 
             //add a mouse component for testing, press left button to rotate, scroll to scale
             auto mouse = triangle->emplace<SPW::MouseComponent>();
-            mouse->cursorMovementCallBack = [transform](const SPW::Entity& e, double x_pos_bias, double y_pos_bias){
-
+            mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
+                auto transform = e.component<SPW::TransformComponent>();
                 transform->rotation.x += y_pos_bias;
                 transform->rotation.y += x_pos_bias;
-            };
-            mouse->onMouseScrollCallBack = [transform](const SPW::Entity& e, double scroll_offset){
 
+                transform->position.x = x_pos;
+                transform->position.y = y_pos;
+            };
+            mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
+
+                auto transform = e.component<SPW::TransformComponent>();
                 transform->scale.x += scroll_offset;
                 transform->scale.y += scroll_offset;
                 transform->scale.z += scroll_offset;

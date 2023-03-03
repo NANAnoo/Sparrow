@@ -127,7 +127,7 @@ namespace SPW {
             sCursorY_PosBias = ypos - sCursorLastY_Pos;
             sCursorLastX_Pos = xpos;
             sCursorLastY_Pos = ypos;
-            auto cursor_e = std::make_shared<MouseEvent>(CursorMovementType, sCursorX_PosBias , sCursorY_PosBias);
+            auto cursor_e = std::make_shared<MouseEvent>(CursorMovementType, xpos, ypos, sCursorX_PosBias , sCursorY_PosBias);
             realWindow->data.handler(cursor_e);
         });
     }

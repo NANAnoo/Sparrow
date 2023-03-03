@@ -90,7 +90,7 @@ namespace SPW {
 
                         locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity &entity){
                             if(entity.component<MouseComponent>()->cursorMovementCallBack)
-                                entity.component<MouseComponent>()->cursorMovementCallBack(entity, e->cursor_xpos_bias, e->cursor_ypos_bias);
+                                entity.component<MouseComponent>()->cursorMovementCallBack(entity, e->cursor_xpos, e->cursor_ypos, e->cursor_xpos_bias, e->cursor_ypos_bias);
                         });
                         break;
                 }

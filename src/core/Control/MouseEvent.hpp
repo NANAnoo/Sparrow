@@ -14,8 +14,10 @@ namespace SPW {
         double scroll_offset;
         double cursor_xpos_bias;
         double cursor_ypos_bias;
+        double cursor_xpos;
+        double cursor_ypos;
         explicit MouseEvent(EventType type, int code, double scroll): _type(type), button_code(code), scroll_offset(scroll){}
-        explicit MouseEvent(EventType type, double x_pos, double y_pos): _type(type), cursor_xpos_bias(x_pos), cursor_ypos_bias(y_pos){}
+        explicit MouseEvent(EventType type, double x_pos, double y_pos, double x_bias, double y_bias): _type(type), cursor_xpos(x_pos), cursor_ypos(y_pos), cursor_xpos_bias(x_bias), cursor_ypos_bias(y_bias){}
         EventCategory category() final {return EventCategory::MouseCategory;}
         EventType type() final {return _type;}
     private:
