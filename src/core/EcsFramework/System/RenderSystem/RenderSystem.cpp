@@ -3,8 +3,10 @@
 //
 
 #include "RenderSystem.h"
+#include "EcsFramework/Component/ComponentI.h"
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/ModelComponent.h"
+#include "EcsFramework/Component/LightComponent.hpp"
 
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
@@ -50,6 +52,12 @@ void SPW::RenderSystem::afterUpdate(){
         SPW::CameraComponent,
         SPW::TransformComponent> cameraGroup;
 
+    ComponentGroup<SPW::IDComponent, 
+                    SPW::TransformComponent, 
+                    SPW::LightComponent> lightGroup;
+    
+    
+
     locatedScene.lock()->forEachEntityInGroup(cameraGroup,
         [this, &uiCamera, &cameraGroup](const Entity &en){
             RenderCamera camera = en.combinedInGroup(cameraGroup);
@@ -84,6 +92,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
     UUID currentID = std::get<0>(camera)->getID();
     auto cameraCom = std::get<1>(camera);
     auto transformCom = std::get<2>(camera);
+    glm::vec3 camPos = transformCom->position;
 
     using ShaderModelMap = std::unordered_map<ShaderHandle, std::vector<SPW::Entity>, ShaderHash, ShaderEqual>;
 
@@ -133,8 +142,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
     // RenderPass 1, shadow
     // sort models with program, build a map with shadow_program -> models[]
-
-    auto renderPass = [this, &renderModels, &V, &P](bool isShadow){
+    auto renderPass = [this, &renderModels, &V, &P, &camPos](bool isShadow){
         ShaderModelMap programModelMap;
         for (auto &en : renderModels) {
             // get program that used in shadow rendering
@@ -152,6 +160,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
         for (auto [handle, entities] : programModelMap) {
             auto shader = renderBackEnd->getShader(handle);
             shader->Bind();
+            shader->SetUniformValue<glm::vec3>("camPos", camPos);
             for (auto &model : entities) {
                 auto modelCom = model.component<ModelComponent>();
                 auto transformCom = model.component<TransformComponent>();

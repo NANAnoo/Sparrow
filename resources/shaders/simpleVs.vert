@@ -9,8 +9,10 @@ uniform mat4 V;
 uniform mat4 P;
 
 out vec2 TexCoords;
+out vec3 normal;
 void main()
 {
     gl_Position = P*V*M*vec4(aPos, 1.0);
     TexCoords = aCoords;
+    normal = mat3(transpose(inverse(M))) * aNormal;
 }

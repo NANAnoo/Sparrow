@@ -106,18 +106,21 @@ namespace SPW
 
     void OpenGLBackEnd::BindTexture(std::shared_ptr<Shader> shader, std::shared_ptr<Material>material)
     {
+        shader->Bind();
         //albeo map
         if(material->TextureMap.find(TextureType::Albedo)!=material->TextureMap.end())
         {
             std::string path = material->TextureMap[TextureType::Albedo];
             std::shared_ptr<OpenGLtexture2D> AlbedoMap =
                     OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
-            shader->Bind();
             shader->SetUniformValue<int>("albedoMap",0);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, AlbedoMap->ID);
-
         }
+        shader->SetUniformValue<float>("diffusion", 0.4);
+        shader->SetUniformValue<float>("shininess", 0.3);
+        shader->SetUniformValue<float>("lambertin", 0.3);
+        shader->SetUniformValue<float>("specularPower", 50);
 
     }
     std::shared_ptr<FrameBuffer> OpenGLBackEnd::creatSenceFrameBuffer()
