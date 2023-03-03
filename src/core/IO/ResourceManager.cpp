@@ -44,9 +44,6 @@ namespace SPW
         return result;
     }
 
-	namespace fs = std::filesystem;
-
-
 	std::shared_ptr<Material> LoadMaterial(aiMaterial* material)
 	{
 		std::shared_ptr<Material> tmp = std::make_shared<Material>();
