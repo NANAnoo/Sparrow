@@ -17,12 +17,12 @@ namespace SPW
         AudioComponent(const AudioComponent&) = default;
         AudioComponent(const std::string& Path) : AudioPath(Path){}
 
-
         std::string AudioPath = "None";
         bool Play;
 
         FMOD::Sound* Sound;
         FMOD::Channel* Channel = nullptr;
+        FMOD_MODE mode = FMOD_DEFAULT;
     private:
 
     };
