@@ -13,6 +13,7 @@
 #include "Render/RenderBackEndI.h"
 #include "Render/RenderPass.hpp"
 #include "Render/shader.h"
+#include "Render/Material.h"
 #include "Vertex.h"
 #include "Render/Material.h"
 
@@ -22,8 +23,8 @@ namespace SPW
     {
     public:
         // mesh Data
-        std::vector<Vertex>       vertices;
-        std::vector<unsigned int> indices;
+        std::vector<Vertex>         vertices;
+        std::vector<unsigned int>   indices;
 
         Mesh() = default;
 
@@ -51,6 +52,10 @@ namespace SPW
         {
             shader = renderBackEnd->getShader(handle);
         }
+
+    	void SetMaterial(std::shared_ptr<Material> material) { this->m_Material = std::move(material); }
+
+    	std::shared_ptr<Material> GetMaterial() const { return this->m_Material; }
 
     public:
         std::shared_ptr<IndexBuffer> EBO = nullptr;

@@ -16,6 +16,7 @@ namespace SPW
         Metalness,
         Roughness,
         AmbientOcclusion,
+        Unknown = 18,
     };
 
 
@@ -39,3 +40,4 @@ namespace SPW
 }
 
 #endif //SPARROW_MATERIAL_H
+
