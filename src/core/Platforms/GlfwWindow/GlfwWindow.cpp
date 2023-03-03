@@ -114,8 +114,25 @@ namespace SPW {
         }
     }
 
+    double sCursorLastX_Pos = 0;
+    double sCursorLastY_Pos = 0;
+    double sCursorX_PosBias = 0;
+    double sCursorY_PosBias = 0;
     void GlfwWindow::onUpdate() {
         glfwPollEvents();
+        glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos){
+
+            auto realWindow = all_windows[win];
+            sCursorX_PosBias = xpos - sCursorLastX_Pos;
+            sCursorY_PosBias = ypos - sCursorLastY_Pos;
+            sCursorLastX_Pos = xpos;
+            sCursorLastY_Pos = ypos;
+            auto cursor_e = std::make_shared<MouseEvent>(CursorMovementType, sCursorX_PosBias , sCursorY_PosBias);
+            realWindow->data.handler(cursor_e);
+
+            //for testing
+            std::cout << cursor_e->cursor_xpos_bias << "" << cursor_e->cursor_ypos_bias << std::endl;
+        });
     }
 
     GlfwWindow::~GlfwWindow() {

@@ -41,11 +41,6 @@ namespace SPW {
             return false;
         };
 
-        bool cursorMovement(MouseEvent *e) {
-
-            return false;
-        };
-
         bool onMouseScroll(MouseEvent *e) {
 
             locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity &entity){
