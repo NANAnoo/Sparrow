@@ -40,7 +40,7 @@
 
 
 std::shared_ptr<SPW::Model> createModel() {
-    auto model = std::make_shared<SPW::Model>(" ");
+    auto model = std::make_shared<SPW::Model>();
     std::vector<SPW::Vertex> vertices = {
         {
             {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
@@ -182,8 +182,8 @@ public:
                 transform->rotation.x += y_pos_bias;
                 transform->rotation.y += x_pos_bias;
 
-                transform->position.x = x_pos;
-                transform->position.y = y_pos;
+                // transform->position.x = x_pos;
+                // transform->position.y = y_pos;
             };
             mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
 

@@ -53,9 +53,9 @@ namespace SPW
             shader = renderBackEnd->getShader(handle);
         }
 
-    	void SetMaterial(std::shared_ptr<Material> material) { this->m_Material = std::move(material); }
+    	void SetMaterial(std::shared_ptr<Material> material) { this->mMaterial = std::move(material); }
 
-    	std::shared_ptr<Material> GetMaterial() const { return this->m_Material; }
+    	std::shared_ptr<Material> GetMaterial() const { return this->mMaterial; }
 
     public:
         std::shared_ptr<IndexBuffer> EBO = nullptr;
