@@ -31,8 +31,8 @@ namespace SPW
         void onStop() final;
 
     private:
-        FMOD::System* mFmodSystem{};
-        FMOD_SYSTEM* f_system{};
+        FMOD::System* mFmodSystem;
+        FMOD_SYSTEM* f_system;
 
 
     };

@@ -6,6 +6,9 @@
 #include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
@@ -17,6 +20,7 @@
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/Audio/AudioComponent.h"
+#include "EcsFramework/Component/Audio/AudioListener.h"
 
 
 #include "Model/Model.h"
@@ -25,6 +29,7 @@
 
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/AudioSystem/AudioSystem.h"
+#include "EcsFramework/System/AudioSystem/AudioListenerSystem.h"
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
@@ -181,7 +186,8 @@ public:
 
             // add system
             scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
-            //scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::AudioListenerSystem>(scene));
             // add a camera entity
             auto camera = scene->createEntity("main camera");
             camera->emplace<SPW::TransformComponent>();
@@ -191,6 +197,21 @@ public:
             cam->near = 0.01;
             cam->far = 100;
 
+            //add a AudioSource Entity
+            auto clip = scene->createEntity("AuidoSource");
+            clip->emplace<SPW::TransformComponent>();
+            clip->emplace<SPW::AudioComponent>();
+
+            clip->component<SPW::AudioComponent>()->is3D = true;
+
+            //add a Audio Listener
+            if(clip->component<SPW::AudioComponent>()->is3D){
+
+                auto listener = scene->createEntity("Listener");
+                listener->emplace<SPW::TransformComponent>();
+                listener->emplace<SPW::AudioListener>();
+
+            }
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
 
             // add a test game object
@@ -217,7 +238,9 @@ public:
         scene->beforeUpdate();
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
+
         // physics, computation
+
         scene->onUpdate(du);
     }
 

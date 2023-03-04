@@ -6,13 +6,16 @@
 #define SPARROW_AUDIOLISTENERSYSTEM_H
 
 #include "../SystemI.h"
-#include "fmod.hpp"
-#include "fmod.h"
+#include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/BasicComponent/IDComponent.h"
+#include "EcsFramework/Component/Audio/AudioListener.h"
+#include <fmod.hpp>
+#include <fmod.h>
 #include "string"
 
 namespace SPW
 {
-
+    using Listen = std::tuple<IDComponent *,TransformComponent *,AudioListener*>;
     class AudioListenerSystem : public SystemI{
 
     public:
@@ -24,6 +27,9 @@ namespace SPW
         void onUpdate(TimeDuration dt) final;
         void afterUpdate() final;
         void onStop() final;
+
+    private:
+        FMOD::System* ListenerSystem;
     };
 }
 #endif //SPARROW_AUDIOLISTENERSYSTEM_H
