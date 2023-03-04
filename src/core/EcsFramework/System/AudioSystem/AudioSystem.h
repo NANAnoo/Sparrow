@@ -24,8 +24,6 @@ namespace SPW
 
         void set3DModule(FMOD_MODE f);
 
-
-
         void initial() final;
         void beforeUpdate() final;
         void onUpdate(TimeDuration dt) final;

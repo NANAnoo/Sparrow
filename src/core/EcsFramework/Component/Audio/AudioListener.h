@@ -20,6 +20,7 @@ namespace SPW
         AudioListener() = default;
 
 
+        bool is3D;
 
         unsigned int Listener_id;
 

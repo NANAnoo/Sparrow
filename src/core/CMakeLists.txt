@@ -11,7 +11,7 @@ macro(CORE_ADD_SOURCE)
     set(CoreSourceFiles ${CoreSourceFiles} ${SOURCE_FILES} PARENT_SCOPE)
 endmacro(CORE_ADD_SOURCE)
 
-set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h" EcsFramework/Component/Audio/AudioComponent.h EcsFramework/Component/Audio/AudioListener.h EcsFramework/System/AudioSystem/AudioSystem.h EcsFramework/System/AudioSystem/AudioListenerSystem.h EcsFramework/System/AudioSystem/AudioSystem.cpp)
+set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h" EcsFramework/Component/Audio/AudioComponent.h EcsFramework/Component/Audio/AudioListener.h EcsFramework/System/AudioSystem/AudioSystem.h EcsFramework/System/AudioSystem/AudioListenerSystem.h EcsFramework/System/AudioSystem/AudioSystem.cpp EcsFramework/System/AudioSystem/AudioListenerSystem.cpp)
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(Utils)

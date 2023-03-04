@@ -34,12 +34,15 @@ namespace SPW{
                     auto sc = en.component<AudioComponent>();
                     if(sc->is3D){
                         set3DModule(sc->ModeType);
-                        mFmodSystem->createSound("Sparrow/resources/sounds/test.wav", FMOD_DEFAULT, 0, &sc->Sound);
+                        mFmodSystem->createSound("Sparrow/resources/sounds/test.wav", FMOD_3D, 0, &sc->Sound);
 
                         mFmodSystem->playSound(sc->Sound, nullptr, false, &sc->Channel);
-                    }else{
+
                         //TODO
-                        mFmodSystem->createSound("Sparrow/resources/sounds/test.wav", FMOD_DEFAULT, 0, &sc->Sound);
+
+
+                    }else{
+                        mFmodSystem->createSound("Sparrow/resources/sounds/test.wav", FMOD_2D, 0, &sc->Sound);
 
                         mFmodSystem->playSound(sc->Sound, nullptr, false, &sc->Channel);
                     }
