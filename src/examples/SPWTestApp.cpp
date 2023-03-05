@@ -208,9 +208,9 @@ public:
         scene->afterUpdate();
     }
     void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
-        for (auto &e : events) {
-            DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
-        }
+        // for (auto &e : events) {
+        //     DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
+        // }
     }
     void onAppStopped() final{
         sol::state state;

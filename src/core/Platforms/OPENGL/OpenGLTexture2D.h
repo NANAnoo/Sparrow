@@ -32,7 +32,7 @@ namespace SPW
             // load image, create texture and generate mipmaps
             int width, height, nrComponents;
             ResourceManager::getInstance()->LoadTextureScope(true, path, 
-                [this, &path](int w, int  h, int nrComponents, unsigned char *data) {
+                [this, path](int w, int h, int nrComponents, unsigned char *data) {
                     if (data)
                     {
                         GLenum format1,format2;

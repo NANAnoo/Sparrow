@@ -9,8 +9,10 @@
 #include "OpenGLTexture2D.h"
 #include "OpenGLFrameBuffer.h"
 #include "Render/Material.h"
+#include "IO/FileSystem.h"
 #include <fstream>
 #include <vector>
+#include <unordered_set>
 float quadVertices[] =
 {
                 // positions   // texCoords
@@ -30,16 +32,6 @@ namespace SPW
     {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
-        std::string shader_lib = "./resources/shaders/baselib/structure.glsl";
-
-        std::stringstream ss;
-        std::ifstream fs(shader_lib);
-        ss << fs.rdbuf();
-        auto code = ss.str();
-        shader_lib = "/structure.glsl";
-        glNamedStringARB(GL_SHADER_INCLUDE_ARB, shader_lib.size(), shader_lib.c_str(),
-                         code.size(), code.c_str());
-
         glGenVertexArrays(1, &quadVAO);
         glGenBuffers(1, &quadVBO);
         glBindVertexArray(quadVAO);
@@ -49,6 +41,27 @@ namespace SPW
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    }
+
+    void OpenGLBackEnd::loadShaderLib(std::string libPath) {
+        std::vector<FilePath> files = FileSystem::GetFiles(libPath);
+        for (auto &path : files) {
+            if (path.has_filename() && path.filename().has_extension()) {
+                auto ext = path.extension().string();
+                if (ext == ".glsl") {
+                    auto shader_lib = path.string();
+                    std::stringstream ss;
+                    std::ifstream fs(shader_lib);
+                    ss << fs.rdbuf();
+                    auto code = ss.str();
+                    shader_lib = "/" + path.filename().string();
+                    glNamedStringARB(GL_SHADER_INCLUDE_ARB, shader_lib.size(), shader_lib.c_str(),
+                                    code.size(), code.c_str());
+                    fs.close();
+                }
+            }
+
+        }
     }
 
     void OpenGLBackEnd::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -127,12 +140,14 @@ namespace SPW
         for (int i = 0; i < types.size(); i ++) {
             TextureType type = types[i];
             std::string name = names[i];
-            std::string path = material->TextureMap[type];
-            std::shared_ptr<OpenGLtexture2D> texture =
-                    OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
-            shader->SetUniformValue<int>(name,i);
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, texture->ID);
+            if (material->TextureMap.find(type) != material->TextureMap.end()) {
+                std::string path = material->TextureMap[type];
+                std::shared_ptr<OpenGLtexture2D> texture =
+                OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
+                shader->SetUniformValue<int>(name,i);
+                glActiveTexture(GL_TEXTURE0 + i);
+                glBindTexture(GL_TEXTURE_2D, texture->ID);
+            }
         }
         // TODO @ Zhou, read other material in resources manager
         shader->SetUniformValue<float>("diffusion", 0.4);

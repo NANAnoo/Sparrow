@@ -235,9 +235,8 @@ namespace SPW
 		int width, height, bpp;
 		unsigned char *data = stbi_load(filePath.string().c_str(), &width, &height, &bpp, STBI_rgb_alpha);
 		callback(width, height, bpp, data);
-		if (data != nullptr) {
+		if (data) {
 			stbi_image_free(data);
 		}
-
 	}
 }

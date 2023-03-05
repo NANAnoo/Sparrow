@@ -15,6 +15,7 @@ std::shared_ptr<SPW::FrameBuffer> frameBuffer;
 void SPW::RenderSystem::initial()
 {
     renderBackEnd->Init();
+    renderBackEnd->loadShaderLib("./resources/shaders/baselib");
 
     frameBuffer = renderBackEnd->creatSenceFrameBuffer();
     frameBuffer->genFrameBuffer();
