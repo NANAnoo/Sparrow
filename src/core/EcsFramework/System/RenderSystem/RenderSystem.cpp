@@ -56,8 +56,6 @@ void SPW::RenderSystem::afterUpdate(){
     ComponentGroup<SPW::IDComponent, 
                     SPW::TransformComponent, 
                     SPW::LightComponent> lightGroup;
-    
-    
 
     locatedScene.lock()->forEachEntityInGroup(cameraGroup,
         [this, &uiCamera, &cameraGroup](const Entity &en){
@@ -77,7 +75,7 @@ void SPW::RenderSystem::afterUpdate(){
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::DepthTest, false));
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::SetClearColor,glm::vec4(0.5)));
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::Clear));
-    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::drawInTexture,PostProcessingEffects::Gauss));
+    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::drawInTexture,PostProcessingEffects::FXAA));
     postProcessPass.executeWithAPI(renderBackEnd);
 
     // RenderPass n, render in Game GUI

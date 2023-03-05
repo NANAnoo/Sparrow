@@ -137,4 +137,22 @@ namespace SPW
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
 
+    void OpenGLShader::setDLight(const std::string &name, glm::vec3 color, glm::vec3 direction, float intensity) const
+    {
+        std::string n = "DLights["+name+"]";
+        setVec3(name+".color",color);
+        setVec3(name+".direction",direction);
+        setFloat(name+".intensity",intensity);
+
+    }
+
+    void OpenGLShader::setPLight(const std::string &name, glm::vec3 color, glm::vec4 position, float intensity) const
+    {
+        std::string n = "PLights["+name+"]";
+        setVec3(name+".color",color);
+        setVec4(name+".direction",position);
+        setFloat(name+".intensity",intensity);
+    }
+
+
 }

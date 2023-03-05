@@ -181,6 +181,14 @@ namespace SPW
                                                "./resources/shaders/Gauss.frag"
                                        });
         }
+        else if(effect==SPW::PostProcessingEffects::FXAA)
+        {
+            handle = SPW::ShaderHandle({
+                                               "drawIntexture",
+                                               "./resources/shaders/screen.vert",
+                                               "./resources/shaders/FXAA.frag"
+                                       });
+        }
         std::shared_ptr<Shader> screenShader = this->getShader(handle);
         screenShader->Bind();
         glActiveTexture(GL_TEXTURE0);
