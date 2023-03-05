@@ -19,18 +19,25 @@ namespace SPW
     class AudioSystem : public SystemI{
 
     public:
+
         explicit AudioSystem(std::shared_ptr<Scene> &scene);
         virtual ~AudioSystem() = default;
 
         void set3DModule(FMOD_MODE f);
 
+        void playSound();
+
+        void pausedSound();
         void initial() final;
         void beforeUpdate() final;
         void onUpdate(TimeDuration dt) final;
         void afterUpdate() final;
         void onStop() final;
 
+
+
     private:
+
         FMOD::System* mFmodSystem;
         FMOD_SYSTEM* f_system;
 

@@ -13,6 +13,7 @@
 #define _FMOD_H
 
 #include "fmod_common.h"
+#include "fmod.hpp"
 
 #ifdef __cplusplus
 extern "C" 
@@ -241,7 +242,7 @@ FMOD_RESULT F_API FMOD_Channel_GetSystemObject          (FMOD_CHANNEL *channel, 
 
 FMOD_RESULT F_API FMOD_Channel_Stop                     (FMOD_CHANNEL *channel);
 FMOD_RESULT F_API FMOD_Channel_SetPaused                (FMOD_CHANNEL *channel, FMOD_BOOL paused);
-FMOD_RESULT F_API FMOD_Channel_GetPaused                (FMOD_CHANNEL *channel, FMOD_BOOL *paused);
+FMOD_RESULT F_API FMOD_Channel_GetPaused                (FMOD::Channel *channel, FMOD_BOOL paused);
 FMOD_RESULT F_API FMOD_Channel_SetVolume                (FMOD_CHANNEL *channel, float volume);
 FMOD_RESULT F_API FMOD_Channel_GetVolume                (FMOD_CHANNEL *channel, float *volume);
 FMOD_RESULT F_API FMOD_Channel_SetVolumeRamp            (FMOD_CHANNEL *channel, FMOD_BOOL ramp);

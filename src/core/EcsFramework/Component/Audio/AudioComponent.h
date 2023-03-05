@@ -11,14 +11,24 @@
 
 namespace SPW
 {
+    struct AudioState{};
     class AudioComponent : public ComponentI{
     public:
+
         AudioComponent() = default;
         AudioComponent(const AudioComponent&) = default;
         AudioComponent(const std::string& Path) : AudioPath(Path){}
 
+        int getTime(){ return  time;}
+        void addTime(){time++;}
+
         std::string AudioPath = "None";
-        bool Play;
+
+        bool isPlay;
+        bool isPaused;
+        bool isPlayedOnAwake;
+        bool isLoop;
+
         bool is3D;
 
         FMOD::Sound* Sound = nullptr;
@@ -26,6 +36,10 @@ namespace SPW
         FMOD_MODE ModeType = FMOD_DEFAULT;
     private:
 
+        //create time must less equal to 1
+        int time = 0;
     };
+
+
 }
 #endif //SPARROW_AUDIOCOMPONENT_H

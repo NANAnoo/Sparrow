@@ -9,6 +9,10 @@
 
 namespace SPW{
 
+    AudioListenerSystem::AudioListenerSystem(std::shared_ptr<Scene> &scene) : SystemI(scene) {
+
+    }
+
     void AudioListenerSystem::initial() {
         FMOD::System_Create(&ListenerSystem);
         ListenerSystem->init(32,FMOD_INIT_NORMAL,0);
@@ -46,7 +50,5 @@ namespace SPW{
         ListenerSystem->release();
     }
 
-    AudioListenerSystem::AudioListenerSystem(std::shared_ptr<Scene> &scene) : SystemI(scene) {
-
-    }
+    //FMOD_RESULT AudioListenerSystem::
 }
