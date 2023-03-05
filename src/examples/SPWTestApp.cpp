@@ -9,6 +9,10 @@
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
+#include "Control/MouseEvent.hpp"
+
+#include "Control/KeyCodes.h"
+#include "Control/MouseCodes.h"
 
 #include "EcsFramework/Scene.hpp"
 
@@ -16,58 +20,24 @@
 #include "EcsFramework/Component/ModelComponent.h"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/KeyComponent.hpp"
+#include "EcsFramework/Component/MouseComponent.hpp"
 
+#include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
+#include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 
 #include "Model/Model.h"
 
 #include "Utils/UUID.hpp"
 
-#include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
-#include "Control/MouseEvent.hpp"
 #include "IO/ResourceManager.h"
 #include "Model/Model.h"
 
-class WOC :
-        public SPW::WindowEventResponder,
-        public SPW::KeyEventResponder,
-        public SPW::MouseEventResponder {
-public:
-    explicit WOC(const std::shared_ptr<SPW::EventResponderI> &parent, const char *name):
-            SPW::WindowEventResponder(parent),
-            SPW::KeyEventResponder(parent),
-            SPW::MouseEventResponder(parent),
-            _name(name){
-        }
-    explicit WOC(const std::shared_ptr<WOC> &parent, const char *name):
-            SPW::WindowEventResponder(std::shared_ptr<SPW::WindowEventResponder>(parent)),
-            SPW::KeyEventResponder(std::shared_ptr<SPW::KeyEventResponder>(parent)),
-            SPW::MouseEventResponder(std::shared_ptr<SPW::MouseEventResponder>(parent)),
-            _name(name){
-    }
-    bool onKeyDown(SPW::KeyEvent *e) override {
-        if (_name[0] == 'C') {
-            std::cout << "onKeyDown" << std::endl;
-            return true;
-        }
-        return false;
-    }
-    bool onMouseDown(SPW::MouseEvent *e) override {
-        if (_name[0] == 'B') {
-            std::cout << "onMouseDown" << std::endl;
-            return true;
-        }
-        return false;
-    }
-    bool canRespondTo(const std::shared_ptr<SPW::EventI> &e) final {
-        return _name[0] != 'E' || e->category() == SPW::MouseCategory;
-    }
-    const char *_name;
-    const char *getName() final {return _name;}
-};
 
 std::shared_ptr<SPW::Model> createModel() {
     auto model = std::make_shared<SPW::Model>();
@@ -170,9 +140,9 @@ public:
             scene = SPW::Scene::create(app->delegate.lock());
 
             // add system
-            auto renderSystem = std::make_shared<SPW::RenderSystem>(scene, renderBackEnd);
-            scene->addSystem(renderSystem);
-            renderSystem->postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::Clear));
+            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
+            scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
@@ -202,6 +172,31 @@ public:
             auto transform = triangle->emplace<SPW::TransformComponent>();
             transform->scale = {0.5, 0.5, 0.5};
 
+            //add a key component for testing, press R to rotate
+            auto key = triangle->emplace<SPW::KeyComponent>();
+            key->onKeyDownCallBack = [transform](const SPW::Entity& e, int keycode){
+                if(keycode == static_cast<int>(SPW::Key::R))
+                    transform->rotation.y += 5.0f;
+            };
+
+            //add a mouse component for testing, press left button to rotate, scroll to scale
+            auto mouse = triangle->emplace<SPW::MouseComponent>();
+            mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
+                auto transform = e.component<SPW::TransformComponent>();
+                transform->rotation.x += y_pos_bias;
+                transform->rotation.y += x_pos_bias;
+
+                // transform->position.x = x_pos;
+                // transform->position.y = y_pos;
+            };
+            mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
+
+                auto transform = e.component<SPW::TransformComponent>();
+                transform->scale.x += scroll_offset;
+                transform->scale.y += scroll_offset;
+                transform->scale.z += scroll_offset;
+            };
+
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
             model->bindCameras.insert(camera_id_2);
@@ -210,6 +205,7 @@ public:
                                          "./resources/shaders/simpleVs.vert",
                                          "./resources/shaders/simplefrag.frag"
                                      });
+
             model->modelProgram = shaderHandle;
             model->model = createModel();
 
