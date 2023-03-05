@@ -13,7 +13,6 @@ endmacro(CORE_ADD_SOURCE)
 
 set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h")
 
-
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(Utils)
 add_subdirectory(Event)

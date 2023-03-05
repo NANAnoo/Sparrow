@@ -29,6 +29,10 @@
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
 
+
+#include "EcsFramework/Component/KeyComponent.hpp"
+#include "EcsFramework/Component/MouseComponent.hpp"
+
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
@@ -190,6 +194,21 @@ public:
                 clip->component<SPW::AudioComponent>()->isLoop = true;
 
             }
+            clip->component<SPW::AudioComponent>()->AudioPath = "./resources/sounds/test.wav";
+            auto keyCom =  clip->emplace<SPW::KeyComponent>();
+            keyCom->onKeyDownCallBack = [](const SPW::Entity& e, int keycode) {
+                if (keycode == static_cast<int>(SPW::KeyCode::Space)) {
+                    // TODO: 更改音频时 管理对象生命周期, 使用一个音频资源管理器管理音频对象
+                    // e.component<SPW::AudioComponent>()->AudioPath = "./";
+                    // TODO: (private) state {start, pause, continue, stop}, getState(){return state;}, setState(){//TODO 控制状态};
+                    // TODO: isLoop;
+                    // TODO: 调研FMOD 支持的音频格式
+                    e.component<SPW::AudioComponent>()->isPaused = false;
+
+                }
+            };
+
+
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
 
             // add a test game object
