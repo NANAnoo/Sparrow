@@ -8,6 +8,7 @@
 #include <iostream>
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
+#include "Control/MouseCodes.h"
 #include "Control/MouseEvent.hpp"
 
 namespace SPW {
@@ -66,17 +67,18 @@ namespace SPW {
 
         glfwSetKeyCallback(window, [](GLFWwindow *win, int key, int scancode, int action, int mods) {
             auto realWindow = all_windows[win];
+            auto keyCode = static_cast<KeyCode>(key);
             if(action == GLFW_RELEASE){
                 realWindow->data.handler(std::make_shared<KeyEvent>(
-                    KeyReleasedType, key));
+                    KeyReleasedType, keyCode));
             }
             else if(action == GLFW_PRESS){
                 realWindow->data.handler(std::make_shared<KeyEvent>(
-                        KeyDownType, key));
+                        KeyDownType, keyCode));
             }
             else if(action == GLFW_REPEAT){
                 realWindow->data.handler(std::make_shared<KeyEvent>(
-                        KeyHeldType, key));
+                        KeyHeldType, keyCode));
             }
         });
 
@@ -84,24 +86,25 @@ namespace SPW {
         glfwSetMouseButtonCallback(window, [](GLFWwindow* win, int button, int action, int mods){
 
             auto realWindow = all_windows[win];
+            auto mouseCode = static_cast<MouseCode>(button);
             if(action == GLFW_PRESS){
                 realWindow->data.handler(std::make_shared<MouseEvent>(
-                        MouseDownType, button, 0));
+                        MouseDownType, mouseCode, 0));
             }
             else if(action == GLFW_RELEASE){
                 realWindow->data.handler(std::make_shared<MouseEvent>(
-                        MouseReleasedType, button, 0));
+                        MouseReleasedType, mouseCode, 0));
             }
             else if(action == GLFW_REPEAT){
                 realWindow->data.handler(std::make_shared<MouseEvent>(
-                        MouseHeldType, button, 0));
+                        MouseHeldType, mouseCode, 0));
             }
         });
 
         glfwSetScrollCallback(window, [](GLFWwindow* win, double x_offset, double y_offset){
             auto realWindow = all_windows[win];
             realWindow->data.handler(std::make_shared<MouseEvent>(
-                    MouseScrollType, GLFW_MOUSE_BUTTON_MIDDLE, y_offset));
+                    MouseScrollType, MouseCode::ButtonMiddle, y_offset));
         });
     }
 

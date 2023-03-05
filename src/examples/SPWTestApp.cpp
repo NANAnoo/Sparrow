@@ -156,8 +156,8 @@ public:
 
             //add a key component for testing, press R to rotate
             auto key = triangle->emplace<SPW::KeyComponent>();
-            key->onKeyDownCallBack = [transform](const SPW::Entity& e, int keycode){
-                if(keycode == static_cast<int>(SPW::Key::R))
+            key->onKeyHeldCallBack = [transform](const SPW::Entity& e, SPW::KeyCode keycode){
+                if(keycode == SPW::Key::R)
                     transform->rotation.y += 5.0f;
             };
 

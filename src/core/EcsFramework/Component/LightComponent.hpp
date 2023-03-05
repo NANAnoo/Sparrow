@@ -1,7 +1,7 @@
 //
 // Created by ZhangHao on 2023/2/20.
 //
-
+#pragma once
 #include "ComponentI.h"
 
 #include <glm/glm.hpp>
