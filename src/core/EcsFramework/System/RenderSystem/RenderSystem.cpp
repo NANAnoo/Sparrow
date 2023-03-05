@@ -56,8 +56,6 @@ void SPW::RenderSystem::afterUpdate(){
     ComponentGroup<SPW::IDComponent, 
                     SPW::TransformComponent, 
                     SPW::LightComponent> lightGroup;
-    
-    
 
     locatedScene.lock()->forEachEntityInGroup(cameraGroup,
         [this, &uiCamera, &cameraGroup](const Entity &en){

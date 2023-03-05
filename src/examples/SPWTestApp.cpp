@@ -181,7 +181,7 @@ public:
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
-            model->bindCameras.insert(camera_id_2);
+            //model->bindCameras.insert(camera_id_2);
             SPW::ShaderHandle shaderHandle({
                                          "basic",
                                          "./resources/shaders/simpleVs.vert",
