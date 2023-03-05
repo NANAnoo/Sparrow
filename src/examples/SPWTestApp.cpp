@@ -40,7 +40,7 @@
 
 
 std::shared_ptr<SPW::Model> createModel() {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/nanosuit/nanosuit.obj");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
 }
 
 // test usage

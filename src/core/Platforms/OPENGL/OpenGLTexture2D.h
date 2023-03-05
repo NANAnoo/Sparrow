@@ -31,7 +31,7 @@ namespace SPW
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             // load image, create texture and generate mipmaps
             int width, height, nrComponents;
-            ResourceManager::getInstance()->LoadTextureScope(true, path, 
+            ResourceManager::getInstance()->LoadTextureScope(false, path,
                 [this, path](int w, int h, int nrComponents, unsigned char *data) {
                     if (data)
                     {
