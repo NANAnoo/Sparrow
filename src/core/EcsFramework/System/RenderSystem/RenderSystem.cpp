@@ -11,21 +11,10 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
-std::shared_ptr<SPW::FrameBuffer> frameBuffer;
 void SPW::RenderSystem::initial()
 {
     renderBackEnd->Init();
     renderBackEnd->loadShaderLib("./resources/shaders/baselib");
-
-    frameBuffer = renderBackEnd->creatSenceFrameBuffer();
-    frameBuffer->genFrameBuffer();
-    frameBuffer->bind();
-    frameBuffer->AttachColorTexture(800,600,0);
-    frameBuffer->AttachDepthRenderBuffer(800,600);
-    frameBuffer->CheckFramebufferStatus();
-    frameBuffer->unbind();
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
 }
 
 void SPW::RenderSystem::beforeUpdate() {
@@ -202,7 +191,7 @@ void SPW::RenderSystem::onStop() {
 
 bool SPW::RenderSystem::onFrameResize(int w, int h) {
     std::cout << "RenderSystem frame changed" << std::endl;
-    // TODO update frame buffer here
+    // update frame buffer here
     frameBuffer->deleteFrameBuffer();
     frameBuffer->genFrameBuffer();
     frameBuffer->bind();

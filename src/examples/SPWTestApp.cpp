@@ -99,7 +99,7 @@ public:
     void onAppInit() final {
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
-        app->window->setSize(800, 600);
+        app->window->setSize(1600, 900);
         app->window->setTitle("SPWTestApp");
 
         transformer = std::make_shared<Transformer>(app->delegate.lock());
@@ -123,13 +123,14 @@ public:
             scene = SPW::Scene::create(app->delegate.lock());
 
             // add system
-            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
+            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->width(), weak_window.lock()->height()));
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
-            camera->emplace<SPW::TransformComponent>();
+            auto camTran = camera->emplace<SPW::TransformComponent>();
+            camTran->position = {0, 0.5, 0};
             auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
             cam->fov = 60;
             cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
@@ -157,7 +158,7 @@ public:
 
             //add a key component for testing, press R to rotate
             auto key = triangle->emplace<SPW::KeyComponent>();
-            key->onKeyDownCallBack = [transform](const SPW::Entity& e, int keycode){
+            key->onKeyHeldCallBack = [transform](const SPW::Entity& e, int keycode){
                 if(keycode == static_cast<int>(SPW::Key::R))
                     transform->rotation.y += 5.0f;
             };
@@ -168,9 +169,6 @@ public:
                 auto transform = e.component<SPW::TransformComponent>();
                 transform->rotation.x += y_pos_bias;
                 transform->rotation.y += x_pos_bias;
-
-                // transform->position.x = x_pos;
-                // transform->position.y = y_pos;
             };
             mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
                 auto transform = e.component<SPW::TransformComponent>();
