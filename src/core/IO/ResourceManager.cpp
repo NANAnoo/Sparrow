@@ -10,10 +10,16 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Model/Model.h"
+#include "IO/FileSystem.h"
 #include "IO/ResourceManager.h"
+#include "Render/Material.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 namespace SPW
 {
+
     glm::vec3 toVec3(const aiVector3D& _val)
     {
         return glm::vec3(_val.x, _val.y, _val.z);
@@ -39,7 +45,39 @@ namespace SPW
         return result;
     }
 
-	namespace fs = std::filesystem;
+	std::shared_ptr<Material> LoadMaterial(aiMaterial* material)
+	{
+		std::shared_ptr<Material> tmp = std::make_shared<Material>();
+
+		// Iterate through the texture slots of the material
+		for (unsigned int j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+		{
+			aiTextureType textureType = static_cast<aiTextureType>(j);
+			unsigned int textureCount = material->GetTextureCount(textureType);
+
+			// Iterate through the textures of the current slot
+			for (unsigned int k = 0; k < textureCount; k++) 
+			{
+				aiString texturePath;
+				material->GetTexture(textureType, k, &texturePath);
+				if (j == 1 || j == 12 || j == 16)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Albedo, texturePath.C_Str()));
+				else if (j == 6)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Normal, texturePath.C_Str()));
+				else if (j == 16)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Roughness, texturePath.C_Str()));
+				else if (j == 17)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::AmbientOcclusion, texturePath.C_Str()));
+				else if (j == 15)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Metalness, texturePath.C_Str()));
+				else 
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Unknown, texturePath.C_Str()));
+			}
+		}
+
+		return tmp;
+	}
+
 
 	[[nodiscard]] std::shared_ptr<Mesh> ProcessMeshNode(aiMesh* mesh, const aiScene* scene)
 	{
@@ -133,6 +171,7 @@ namespace SPW
         }
 
     	// TODO Deal with Materials
+		tmp->SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
 
 		return tmp;
 	}
@@ -173,11 +212,27 @@ namespace SPW
 		}
 
 		std::cout << "SUCESS::ASSIMP::" << _filePath << std::endl;
-		
+
+
 		std::shared_ptr<Model> model = std::make_shared<Model>(ProcessNodes(scene->mRootNode, scene));
+
+		model->SetFilePath(_filePath);
+
+		for(auto& mesh: model->GetMeshes())
+		{
+			for(auto&[k, v] : mesh->GetMaterial()->TextureMap)
+				v = FileSystem::JoinFileRoute(_filePath.parent_path(), v);
+		}
 
 		return model;
 
 		// if (scene->HasAnimations()) ProcessAnimationClips(scene->mRootNode, scene);
+	}
+
+	auto ResourceManager::LoadTexture(bool flip, const std::filesystem::path& filePath, int width, int height, int bpp)
+	{
+		stbi_set_flip_vertically_on_load(flip);
+
+		return stbi_load(filePath.string().c_str(), &width, &height, &bpp, STBI_rgb_alpha);
 	}
 }

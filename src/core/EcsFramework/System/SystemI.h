@@ -7,6 +7,7 @@
 
 #include <memory>
 #include "Utils/Timer.hpp"
+#include "queue"
 
 namespace SPW {
     class Scene;
