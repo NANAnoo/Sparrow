@@ -210,6 +210,7 @@ public:
                 auto listener = scene->createEntity("Listener");
                 listener->emplace<SPW::TransformComponent>();
                 listener->emplace<SPW::AudioListener>();
+                clip->component<SPW::AudioComponent>()->isLoop = true;
 
             }
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();

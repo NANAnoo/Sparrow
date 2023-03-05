@@ -26,8 +26,10 @@ namespace SPW
         void set3DModule(FMOD_MODE f);
 
         void playSound();
-
         void pausedSound();
+        void onAwake();
+
+
         void initial() final;
         void beforeUpdate() final;
         void onUpdate(TimeDuration dt) final;

@@ -38,6 +38,7 @@ namespace SPW{
     void AudioSystem::onUpdate(TimeDuration dt) {
 
         playSound();
+        pausedSound();
     }
 
     void AudioSystem::onStop() {
@@ -57,8 +58,9 @@ namespace SPW{
                 [this,&uiMusic,&AudioGroup](const Entity &en) {
                     auto sc = en.component<AudioComponent>();
 
-                    if(sc->getTime()<1)
+                    if(sc->getTime()<1 && sc->isPlay)
                     {
+                        sc->isPaused = false;
                         if(sc->is3D) {
                             //3D
                             mFmodSystem->createSound("./resources/sounds/test.wav", FMOD_3D, 0, &sc->Sound);
@@ -76,6 +78,7 @@ namespace SPW{
                                 mFmodSystem->createSound("./resources/sounds/test.wav", FMOD_LOOP_NORMAL, 0, &sc->Sound);
                             }
                             mFmodSystem->playSound(sc->Sound, nullptr, false, &sc->Channel);
+                            sc->addTime();
                         }
 
                     }
@@ -92,12 +95,11 @@ namespace SPW{
                 AudioGroup,
                 [this,&uiMusic,&AudioGroup](const Entity &en) {
                     auto sc = en.component<AudioComponent>();
-                    FMOD_RESULT result;
-                    FMOD_BOOL paused = sc->isPaused;
-                    if(result == FMOD_OK && sc->isPaused){
-                        //result = FMOD_Channel_GetPaused(&sc->Channel, &paused);
+                    if(sc->isPaused == true)
+                    {
+                        sc->isPlay = false;
                     }
-
+                    sc->Channel->setPaused(sc->isPaused);
                 });
     }
 

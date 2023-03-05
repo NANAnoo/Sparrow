@@ -57,7 +57,7 @@ public:
         if (FMOD_OK != system->init(32, FMOD_INIT_NORMAL, nullptr)) {
             std::cout << "System init failed" <<std::endl;
         }
-        if (FMOD_OK != system->createSound("", FMOD_DEFAULT, nullptr, &sound)) {
+        if (FMOD_OK != system->createSound("sdsadasdsad", FMOD_DEFAULT, nullptr, &sound)) {
             std::cout << "Sound create failed" <<std::endl;
         }
         if (FMOD_OK != system->playSound(sound, nullptr, false, &channel)) {

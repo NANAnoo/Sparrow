@@ -26,7 +26,7 @@ namespace SPW
 
         bool isPlay;
         bool isPaused;
-        bool isPlayedOnAwake;
+        //bool isPlayedOnAwake;
         bool isLoop;
 
         bool is3D;
