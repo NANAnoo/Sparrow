@@ -11,5 +11,4 @@ CORE_ADD_SOURCE(
         RenderCommandsQueue.hpp
         RenderPass.hpp
         Material.h
-        stb_image.h
 )

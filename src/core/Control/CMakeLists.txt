@@ -1,1 +1,1 @@
-CORE_ADD_SOURCE(MouseEvent.hpp KeyEvent.hpp)
+CORE_ADD_SOURCE(MouseEvent.hpp KeyEvent.hpp KeyCodes.h MouseCodes.h  )
