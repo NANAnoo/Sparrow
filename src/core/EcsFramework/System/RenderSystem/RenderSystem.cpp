@@ -109,6 +109,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
             if (modelCom->bindCameras.find(currentID) != modelCom->bindCameras.end()) {
                 if (!modelCom->ready) {
                     modelCom->model->setUpModel(renderBackEnd);
+                    modelCom->ready = true;
                 }
                 renderModels.push_back(en);
             }
@@ -169,6 +170,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
                                       glm::radians(transformCom->rotation.z));
 
                 M = glm::scale(M, transformCom->scale);
+
                 const auto& meshes = modelCom->model->GetMeshes();
                 for(auto &mesh : meshes) {
                     // set up mesh with current shader
@@ -201,5 +203,12 @@ void SPW::RenderSystem::onStop() {
 bool SPW::RenderSystem::onFrameResize(int w, int h) {
     std::cout << "RenderSystem frame changed" << std::endl;
     // TODO update frame buffer here
+    frameBuffer->deleteFrameBuffer();
+    frameBuffer->genFrameBuffer();
+    frameBuffer->bind();
+    frameBuffer->AttachColorTexture(w,h,0);
+    frameBuffer->AttachDepthRenderBuffer(w,h);
+    frameBuffer->CheckFramebufferStatus();
+    frameBuffer->unbind();
     return false;
 }

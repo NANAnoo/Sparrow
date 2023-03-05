@@ -16,7 +16,7 @@ namespace SPW
         OpenGLVertexBuffer() = default;
         virtual void GenVertexBuffer() final;
         virtual void GenVertexArray() final;
-        virtual void VertexBufferData(std::vector<Vertex> vertices) final;
+        virtual void VertexBufferData(std::vector<Vertex>& vertices) final;
         virtual void Bind(){glBindVertexArray(VAO); }
         virtual void UnBind() { glBindVertexArray(0);}
 
