@@ -183,6 +183,7 @@ namespace SPW
         }
         std::shared_ptr<Shader> screenShader = this->getShader(handle);
         screenShader->Bind();
+        glActiveTexture(GL_TEXTURE0);
         screenShader->SetUniformValue<int>("screenTexture",0);
         glBindVertexArray(quadVAO);
         scenceFrameBuffer->drawinTexture();

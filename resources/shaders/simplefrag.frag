@@ -2,7 +2,7 @@
 #extension GL_ARB_shading_language_include : require
 
 #include </structure.glsl>
-#include </BlinnPhong.glsl>
+//#include </BlinnPhong.glsl>
 
 out vec4 FragColor;
 uniform sampler2D albedoMap;

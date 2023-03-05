@@ -40,7 +40,7 @@
 
 
 std::shared_ptr<SPW::Model> createModel() {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/companion_cube/scene.gltf");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/nanosuit/nanosuit.obj");
 }
 
 // test usage
@@ -174,9 +174,9 @@ public:
             mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
 
                 auto transform = e.component<SPW::TransformComponent>();
-                transform->scale.x += scroll_offset;
-                transform->scale.y += scroll_offset;
-                transform->scale.z += scroll_offset;
+                transform->scale.x += scroll_offset*0.01;
+                transform->scale.y += scroll_offset*0.01;
+                transform->scale.z += scroll_offset*0.01;
             };
 
             // add a model to show

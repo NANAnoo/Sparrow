@@ -81,7 +81,7 @@ void SPW::RenderSystem::afterUpdate(){
     postProcessPass.executeWithAPI(renderBackEnd);
 
     // RenderPass n, render in Game GUI
-    renderModelsWithCamera(uiCamera);
+    //renderModelsWithCamera(uiCamera);
 }
 
 
