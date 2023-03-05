@@ -1,5 +1,3 @@
-#extension GL_ARB_shading_language_include : require
-
 // return the scale color of BlinnPhong
 // should multiply the base color at this point
 vec3 BlinnPhong(vec3 normal, vec3 viewDir, vec3 lightDir, 
@@ -25,6 +23,6 @@ vec3 BlinnPhong(vec3 normal, vec3 viewDir, vec3 lightDir,
     // specular light
 	float NdotH = dot(normal, halfVec);
     intensity = pow(max(0, min(1, NdotH)), specularPower);
-    scale += intensity * specColor * shininess / distance
-    return scale
+    scale += intensity * specColor * shininess / distance;
+    return scale;
 }

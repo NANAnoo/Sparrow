@@ -28,6 +28,7 @@ namespace SPW
         //cull
         void Cull(int32_t Bit) override;
         void CullFrontOrBack(bool bFront) override;
+        void loadShaderLib(std::string libPath) override;
 
         //Texture
         void BindTexture(std::shared_ptr<Shader>shader,std::shared_ptr<Material>material) final;
@@ -54,6 +55,7 @@ namespace SPW
         std::shared_ptr<FrameBuffer> creatSenceFrameBuffer() final;
         void drawInTexture(SPW::PostProcessingEffects effect = SPW::PostProcessingEffects::None) final;
     private:
+        
         unsigned int quadVAO, quadVBO;
     };
 }

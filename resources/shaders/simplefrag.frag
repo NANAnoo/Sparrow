@@ -1,7 +1,8 @@
 #version 410 core
 #extension GL_ARB_shading_language_include : require
+
 #include </structure.glsl>
-#include </BlinnPhong.glsl>
+//#include </BlinnPhong.glsl>
 
 out vec4 FragColor;
 uniform sampler2D albedoMap;
@@ -30,10 +31,10 @@ void main()
 {
     vec3 BP_scale;
     vec3 lightColor = PLights[0].intensity * PLights[0].color;
-    BP_scale = BlinnPhong(normal, PLights[0].position - gl_Position, camPos - gl_Position,
-                            lightColor, lightColor, lightColor,
-                            diffusion, lambertin, shininess, specularPower);
+    // BP_scale = BlinnPhong(normal, PLights[0].position - gl_Position, camPos - gl_Position,
+    //                         lightColor, lightColor, lightColor,
+    //                         diffusion, lambertin, shininess, specularPower);
                             
-    FragColor = BP_scale * texture(albedoMap, TexCoords);
+    FragColor = texture(albedoMap, TexCoords);
 
 }

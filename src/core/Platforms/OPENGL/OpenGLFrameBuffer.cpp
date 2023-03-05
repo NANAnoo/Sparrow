@@ -28,7 +28,6 @@ namespace SPW
     {
         glDeleteFramebuffers(1,&framebufferId);
     }
-
     void OpenGLFrameBuffer::AttachColorTexture(unsigned int width, unsigned int height, unsigned int slot)
     {
         glGenTextures(1, &textureColorbufferId);

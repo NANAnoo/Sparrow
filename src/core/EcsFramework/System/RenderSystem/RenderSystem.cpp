@@ -11,20 +11,10 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
-std::shared_ptr<SPW::FrameBuffer> frameBuffer;
 void SPW::RenderSystem::initial()
 {
     renderBackEnd->Init();
-
-    frameBuffer = renderBackEnd->creatSenceFrameBuffer();
-    frameBuffer->genFrameBuffer();
-    frameBuffer->bind();
-    frameBuffer->AttachColorTexture(800,600,0);
-    frameBuffer->AttachDepthRenderBuffer(800,600);
-    frameBuffer->CheckFramebufferStatus();
-    frameBuffer->unbind();
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+    renderBackEnd->loadShaderLib("./resources/shaders/baselib");
 }
 
 void SPW::RenderSystem::beforeUpdate() {
@@ -55,8 +45,6 @@ void SPW::RenderSystem::afterUpdate(){
     ComponentGroup<SPW::IDComponent, 
                     SPW::TransformComponent, 
                     SPW::LightComponent> lightGroup;
-    
-    
 
     locatedScene.lock()->forEachEntityInGroup(cameraGroup,
         [this, &uiCamera, &cameraGroup](const Entity &en){
@@ -76,11 +64,11 @@ void SPW::RenderSystem::afterUpdate(){
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::DepthTest, false));
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::SetClearColor,glm::vec4(0.5)));
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::Clear));
-    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::drawInTexture,PostProcessingEffects::Gauss));
+    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::drawInTexture,PostProcessingEffects::FXAA));
     postProcessPass.executeWithAPI(renderBackEnd);
 
     // RenderPass n, render in Game GUI
-    renderModelsWithCamera(uiCamera);
+    //renderModelsWithCamera(uiCamera);
 }
 
 
@@ -110,6 +98,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
             if (modelCom->bindCameras.find(currentID) != modelCom->bindCameras.end()) {
                 if (!modelCom->ready) {
                     modelCom->model->setUpModel(renderBackEnd);
+                    modelCom->ready = true;
                 }
                 renderModels.push_back(en);
             }
@@ -170,6 +159,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
                                       glm::radians(transformCom->rotation.z));
 
                 M = glm::scale(M, transformCom->scale);
+
                 const auto& meshes = modelCom->model->GetMeshes();
                 for(auto &mesh : meshes) {
                     // set up mesh with current shader
@@ -201,6 +191,13 @@ void SPW::RenderSystem::onStop() {
 
 bool SPW::RenderSystem::onFrameResize(int w, int h) {
     std::cout << "RenderSystem frame changed" << std::endl;
-    // TODO update frame buffer here
+    // update frame buffer here
+    frameBuffer->deleteFrameBuffer();
+    frameBuffer->genFrameBuffer();
+    frameBuffer->bind();
+    frameBuffer->AttachColorTexture(w,h,0);
+    frameBuffer->AttachDepthRenderBuffer(w,h);
+    frameBuffer->CheckFramebufferStatus();
+    frameBuffer->unbind();
     return false;
 }

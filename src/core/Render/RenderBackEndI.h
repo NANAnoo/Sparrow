@@ -65,6 +65,9 @@ namespace SPW
         virtual std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) = 0;
         virtual std::shared_ptr<VertexBufferI> createVertexBuffer() = 0;
         virtual std::shared_ptr<Shader>createShader(const ShaderHandle &handle) = 0;
+
+        // 
+        virtual void loadShaderLib(std::string libPath) = 0;
         std::shared_ptr<Shader> getShader(const ShaderHandle &handle)
         {
             if(shaderMap.find(handle)!=shaderMap.end())
