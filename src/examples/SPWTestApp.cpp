@@ -40,25 +40,7 @@
 
 
 std::shared_ptr<SPW::Model> createModel() {
-    auto model = std::make_shared<SPW::Model>();
-    std::vector<SPW::Vertex> vertices = {
-        {
-            {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
-        },
-        {
-            {- 0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0.5, 0.5}, {0, 0, 0}, {0, 0, 0}
-        },
-        {
-            {+0.3f, 0.0f, 0.0f}, {0, 0, 0}, {1.0, 0}, {0, 0, 0}, {0, 0, 0}
-        }
-    };
-    std::vector<unsigned int> indices = {0, 1, 2};
-    
-    auto mesh = std::make_shared<SPW::Mesh>(vertices, indices);
-    mesh->mMaterial->updateTexture(SPW::TextureType::Albedo,"./resources/texture/container.jpg");
-    model->AddMesh(mesh);
-    return model;
-
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/companion_cube/scene.gltf");
 }
 
 // test usage

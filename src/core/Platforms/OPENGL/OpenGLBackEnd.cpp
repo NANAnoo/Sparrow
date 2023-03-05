@@ -8,7 +8,9 @@
 #include "OpenGLTextureManager.h"
 #include "OpenGLTexture2D.h"
 #include "OpenGLFrameBuffer.h"
+#include "Render/Material.h"
 #include <fstream>
+#include <vector>
 float quadVertices[] =
 {
                 // positions   // texCoords
@@ -107,16 +109,32 @@ namespace SPW
     void OpenGLBackEnd::BindTexture(std::shared_ptr<Shader> shader, std::shared_ptr<Material>material)
     {
         shader->Bind();
-        //albeo map
-        if(material->TextureMap.find(TextureType::Albedo)!=material->TextureMap.end())
-        {
-            std::string path = material->TextureMap[TextureType::Albedo];
-            std::shared_ptr<OpenGLtexture2D> AlbedoMap =
+        // bind all textures
+        std::vector<TextureType> types = {
+            TextureType::Albedo, 
+            TextureType::Normal, 
+            TextureType::Metalness, 
+            TextureType::Roughness, 
+            TextureType::AmbientOcclusion
+            };
+        std::vector<std::string> names = {
+            "albedoMap",
+            "normalMap",
+            "metallicMap",
+            "roughnessMap",
+            "AoMap"
+            };
+        for (int i = 0; i < types.size(); i ++) {
+            TextureType type = types[i];
+            std::string name = names[i];
+            std::string path = material->TextureMap[type];
+            std::shared_ptr<OpenGLtexture2D> texture =
                     OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
-            shader->SetUniformValue<int>("albedoMap",0);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, AlbedoMap->ID);
+            shader->SetUniformValue<int>(name,i);
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_2D, texture->ID);
         }
+        // TODO @ Zhou, read other material in resources manager
         shader->SetUniformValue<float>("diffusion", 0.4);
         shader->SetUniformValue<float>("shininess", 0.3);
         shader->SetUniformValue<float>("lambertin", 0.3);

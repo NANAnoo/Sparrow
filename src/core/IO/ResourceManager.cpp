@@ -229,10 +229,15 @@ namespace SPW
 		// if (scene->HasAnimations()) ProcessAnimationClips(scene->mRootNode, scene);
 	}
 
-	auto ResourceManager::LoadTexture(bool flip, const std::filesystem::path& filePath, int width, int height, int bpp)
+	void ResourceManager::LoadTextureScope(bool flip, const std::filesystem::path& filePath, const textureLoadCallback &callback)
 	{
 		stbi_set_flip_vertically_on_load(flip);
+		int width, height, bpp;
+		unsigned char *data = stbi_load(filePath.string().c_str(), &width, &height, &bpp, STBI_rgb_alpha);
+		callback(width, height, bpp, data);
+		if (data != nullptr) {
+			stbi_image_free(data);
+		}
 
-		return stbi_load(filePath.string().c_str(), &width, &height, &bpp, STBI_rgb_alpha);
 	}
 }
