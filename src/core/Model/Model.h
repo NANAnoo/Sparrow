@@ -77,7 +77,9 @@ namespace SPW
         void Draw(std::shared_ptr<RenderBackEndI> &renderBackEnd)
         {
             for (auto & mesh : m_Meshes)
+            {
                 mesh->Draw(renderBackEnd);
+            }
         }
 
         void setUpModel(std::shared_ptr<RenderBackEndI> &renderBackEnd) {

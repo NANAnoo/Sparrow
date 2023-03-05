@@ -10,6 +10,7 @@
 #include "Utils/SingletonBase.h"
 #include <map>
 #include <string>
+#include <memory>
 
 namespace SPW
 {

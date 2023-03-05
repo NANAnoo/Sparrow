@@ -11,4 +11,6 @@ CORE_ADD_SOURCE(
         RenderCommandsQueue.hpp
         RenderPass.hpp
         Material.h
+        FrameBuffer.h
+
 )

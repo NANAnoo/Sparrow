@@ -3,18 +3,30 @@
 //
 
 #include "RenderSystem.h"
+#include "EcsFramework/Component/ComponentI.h"
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/ModelComponent.h"
+#include "EcsFramework/Component/LightComponent.hpp"
 
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
-void SPW::RenderSystem::initial() {
+void SPW::RenderSystem::initial()
+{
     renderBackEnd->Init();
+    renderBackEnd->loadShaderLib("./resources/shaders/baselib");
 }
 
 void SPW::RenderSystem::beforeUpdate() {
     // clear buffer
+
+    frameBuffer->bind();
+    renderBackEnd->DepthTest(true);
+
+    //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    renderBackEnd->SetClearColor(glm::vec4(0.5));
     renderBackEnd->Clear();
 }
 
@@ -22,13 +34,17 @@ void SPW::RenderSystem::onUpdate(SPW::TimeDuration dt) {
 
 }
 
-void SPW::RenderSystem::afterUpdate() {
+void SPW::RenderSystem::afterUpdate(){
     // get all normal cameras and UI cameras
     RenderCamera uiCamera;
 
     ComponentGroup<SPW::IDComponent,
         SPW::CameraComponent,
         SPW::TransformComponent> cameraGroup;
+
+    ComponentGroup<SPW::IDComponent, 
+                    SPW::TransformComponent, 
+                    SPW::LightComponent> lightGroup;
 
     locatedScene.lock()->forEachEntityInGroup(cameraGroup,
         [this, &uiCamera, &cameraGroup](const Entity &en){
@@ -42,11 +58,17 @@ void SPW::RenderSystem::afterUpdate() {
                 uiCamera = camera;
         });
 
+    frameBuffer->unbind();
+
     // RenderPass n-1, PostProcessing
+    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::DepthTest, false));
+    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::SetClearColor,glm::vec4(0.5)));
+    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::Clear));
+    postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::drawInTexture,PostProcessingEffects::FXAA));
     postProcessPass.executeWithAPI(renderBackEnd);
 
     // RenderPass n, render in Game GUI
-    renderModelsWithCamera(uiCamera);
+    //renderModelsWithCamera(uiCamera);
 }
 
 
@@ -57,6 +79,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
     UUID currentID = std::get<0>(camera)->getID();
     auto cameraCom = std::get<1>(camera);
     auto transformCom = std::get<2>(camera);
+    glm::vec3 camPos = transformCom->position;
 
     using ShaderModelMap = std::unordered_map<ShaderHandle, std::vector<SPW::Entity>, ShaderHash, ShaderEqual>;
 
@@ -72,9 +95,10 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
         [&currentID, &renderModels, this](const Entity &en) {
             auto modelCom = en.component<SPW::ModelComponent>();
             // passing data to GPU
-            if (modelCom->cameraID == currentID) {
+            if (modelCom->bindCameras.find(currentID) != modelCom->bindCameras.end()) {
                 if (!modelCom->ready) {
                     modelCom->model->setUpModel(renderBackEnd);
+                    modelCom->ready = true;
                 }
                 renderModels.push_back(en);
             }
@@ -82,10 +106,12 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
     // 2. calculate VP from camera
     glm::mat4x4 V, P;
-    glm::mat4x4 cameraTransform = glm::eulerAngleYXZ(transformCom->rotation.y,
-                                        transformCom->rotation.x,
-                                        transformCom->rotation.z);
-    glm::translate(cameraTransform, transformCom->position);
+    glm::mat4x4 cameraTransform = glm::mat4(1.0f);
+    cameraTransform = glm::translate(cameraTransform, transformCom->position);
+    cameraTransform = cameraTransform * glm::eulerAngleXYZ(glm::radians(transformCom->rotation.x),
+                       glm::radians(transformCom->rotation.y),
+                       glm::radians(transformCom->rotation.z));
+
     glm::vec4 eye(0, 0, 1, 1), look_at(0, 0, 0, 1), up(0, 1, 0, 0);
     V = glm::lookAt(glm::vec3(cameraTransform * eye),
                     glm::vec3(cameraTransform *look_at),
@@ -104,8 +130,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
     // RenderPass 1, shadow
     // sort models with program, build a map with shadow_program -> models[]
-
-    auto renderPass = [this, &renderModels, &V, &P](bool isShadow){
+    auto renderPass = [this, &renderModels, &V, &P, &camPos](bool isShadow){
         ShaderModelMap programModelMap;
         for (auto &en : renderModels) {
             // get program that used in shadow rendering
@@ -121,15 +146,20 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
         // for each program, draw every model
         for (auto [handle, entities] : programModelMap) {
+            auto shader = renderBackEnd->getShader(handle);
+            shader->Bind();
+            shader->SetUniformValue<glm::vec3>("camPos", camPos);
             for (auto &model : entities) {
                 auto modelCom = model.component<ModelComponent>();
                 auto transformCom = model.component<TransformComponent>();
-                glm::mat4x4 M = glm::mat4(1.0f);
-                M = glm::translate(M, transformCom->position);
-                M = M * glm::eulerAngleXYZ(glm::radians(transformCom->rotation.x),
-                                           glm::radians(transformCom->rotation.y),
-                                           glm::radians(transformCom->rotation.z));
+                glm::mat4 M = glm::mat4(1.0f);
+                M = glm::translate(M,transformCom->position);
+                M= M*glm::eulerAngleXYZ(glm::radians(transformCom->rotation.x),
+                                      glm::radians(transformCom->rotation.y),
+                                      glm::radians(transformCom->rotation.z));
+
                 M = glm::scale(M, transformCom->scale);
+
                 const auto& meshes = modelCom->model->GetMeshes();
                 for(auto &mesh : meshes) {
                     // set up mesh with current shader
@@ -145,6 +175,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
                 }
             }
         }
+
     };
 
     // shadow pass
@@ -156,4 +187,17 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
 
 void SPW::RenderSystem::onStop() {
 
+}
+
+bool SPW::RenderSystem::onFrameResize(int w, int h) {
+    std::cout << "RenderSystem frame changed" << std::endl;
+    // update frame buffer here
+    frameBuffer->deleteFrameBuffer();
+    frameBuffer->genFrameBuffer();
+    frameBuffer->bind();
+    frameBuffer->AttachColorTexture(w,h,0);
+    frameBuffer->AttachDepthRenderBuffer(w,h);
+    frameBuffer->CheckFramebufferStatus();
+    frameBuffer->unbind();
+    return false;
 }

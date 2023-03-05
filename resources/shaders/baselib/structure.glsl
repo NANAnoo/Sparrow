@@ -1,4 +1,3 @@
-#extension GL_ARB_shading_language_include : require
 struct DLight
 {
     vec3 color;
