@@ -12,6 +12,9 @@
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "EcsFramework/Scene.hpp"
 #include <glm/glm/ext.hpp>
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
 #include <tuple>
@@ -40,6 +43,9 @@ namespace SPW{
                                     AnimationComponent& animationComponent,
                                     float currentTime);
         void updateModel();
+        void initializeComponent(AnimationComponent& animationComponent,ModelComponent& modelComponent);
+        void vertexBoneMap(AnimationComponent& animationComponent,ModelComponent& modelComponent);
+
         void resetAnim();
 
         std::shared_ptr<BoneInfo> findRootNode(AnimationComponent& animationComponent);

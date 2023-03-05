@@ -14,6 +14,16 @@
 //#include "Animation.h"
 namespace SPW {
 
+    struct VerMapBone
+    {
+        //Vertex -> <BoneID> -> (stores Index of finalBoneMatrix)
+        std::vector<uint32_t> boneID;
+
+        //Weight -> <double) -> (stores corresponding weight; (boneID[0] - Weight[0]) )
+        std::vector<float> weight;
+    };
+
+
     class AnimationComponent : ComponentI
     {
     public:
@@ -23,15 +33,21 @@ namespace SPW {
         //Variables needed
         bool bStarted = false;
         bool bStop = true;
+        bool bInitialized = false;
+
         float playSpeed = 1.0f;
 
         float currentTime;
         float deltaTime;
 
         std::weak_ptr<AnimationClip> currentAnimation;
-        Skeleton skeleton;
+        std::shared_ptr<Skeleton> skeleton;
+        //Skeleton skeleton;
         std::vector<glm::mat4> finalBoneMatrices;
+        std::vector<VerMapBone> verMapBone;
     };
+
+
 }
 
 

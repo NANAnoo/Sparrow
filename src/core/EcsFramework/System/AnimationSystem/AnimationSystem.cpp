@@ -16,41 +16,102 @@ void SPW::AnimationSystem::beforeUpdate()
 
 void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 {
-    //Update the Animation component
+
     double deltaTime = dt.toSecond();
 
-    //To be implemented, choose an animation based on a name;
-    //IDComponent: Identify entity with A specific ID
-    //ModelComponent: Change the model of that entity
-    //AnimationComponent: return a transFormMatrix
-
-    std::string animationName = "Walk";
     ComponentGroup<SPW::AnimationComponent,SPW::IDComponent,SPW::ModelComponent> animatedGroup;
 
     locatedScene.lock()->forEachEntityInGroup
     (animatedGroup,
-     [this,&animatedGroup,&animationName,&deltaTime](const Entity &entity){
+     [this,&animatedGroup,&deltaTime](const Entity &entity){
 
          AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
 
+         //Get animationComp and modelComp of this entity
          auto animationComp = entity.component<SPW::AnimationComponent>();
+         auto modelComp = entity.component<SPW::ModelComponent>();
 
-         if (animationComp->bStarted && !animationComp->bStop) //Should receive a name of an animation
-         {
-             this->updateAnimation(animationName,deltaTime,*std::get<0>(animatedEntity));
-             this->updateModel();
-         }else{
-             this->playAnimation(animationName,deltaTime,*std::get<0>(animatedEntity));
-         }
+         //See if animation component has been initialized
+         //TODO:Perhaps this is already done when the animation component is created?
+         if (!animationComp->bInitialized)
+            initializeComponent(*animationComp,*modelComp);
+        else
+        {
 
-         //Stop playing animation, how to get stop signal?
-         if (animationComp->bStop && animationComp->bStarted)
-         {
-             //Stop playing animation
-             this->stopAnimation(*animationComp);
-         }
+            //If we need to Switch animation?
+            //TODO:Do we get the name in modelComp? std::string animationName = modelComp->currentAnim
+            std::string animationName = "Walk";
+            if (animationName.compare(animationName))
+            {
+                this->playAnimation(animationName,deltaTime,*animationComp);
+
+            }else{
+
+                //If this animation is played
+                //TODO:These bool could be changed in event responding system
+                if (animationComp->bStarted && !animationComp->bStop)
+                {
+                    //Get name: std::string animName = modelComp->animName ?
+                    this->updateAnimation(animationName,deltaTime,*std::get<0>(animatedEntity));
+
+                    //TODO: Will model be changed in this stage? or it should be done in rendering stage
+                    this->updateModel();
+
+                //If we start an animation from stop state
+                }else{
+                    this->playAnimation(animationName,deltaTime,*std::get<0>(animatedEntity));
+                }
+            }
+
+
+            //TODO:These bool could be changed in event responding system
+            if (animationComp->bStop && !animationComp->bStarted)
+            {
+                //Stop playing animation
+                this->stopAnimation(*animationComp);
+            }
+        }
     });
 }
+
+void SPW::AnimationSystem::initializeComponent(AnimationComponent &animationComponent,ModelComponent& modelComponent)
+{
+    if(animationComponent.skeleton != nullptr && animationComponent.skeleton->m_animClips.size() != 0)
+    {
+        animationComponent.finalBoneMatrices.reserve(animationComponent.skeleton->m_Bones.size());
+        vertexBoneMap(animationComponent,modelComponent);
+        animationComponent.bInitialized = true;
+    }
+}
+
+void SPW::AnimationSystem::vertexBoneMap(AnimationComponent &animationComponent,ModelComponent& modelComponent)
+{
+
+    //Get number of vertices
+    std::weak_ptr<Model> model = modelComponent.model;
+    unsigned int numVertex = 0;
+    for(std::weak_ptr<Mesh> mesh : model.lock()->GetMeshes())
+    {
+        numVertex+=mesh.lock()->vertices.size();
+    }
+
+    animationComponent.verMapBone.reserve(numVertex);
+
+    for(std::weak_ptr<BoneInfo> boneInfo : animationComponent.skeleton->m_Bones)
+    {
+        for(Weight weight : boneInfo.lock()->weights)
+        {
+            uint32_t vertexID = weight.vertexID;
+            uint32_t boneID = boneInfo.lock()->boneID;
+            float value = weight.value;
+
+            animationComponent.verMapBone[vertexID].boneID.push_back(boneID);
+            animationComponent.verMapBone[vertexID].weight.push_back(value);
+        }
+    }
+}
+
+
 
 void SPW::AnimationSystem::playAnimation(std::string name, float dt, AnimationComponent &animationComponent)
 {
@@ -59,10 +120,20 @@ void SPW::AnimationSystem::playAnimation(std::string name, float dt, AnimationCo
         return;
     else
     {
-        animationComponent.currentAnimation = temp.lock();
-        animationComponent.currentTime = 0.0f;
-        animationComponent.bStarted = true;
+        //Start an animation from stop state
+        if (animationComponent.currentAnimation.expired())
+        {
+            animationComponent.currentAnimation = temp.lock();
+            animationComponent.currentTime = 0.0f;
+        }
+        //Start a new animation, we stop the current one and start a new one
+        else
+        {
+            stopAnimation(animationComponent);
+            animationComponent.currentAnimation = temp.lock();
+        }
 
+        animationComponent.bStarted = true;
         temp.reset();
         updateAnimation(name,dt,animationComponent);
     }
@@ -70,7 +141,7 @@ void SPW::AnimationSystem::playAnimation(std::string name, float dt, AnimationCo
 
 std::shared_ptr<AnimationClip> SPW::AnimationSystem::findAnimation(std::string name,AnimationComponent& animationComponent)
 {
-    for(std::weak_ptr<AnimationClip> n : animationComponent.skeleton.m_animClips)
+    for(std::weak_ptr<AnimationClip> n : animationComponent.skeleton->m_animClips)
     {
         if (n.lock()->name == name)
             return n.lock();
@@ -101,7 +172,7 @@ void SPW::AnimationSystem::updateAnimation(std::string name, float dt, Animation
 
 std::shared_ptr<BoneInfo> SPW::AnimationSystem::findRootNode(AnimationComponent &animationComponent)
 {
-    for(std::weak_ptr<BoneInfo> bone : animationComponent.skeleton.m_Bones)
+    for(std::weak_ptr<BoneInfo> bone : animationComponent.skeleton->m_Bones)
     {
         if (bone.lock()->parentID == -1)
             return bone.lock();
@@ -114,11 +185,14 @@ void SPW::AnimationSystem::calculateBoneTransform(std::shared_ptr <BoneInfo> bon
                                                   AnimationComponent& animationComponent,
                                                   float currentTime)
 {
+
+    if (bone == nullptr)
+        return;
+
     std::string boneName = bone->name;
     glm::mat4 localTransform = glm::mat4(1.0);
     glm::mat4 boneOffset = glm::mat4(1.0);
 
-    //TODO: Verify name of a bone and the name of a animNode
     AnimationNode currentNode = findAnimationNode(boneName,animationComponent.currentAnimation);
 
     if (currentNode.nodeName == "")
@@ -130,11 +204,10 @@ void SPW::AnimationSystem::calculateBoneTransform(std::shared_ptr <BoneInfo> bon
 
         glm::mat4 finalTransfrom = parrentTransform * localTransform * boneOffset;
 
-        //TODO: Index of Boneinfo[] is same as AnimNode[]?
         animationComponent.finalBoneMatrices[bone->boneID] = finalTransfrom;
 
         for(int i = 0; i < bone->childrenIDs.size(); i++)
-            calculateBoneTransform(animationComponent.skeleton.m_Bones[i],finalTransfrom,animationComponent,currentTime);
+            calculateBoneTransform(animationComponent.skeleton->m_Bones[i],finalTransfrom,animationComponent,currentTime);
     }
 }
 
@@ -176,18 +249,21 @@ glm::mat4 SPW::AnimationSystem::getUpdatedTransform(AnimationNode node,float cur
     float factor = getScaling(node.keyFrames[index].time,node.keyFrames[nextIndex].time,currentTime);
 
     position = glm::mix(node.keyFrames[index].position,node.keyFrames[nextIndex].position,factor);
-    rotation = glm::mix(node.keyFrames[index].rotation,node.keyFrames[nextIndex].rotation,factor);
+
+    rotation = glm::normalize(glm::slerp(node.keyFrames[index].rotation,node.keyFrames[nextIndex].rotation,factor));
+
     scaling = glm::mix(node.keyFrames[index].sacling,node.keyFrames[nextIndex].sacling,factor);
 
-    //TODO:Vec3->mat4  quat->mat4
     //Missing glm::vec3 -> glm::mat4 transfrom
-    //transform = glm::translate(glm::mat4(1,0),position)
+    transform = glm::translate(glm::mat4(1.0f),position) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f),scaling);
+
     return transform;
 }
 
 void SPW::AnimationSystem::stopAnimation(AnimationComponent& animationComponent)
 {
     animationComponent.currentTime = 0.0f;
+    animationComponent.currentAnimation.reset();
 }
 
 
