@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 
 #include <memory>
@@ -30,9 +31,6 @@
 #include "EcsFramework/Component/MouseComponent.hpp"
 
 
-#include "EcsFramework/Component/KeyComponent.hpp"
-#include "EcsFramework/Component/MouseComponent.hpp"
-
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
@@ -55,33 +53,7 @@
 
 
 std::shared_ptr<SPW::Model> createModel() {
-    auto model = std::make_shared<SPW::Model>();
-    std::vector<SPW::Vertex> vertices = {
-        {
-            {0.0f, 0.5f, 0.0f}, {0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}
-        },
-        {
-            {- 0.3f, 0.0f, 0.0f}, {0, 0, 0}, {0.5, 0.5}, {0, 0, 0}, {0, 0, 0}
-        },
-        {
-            {+0.3f, 0.0f, 0.0f}, {0, 0, 0}, {1.0, 0}, {0, 0, 0}, {0, 0, 0}
-        }
-    };
-    std::vector<unsigned int> indices = {0, 1, 2};
-    
-    auto mesh = std::make_shared<SPW::Mesh>(vertices, indices);
-    mesh->mMaterial->updateTexture(SPW::TextureType::Albedo,"./resources/texture/container.jpg");
-    model->AddMesh(mesh);
-    return model;
-
-    // auto tmp = SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sf_cube/scene.gltf");
-	// // auto vs = tmp->GetMeshes()[0]->vertices;
-    // // for(const auto& v: vs)
-    // // {
-    // //     std::cout << v.Position.x << v.Position.y << v.Position.z << "\n";
-    // // }    
-    // return tmp;
-    // return nullptr;
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
 }
 
 // test usage
@@ -139,7 +111,7 @@ public:
     void onAppInit() final {
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
-        app->window->setSize(800, 600);
+        app->window->setSize(1600, 900);
         app->window->setTitle("SPWTestApp");
 
         transformer = std::make_shared<Transformer>(app->delegate.lock());
@@ -163,15 +135,16 @@ public:
             scene = SPW::Scene::create(app->delegate.lock());
 
             // add system
-            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(std::make_shared<SPW::AudioListenerSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->width(), weak_window.lock()->height()));
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
-            camera->emplace<SPW::TransformComponent>();
+            auto camTran = camera->emplace<SPW::TransformComponent>();
+            camTran->position = {0, 0.5, 0};
             auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
             cam->fov = 60;
             cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
@@ -208,8 +181,19 @@ public:
                 }
             };
 
+            // add a camera entity
+            auto camera2 = scene->createEntity("main camera");
+            auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
+            cam2_tran->position.y = 0.3;
+            cam2_tran->rotation.z = 90;
+            auto cam2 = camera2->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+            cam2->fov = 75;
+            cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
+            cam2->near = 0.01;
+            cam2->far = 100;
 
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
+            SPW::UUID camera_id_2 = camera2->component<SPW::IDComponent>()->getID();
 
             // add a test game object
             auto triangle = scene->createEntity("test");
@@ -218,7 +202,7 @@ public:
 
             //add a key component for testing, press R to rotate
             auto key = triangle->emplace<SPW::KeyComponent>();
-            key->onKeyDownCallBack = [transform](const SPW::Entity& e, int keycode){
+            key->onKeyHeldCallBack = [transform](const SPW::Entity& e, int keycode){
                 if(keycode == static_cast<int>(SPW::Key::R))
                     transform->rotation.y += 5.0f;
             };
@@ -229,20 +213,20 @@ public:
                 auto transform = e.component<SPW::TransformComponent>();
                 transform->rotation.x += y_pos_bias;
                 transform->rotation.y += x_pos_bias;
-
-                // transform->position.x = x_pos;
-                // transform->position.y = y_pos;
             };
             mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
-
                 auto transform = e.component<SPW::TransformComponent>();
-                transform->scale.x += scroll_offset;
-                transform->scale.y += scroll_offset;
-                transform->scale.z += scroll_offset;
+                
+                double exp = std::exp((double(scroll_offset)));
+
+                transform->scale.x *= exp;
+                transform->scale.y *= exp;
+                transform->scale.z *= exp;
             };
 
             // add a model to show
             auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
+            //model->bindCameras.insert(camera_id_2);
             SPW::ShaderHandle shaderHandle({
                                          "basic",
                                          "./resources/shaders/simpleVs.vert",
@@ -271,9 +255,9 @@ public:
         scene->afterUpdate();
     }
     void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
-        for (auto &e : events) {
-            DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
-        }
+        // for (auto &e : events) {
+        //     DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
+        // }
     }
     void onAppStopped() final{
         sol::state state;

@@ -60,18 +60,20 @@ namespace SPW
 			{
 				aiString texturePath;
 				material->GetTexture(textureType, k, &texturePath);
+				std::string str = texturePath.C_Str();
+				std::replace(begin(str), end(str), '\\', '/');
 				if (j == 1 || j == 12 || j == 16)
-					tmp->TextureMap.emplace(std::make_pair(TextureType::Albedo, texturePath.C_Str()));
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Albedo, str));
 				else if (j == 6)
-					tmp->TextureMap.emplace(std::make_pair(TextureType::Normal, texturePath.C_Str()));
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Normal, str));
 				else if (j == 16)
-					tmp->TextureMap.emplace(std::make_pair(TextureType::Roughness, texturePath.C_Str()));
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Roughness, str));
 				else if (j == 17)
-					tmp->TextureMap.emplace(std::make_pair(TextureType::AmbientOcclusion, texturePath.C_Str()));
+					tmp->TextureMap.emplace(std::make_pair(TextureType::AmbientOcclusion, str));
 				else if (j == 15)
-					tmp->TextureMap.emplace(std::make_pair(TextureType::Metalness, texturePath.C_Str()));
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Metalness, str));
 				else 
-					tmp->TextureMap.emplace(std::make_pair(TextureType::Unknown, texturePath.C_Str()));
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Unknown, str));
 			}
 		}
 
@@ -226,13 +228,18 @@ namespace SPW
 
 		return model;
 
+
 		// if (scene->HasAnimations()) ProcessAnimationClips(scene->mRootNode, scene);
 	}
 
-	auto ResourceManager::LoadTexture(bool flip, const std::filesystem::path& filePath, int width, int height, int bpp)
+	void ResourceManager::LoadTextureScope(bool flip, const std::filesystem::path& filePath, const textureLoadCallback &callback)
 	{
 		stbi_set_flip_vertically_on_load(flip);
-
-		return stbi_load(filePath.string().c_str(), &width, &height, &bpp, STBI_rgb_alpha);
+		int width, height, bpp;
+		unsigned char *data = stbi_load(filePath.string().c_str(), &width, &height, &bpp, 0);
+		callback(width, height, bpp, data);
+		if (data) {
+			stbi_image_free(data);
+		}
 	}
 }

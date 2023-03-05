@@ -10,4 +10,6 @@ CORE_ADD_SOURCE(
         OpenGLVertexBuffer.h
         OpenGLTextureManager.h
         OpenGLTexture2D.h
+        OpenGLFrameBuffer.h
+        OpenGLFrameBuffer.cpp
 )
