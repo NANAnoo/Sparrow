@@ -7,8 +7,23 @@
 #include "OpenGLIndexBuffer.h"
 #include "OpenGLTextureManager.h"
 #include "OpenGLTexture2D.h"
-
+#include "OpenGLFrameBuffer.h"
+#include "Render/Material.h"
+#include "IO/FileSystem.h"
 #include <fstream>
+#include <vector>
+#include <unordered_set>
+float quadVertices[] =
+{
+                // positions   // texCoords
+                -1.0f,  1.0f,  0.0f, 1.0f,
+                -1.0f, -1.0f,  0.0f, 0.0f,
+                1.0f, -1.0f,  1.0f, 0.0f,
+
+                -1.0f,  1.0f,  0.0f, 1.0f,
+                1.0f, -1.0f,  1.0f, 0.0f,
+                1.0f,  1.0f,  1.0f, 1.0f
+ };
 
 namespace SPW
 {
@@ -17,15 +32,36 @@ namespace SPW
     {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
-        std::string shader_lib = "./resources/shaders/structure.glsl";
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    }
 
-        std::stringstream ss;
-        std::ifstream fs(shader_lib);
-        ss << fs.rdbuf();
-        auto code = ss.str();
-        shader_lib = "/structure.glsl";
-        glNamedStringARB(GL_SHADER_INCLUDE_ARB, shader_lib.size(), shader_lib.c_str(),
-                         code.size(), code.c_str());
+    void OpenGLBackEnd::loadShaderLib(std::string libPath) {
+        std::vector<FilePath> files = FileSystem::GetFiles(libPath);
+        for (auto &path : files) {
+            if (path.has_filename() && path.filename().has_extension()) {
+                auto ext = path.extension().string();
+                if (ext == ".glsl") {
+                    auto shader_lib = path.string();
+                    std::stringstream ss;
+                    std::ifstream fs(shader_lib);
+                    ss << fs.rdbuf();
+                    auto code = ss.str();
+                    shader_lib = "/" + path.filename().string();
+                    glNamedStringARB(GL_SHADER_INCLUDE_ARB, shader_lib.size(), shader_lib.c_str(),
+                                    code.size(), code.c_str());
+                    fs.close();
+                }
+            }
+
+        }
     }
 
     void OpenGLBackEnd::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -33,7 +69,7 @@ namespace SPW
         glViewport(x, y, width, height);
     }
 
-    void OpenGLBackEnd::SetClearColor(const glm::vec4 &color)
+    void OpenGLBackEnd::SetClearColor(const glm::vec4 color)
     {
         glClearColor(color.r, color.g, color.b, color.a);
     }
@@ -46,10 +82,8 @@ namespace SPW
     void OpenGLBackEnd::DrawElement(std::shared_ptr<VertexBufferI> &vertexBuffer,
                                     std::shared_ptr<IndexBuffer> &indexBuffer)
     {
-        indexBuffer->Bind();
         vertexBuffer->Bind();
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indexBuffer->size), GL_UNSIGNED_INT, 0);
-//        indexBuffer->UnBind();
         vertexBuffer->UnBind();
     }
 
@@ -85,17 +119,80 @@ namespace SPW
 
     void OpenGLBackEnd::BindTexture(std::shared_ptr<Shader> shader, std::shared_ptr<Material>material)
     {
-        //albeo map
-        if(material->TextureMap.find(TextureType::Albedo)!=material->TextureMap.end())
-        {
-            std::string path = material->TextureMap[TextureType::Albedo];
-            std::shared_ptr<OpenGLtexture2D> AlbedoMap =
-                    OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
-            shader->Bind();
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, AlbedoMap->ID);
-            shader->SetUniformValue<int>("albedoMap",0);
+        shader->Bind();
+        // bind all textures
+        std::vector<TextureType> types = {
+            TextureType::Albedo, 
+            TextureType::Normal, 
+            TextureType::Metalness, 
+            TextureType::Roughness, 
+            TextureType::AmbientOcclusion
+            };
+        std::vector<std::string> names = {
+            "albedoMap",
+            "normalMap",
+            "metallicMap",
+            "roughnessMap",
+            "AoMap"
+            };
+        for (int i = 0; i < types.size(); i ++) {
+            TextureType type = types[i];
+            std::string name = names[i];
+            if (material->TextureMap.find(type) != material->TextureMap.end()) {
+                std::string path = material->TextureMap[type];
+                std::shared_ptr<OpenGLtexture2D> texture =
+                OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
+                shader->SetUniformValue<int>(name,i);
+                glActiveTexture(GL_TEXTURE0 + i);
+                glBindTexture(GL_TEXTURE_2D, texture->ID);
+            }
         }
+        // TODO @ Zhou, read other material in resources manager
+        shader->SetUniformValue<float>("diffusion", 0.4);
+        shader->SetUniformValue<float>("shininess", 0.3);
+        shader->SetUniformValue<float>("lambertin", 0.3);
+        shader->SetUniformValue<float>("specularPower", 50);
 
+    }
+    std::shared_ptr<FrameBuffer> OpenGLBackEnd::creatSenceFrameBuffer()
+    {
+        scenceFrameBuffer = std::make_shared<OpenGLFrameBuffer>();
+        return scenceFrameBuffer;
+    }
+
+    void OpenGLBackEnd::drawInTexture(SPW::PostProcessingEffects effect)
+    {
+        SPW::ShaderHandle handle;
+        if(effect==SPW::PostProcessingEffects::None)
+        {
+            handle = SPW::ShaderHandle({
+                                               "drawIntexture",
+                                               "./resources/shaders/screen.vert",
+                                               "./resources/shaders/screen.frag"
+                                       });
+        }
+        else if(effect==SPW::PostProcessingEffects::Gauss)
+        {
+            handle = SPW::ShaderHandle({
+                                               "drawIntexture",
+                                               "./resources/shaders/screen.vert",
+                                               "./resources/shaders/Gauss.frag"
+                                       });
+        }
+        else if(effect==SPW::PostProcessingEffects::FXAA)
+        {
+            handle = SPW::ShaderHandle({
+                                               "drawIntexture",
+                                               "./resources/shaders/screen.vert",
+                                               "./resources/shaders/FXAA.frag"
+                                       });
+        }
+        std::shared_ptr<Shader> screenShader = this->getShader(handle);
+        screenShader->Bind();
+        glActiveTexture(GL_TEXTURE0);
+        screenShader->SetUniformValue<int>("screenTexture",0);
+        glBindVertexArray(quadVAO);
+        scenceFrameBuffer->drawinTexture();
+        glBindVertexArray(0);
     }
 }
