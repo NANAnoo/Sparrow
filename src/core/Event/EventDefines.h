@@ -44,6 +44,7 @@ namespace SPW {
             case CursorMovementType: return "CursorMovementEvent";
             case MouseScrollType: return "MouseScrollEvent";
         }
+        return "UnKnownEvent";
     }
 }
 

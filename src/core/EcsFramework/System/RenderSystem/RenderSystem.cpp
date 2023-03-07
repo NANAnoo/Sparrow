@@ -7,9 +7,12 @@
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/ModelComponent.h"
 #include "EcsFramework/Component/LightComponent.hpp"
+#include "glm/fwd.hpp"
+#include "Render/Light.h"
 
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
+#include <string>
 
 void SPW::RenderSystem::initial()
 {
@@ -127,10 +130,42 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
                        cameraCom->bottom, cameraCom->top, cameraCom->near, cameraCom->far);
     }
 
+    // get lights from scene
+    ComponentGroup<SPW::IDComponent,
+        SPW::LightComponent,
+        SPW::TransformComponent> lightGroup;
+    std::vector<PLight> pLights;
+    std::vector<DLight> dLights;
+    locatedScene.lock()->forEachEntityInGroup(lightGroup, [&lightGroup, &pLights, &dLights](const Entity &en){
+        auto [id, light, trans] = en.combinedInGroup(lightGroup);
+        if (light->getType() == PointLightType) {
+            PLight pl = {};
+            pl.position = trans->position;
+            pl.ambient = light->ambient;
+            pl.diffuse = light->diffuse;
+            pl.specular = light->specular;
+            pl.constant = light->constant;
+            pl.linear = light->linear;
+            pl.quadratic = light->quadratic;
+            pLights.push_back(pl);
+        } else {
+            glm::vec4 dir = {0, 0, -1, 0};
+            auto rotMat = glm::eulerAngleXYZ(glm::radians(trans->rotation.x),
+                       glm::radians(trans->rotation.y),
+                       glm::radians(trans->rotation.z));
+            DLight dl = {};
+            dl.direction = dir * rotMat;
+            dl.ambient = light->ambient;
+            dl.diffuse = light->diffuse;
+            dl.specular = light->specular;
+            dLights.push_back(dl);
+        }
+    });
+    
 
     // RenderPass 1, shadow
     // sort models with program, build a map with shadow_program -> models[]
-    auto renderPass = [this, &renderModels, &V, &P, &camPos](bool isShadow){
+    auto renderPass = [this, &renderModels, &V, &P, &camPos, &pLights, &dLights](bool isShadow){
         ShaderModelMap programModelMap;
         for (auto &en : renderModels) {
             // get program that used in shadow rendering
@@ -149,30 +184,33 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
             auto shader = renderBackEnd->getShader(handle);
             shader->Bind();
             shader->SetUniformValue<glm::vec3>("camPos", camPos);
+            shader->SetUniformValue<glm::mat4>("V", V);
+            shader->SetUniformValue<glm::mat4>("P", P);
+            // bind light
+            for (unsigned int i = 0; i < pLights.size(); i++) {
+                auto pl = pLights[i];
+                shader->setPLight(i, pl);
+            }
+            for (unsigned int i = 0; i < dLights.size(); i++) {
+                auto dl = dLights[i];
+                shader->setDLight(i, dl);
+            }
+            shader->SetUniformValue("PLightCount", int(pLights.size()));
+            shader->SetUniformValue("DLightCount", int(dLights.size()));
+            // render every model in this shader
             for (auto &model : entities) {
                 auto modelCom = model.component<ModelComponent>();
                 auto transformCom = model.component<TransformComponent>();
+
                 glm::mat4 M = glm::mat4(1.0f);
                 M = glm::translate(M,transformCom->position);
-                M= M*glm::eulerAngleXYZ(glm::radians(transformCom->rotation.x),
+                M = M * glm::eulerAngleXYZ(glm::radians(transformCom->rotation.x),
                                       glm::radians(transformCom->rotation.y),
                                       glm::radians(transformCom->rotation.z));
-
                 M = glm::scale(M, transformCom->scale);
 
-                const auto& meshes = modelCom->model->GetMeshes();
-                for(auto &mesh : meshes) {
-                    // set up mesh with current shader
-                    mesh->setShader(renderBackEnd, handle);
-                    // TODO: maybe add animation data to uniform here?
-
-                    // set up MVP
-                    mesh->shader->SetUniformValue<glm::mat4>("M", M);
-                    mesh->shader->SetUniformValue<glm::mat4>("V", V);
-                    mesh->shader->SetUniformValue<glm::mat4>("P", P);
-                    // draw current model
-                    mesh->Draw(renderBackEnd);
-                }
+                shader->SetUniformValue<glm::mat4>("M", M);
+                modelCom->model->Draw(renderBackEnd, handle);
             }
         }
 

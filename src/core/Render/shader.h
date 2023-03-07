@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <utility>
 
+#include "Light.h"
+
 namespace SPW
 {
     class Shader
@@ -53,8 +55,8 @@ namespace SPW
         virtual void setMat2(const std::string& name, glm::mat2 mat) const = 0;
         virtual void setMat3(const std::string& name, glm::mat3 mat) const = 0;
         virtual void setMat4(const std::string& name, glm::mat4 mat) const = 0;
-        virtual void setDLight(const std::string& name,glm::vec3 color,glm::vec3 direction ,float intensity) const = 0;
-        virtual void setPLight(const std::string& name,glm::vec3 color,glm::vec4 position ,float intensity) const = 0;
+        virtual void setDLight(unsigned int idx, const DLight &light) const = 0;
+        virtual void setPLight(unsigned int idx, const PLight &light) const = 0;
     };
 
     struct ShaderHandle {
