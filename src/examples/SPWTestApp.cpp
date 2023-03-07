@@ -99,7 +99,7 @@ public:
     void onAppInit() final {
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
-        app->window->setSize(1600, 900);
+        app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
 
         transformer = std::make_shared<Transformer>(app->delegate.lock());
@@ -130,9 +130,7 @@ public:
             // add a camera entity
             auto camera = scene->createEntity("main camera");
             auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
-            mainCameraTrans->position = glm::vec4(0.0f,5.0f,5.0f,1.0f);
-            auto camTran = camera->emplace<SPW::TransformComponent>();
-            camTran->position = {0, 0.5, 0};
+            mainCameraTrans->position = glm::vec4(0.0f,0.0f,0.0f,1.0f);
             auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
             cam->fov = 60;
             cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
@@ -171,18 +169,18 @@ public:
             };
 
             // add a camera entity
-            auto camera2 = scene->createEntity("main camera");
-            auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
-            cam2_tran->position.y = 0.3;
-            cam2_tran->rotation.z = 90;
-            auto cam2 = camera2->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
-            cam2->fov = 75;
-            cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
-            cam2->near = 0.01;
-            cam2->far = 100;
+//            auto camera2 = scene->createEntity("main camera");
+//            auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
+//            cam2_tran->position.y = 0.3;
+//            cam2_tran->rotation.z = 90;
+//            auto cam2 = camera2->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+//            cam2->fov = 75;
+//            cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
+//            cam2->near = 0.01;
+//            cam2->far = 100;
 
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
-            SPW::UUID camera_id_2 = camera2->component<SPW::IDComponent>()->getID();
+            //SPW::UUID camera_id_2 = camera2->component<SPW::IDComponent>()->getID();
 
             // add a test game object
             auto triangle = scene->createEntity("test");
