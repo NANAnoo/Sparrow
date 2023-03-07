@@ -14,10 +14,32 @@
 #include <glm/glm/gtx/euler_angles.hpp>
 #include <string>
 
+std::shared_ptr<SPW::FrameBuffer> frameBuffer;
 void SPW::RenderSystem::initial()
 {
     renderBackEnd->Init();
     renderBackEnd->loadShaderLib("./resources/shaders/baselib");
+
+    frameBuffer = renderBackEnd->creatSenceFrameBuffer();
+    frameBuffer->genFrameBuffer();
+    frameBuffer->bind();
+    frameBuffer->AttachColorTexture(800,600,0);
+    frameBuffer->AttachDepthRenderBuffer(800,600);
+    frameBuffer->CheckFramebufferStatus();
+    frameBuffer->unbind();
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    renderBackEnd->InitSkyBox();
+    std::vector<std::string> faces
+    {
+        "resources/texture/skybox/right.jpg",
+        "resources/texture/skybox/left.jpg",
+        "resources/texture/skybox/top.jpg",
+        "resources/texture/skybox/bottom.jpg",
+        "resources/texture/skybox/front.jpg",
+        "resources/texture/skybox/back.jpg"
+    };
+    renderBackEnd->SetSkyBox(faces);
+
 }
 
 void SPW::RenderSystem::beforeUpdate() {
@@ -49,17 +71,20 @@ void SPW::RenderSystem::afterUpdate(){
                     SPW::TransformComponent, 
                     SPW::LightComponent> lightGroup;
 
+    glm::mat4 V,P;
     locatedScene.lock()->forEachEntityInGroup(cameraGroup,
-        [this, &uiCamera, &cameraGroup](const Entity &en){
+        [this, &uiCamera, &cameraGroup,&V,&P](const Entity &en){
             RenderCamera camera = en.combinedInGroup(cameraGroup);
             if (std::get<1>(camera)->getType() != UIOrthoType)
                 // render models on this camera
-                renderModelsWithCamera(camera);
+                renderModelsWithCamera(camera,V,P);
             else
                 // pick uiCamera out
                 // UI should be rendered in final step
                 uiCamera = camera;
         });
+    V = glm::mat4(glm::mat3(V));
+    renderBackEnd->drawSkyBox(V,P);
 
     frameBuffer->unbind();
 
@@ -75,7 +100,7 @@ void SPW::RenderSystem::afterUpdate(){
 }
 
 
-void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
+void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::mat4& View,glm::mat4& Pro) {
     if (std::get<0>(camera) == nullptr) {
         return;
     }
@@ -162,6 +187,11 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera) {
         }
     });
     
+    if(cameraCom->whetherMainCam)
+    {
+        View = V;
+        Pro = P;
+    }
 
     // RenderPass 1, shadow
     // sort models with program, build a map with shadow_program -> models[]

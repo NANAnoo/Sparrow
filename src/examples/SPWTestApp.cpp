@@ -101,7 +101,7 @@ public:
     void onAppInit() final {
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
-        app->window->setSize(1600, 900);
+        app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
 
         transformer = std::make_shared<Transformer>(app->delegate.lock());
@@ -131,13 +131,34 @@ public:
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
-            auto camTran = camera->emplace<SPW::TransformComponent>();
+            auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
+            mainCameraTrans->position = glm::vec4(0.0f,0.0f,0.0f,1.0f);
             auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
             cam->fov = 60;
             cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
             cam->near = 0.01;
             cam->far = 100;
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
+            cam->whetherMainCam = true;
+            //add a key component for testing, press R to rotate
+            auto cameraKey = camera->emplace<SPW::KeyComponent>();
+            auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode){
+                auto mainCameraTrans = e.component<SPW::TransformComponent>();
+                if(keycode == SPW::Key::W)
+                    mainCameraTrans->position.z-=0.01f;
+                if(keycode == SPW::Key::S)
+                    mainCameraTrans->position.z+=0.01f;
+                if(keycode == SPW::Key::A)
+                    mainCameraTrans->position.x-=0.01f;
+                if(keycode == SPW::Key::D)
+                    mainCameraTrans->position.x+=0.01f;
+                if(keycode == SPW::Key::Q)
+                    mainCameraTrans->position.y-=0.01f;
+                if(keycode == SPW::Key::E)
+                    mainCameraTrans->position.y+=0.01f;
+            };
+            cameraKey->onKeyHeldCallBack = cb;
+            cameraKey->onKeyDownCallBack = cb;
 
             // add a test game object
             auto obj = scene->createEntity("test");
@@ -157,11 +178,14 @@ public:
                 auto transform = e.component<SPW::TransformComponent>();
                 transform->rotation.x += y_pos_bias;
                 transform->rotation.y += x_pos_bias;
+
+                // transform->position.x = x_pos;
+                // transform->position.y = y_pos;
             };
             mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
                 auto transform = e.component<SPW::TransformComponent>();
                 
-                transform->position.z += scroll_offset;
+                transform->position.z += scroll_offset * 0.1;
             };
 
             // add a model to show

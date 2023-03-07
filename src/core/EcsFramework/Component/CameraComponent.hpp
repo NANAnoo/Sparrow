@@ -30,6 +30,9 @@ namespace SPW {
         float bottom = 1;
         float top = 1;
         [[nodiscard]] CameraType getType() const { return cameraType;}
+
+        //whether main
+        bool whetherMainCam = false;
     private:
         CameraType cameraType = PerspectiveType;
     };
