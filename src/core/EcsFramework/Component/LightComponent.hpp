@@ -30,7 +30,7 @@ namespace SPW {
         [[nodiscard]] LightType getType() const {
             return lightType;
         };
-    private:
+    public:
         LightType lightType;
     };
 }

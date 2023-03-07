@@ -16,9 +16,9 @@ namespace SPW {
 
         // APIName from RenderBackEndI
         template<typename ...Args>
-        explicit RenderCommand(void(RenderBackEndI::*MenFn)(Args& ...), Args& ...args) {
+        explicit RenderCommand(void(RenderBackEndI::*MenFn)(Args ...), Args ...args) {
             apiCaller = [=](std::shared_ptr<RenderBackEndI> &api){
-                ((*api).*MenFn)(args ...);
+                ((*api).*MenFn)(static_cast<Args>(args) ...);
             };
         }
         // move
