@@ -220,7 +220,7 @@ void SPW::RenderSystem::onStop() {
 
 bool SPW::RenderSystem::onFrameResize(int w, int h) {
     std::cout << "RenderSystem frame changed" << std::endl;
-    // TODO update frame buffer here
+    // update frame buffer here
     frameBuffer->deleteFrameBuffer();
     frameBuffer->genFrameBuffer();
     frameBuffer->bind();
