@@ -7,6 +7,7 @@
 
 #include <string>
 #include "OpenGLTexture2D.h"
+#include "OpenGLCubeMap.h"
 #include "Utils/SingletonBase.h"
 #include <map>
 #include <string>
@@ -26,6 +27,10 @@ namespace SPW
             }
             OpenGLTextureMap[path] = std::make_shared<OpenGLtexture2D>(path);
             return OpenGLTextureMap[path];
+        }
+        std::shared_ptr<OpenGLCubeMap> getOpenGLCubeMap(std::vector<std::string>& faces)
+        {
+            return std::make_shared<OpenGLCubeMap>(faces);
         }
 
     private:

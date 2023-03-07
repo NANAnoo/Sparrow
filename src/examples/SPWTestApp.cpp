@@ -40,7 +40,7 @@
 
 
 std::shared_ptr<SPW::Model> createModel() {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/nanosuit/nanosuit.obj");
 }
 
 // test usage
@@ -128,12 +128,44 @@ public:
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
-            camera->emplace<SPW::TransformComponent>();
+            auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
+            mainCameraTrans->position = glm::vec4(0.0f,5.0f,5.0f,1.0f);
             auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
             cam->fov = 60;
             cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
             cam->near = 0.01;
             cam->far = 100;
+            cam->whetherMainCam = true;
+            //add a key component for testing, press R to rotate
+            auto cameraKey = camera->emplace<SPW::KeyComponent>();
+            cameraKey->onKeyHeldCallBack = [mainCameraTrans](const SPW::Entity& e, int keycode){
+                if(keycode == static_cast<int>(SPW::Key::W))
+                    mainCameraTrans->position.z-=0.01f;
+                if(keycode == static_cast<int>(SPW::Key::S))
+                    mainCameraTrans->position.z+=0.01f;
+                if(keycode == static_cast<int>(SPW::Key::A))
+                    mainCameraTrans->position.x-=0.01f;
+                if(keycode == static_cast<int>(SPW::Key::D))
+                    mainCameraTrans->position.x+=0.01f;
+                if(keycode == static_cast<int>(SPW::Key::Q))
+                    mainCameraTrans->position.y-=0.01f;
+                if(keycode == static_cast<int>(SPW::Key::E))
+                    mainCameraTrans->position.y+=0.01f;
+            };
+            cameraKey->onKeyDownCallBack = [mainCameraTrans](const SPW::Entity& e, int keycode){
+                if(keycode == static_cast<int>(SPW::Key::W))
+                    mainCameraTrans->position.z-=0.01f;
+                if(keycode == static_cast<int>(SPW::Key::S))
+                    mainCameraTrans->position.z+=0.01f;
+                if(keycode == static_cast<int>(SPW::Key::A))
+                    mainCameraTrans->position.x-=0.01f;
+                if(keycode == static_cast<int>(SPW::Key::D))
+                    mainCameraTrans->position.x+=0.01f;
+                if(keycode == static_cast<int>(SPW::Key::Q))
+                    mainCameraTrans->position.y-=0.01f;
+                if(keycode == static_cast<int>(SPW::Key::E))
+                    mainCameraTrans->position.y+=0.01f;
+            };
 
             // add a camera entity
             auto camera2 = scene->createEntity("main camera");
@@ -165,8 +197,8 @@ public:
             auto mouse = triangle->emplace<SPW::MouseComponent>();
             mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
                 auto transform = e.component<SPW::TransformComponent>();
-                transform->rotation.x += y_pos_bias;
-                transform->rotation.y += x_pos_bias;
+                transform->rotation.x -= y_pos_bias*0.3;
+                transform->rotation.y -= x_pos_bias*0.3;
 
                 // transform->position.x = x_pos;
                 // transform->position.y = y_pos;
@@ -174,9 +206,9 @@ public:
             mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
 
                 auto transform = e.component<SPW::TransformComponent>();
-                transform->scale.x += scroll_offset*0.01;
-                transform->scale.y += scroll_offset*0.01;
-                transform->scale.z += scroll_offset*0.01;
+                transform->position.z += scroll_offset*0.01;
+                transform->position.z += scroll_offset*0.01;
+                transform->position.z += scroll_offset*0.01;
             };
 
             // add a model to show

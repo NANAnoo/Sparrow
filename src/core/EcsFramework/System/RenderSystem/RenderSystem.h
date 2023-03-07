@@ -38,7 +38,7 @@ namespace SPW {
         RenderPass postProcessPass;
 
     private:
-        void renderModelsWithCamera(const RenderCamera &camera);
+        void renderModelsWithCamera(const RenderCamera &camera,glm::mat4& View,glm::mat4& Pro);
         std::shared_ptr<RenderBackEndI> renderBackEnd;
 
     };
