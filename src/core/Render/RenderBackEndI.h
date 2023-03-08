@@ -15,7 +15,7 @@
 #include "Render/shader.h"
 #include "Render/Material.h"
 #include "Render/FrameBuffer.h"
-#include "UniformBuffer.h"
+#include "StorageBuffer.h"
 namespace SPW
 {
     enum class DepthComp
@@ -62,7 +62,7 @@ namespace SPW
         virtual void drawSkyBox(glm::mat4& V,glm::mat4& P)=0;
 
         // uniform buffer
-        virtual void initUniformBuffer(std::shared_ptr<UniformBuffer> ubo) = 0;
+        virtual void initStorageBuffer(std::shared_ptr<StorageBuffer> ubo) = 0;
 
         //frambuffer
         virtual std::shared_ptr<FrameBuffer> creatSenceFrameBuffer()=0;

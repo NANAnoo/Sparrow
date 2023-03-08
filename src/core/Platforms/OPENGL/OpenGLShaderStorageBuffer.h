@@ -2,26 +2,26 @@
 // Created by ZhangHao on 2023/3/8.
 //
 
-#ifndef SPARROW_OPENGLUNIFORMBUFFER_H
-#define SPARROW_OPENGLUNIFORMBUFFER_H
+#ifndef SPARROW_OPENGLSHADERSTORAGEBUFFER_H
+#define SPARROW_OPENGLSHADERSTORAGEBUFFER_H
 
-#include "Render/UniformBuffer.h"
+#include "Render/StorageBuffer.h"
 
 namespace SPW {
     class OpenGLShader;
     class OpenGLBackEnd;
-    class OpenGLUBO : public UBO_I{
+    class OpenGLSSBO : public SSBO_I{
     public:
-        OpenGLUBO() = default;
+        OpenGLSSBO() = default;
         void alloc(unsigned int size);
         void bindSubData(void *data, unsigned int offset, unsigned int size) override;
         bool isReady() override {return ready;};
     private:
-        unsigned int UBO_id = 0;
+        unsigned int SSBO_id = 0;
         bool ready = false;
         friend OpenGLShader;
         friend OpenGLBackEnd;
     };
 }
 
-#endif //SPARROW_OPENGLUNIFORMBUFFER_H
+#endif //SPARROW_OPENGLSHADERSTORAGEBUFFER_H

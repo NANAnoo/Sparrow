@@ -13,5 +13,5 @@ CORE_ADD_SOURCE(
         Material.h
         FrameBuffer.h
         Light.h
-        UniformBuffer.h
+        StorageBuffer.h
 )

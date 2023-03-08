@@ -40,7 +40,7 @@
 #include "SimpleRender.h"
 #include "IO/ResourceManager.h"
 #include "Model/Model.h"
-#include "Render/UniformBuffer.h"
+#include "Render/StorageBuffer.h"
 
 std::shared_ptr<SPW::Model> createModel() {
     return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");

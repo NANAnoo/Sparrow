@@ -8,7 +8,7 @@
 #include "OpenGLTextureManager.h"
 #include "OpenGLTexture2D.h"
 #include "OpenGLFrameBuffer.h"
-#include "OpenGLUniformBuffer.h"
+#include "OpenGLShaderStorageBuffer.h"
 #include "Render/Material.h"
 #include "IO/FileSystem.h"
 #include <fstream>
@@ -283,11 +283,11 @@ namespace SPW
         glDepthFunc(GL_LESS);
     }
 
-    void OpenGLBackEnd::initUniformBuffer(std::shared_ptr<UniformBuffer> ub) {
-        auto ubo = std::make_shared<OpenGLUBO>();
+    void OpenGLBackEnd::initStorageBuffer(std::shared_ptr<StorageBuffer> ub) {
+        auto ubo = std::make_shared<OpenGLSSBO>();
         ubo->alloc(ub->bufferSize);
-        glBindBufferBase(GL_UNIFORM_BUFFER, ub->slot, ubo->UBO_id);
-        ub->ubo = ubo;
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ub->slot, ubo->SSBO_id);
+        ub->ssbo = ubo;
         ub->flush();
     }
 }
