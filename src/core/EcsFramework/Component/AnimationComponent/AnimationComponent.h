@@ -8,7 +8,7 @@
 #define SPARROW_ANIMATIONCOMPONENT_H
 
 #include "../ComponentI.h"
-#include "/Animation/Skeleton.h"
+#include "./Model/Animation/Skeleton.h"
 #include <vector>
 #include "glm/glm.hpp"
 //#include "Animation.h"

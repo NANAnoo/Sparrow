@@ -42,6 +42,10 @@ namespace SPW{
                                     glm::mat4 parrentTransform,
                                     AnimationComponent& animationComponent,
                                     float currentTime);
+
+        void calcuKeyframeTransform(std::shared_ptr<BoneInfo>bone,
+                                    glm::mat4 parrentTransform,
+                                    AnimationComponent& animationComponent);
         void updateModel();
         void initializeComponent(AnimationComponent& animationComponent,ModelComponent& modelComponent);
         void vertexBoneMap(AnimationComponent& animationComponent,ModelComponent& modelComponent);

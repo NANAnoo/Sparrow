@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Model/Model.h"
+#include "Model/Animation/Skeleton.h"
 #include "IO/FileSystem.h"
 #include "IO/ResourceManager.h"
 #include "Render/Material.h"
@@ -192,15 +193,15 @@ namespace SPW
 	    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
 			const aiBone* bone = mesh->mBones[i];
 
-			// TODO Open Animation Branch to DO
-			// Weights
-			// std::vector<Weight> weights;
-			// for (unsigned int j = 0; j < bone->mNumWeights; j++)
-			// 	weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
-
-			// m_BoneInfos.emplace_back(
-			// 	std::make_shared<BoneInfo>(bone->mName.C_Str(), bone->mNumWeights, std::move(weights), toMat4(bone->mOffsetMatrix))
-			// );
+//			// TODO Open Animation Branch to DO
+//			 //Weights
+//			 std::vector<Weight> weights;
+//			 for (unsigned int j = 0; j < bone->mNumWeights; j++)
+//			 	weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
+//
+//			 m_BoneInfos.emplace_back(
+//			 	std::make_shared<BoneInfo>(bone->mName.C_Str(), bone->mNumWeights, std::move(weights), toMat4(bone->mOffsetMatrix))
+//			 );
 		}
 
 		int numBones = mesh->mNumBones;
@@ -367,8 +368,6 @@ namespace SPW
 			stbi_image_free(data);
 		}
 	}
-}
-
 
 	[[nodiscard]] std::shared_ptr<AnimationClip> ProcessAnimationNode(aiAnimation* animation, const aiScene* scene)
 	{
@@ -390,9 +389,9 @@ namespace SPW
 			for (unsigned int k = 0; k < channel->mNumPositionKeys; k++)
 			{
 				const auto time = channel->mPositionKeys[k].mTime;
-				const auto pos = toVec3(channel->mPositionKeys[k].mValue);
-				const auto rot = toQuat(channel->mRotationKeys[k].mValue);
-				const auto scaling = toVec3(channel->mScalingKeys[k].mValue);
+				const auto pos = SPW::toVec3(channel->mPositionKeys[k].mValue);
+				const auto rot = SPW::toQuat(channel->mRotationKeys[k].mValue);
+				const auto scaling = SPW::toVec3(channel->mScalingKeys[k].mValue);
 				tmp->nodeAnimations[j].keyFrames.emplace_back(KeyFrame{ time, pos, rot, scaling });
 			}
 			if (channel->mNumPositionKeys > tmp->frameCount) tmp->frameCount = channel->mNumPositionKeys;
@@ -424,7 +423,7 @@ namespace SPW
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
 			std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-			// return NULL;
+			return nullptr;
 		}
 
 		if (scene->HasAnimations())
@@ -434,7 +433,8 @@ namespace SPW
 		else
 		{
 			std::cout << "No AnimationClips Exist!\n";
-			// return nullptr;
+			return nullptr;
 		}
+        return nullptr;
 	}
 }

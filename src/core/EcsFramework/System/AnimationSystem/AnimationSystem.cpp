@@ -11,7 +11,16 @@ void SPW::AnimationSystem::initial()
 }
 void SPW::AnimationSystem::beforeUpdate()
 {
+    //TODO: 逻辑转变：所有的animation clip进行关键帧的transform计算，只处理一次
+    //TODO: 逻辑转变：animation system 每次更新只返回权重（根据目标动画的关键帧time stamp，计算到插值权重）
 
+    //TODO：逻辑基础（每个顶点对应的骨骼数量不同，因此每个顶点的weight[]数组长度不同，
+    // 当把所有顶点的weight都拼在一起的时候，
+    // 1：需要startIndex[]数组，记录每个顶点的开始索引
+    // 2：需要weight[]数组将所有顶点的所有对应
+    // 3：需要boneIndex[]数组记录对应骨骼的index (骨骼index匹配boneInfo数组的index）
+    // 4: 需要 int[2]记录具体哪两关键帧，float[2]记录该两帧对应的线性插值权重
+    // 5: b(帧数) * a(骨骼数量) * [4*4](矩阵大小) 的已经提前算好的关键帧transform
 }
 
 void SPW::AnimationSystem::onUpdate(TimeDuration dt)
@@ -185,6 +194,7 @@ std::shared_ptr<BoneInfo> SPW::AnimationSystem::findRootNode(AnimationComponent 
     return nullptr;
 }
 
+
 void SPW::AnimationSystem::calculateBoneTransform(std::shared_ptr <BoneInfo> bone,
                                                   glm::mat4 parrentTransform,
                                                   AnimationComponent& animationComponent,
@@ -215,6 +225,13 @@ void SPW::AnimationSystem::calculateBoneTransform(std::shared_ptr <BoneInfo> bon
             calculateBoneTransform(animationComponent.skeleton->m_Bones[i],finalTransfrom,animationComponent,currentTime);
     }
 }
+
+
+
+
+
+
+
 
 float getScaling(float lastTimeStamp,float nextTimeStamp,float currentTime)
 {

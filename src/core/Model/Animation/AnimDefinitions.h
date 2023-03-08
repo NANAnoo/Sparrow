@@ -1,4 +1,6 @@
 #pragma once
+#include "glm/gtx/quaternion.hpp"
+
 
 struct KeyFrame;
 struct AnimationClip;

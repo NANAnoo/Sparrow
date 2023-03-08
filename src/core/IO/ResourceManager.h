@@ -2,6 +2,7 @@
 #include "Utils/SingletonBase.h"
 #include "Model/Model.h"
 #include "Render/shader.h"
+#include "Model/Animation/Skeleton.h"
 #include <filesystem>
 
 namespace SPW
