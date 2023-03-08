@@ -16,18 +16,15 @@
 namespace SPW
 {
     using Music = std::tuple<IDComponent *,TransformComponent *,AudioComponent*>;
-    class AudioSystem : public SystemI{
+    class AudioSystem : public SystemI, public SPWSoundDelegateI {
 
     public:
 
         explicit AudioSystem(std::shared_ptr<Scene> &scene);
         virtual ~AudioSystem() = default;
 
-        void set3DModule(FMOD_MODE f);
-
-        void playSound();
-        void pausedSound();
-        void onAwake();
+        void manageSound();
+        void matchSound();
 
 
         void initial() final;
@@ -36,14 +33,11 @@ namespace SPW
         void afterUpdate() final;
         void onStop() final;
 
-
+        FMOD::Channel* playSound(const std::string &path, bool is3D, bool isLoop) override;
 
     private:
-
         FMOD::System* mFmodSystem;
-        FMOD_SYSTEM* f_system;
-
-
+        std::unordered_map<std::string, FMOD::Sound *> soundData;
     };
 }
 

@@ -8,36 +8,102 @@
 #include "../ComponentI.h"
 #include "fmod.hpp"
 #include "string"
+#include <map>
+#include <unordered_map>
 
 namespace SPW
 {
-    struct AudioState{};
-    class AudioComponent : public ComponentI{
+    enum SoundState {Play,Pause,Continue,Stop};
+    // 管理每个sound数据对象
+    // 依据path获取sound数据
+    class SPWSoundDelegateI {
+    public:
+        virtual FMOD::Channel* playSound(const std::string &path, bool i3D, bool isLoop) = 0;
+    };
+
+    //包装channdel, 控制声音的播放
+    // 绑定一个path
+    class SPWSound {
+    public:
+        SPWSound() = default;
+        explicit SPWSound(const std::string &path) : soundPath(path) {
+        }
+        void play(SPWSoundDelegateI *delegate) {
+            chan = delegate->playSound(soundPath, is3D, isLoop);
+            shouldUpdate = false;
+        }
+        void pause() {
+            if (chan) {
+                chan->setPaused(true);
+                shouldUpdate = false;
+            }
+        }
+        void resume() {
+            if (chan) {
+                chan->setPaused(false);
+                shouldUpdate = false;
+            }
+        }
+        void stop() {
+            chan->stop();
+            chan = nullptr;
+            shouldUpdate = false;
+        }
+        void setState(SoundState s) {
+            shouldUpdate = false;
+            if (state == SoundState::Play && (s == SoundState::Pause || s == SoundState::Stop)) {
+                shouldUpdate = true;
+            } else if (state == SoundState::Pause && (s == SoundState::Stop || s == SoundState::Continue)) {
+                shouldUpdate = true;
+            } else if (state == SoundState::Stop && (s == SoundState::Play)) {
+                shouldUpdate = true;
+            } else if (state == SoundState::Continue && (s == SoundState::Pause || s == SoundState::Stop)) {
+                shouldUpdate = true;
+            }
+            if (shouldUpdate) {
+                state = s;
+            }
+        }
+        void setPos(float x, float y, float z) {
+            if (is3D && chan) {
+                FMOD_VECTOR pos = {x, y, z};
+                chan->set3DAttributes(&pos, nullptr);
+            }
+        }
+        bool needUpdate() {return shouldUpdate;}
+        SoundState state = Stop;
+        bool is3D = false;
+        bool isLoop = false;
+
+    private:
+        bool shouldUpdate = true;
+        std::string soundPath;
+        FMOD::Channel *chan = nullptr; // 控制声音播放暂停，结束, 不需要释放
+    };
+
+    class AudioComponent : public ComponentI {
     public:
 
         AudioComponent() = default;
         AudioComponent(const AudioComponent&) = default;
-        AudioComponent(const std::string& Path) : AudioPath(Path){}
 
-        int getTime(){ return  time;}
-        void addTime(){time++;}
-
-        std::string AudioPath = "None";
-
-        bool isPlay;
-        bool isPaused;
-        //bool isPlayedOnAwake;
-        bool isLoop;
-
-        bool is3D;
-
-        FMOD::Sound* Sound = nullptr;
-        FMOD::Channel* Channel = nullptr;
-        FMOD_MODE ModeType = FMOD_DEFAULT;
-    private:
-
-        //create time must less equal to 1
-        int time = 0;
+        explicit AudioComponent(const std::vector<std::string> &soundPaths) {
+            for (auto &path : soundPaths) {
+                auto sound = std::make_shared<SPWSound>(path);
+                allSounds.insert({path, sound});
+            }
+        };
+        void set3D(const std::string &path, bool enable) {
+            allSounds[path]->is3D = enable;
+        }
+        void setLoop(const std::string &path, bool enable) {
+            allSounds[path]->isLoop = enable;
+        }
+        std::unordered_map<std::string, std::shared_ptr<SPWSound>> allSounds;
+        SoundState getState(const std::string &path) {return allSounds[path]->state;}
+        void setState(const std::string &path, SoundState s) {
+            allSounds[path]->setState(s);
+        }
     };
 
 

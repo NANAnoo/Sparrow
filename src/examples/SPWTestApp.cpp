@@ -136,7 +136,6 @@ public:
 
             // add system
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::AudioListenerSystem>(scene));
             scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->width(), weak_window.lock()->height()));
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
@@ -154,30 +153,33 @@ public:
             //add a AudioSource Entity
             auto clip = scene->createEntity("AuidoSource");
             clip->emplace<SPW::TransformComponent>();
-            clip->emplace<SPW::AudioComponent>();
-
-            clip->component<SPW::AudioComponent>()->is3D = true;
+            std::vector<std::string> soundPaths = {
+                    "./resources/sounds/test.wav"
+            };
+            auto aSource = clip->emplace<SPW::AudioComponent>(soundPaths);
 
             //add a Audio Listener
-            if(clip->component<SPW::AudioComponent>()->is3D){
+            auto listener = scene->createEntity("Listener");
+            listener->emplace<SPW::TransformComponent>();
+            listener->emplace<SPW::AudioListener>();
 
-                auto listener = scene->createEntity("Listener");
-                listener->emplace<SPW::TransformComponent>();
-                listener->emplace<SPW::AudioListener>();
-                clip->component<SPW::AudioComponent>()->isLoop = true;
+            clip->component<SPW::AudioComponent>()->setState("./resources/sounds/test.wav", SPW::Play);
+            clip->component<SPW::AudioComponent>()->setLoop("./resources/sounds/test.wav", true);
+            clip->component<SPW::AudioComponent>()->set3D("./resources/sounds/test.wav", false);
 
-            }
-            clip->component<SPW::AudioComponent>()->AudioPath = "./resources/sounds/test.wav";
             auto keyCom =  clip->emplace<SPW::KeyComponent>();
-            keyCom->onKeyDownCallBack = [](const SPW::Entity& e, int keycode) {
+            keyCom->onKeyDownCallBack = [&soundPaths](const SPW::Entity& e, int keycode) {
                 if (keycode == static_cast<int>(SPW::KeyCode::Space)) {
                     // TODO: 更改音频时 管理对象生命周期, 使用一个音频资源管理器管理音频对象
-                    // e.component<SPW::AudioComponent>()->AudioPath = "./";
                     // TODO: (private) state {start, pause, continue, stop}, getState(){return state;}, setState(){//TODO 控制状态};
                     // TODO: isLoop;
                     // TODO: 调研FMOD 支持的音频格式
-                    e.component<SPW::AudioComponent>()->isPaused = false;
+                    e.component<SPW::AudioComponent>()->setState("./resources/sounds/goodLuck.wav", SPW::Pause);
+                    e.component<SPW::AudioComponent>()->setLoop("./resources/sounds/goodLuck.wav", false);
+                }
+                if(keycode == static_cast<int>(SPW::KeyCode::LeftShift)){
 
+                    e.component<SPW::AudioComponent>()->setState("./resources/sounds/goodLuck.wav", SPW::Continue);
                 }
             };
 
