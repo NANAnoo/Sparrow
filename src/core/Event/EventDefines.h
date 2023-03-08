@@ -20,7 +20,13 @@ namespace SPW {
         WindowCloseType,
         WindowFrameResizeType,
         KeyDownType,
-        MouseDownType
+        KeyHeldType,
+        KeyReleasedType,
+        MouseDownType,
+        MouseHeldType,
+        MouseReleasedType,
+        CursorMovementType,
+        MouseScrollType
     };
 
     constexpr const char *toString(EventType type) {
@@ -30,8 +36,15 @@ namespace SPW {
             case WindowCloseType: return "WindowCloseEvent";
             case WindowFrameResizeType: return "WindowFrameResizeEvent";
             case KeyDownType: return "KeyDownEvent";
+            case KeyHeldType: return "KeyHeldEvent";
+            case KeyReleasedType: return "KeyReleasedEvent";
             case MouseDownType: return "MouseDownEvent";
+            case MouseHeldType: return "MouseHeldEvent";
+            case MouseReleasedType: return "MouseReleasedEvent";
+            case CursorMovementType: return "CursorMovementEvent";
+            case MouseScrollType: return "MouseScrollEvent";
         }
+        return "UnKnownEvent";
     }
 }
 

@@ -13,6 +13,8 @@
 #include <map>
 #include <string>
 #include "Render/shader.h"
+#include "Render/Material.h"
+#include "Render/FrameBuffer.h"
 namespace SPW
 {
     enum class DepthComp
@@ -21,8 +23,18 @@ namespace SPW
         LEQUAL,
         LESS
     };
+
+    enum class PostProcessingEffects
+    {
+        None=0,
+        Gauss,
+        FXAA
+    };
+
     class RenderBackEndI
     {
+    public:
+        std::shared_ptr<FrameBuffer> scenceFrameBuffer = nullptr;
     public:
         enum class RenderAPIType
         {
@@ -31,7 +43,7 @@ namespace SPW
         };
 
         virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
-        virtual void SetClearColor(const glm::vec4& color) = 0;
+        virtual void SetClearColor(const glm::vec4 color) = 0;
         virtual void Clear() = 0;
         virtual void DrawElement(std::shared_ptr<VertexBufferI>& vertexBuffer ,std::shared_ptr<IndexBuffer>& indexBuffer) = 0;
         //depth
@@ -42,10 +54,22 @@ namespace SPW
         virtual void Cull(int32_t Bit) = 0;
         virtual void CullFrontOrBack(bool bFront) = 0;
 
+        //create texture
+        virtual void BindTexture(std::shared_ptr<Shader>shader,std::shared_ptr<Material> material) = 0;
+        virtual void InitSkyBox()=0;
+        virtual void SetSkyBox(std::vector<std::string>& faces)=0;
+        virtual void drawSkyBox(glm::mat4& V,glm::mat4& P)=0;
+
+        //frambuffer
+        virtual std::shared_ptr<FrameBuffer> creatSenceFrameBuffer()=0;
+        virtual void drawInTexture(SPW::PostProcessingEffects effect = SPW::PostProcessingEffects::None)=0;
+
         //creat structure;
         virtual std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) = 0;
         virtual std::shared_ptr<VertexBufferI> createVertexBuffer() = 0;
         virtual std::shared_ptr<Shader>createShader(const ShaderHandle &handle) = 0;
+        // 
+        virtual void loadShaderLib(std::string libPath) = 0;
         std::shared_ptr<Shader> getShader(const ShaderHandle &handle)
         {
             if(shaderMap.find(handle)!=shaderMap.end())

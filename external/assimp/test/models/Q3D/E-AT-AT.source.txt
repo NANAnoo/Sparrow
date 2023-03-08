@@ -1,8 +1,3 @@
-Source: the3darchive.com
-
-Downloaded 4th November 08 (Obama ftw!)
-
-Copyright notice found on the page:
-
-Where do the models in the archive come from?
-All 3D files available from the3darchive.com are from the public domain.
+version https://git-lfs.github.com/spec/v1
+oid sha256:6db2e58a305a85bab9e9f924653ae65194399ebf9639f71a15e891b5ee9ba42d
+size 223

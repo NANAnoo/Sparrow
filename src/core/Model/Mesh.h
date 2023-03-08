@@ -13,7 +13,10 @@
 #include "Render/RenderBackEndI.h"
 #include "Render/RenderPass.hpp"
 #include "Render/shader.h"
+#include "Render/Material.h"
 #include "Vertex.h"
+#include "Render/Material.h"
+#include "iostream"
 
 namespace SPW
 {
@@ -21,8 +24,8 @@ namespace SPW
     {
     public:
         // mesh Data
-        std::vector<Vertex>       vertices;
-        std::vector<unsigned int> indices;
+        std::vector<Vertex>         vertices;
+        std::vector<unsigned int>   indices;
 
         Mesh() = default;
 
@@ -35,14 +38,18 @@ namespace SPW
         void Draw(const std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
             shader->Bind();
+            renderBackEnd->BindTexture(shader,mMaterial);
             renderBackEnd->DrawElement(VBuffer,EBO);
+            VBuffer->UnBind();
+
         }
 
         void setupMesh(std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
-            EBO = renderBackEnd->createIndexBuffer(indices);
+
             VBuffer = renderBackEnd->createVertexBuffer();
             VBuffer->VertexBufferData(vertices);
+            EBO = renderBackEnd->createIndexBuffer(indices);
         }
 
     	void setShader(std::shared_ptr<RenderBackEndI>& renderBackEnd, const ShaderHandle& handle)
@@ -50,10 +57,15 @@ namespace SPW
             shader = renderBackEnd->getShader(handle);
         }
 
+    	void SetMaterial(std::shared_ptr<Material> material) { this->mMaterial = std::move(material); }
+
+    	std::shared_ptr<Material> GetMaterial() const { return this->mMaterial; }
+
     public:
         std::shared_ptr<IndexBuffer> EBO = nullptr;
         std::shared_ptr<VertexBufferI> VBuffer = nullptr;
         std::shared_ptr<Shader> shader = nullptr;
+        std::shared_ptr<Material> mMaterial = std::make_shared<Material>();
     };
 }
 

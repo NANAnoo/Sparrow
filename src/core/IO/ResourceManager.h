@@ -1,7 +1,6 @@
 #pragma once
 #include "Utils/SingletonBase.h"
 #include "Model/Model.h"
-#include "Animation/Skeleton.h"
 #include "Render/shader.h"
 #include <filesystem>
 
@@ -10,7 +9,9 @@ namespace SPW
 	class ResourceManager : public SingletonBase<ResourceManager> 
 	{
 	public:
-		[[nodiscard]] std::shared_ptr<Model> LoadModel(const std::filesystem::path& filePath);
+		std::shared_ptr<Model> LoadModel(const std::filesystem::path& filePath);
+		using textureLoadCallback = std::function<void(int width, int height, int bpp, unsigned char*)>;
+		void LoadTextureScope(bool flip, const std::filesystem::path& filePath, const textureLoadCallback &callback);
 
 		[[nodiscard]] std::shared_ptr<Skeleton> LoadAnimation(const std::filesystem::path& filePath);
 	};

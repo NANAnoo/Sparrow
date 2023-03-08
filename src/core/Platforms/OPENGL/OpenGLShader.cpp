@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <string>
+
 namespace SPW
 {
     OpenGLShader::OpenGLShader( const ShaderHandle &handle):m_name(handle.name)
@@ -61,6 +63,16 @@ namespace SPW
         glLinkProgram(ID);
         checkCompileErrors(ID, "PROGRAM");
         // delete the shaders as they're linked into our program now and no longer necessery
+
+        /*
+        GLint binaryLength;
+        glGetProgramiv(ID, GL_PROGRAM_BINARY_LENGTH, &binaryLength);
+        binary.resize(binaryLength);
+        GLenum binaryFormat;
+
+        glGetProgramBinary(ID, binaryLength, NULL, &binaryFormat, binary.data());
+        glProgramBinary(ID, binaryFormat, binary.data(), binaryLength);
+        */
         glDeleteShader(vertex);
         glDeleteShader(fragment);
     }
@@ -101,29 +113,51 @@ namespace SPW
     {
         glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
     }
-    void OpenGLShader::setVec2(const std::string& name, const glm::vec2& value) const
+    void OpenGLShader::setVec2(const std::string& name, glm::vec2 value) const
     {
         glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
     }
-    void OpenGLShader::setVec3(const std::string& name, const glm::vec3& value) const
+    void OpenGLShader::setVec3(const std::string& name, glm::vec3 value) const
     {
         glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
     }
-    void OpenGLShader::setVec4(const std::string& name, const glm::vec4& value) const
+    void OpenGLShader::setVec4(const std::string& name, glm::vec4 value) const
     {
         glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
     }
-    void OpenGLShader::setMat2(const std::string& name, const glm::mat2& mat) const
+    void OpenGLShader::setMat2(const std::string& name, glm::mat2 mat) const
     {
         glUniformMatrix2fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
-    void OpenGLShader::setMat3(const std::string& name, const glm::mat3& mat) const
+    void OpenGLShader::setMat3(const std::string& name, glm::mat3 mat) const
     {
         glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
-    void OpenGLShader::setMat4(const std::string& name, const glm::mat4& mat) const
+    void OpenGLShader::setMat4(const std::string& name, glm::mat4 mat) const
     {
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
+
+    void OpenGLShader::setDLight(unsigned int idx, const DLight &light) const
+    {
+        std::string name = "DLights["+std::to_string(idx)+"]";
+        setVec3(name+".direction",light.direction);
+        setVec3(name+".ambient",light.ambient);
+        setVec3(name+".diffuse",light.diffuse);
+        setVec3(name+".specular",light.specular);
+    }
+
+    void OpenGLShader::setPLight(unsigned int idx, const PLight &light) const
+    {
+        std::string name = "PLights["+std::to_string(idx)+"]";
+        setVec3(name+".position",light.position);
+        setVec3(name+".ambient",light.ambient);
+        setVec3(name+".diffuse",light.diffuse);
+        setVec3(name+".specular",light.specular);
+        setFloat(name+".constant",light.constant);
+        setFloat(name+".linear",light.linear);
+        setFloat(name+".quadratic",light.quadratic);
+    }
+
 
 }

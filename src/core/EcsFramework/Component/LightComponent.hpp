@@ -1,7 +1,7 @@
 //
 // Created by ZhangHao on 2023/2/20.
 //
-
+#pragma once
 #include "ComponentI.h"
 
 #include <glm/glm.hpp>
@@ -21,12 +21,15 @@ namespace SPW {
     public:
         LightComponent() = delete;
         explicit LightComponent(LightType type) : lightType(type) { }
-        explicit LightComponent(LightType type, float intensity, glm::vec3 color) :
-            lightType(type), lightIntensity(intensity), lightColor(color) {
 
-        }
-        float lightIntensity = 1.f;
-        glm::vec3 lightColor = {0, 0, 0};
+        float constant = 1;
+        float linear = 1;
+        float quadratic = 1;  
+
+        glm::vec3 ambient = {1, 1, 1};
+        glm::vec3 diffuse = {1, 1, 1};
+        glm::vec3 specular = {1, 1, 1};
+
         [[nodiscard]] LightType getType() const {
             return lightType;
         };

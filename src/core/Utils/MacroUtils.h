@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <tuple>
 #include <functional>
+#include <memory>
 
 #ifdef SPW_DEBUG
 #define DEBUG_EXPRESSION(expr) do{expr;}while(0);
@@ -110,6 +111,21 @@ namespace SPW
     constexpr void InvokeTupleFunc_Address(TupleType && tuple_value, const FuncType &func, X_Index_tuple< index... >)
     {
         func(*std::get<index>(tuple_value)...);
+    }
+
+
+    unsigned constexpr hash_str(const char* s)
+    {
+        unsigned A = 54059; /* a prime */
+        unsigned B = 76963; /* another prime */
+        unsigned C = 86969; /* yet another prime */
+        unsigned FIRST_H = 37; /* also prime */
+        unsigned h = FIRST_H;
+        while (*s) {
+            h = (h * A) ^ (s[0] * B);
+            s++;
+        }
+        return h % C;
     }
 
 }; // namespace SPW

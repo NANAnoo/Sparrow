@@ -23,6 +23,8 @@ namespace SPW {
         virtual void setTitle(const char *t) = 0;
         virtual int width() = 0;
         virtual int height() = 0;
+        virtual int frameWidth() = 0;
+        virtual int frameHeight() = 0;
         virtual void setSize(int w, int h) = 0;
         virtual std::shared_ptr<GraphicsContext> getGraphicsContext() = 0;
     };

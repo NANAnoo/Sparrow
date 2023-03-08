@@ -1,12 +1,21 @@
-#version 330 core
+#version 410 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aCoords;
+//layout(early_fragment_tests) in;
 
-out vec3 ourColor;
+uniform mat4 M;
+uniform mat4 V;
+uniform mat4 P;
 
+out vec2 TexCoords;
+out vec3 normal;
+out vec4 position;
 void main()
 {
-    gl_Position = vec4(aPos, 1.0);
-    ourColor = vec3(aCoords,1.0);
+    position = M*vec4(aPos, 1.0);
+    gl_Position = P*V*position;
+    
+    TexCoords = aCoords;
+    normal = mat3(transpose(inverse(M))) * aNormal;
 }

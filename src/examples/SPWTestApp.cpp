@@ -1,12 +1,21 @@
+#include <cmath>
 #include <iostream>
 
+#include <memory>
 #include <sol/sol.hpp>
 
+#include "EcsFramework/Component/LightComponent.hpp"
+#include "EcsFramework/Entity/Entity.hpp"
+#include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
+#include "Control/MouseEvent.hpp"
+
+#include "Control/KeyCodes.h"
+#include "Control/MouseCodes.h"
 
 #include "EcsFramework/Scene.hpp"
 
@@ -14,69 +23,27 @@
 #include "EcsFramework/Component/ModelComponent.h"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/KeyComponent.hpp"
+#include "EcsFramework/Component/MouseComponent.hpp"
 
+#include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
+#include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 
 #include "Model/Model.h"
 
 #include "Utils/UUID.hpp"
 
-#include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
-#include "Control/MouseEvent.hpp"
 #include "IO/ResourceManager.h"
 #include "Model/Model.h"
 
-class WOC :
-        public SPW::WindowEventResponder,
-        public SPW::KeyEventResponder,
-        public SPW::MouseEventResponder {
-public:
-    explicit WOC(const std::shared_ptr<SPW::EventResponderI> &parent, const char *name):
-            SPW::WindowEventResponder(parent),
-            SPW::KeyEventResponder(parent),
-            SPW::MouseEventResponder(parent),
-            _name(name){
-        }
-    explicit WOC(const std::shared_ptr<WOC> &parent, const char *name):
-            SPW::WindowEventResponder(std::shared_ptr<SPW::WindowEventResponder>(parent)),
-            SPW::KeyEventResponder(std::shared_ptr<SPW::KeyEventResponder>(parent)),
-            SPW::MouseEventResponder(std::shared_ptr<SPW::MouseEventResponder>(parent)),
-            _name(name){
-    }
-    bool onKeyDown(SPW::KeyEvent *e) override {
-        if (_name[0] == 'C') {
-            std::cout << "onKeyDown" << std::endl;
-            return true;
-        }
-        return false;
-    }
-    bool onMouseDown(SPW::MouseEvent *e) override {
-        if (_name[0] == 'B') {
-            std::cout << "onMouseDown" << std::endl;
-            return true;
-        }
-        return false;
-    }
-    bool canRespondTo(const std::shared_ptr<SPW::EventI> &e) final {
-        return _name[0] != 'E' || e->category() == SPW::MouseCategory;
-    }
-    const char *_name;
-    const char *getName() final {return _name;}
-};
 
 std::shared_ptr<SPW::Model> createModel() {
-
-    auto tmp = SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sf_cube/scene.gltf");
-	// auto vs = tmp->GetMeshes()[0]->vertices;
-    // for(const auto& v: vs)
-    // {
-    //     std::cout << v.Position.x << v.Position.y << v.Position.z << "\n";
-    // }    
-    return tmp;
-    return nullptr;
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
 }
 
 // test usage
@@ -101,6 +68,14 @@ public:
         if (should_update && ! window.expired())
             window.lock()->setSize(w, h);
         // set projection
+        // TODO: add a responder to each camera
+        scene.lock()->forEach([=](SPW::CameraComponent *cam) {
+            cam->aspect = float(w) / float(h);
+            if (cam->getType() == SPW::UIOrthoType) {
+                cam->right = w;
+                cam->top = h;
+            }
+        }, SPW::CameraComponent);
         return true;
     }
 
@@ -115,6 +90,7 @@ public:
         return "Transformer";
     }
     std::weak_ptr<SPW::WindowI> window;
+    std::weak_ptr<SPW::Scene> scene;
 };
 
 class TestDelegate : public SPW::AppDelegateI {
@@ -149,31 +125,102 @@ public:
             scene = SPW::Scene::create(app->delegate.lock());
 
             // add system
-            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd));
+            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight()));
+            scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
-            camera->emplace<SPW::TransformComponent>();
-            camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
-
+            auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
+            mainCameraTrans->position = glm::vec4(0.0f,0.0f,0.0f,1.0f);
+            auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+            cam->fov = 60;
+            cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
+            cam->near = 0.01;
+            cam->far = 100;
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
+            cam->whetherMainCam = true;
+            //add a key component for testing, press R to rotate
+            auto cameraKey = camera->emplace<SPW::KeyComponent>();
+            auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode){
+                auto mainCameraTrans = e.component<SPW::TransformComponent>();
+                if(keycode == SPW::Key::W)
+                    mainCameraTrans->position.z-=0.01f;
+                if(keycode == SPW::Key::S)
+                    mainCameraTrans->position.z+=0.01f;
+                if(keycode == SPW::Key::A)
+                    mainCameraTrans->position.x-=0.01f;
+                if(keycode == SPW::Key::D)
+                    mainCameraTrans->position.x+=0.01f;
+                if(keycode == SPW::Key::Q)
+                    mainCameraTrans->position.y-=0.01f;
+                if(keycode == SPW::Key::E)
+                    mainCameraTrans->position.y+=0.01f;
+            };
+            cameraKey->onKeyHeldCallBack = cb;
+            cameraKey->onKeyDownCallBack = cb;
 
             // add a test game object
-            auto triangle = scene->createEntity("test");
-            triangle->emplace<SPW::TransformComponent>();
+            auto obj = scene->createEntity("test");
+            auto transform = obj->emplace<SPW::TransformComponent>();
+            transform->scale = {0.5, 0.5, 0.5};
+
+            //add a key component for testing, press R to rotate
+            auto key = obj->emplace<SPW::KeyComponent>();
+            key->onKeyHeldCallBack = [transform](const SPW::Entity& e, SPW::KeyCode keycode){
+                if(keycode == SPW::Key::R)
+                    transform->rotation.y += 5.0f;
+            };
+
+            //add a mouse component for testing, press left button to rotate, scroll to scale
+            auto mouse = obj->emplace<SPW::MouseComponent>();
+            mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
+                auto transform = e.component<SPW::TransformComponent>();
+                transform->rotation.x += y_pos_bias;
+                transform->rotation.y += x_pos_bias;
+
+                // transform->position.x = x_pos;
+                // transform->position.y = y_pos;
+            };
+            mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
+                auto transform = e.component<SPW::TransformComponent>();
+                
+                transform->position.z += scroll_offset * 0.1;
+            };
 
             // add a model to show
-            auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
+            auto model = obj->emplace<SPW::ModelComponent>(camera_id);
+            //model->bindCameras.insert(camera_id_2);
             SPW::ShaderHandle shaderHandle({
                                          "basic",
                                          "./resources/shaders/simpleVs.vert",
                                          "./resources/shaders/simplefrag.frag"
                                      });
+
             model->modelProgram = shaderHandle;
             model->model = createModel();
 
+            // add light 1
+            auto light = scene->createEntity("light");
+            auto lightTrans =light->emplace<SPW::TransformComponent>();
+            auto lightCom = light->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            lightCom->ambient = {0.2, 0.2, 0.2};
+            lightCom->diffuse = {1, 0, 0};
+            lightCom->specular = {1, 0, 0};
+            lightTrans->rotation = {0, 60, 0};
+
+            // add light 2
+            auto light2 = scene->createEntity("light2");
+            auto lightTrans2 =light2->emplace<SPW::TransformComponent>();
+            auto lightCom2 = light2->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            lightCom2->ambient = {0.2, 0.2, 0.2};
+            lightCom2->diffuse = {0, 0, 1};
+            lightCom2->specular = {0, 0, 1};
+            lightTrans2->rotation = {0, -60, 0};
+
             // init scene
             scene->initial();
+            transformer->scene = scene;
         });
     }
     void beforeAppUpdate() final{
@@ -188,9 +235,9 @@ public:
         scene->afterUpdate();
     }
     void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
-        for (auto &e : events) {
-            DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
-        }
+        // for (auto &e : events) {
+        //     DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
+        // }
     }
     void onAppStopped() final{
         sol::state state;

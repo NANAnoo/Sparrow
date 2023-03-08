@@ -1,3 +1,4 @@
 add_subdirectory(RenderSystem)
+add_subdirectory(ControlSystem)
 add_subdirectory(AnimationSystem)
 CORE_ADD_SOURCE(SystemI.h)

@@ -10,13 +10,23 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Model/Model.h"
+#include "IO/FileSystem.h"
 #include "IO/ResourceManager.h"
+#include "Render/Material.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/include/stb_image.h>
 
 namespace SPW
 {
     glm::vec3 toVec3(const aiVector3D& _val)
     {
         return glm::vec3(_val.x, _val.y, _val.z);
+    }
+
+	glm::vec4 toVec4(const aiColor4D& _val)
+    {
+        return glm::vec4(_val.r, _val.g, _val.b, _val.a);
     }
 
     glm::quat toQuat(const aiQuaternion& _val)
@@ -39,7 +49,103 @@ namespace SPW
         return result;
     }
 
-	namespace fs = std::filesystem;
+	std::shared_ptr<Material> LoadMaterial(aiMaterial* material)
+	{
+		std::shared_ptr<Material> tmp = std::make_shared<Material>();
+
+    	material->Get(AI_MATKEY_NAME, tmp->m_Name);
+
+		auto& tmpProp = tmp->m_Properties;
+
+		// Read material properties
+		aiColor4D diffuseColor;
+		aiColor4D specularColor;
+		aiColor4D ambientColor;
+		aiColor4D emissiveColor;
+		aiColor4D transportColor;
+		aiColor4D refectiveColor;
+		material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
+		material->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
+		material->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor);
+		material->Get(AI_MATKEY_COLOR_EMISSIVE, emissiveColor);
+		material->Get(AI_MATKEY_COLOR_TRANSPARENT, transportColor);
+		material->Get(AI_MATKEY_COLOR_REFLECTIVE, refectiveColor);
+		tmpProp.diffuseColor	= toVec4(diffuseColor);
+		tmpProp.specularColor	= toVec4(specularColor);
+		tmpProp.ambientColor	= toVec4(ambientColor);
+		tmpProp.emissiveColor	= toVec4(emissiveColor);
+		tmpProp.transportColor	= toVec4(transportColor);
+		tmpProp.refectiveColor	= toVec4(refectiveColor);
+
+		material->Get(AI_MATKEY_OPACITY, tmpProp.opacity);
+		material->Get(AI_MATKEY_TRANSPARENCYFACTOR, tmpProp.transparentFactor);
+		material->Get(AI_MATKEY_BUMPSCALING, tmpProp.bumpScaling);
+		material->Get(AI_MATKEY_SHININESS, tmpProp.shininess);
+		material->Get(AI_MATKEY_REFLECTIVITY, tmpProp.refelectivity);
+		material->Get(AI_MATKEY_SHININESS_STRENGTH, tmpProp.shininessStrength);
+		material->Get(AI_MATKEY_REFRACTI, tmpProp.refracti);
+
+		// Retrieve the PBR properties
+
+		/* Metallic/Roughness Workflow */
+		material->Get(AI_MATKEY_BASE_COLOR, tmpProp.metallicProperties.baseColorFactor);
+		material->Get(AI_MATKEY_METALLIC_FACTOR, tmpProp.metallicProperties.metallicFactor);
+		material->Get(AI_MATKEY_ROUGHNESS_FACTOR, tmpProp.metallicProperties.roughnessFactor);
+		material->Get(AI_MATKEY_ANISOTROPY_FACTOR, tmpProp.metallicProperties.anisotropyFactor);
+
+		/* Specular/Glossiness Workflow */
+		material->Get(AI_MATKEY_SPECULAR_FACTOR, tmpProp.glossinessProperties.specularFactor);
+		material->Get(AI_MATKEY_GLOSSINESS_FACTOR, tmpProp.glossinessProperties.glossinessFactor);
+
+		/* Sheen */
+		material->Get(AI_MATKEY_SHEEN_COLOR_FACTOR, tmpProp.sheenProperties.sheenFactor);
+		material->Get(AI_MATKEY_SHEEN_ROUGHNESS_FACTOR, tmpProp.sheenProperties.sheenRoughnessFactor);
+
+		/* Clearcoat */
+		material->Get(AI_MATKEY_CLEARCOAT_FACTOR, tmpProp.clearCoatProperties.clearcoatFactor);
+		material->Get(AI_MATKEY_CLEARCOAT_ROUGHNESS_FACTOR, tmpProp.clearCoatProperties.clearcoatRoughnessFactor);
+
+		/* Transmission */
+		material->Get(AI_MATKEY_TRANSMISSION_FACTOR, tmpProp.transmissionFactor);
+
+		/* Volume */
+		material->Get(AI_MATKEY_VOLUME_THICKNESS_FACTOR, tmpProp.volumeProperties.volumeThicknessFactor);
+		material->Get(AI_MATKEY_VOLUME_ATTENUATION_DISTANCE, tmpProp.volumeProperties.volumeAttenuationDistance);
+
+		/* Emissive */
+		material->Get(AI_MATKEY_EMISSIVE_INTENSITY, tmpProp.emissiveIntensity);
+
+		// Iterate through the texture slots of the material
+		for (unsigned int j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+		{
+			aiTextureType textureType = static_cast<aiTextureType>(j);
+			unsigned int textureCount = material->GetTextureCount(textureType);
+
+			// Iterate through the textures of the current slot
+			for (unsigned int k = 0; k < textureCount; k++)
+			{
+				aiString texturePath;
+				material->GetTexture(textureType, k, &texturePath);
+				std::string str = texturePath.C_Str();
+				std::replace(begin(str), end(str), '\\', '/');
+				if (j == 1 || j == 12 || j == 16)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Albedo, str));
+				else if (j == 6)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Normal, str));
+				else if (j == 16)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Roughness, str));
+				else if (j == 17)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::AmbientOcclusion, str));
+				else if (j == 15)
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Metalness, str));
+				else
+					tmp->TextureMap.emplace(std::make_pair(TextureType::Unknown, str));
+			}
+		}
+
+		return tmp;
+	}
+
 
 	[[nodiscard]] std::shared_ptr<Mesh> ProcessMeshNode(aiMesh* mesh, const aiScene* scene)
 	{
@@ -133,6 +239,7 @@ namespace SPW
         }
 
     	// TODO Deal with Materials
+		tmp->SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
 
 		return tmp;
 	}
@@ -236,9 +343,32 @@ namespace SPW
 		
 		std::shared_ptr<Model> model = std::make_shared<Model>(ProcessNodes(scene->mRootNode, scene));
 
+		model->SetFilePath(_filePath);
+
+		for(auto& mesh: model->GetMeshes())
+		{
+			for(auto&[k, v] : mesh->GetMaterial()->TextureMap)
+				v = FileSystem::JoinFileRoute(_filePath.parent_path(), v);
+		}
+
 		return model;
 
+
+		// if (scene->HasAnimations()) ProcessAnimationClips(scene->mRootNode, scene);
 	}
+
+	void ResourceManager::LoadTextureScope(bool flip, const std::filesystem::path& filePath, const textureLoadCallback &callback)
+	{
+		stbi_set_flip_vertically_on_load(flip);
+		int width, height, bpp;
+		unsigned char *data = stbi_load(filePath.string().c_str(), &width, &height, &bpp, 0);
+		callback(width, height, bpp, data);
+		if (data) {
+			stbi_image_free(data);
+		}
+	}
+}
+
 
 	[[nodiscard]] std::shared_ptr<AnimationClip> ProcessAnimationNode(aiAnimation* animation, const aiScene* scene)
 	{
