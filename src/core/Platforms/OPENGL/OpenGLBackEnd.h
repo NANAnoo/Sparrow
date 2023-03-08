@@ -9,6 +9,7 @@
 #include "OpenGLIndexBuffer.h"
 #include "OpenGLVertexBuffer.h"
 #include "OpenGLShader.h"
+#include "OpenGLCubeMap.h"
 namespace SPW
 {
 
@@ -32,6 +33,9 @@ namespace SPW
 
         //Texture
         void BindTexture(std::shared_ptr<Shader>shader,std::shared_ptr<Material>material) final;
+        void InitSkyBox() final;
+        void SetSkyBox(std::vector<std::string>& faces) final;
+        void drawSkyBox(glm::mat4& V,glm::mat4& P) final;
 
         //for draw
         std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) final
@@ -57,6 +61,10 @@ namespace SPW
     private:
         
         unsigned int quadVAO, quadVBO;
+        unsigned int skyboxVAO,skyboxVBO;
+        std::shared_ptr<OpenGLCubeMap> cubemapTexture = nullptr;
+
+        std::shared_ptr<Shader> skyShader = nullptr;
     };
 }
 

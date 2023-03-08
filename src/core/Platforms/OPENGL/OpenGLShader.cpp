@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <string>
 
 namespace SPW
 {
@@ -137,21 +138,25 @@ namespace SPW
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
 
-    void OpenGLShader::setDLight(const std::string &name, glm::vec3 color, glm::vec3 direction, float intensity) const
+    void OpenGLShader::setDLight(unsigned int idx, const DLight &light) const
     {
-        std::string n = "DLights["+name+"]";
-        setVec3(name+".color",color);
-        setVec3(name+".direction",direction);
-        setFloat(name+".intensity",intensity);
-
+        std::string name = "DLights["+std::to_string(idx)+"]";
+        setVec3(name+".direction",light.direction);
+        setVec3(name+".ambient",light.ambient);
+        setVec3(name+".diffuse",light.diffuse);
+        setVec3(name+".specular",light.specular);
     }
 
-    void OpenGLShader::setPLight(const std::string &name, glm::vec3 color, glm::vec4 position, float intensity) const
+    void OpenGLShader::setPLight(unsigned int idx, const PLight &light) const
     {
-        std::string n = "PLights["+name+"]";
-        setVec3(name+".color",color);
-        setVec4(name+".direction",position);
-        setFloat(name+".intensity",intensity);
+        std::string name = "PLights["+std::to_string(idx)+"]";
+        setVec3(name+".position",light.position);
+        setVec3(name+".ambient",light.ambient);
+        setVec3(name+".diffuse",light.diffuse);
+        setVec3(name+".specular",light.specular);
+        setFloat(name+".constant",light.constant);
+        setFloat(name+".linear",light.linear);
+        setFloat(name+".quadratic",light.quadratic);
     }
 
 
