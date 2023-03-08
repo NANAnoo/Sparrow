@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include "OpenGLUniformBuffer.h"
 
 namespace SPW
 {
@@ -159,5 +160,12 @@ namespace SPW
         setFloat(name+".quadratic",light.quadratic);
     }
 
+    void OpenGLShader::setUniformBuffer(std::shared_ptr<UniformBuffer> buffer)
+    {
+        buffer->flush();
+        auto ubo = std::dynamic_pointer_cast<OpenGLUBO>(buffer->ubo);
 
+        GLuint idx = glGetUniformBlockIndex(ID, buffer->name.c_str());
+        glUniformBlockBinding(ID, idx, buffer->slot);
+    }
 }

@@ -8,6 +8,7 @@
 #include "OpenGLTextureManager.h"
 #include "OpenGLTexture2D.h"
 #include "OpenGLFrameBuffer.h"
+#include "OpenGLUniformBuffer.h"
 #include "Render/Material.h"
 #include "IO/FileSystem.h"
 #include <fstream>
@@ -280,5 +281,13 @@ namespace SPW
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS);
+    }
+
+    void OpenGLBackEnd::initUniformBuffer(std::shared_ptr<UniformBuffer> ub) {
+        auto ubo = std::make_shared<OpenGLUBO>();
+        ubo->alloc(ub->bufferSize);
+        glBindBufferBase(GL_UNIFORM_BUFFER, ub->slot, ubo->UBO_id);
+        ub->ubo = ubo;
+        ub->flush();
     }
 }

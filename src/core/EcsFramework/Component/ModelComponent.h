@@ -6,6 +6,7 @@
 
 #include "ComponentI.h"
 #include "Model/Model.h"
+#include "Render/RenderCommandsQueue.hpp"
 #include <string>
 #include <unordered_set>
 #include "Utils/UUID.hpp"
@@ -22,5 +23,8 @@ namespace SPW {
         std::shared_ptr<Model> model;
         bool ready = false;
         std::unordered_set<UUID, UUID::hash> bindCameras;
+
+        RenderCommandsQueue<RenderBackEndI> preRenderCommands;
+        RenderCommandsQueue<Shader> pipeLineCommands;
     };
 }
