@@ -35,7 +35,13 @@ namespace SPW{
         void onStop() final;
 
     private:
+
+        void precalculateTransform(AnimationComponent& animationComponent);
+
+
         void updateAnimation(std::string name,float dt,AnimationComponent& animationComponent);
+        void updateFramesWeight(std::string name,float dt,AnimationComponent& animationComponent);
+
         void playAnimation(std::string name,float dt,AnimationComponent& animationComponent);
         void stopAnimation(AnimationComponent& animationComponent);
         void calculateBoneTransform(std::shared_ptr<BoneInfo>bone,
@@ -45,18 +51,21 @@ namespace SPW{
 
         void calcuKeyframeTransform(std::shared_ptr<BoneInfo>bone,
                                     glm::mat4 parrentTransform,
-                                    AnimationComponent& animationComponent);
-        void updateModel();
+                                    AnimationComponent& animationComponent,
+                                    uint32_t index,
+                                    ClipTransform clip);
         void initializeComponent(AnimationComponent& animationComponent,ModelComponent& modelComponent);
-        void vertexBoneMap(AnimationComponent& animationComponent,ModelComponent& modelComponent);
+        void changeMap(AnimationComponent& animationComponent, ModelComponent& modelComponent);
+        void vertexBoneMapping(AnimationComponent& animationComponent,ModelComponent& modelComponent);
 
-        void resetAnim();
 
         std::shared_ptr<BoneInfo> findRootNode(AnimationComponent& animationComponent);
         AnimationNode findAnimationNode(std::string name,std::weak_ptr<AnimationClip> currentAnimation);
         std::shared_ptr<AnimationClip> findAnimation(std::string name,AnimationComponent& animationComponent);
 
         glm::mat4 getUpdatedTransform(AnimationNode node,float currentTime);
+        glm::mat4 getKeyframeTransform(AnimationNode node,int index);
+
         KeyFrame interpolateKeyFrame(float playTime);
         int  getIndexOfCurrentFrame(float playTime);
 
