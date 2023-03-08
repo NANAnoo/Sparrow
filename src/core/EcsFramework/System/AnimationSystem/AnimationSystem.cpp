@@ -32,15 +32,13 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
          auto modelComp = entity.component<SPW::ModelComponent>();
 
          //See if animation component has been initialized
-         //TODO:Perhaps this is already done when the animation component is created?
          if (!animationComp->bInitialized)
             initializeComponent(*animationComp,*modelComp);
         else
         {
 
             //If we need to Switch animation?
-            //TODO:Do we get the name in modelComp? std::string animationName = modelComp->currentAnim
-            std::string animationName = "Walk";
+            std::string animationName = animationComp->incomingAnimName;
             if (animationName.compare(animationName))
             {
                 this->playAnimation(animationName,deltaTime,*animationComp);
@@ -48,13 +46,11 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
             }else{
 
                 //If this animation is played
-                //TODO:These bool could be changed in event responding system
-                if (animationComp->bStarted && !animationComp->bStop)
+                if (animationComp->state == SPW::State::started)
                 {
                     //Get name: std::string animName = modelComp->animName ?
                     this->updateAnimation(animationName,deltaTime,*std::get<0>(animatedEntity));
 
-                    //TODO: Will model be changed in this stage? or it should be done in rendering stage
                     this->updateModel();
 
                 //If we start an animation from stop state
@@ -63,9 +59,7 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
                 }
             }
 
-
-            //TODO:These bool could be changed in event responding system
-            if (animationComp->bStop && !animationComp->bStarted)
+            if (animationComp->state == SPW::State::stopped)
             {
                 //Stop playing animation
                 this->stopAnimation(*animationComp);
@@ -78,6 +72,8 @@ void SPW::AnimationSystem::initializeComponent(AnimationComponent &animationComp
 {
     if(animationComponent.skeleton != nullptr && animationComponent.skeleton->m_animClips.size() != 0)
     {
+
+        //TODO:Precalculate all transform
         animationComponent.finalBoneMatrices.reserve(animationComponent.skeleton->m_Bones.size());
         vertexBoneMap(animationComponent,modelComponent);
         animationComponent.bInitialized = true;
@@ -112,7 +108,6 @@ void SPW::AnimationSystem::vertexBoneMap(AnimationComponent &animationComponent,
 }
 
 
-
 void SPW::AnimationSystem::playAnimation(std::string name, float dt, AnimationComponent &animationComponent)
 {
     std::weak_ptr<AnimationClip> temp = findAnimation(name,animationComponent);
@@ -133,7 +128,7 @@ void SPW::AnimationSystem::playAnimation(std::string name, float dt, AnimationCo
             animationComponent.currentAnimation = temp.lock();
         }
 
-        animationComponent.bStarted = true;
+        animationComponent.state = SPW::State::started;
         temp.reset();
         updateAnimation(name,dt,animationComponent);
     }
@@ -161,12 +156,22 @@ void SPW::AnimationSystem::updateAnimation(std::string name, float dt, Animation
         {
             animationComponent.currentTime = 0.0f;
         }
+
         animationComponent.currentTime = currentTime;
 
         calculateBoneTransform(findRootNode(animationComponent),
                                glm::mat4(1.0f),
                                animationComponent,
                                currentTime);
+
+        //Flatten the matrices
+        if (animationComponent.finalBoneMatrices.size() != 0)
+        {
+            for (auto matrix : animationComponent.finalBoneMatrices)
+            {
+                animationComponent.finalBoneArray.push_back(glm::value_ptr(matrix));
+            }
+        }
     }
 }
 
@@ -185,7 +190,7 @@ void SPW::AnimationSystem::calculateBoneTransform(std::shared_ptr <BoneInfo> bon
                                                   AnimationComponent& animationComponent,
                                                   float currentTime)
 {
-
+    //TODO: Performance optimize
     if (bone == nullptr)
         return;
 
@@ -210,7 +215,6 @@ void SPW::AnimationSystem::calculateBoneTransform(std::shared_ptr <BoneInfo> bon
             calculateBoneTransform(animationComponent.skeleton->m_Bones[i],finalTransfrom,animationComponent,currentTime);
     }
 }
-
 
 float getScaling(float lastTimeStamp,float nextTimeStamp,float currentTime)
 {
@@ -263,9 +267,9 @@ glm::mat4 SPW::AnimationSystem::getUpdatedTransform(AnimationNode node,float cur
 void SPW::AnimationSystem::stopAnimation(AnimationComponent& animationComponent)
 {
     animationComponent.currentTime = 0.0f;
+    animationComponent.finalBoneMatrices.clear();
     animationComponent.currentAnimation.reset();
 }
-
 
 AnimationNode SPW::AnimationSystem::findAnimationNode(std::string name,std::weak_ptr<AnimationClip> currentAnimation)
 {
