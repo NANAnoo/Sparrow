@@ -161,10 +161,10 @@ public:
             listener->emplace<SPW::TransformComponent>();
             listener->emplace<SPW::AudioListener>();
             listener->emplace<SPW::MouseComponent>();
-            listener->component<SPW::TransformComponent>()->position.x = -10;
+            listener->component<SPW::TransformComponent>()->position.z = -10;
             listener->component<SPW::MouseComponent>()->cursorMovementCallBack
                 = [](const SPW::Entity &en, double cursor_x, double cursor_y, double cursor_X_bias, double cursor_Y_bias) {
-                en.component<SPW::TransformComponent>()->rotation.y += cursor_X_bias * 0.02;
+                en.component<SPW::TransformComponent>()->rotation.y += cursor_X_bias;
             };
 
             clip->component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Play);
