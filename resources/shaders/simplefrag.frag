@@ -25,6 +25,11 @@ uniform PLight PLights[10];
 uniform int PLightCount;
 
 
+layout (std140) uniform TestUbo
+{
+    vec4 color;
+} test;
+
 in vec2 TexCoords;
 in vec3 normal;
 in vec4 position;
@@ -42,5 +47,5 @@ void main()
         BP_scale += BlinnPhong_D(norm, vec3(position), camPos, DLights[i],
                             diffusion, lambertin, shininess, specularPower);
     }                      
-    FragColor = vec4(BP_scale, 1.f) * texture(albedoMap, TexCoords);
+    FragColor = vec4(BP_scale, 1.f) * test.color * texture(albedoMap, TexCoords);
 }

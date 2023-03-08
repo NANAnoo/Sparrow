@@ -9,10 +9,11 @@
 #include "RenderCommandsQueue.hpp"
 
 namespace SPW{
+    template <class API>
     class RenderPass {
     public:
         RenderPass() {
-            queue = std::make_shared<RenderCommandsQueue>();
+            queue = std::make_shared<RenderCommandsQueue<API>>();
         }
         RenderPass(RenderPass &&other) noexcept {
             queue = other.queue;
@@ -20,14 +21,14 @@ namespace SPW{
         RenderPass(const RenderPass &other) {
             queue = other.queue;
         }
-        void pushCommand(RenderCommand &&command) {
+        void pushCommand(RenderCommand<API> &&command) {
             queue->pushCommand(std::move(command));
         }
-        void executeWithAPI(std::shared_ptr<RenderBackEndI> &backEnd) {
-            queue->executeWithAPI(backEnd);
+        void executeWithAPI(std::shared_ptr<API> &api) {
+            queue->executeWithAPI(api);
         }
     private:
-        std::shared_ptr<RenderCommandsQueue> queue;
+        std::shared_ptr<RenderCommandsQueue<API>> queue;
     };
 }
 

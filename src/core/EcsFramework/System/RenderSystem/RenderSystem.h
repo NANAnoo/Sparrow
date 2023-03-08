@@ -41,7 +41,7 @@ namespace SPW {
         // events
         const char *getName() override {return "SPW_RENDER_SYSTEM";}
         bool onFrameResize(int w, int h) override;
-        RenderPass postProcessPass;
+        RenderPass<RenderBackEndI> postProcessPass;
 
     private:
         void renderModelsWithCamera(const RenderCamera &camera,glm::mat4& View,glm::mat4& Pro);

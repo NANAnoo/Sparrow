@@ -37,6 +37,9 @@ namespace SPW
         void SetSkyBox(std::vector<std::string>& faces) final;
         void drawSkyBox(glm::mat4& V,glm::mat4& P) final;
 
+        // uniform buffer
+        void initStorageBuffer(std::shared_ptr<StorageBuffer> ub) final;
+
         //for draw
         std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) final
         {

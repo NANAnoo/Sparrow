@@ -14,7 +14,7 @@
 #include <glm/glm/gtx/euler_angles.hpp>
 #include <string>
 
-std::shared_ptr<SPW::FrameBuffer> frameBuffer;
+
 void SPW::RenderSystem::initial()
 {
     renderBackEnd->Init();
@@ -121,6 +121,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                     modelCom->model->setUpModel(renderBackEnd);
                     modelCom->ready = true;
                 }
+                modelCom->preRenderCommands.executeWithAPI(renderBackEnd);
                 renderModels.push_back(en);
             }
     });
@@ -233,6 +234,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 M = glm::scale(M, transformCom->scale);
 
                 shader->SetUniformValue<glm::mat4>("M", M);
+                modelCom->pipeLineCommands.executeWithAPI(shader);
                 modelCom->model->Draw(renderBackEnd, handle);
             }
         }

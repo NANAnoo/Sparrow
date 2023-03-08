@@ -355,7 +355,7 @@ namespace SPW
 		return model;
 
 
-		// if (scene->HasAnimations()) ProcessAnimationClips(scene->mRootNode, scene);
+		//if (scene->HasAnimations()) ProcessAnimationClips(scene->mRootNode, scene);
 	}
 
 	void ResourceManager::LoadTextureScope(bool flip, const std::filesystem::path& filePath, const textureLoadCallback &callback)

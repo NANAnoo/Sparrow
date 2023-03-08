@@ -13,6 +13,7 @@
 #include <utility>
 
 #include "Light.h"
+#include "StorageBuffer.h"
 
 namespace SPW
 {
@@ -57,6 +58,7 @@ namespace SPW
         virtual void setMat4(const std::string& name, glm::mat4 mat) const = 0;
         virtual void setDLight(unsigned int idx, const DLight &light) const = 0;
         virtual void setPLight(unsigned int idx, const PLight &light) const = 0;
+        virtual void setStorageBuffer(std::shared_ptr<StorageBuffer> uniformBuffer) = 0;
     };
 
     struct ShaderHandle {
