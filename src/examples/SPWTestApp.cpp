@@ -42,7 +42,6 @@
 
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/AudioSystem/AudioSystem.h"
-#include "EcsFramework/System/AudioSystem/AudioListenerSystem.h"
 
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
@@ -156,30 +155,30 @@ public:
             std::vector<std::string> soundPaths = {
                     "./resources/sounds/test.wav"
             };
-            auto aSource = clip->emplace<SPW::AudioComponent>(soundPaths);
-
+            clip->emplace<SPW::AudioComponent>(soundPaths);
             //add a Audio Listener
             auto listener = scene->createEntity("Listener");
             listener->emplace<SPW::TransformComponent>();
             listener->emplace<SPW::AudioListener>();
+            listener->emplace<SPW::MouseComponent>();
+            listener->component<SPW::TransformComponent>()->position.x = -10;
+            listener->component<SPW::MouseComponent>()->cursorMovementCallBack
+                = [](const SPW::Entity &en, double cursor_x, double cursor_y, double cursor_X_bias, double cursor_Y_bias) {
+                en.component<SPW::TransformComponent>()->rotation.y += cursor_X_bias * 0.02;
+            };
 
-            clip->component<SPW::AudioComponent>()->setState("./resources/sounds/test.wav", SPW::Play);
-            clip->component<SPW::AudioComponent>()->setLoop("./resources/sounds/test.wav", true);
-            clip->component<SPW::AudioComponent>()->set3D("./resources/sounds/test.wav", false);
+            clip->component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Play);
+            clip->component<SPW::AudioComponent>()->setLoop(soundPaths[0], true);
+            clip->component<SPW::AudioComponent>()->set3D(soundPaths[0], true);
 
             auto keyCom =  clip->emplace<SPW::KeyComponent>();
-            keyCom->onKeyDownCallBack = [&soundPaths](const SPW::Entity& e, int keycode) {
+            keyCom->onKeyDownCallBack = [soundPaths](const SPW::Entity& e, int keycode) {
                 if (keycode == static_cast<int>(SPW::KeyCode::Space)) {
-                    // TODO: 更改音频时 管理对象生命周期, 使用一个音频资源管理器管理音频对象
-                    // TODO: (private) state {start, pause, continue, stop}, getState(){return state;}, setState(){//TODO 控制状态};
-                    // TODO: isLoop;
-                    // TODO: 调研FMOD 支持的音频格式
-                    e.component<SPW::AudioComponent>()->setState("./resources/sounds/goodLuck.wav", SPW::Pause);
-                    e.component<SPW::AudioComponent>()->setLoop("./resources/sounds/goodLuck.wav", false);
+                    e.component<SPW::AudioComponent>()->setLoop(soundPaths[0], false);
+                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Pause);
                 }
                 if(keycode == static_cast<int>(SPW::KeyCode::LeftShift)){
-
-                    e.component<SPW::AudioComponent>()->setState("./resources/sounds/goodLuck.wav", SPW::Continue);
+                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Continue);
                 }
             };
 

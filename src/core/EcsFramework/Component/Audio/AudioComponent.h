@@ -34,6 +34,9 @@ namespace SPW
         }
         void pause() {
             if (chan) {
+                FMOD_MODE mode = is3D ? FMOD_3D : FMOD_2D;
+                mode |= isLoop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
+                chan->setMode(mode);
                 chan->setPaused(true);
                 shouldUpdate = false;
             }
@@ -94,15 +97,23 @@ namespace SPW
             }
         };
         void set3D(const std::string &path, bool enable) {
-            allSounds[path]->is3D = enable;
+            if (allSounds.find(path) != allSounds.end())
+                allSounds[path]->is3D = enable;
         }
         void setLoop(const std::string &path, bool enable) {
-            allSounds[path]->isLoop = enable;
+            if (allSounds.find(path) != allSounds.end())
+                allSounds[path]->isLoop = enable;
         }
         std::unordered_map<std::string, std::shared_ptr<SPWSound>> allSounds;
-        SoundState getState(const std::string &path) {return allSounds[path]->state;}
+        SoundState getState(const std::string &path) {
+            if (allSounds.find(path) != allSounds.end())
+                return allSounds[path]->state;
+            else
+                return Stop;
+        }
         void setState(const std::string &path, SoundState s) {
-            allSounds[path]->setState(s);
+            if (allSounds.find(path) != allSounds.end())
+                allSounds[path]->setState(s);
         }
     };
 

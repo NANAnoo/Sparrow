@@ -19,12 +19,7 @@ namespace SPW
     public:
         AudioListener() = default;
 
-        unsigned int Listener_id;
-
-
-
-
-
+        int Listener_id;
 
     };
 
