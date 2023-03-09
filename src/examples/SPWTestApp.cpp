@@ -40,7 +40,8 @@
 #include "SimpleRender.h"
 #include "IO/ResourceManager.h"
 #include "Model/Model.h"
-
+#include <glm/glm/ext.hpp>
+#include <glm/glm/gtx/euler_angles.hpp>
 
 std::shared_ptr<SPW::Model> createModel() {
     return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
@@ -101,7 +102,7 @@ public:
     void onAppInit() final {
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
-        app->window->setSize(800, 600);
+        app->window->setSize(1280, 720);
         app->window->setTitle("SPWTestApp");
 
         transformer = std::make_shared<Transformer>(app->delegate.lock());
@@ -144,18 +145,33 @@ public:
             auto cameraKey = camera->emplace<SPW::KeyComponent>();
             auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode){
                 auto mainCameraTrans = e.component<SPW::TransformComponent>();
+                auto rotMat = glm::eulerAngleYXZ(glm::radians(mainCameraTrans->rotation.y),
+                                   glm::radians(mainCameraTrans->rotation.x),
+                                   glm::radians(mainCameraTrans->rotation.z));
+                glm::vec4 front = {0, 0, -1, 0};
+                front = rotMat * front;
+                glm::vec3 forward = {front.x, 0, front.z};
+                forward = glm::normalize(forward);
+                glm::vec3 up = {0, 1, 0};
+                glm::vec3 right = glm::normalize(glm::cross(forward, up));
                 if(keycode == SPW::Key::W)
-                    mainCameraTrans->position.z-=0.01f;
+                    mainCameraTrans->position +=0.001f * forward;
                 if(keycode == SPW::Key::S)
-                    mainCameraTrans->position.z+=0.01f;
+                    mainCameraTrans->position -=0.001f * forward;
                 if(keycode == SPW::Key::A)
-                    mainCameraTrans->position.x-=0.01f;
+                    mainCameraTrans->position -=0.001f * right;
                 if(keycode == SPW::Key::D)
-                    mainCameraTrans->position.x+=0.01f;
+                    mainCameraTrans->position +=0.001f * right;
                 if(keycode == SPW::Key::Q)
-                    mainCameraTrans->position.y-=0.01f;
+                    mainCameraTrans->position -=0.001f * up;
                 if(keycode == SPW::Key::E)
-                    mainCameraTrans->position.y+=0.01f;
+                    mainCameraTrans->position +=0.001f * up;
+            };
+            auto mouse = camera->emplace<SPW::MouseComponent>();
+            mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
+                auto transform = e.component<SPW::TransformComponent>();
+                transform->rotation.x += y_pos_bias * 0.02;
+                transform->rotation.y += x_pos_bias * 0.1 ;
             };
             cameraKey->onKeyHeldCallBack = cb;
             cameraKey->onKeyDownCallBack = cb;
@@ -164,6 +180,8 @@ public:
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.5, 0.5, 0.5};
+            transform->rotation = {-90, 90, 0};
+            transform->position = {0, -0.3, 0};
 
             //add a key component for testing, press R to rotate
             auto key = obj->emplace<SPW::KeyComponent>();
@@ -172,16 +190,6 @@ public:
                     transform->rotation.y += 5.0f;
             };
 
-            //add a mouse component for testing, press left button to rotate, scroll to scale
-            auto mouse = obj->emplace<SPW::MouseComponent>();
-            mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
-                auto transform = e.component<SPW::TransformComponent>();
-                transform->rotation.x += y_pos_bias;
-                transform->rotation.y += x_pos_bias;
-
-                // transform->position.x = x_pos;
-                // transform->position.y = y_pos;
-            };
             mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
                 auto transform = e.component<SPW::TransformComponent>();
                 
@@ -205,8 +213,8 @@ public:
             auto lightTrans =light->emplace<SPW::TransformComponent>();
             auto lightCom = light->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
             lightCom->ambient = {0.2, 0.2, 0.2};
-            lightCom->diffuse = {1, 0, 0};
-            lightCom->specular = {1, 0, 0};
+            lightCom->diffuse = {1, 1, 0};
+            lightCom->specular = {1, 1, 0};
             lightTrans->rotation = {0, 60, 0};
 
             // add light 2
@@ -214,8 +222,8 @@ public:
             auto lightTrans2 =light2->emplace<SPW::TransformComponent>();
             auto lightCom2 = light2->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
             lightCom2->ambient = {0.2, 0.2, 0.2};
-            lightCom2->diffuse = {0, 0, 1};
-            lightCom2->specular = {0, 0, 1};
+            lightCom2->diffuse = {0, 1, 1};
+            lightCom2->specular = {0, 1, 1};
             lightTrans2->rotation = {0, -60, 0};
 
             // init scene

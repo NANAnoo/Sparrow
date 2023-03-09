@@ -54,6 +54,7 @@ namespace SPW {
         WindowMeta data = {"", 0, 0, nullptr};
 
         std::function<void(GLFWwindow *handle)> windowCreatedCallback;
+        std::unordered_set<int> downKeys;
     };
 }
 
