@@ -67,6 +67,22 @@ namespace SPW
                 state = s;
             }
         }
+        void update() {
+            if (state == SoundState::Play || state == SoundState::Continue) {
+                if (!chan) {
+                    state = Stop;
+                    shouldUpdate = false;
+                    return;
+                }
+                bool play = false;
+                chan->isPlaying(&play);
+                if (!play) {
+                    state = Stop;
+                    shouldUpdate = false;
+                }
+            }
+        }
+
         void setPos(float x, float y, float z) {
             if (is3D && chan) {
                 FMOD_VECTOR pos = {x, y, z};

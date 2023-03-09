@@ -182,6 +182,12 @@ public:
                 if(keycode == SPW::KeyCode::LeftShift){
                     e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Continue);
                 }
+                if(keycode == SPW::KeyCode::P){
+                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Play);
+                }
+                if(keycode == SPW::KeyCode::O){
+                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Stop);
+                }
             };
 
             // add a camera entity

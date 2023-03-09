@@ -56,13 +56,8 @@ namespace SPW {
     }
 
     FMOD::Channel* AudioSystem::playSound(const std::string &path, bool is3D, bool isLoop) {
-        FMOD_MODE mode = FMOD_2D;
-        if (is3D) {
-            mode = FMOD_3D;
-        }
-        if (isLoop) {
-            mode |= FMOD_LOOP_NORMAL;
-        }
+        FMOD_MODE mode = is3D ? FMOD_3D : FMOD_2D;
+        mode |= isLoop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
         if (soundData.find(path) == soundData.end()) {
             // lazy load
             FMOD::Sound *newSound = nullptr;
@@ -109,6 +104,7 @@ namespace SPW {
                                     break;
                             }
                         }
+                        sound->update();
                         sound->setPos(tc->position.x, tc->position.y, tc->position.z);
                     }
                 });
