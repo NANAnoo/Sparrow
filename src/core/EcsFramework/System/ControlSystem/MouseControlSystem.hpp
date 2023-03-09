@@ -2,8 +2,10 @@
 // Created by 29134 on 2023/2/26.
 //
 #pragma once
+#include "EcsFramework/Scene.hpp"
 #include "Control/MouseEvent.hpp"
 #include "EcsFramework/System/SystemI.h"
+#include "EcsFramework/Component/MouseComponent.hpp"
 
 namespace SPW {
     class MouseControlSystem : public SPW::MouseEventResponder, public SPW::SystemI{

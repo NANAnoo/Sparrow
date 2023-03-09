@@ -3,7 +3,9 @@
 //
 #pragma once
 #include "Control/KeyEvent.hpp"
+#include "EcsFramework/Scene.hpp"
 #include "EcsFramework/System/SystemI.h"
+#include "EcsFramework/Component/KeyComponent.hpp"
 
 namespace SPW {
     class KeyControlSystem :public SPW::KeyEventResponder, public SPW::SystemI{

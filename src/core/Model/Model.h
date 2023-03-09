@@ -13,6 +13,7 @@
 
 #include "Model/Mesh.h"
 #include "Render/RenderBackEndI.h"
+#include "Render/shader.h"
 #include "iostream"
 
 namespace SPW
@@ -74,10 +75,11 @@ namespace SPW
         void AddMesh(std::shared_ptr<Mesh> _mesh) { m_Meshes.emplace_back(std::move(_mesh)); }
 
         // draws the model, and thus all its meshes
-        void Draw(std::shared_ptr<RenderBackEndI> &renderBackEnd)
+        void Draw(std::shared_ptr<RenderBackEndI> &renderBackEnd,  const ShaderHandle& handle)
         {
             for (auto & mesh : m_Meshes)
             {
+                mesh->setShader(renderBackEnd, handle);
                 mesh->Draw(renderBackEnd);
             }
         }

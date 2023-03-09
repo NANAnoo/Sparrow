@@ -4,6 +4,8 @@
 #include <memory>
 #include <sol/sol.hpp>
 
+#include "EcsFramework/Component/LightComponent.hpp"
+#include "EcsFramework/Entity/Entity.hpp"
 #include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
@@ -110,7 +112,7 @@ public:
     void onAppInit() final {
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
-        app->window->setSize(1600, 900);
+        app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
 
         transformer = std::make_shared<Transformer>(app->delegate.lock());
@@ -135,14 +137,14 @@ public:
 
             // add system
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->width(), weak_window.lock()->height()));
+            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight()));
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
-            auto camTran = camera->emplace<SPW::TransformComponent>();
-            camTran->position = {0, 0.5, 0};
+            auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
+            mainCameraTrans->position = glm::vec4(0.0f,0.0f,0.0f,1.0f);
             auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
             cam->fov = 60;
             cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
@@ -172,12 +174,12 @@ public:
             clip->component<SPW::AudioComponent>()->set3D(soundPaths[0], true);
 
             auto keyCom =  clip->emplace<SPW::KeyComponent>();
-            keyCom->onKeyDownCallBack = [soundPaths](const SPW::Entity& e, int keycode) {
-                if (keycode == static_cast<int>(SPW::KeyCode::Space)) {
+            keyCom->onKeyDownCallBack = [soundPaths](const SPW::Entity& e, SPW::KeyCode keycode) {
+                if (keycode == SPW::KeyCode::Space) {
                     e.component<SPW::AudioComponent>()->setLoop(soundPaths[0], false);
                     e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Pause);
                 }
-                if(keycode == static_cast<int>(SPW::KeyCode::LeftShift)){
+                if(keycode == SPW::KeyCode::LeftShift){
                     e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Continue);
                 }
             };
@@ -194,22 +196,41 @@ public:
             cam2->far = 100;
 
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
-            SPW::UUID camera_id_2 = camera2->component<SPW::IDComponent>()->getID();
+            cam->whetherMainCam = true;
+            //add a key component for testing, press R to rotate
+            auto cameraKey = camera->emplace<SPW::KeyComponent>();
+            auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode){
+                auto mainCameraTrans = e.component<SPW::TransformComponent>();
+                if(keycode == SPW::Key::W)
+                    mainCameraTrans->position.z-=0.01f;
+                if(keycode == SPW::Key::S)
+                    mainCameraTrans->position.z+=0.01f;
+                if(keycode == SPW::Key::A)
+                    mainCameraTrans->position.x-=0.01f;
+                if(keycode == SPW::Key::D)
+                    mainCameraTrans->position.x+=0.01f;
+                if(keycode == SPW::Key::Q)
+                    mainCameraTrans->position.y-=0.01f;
+                if(keycode == SPW::Key::E)
+                    mainCameraTrans->position.y+=0.01f;
+            };
+            cameraKey->onKeyHeldCallBack = cb;
+            cameraKey->onKeyDownCallBack = cb;
 
             // add a test game object
-            auto triangle = scene->createEntity("test");
-            auto transform = triangle->emplace<SPW::TransformComponent>();
+            auto obj = scene->createEntity("test");
+            auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.5, 0.5, 0.5};
 
             //add a key component for testing, press R to rotate
-            auto key = triangle->emplace<SPW::KeyComponent>();
-            key->onKeyHeldCallBack = [transform](const SPW::Entity& e, int keycode){
-                if(keycode == static_cast<int>(SPW::Key::R))
+            auto key = obj->emplace<SPW::KeyComponent>();
+            key->onKeyHeldCallBack = [transform](const SPW::Entity& e, SPW::KeyCode keycode){
+                if(keycode == SPW::Key::R)
                     transform->rotation.y += 5.0f;
             };
 
             //add a mouse component for testing, press left button to rotate, scroll to scale
-            auto mouse = triangle->emplace<SPW::MouseComponent>();
+            auto mouse = obj->emplace<SPW::MouseComponent>();
             mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
                 auto transform = e.component<SPW::TransformComponent>();
                 transform->rotation.x += y_pos_bias;
@@ -217,16 +238,11 @@ public:
             };
             mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
                 auto transform = e.component<SPW::TransformComponent>();
-                
-                double exp = std::exp((double(scroll_offset)));
-
-                transform->scale.x *= exp;
-                transform->scale.y *= exp;
-                transform->scale.z *= exp;
+                transform->position.z += scroll_offset * 0.1;
             };
 
             // add a model to show
-            auto model = triangle->emplace<SPW::ModelComponent>(camera_id);
+            auto model = obj->emplace<SPW::ModelComponent>(camera_id);
             //model->bindCameras.insert(camera_id_2);
             SPW::ShaderHandle shaderHandle({
                                          "basic",
@@ -236,6 +252,24 @@ public:
 
             model->modelProgram = shaderHandle;
             model->model = createModel();
+
+            // add light 1
+            auto light = scene->createEntity("light");
+            auto lightTrans =light->emplace<SPW::TransformComponent>();
+            auto lightCom = light->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            lightCom->ambient = {0.2, 0.2, 0.2};
+            lightCom->diffuse = {1, 0, 0};
+            lightCom->specular = {1, 0, 0};
+            lightTrans->rotation = {0, 60, 0};
+
+            // add light 2
+            auto light2 = scene->createEntity("light2");
+            auto lightTrans2 =light2->emplace<SPW::TransformComponent>();
+            auto lightCom2 = light2->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            lightCom2->ambient = {0.2, 0.2, 0.2};
+            lightCom2->diffuse = {0, 0, 1};
+            lightCom2->specular = {0, 0, 1};
+            lightTrans2->rotation = {0, -60, 0};
 
             // init scene
             scene->initial();

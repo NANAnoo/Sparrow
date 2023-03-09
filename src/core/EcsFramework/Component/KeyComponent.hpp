@@ -3,14 +3,17 @@
 //
 #pragma once
 #include "ComponentI.h"
+#include <functional>
 
+#include "../Entity/Entity.hpp"
+#include "Control/KeyCodes.h"
 namespace SPW {
 
     class KeyComponent : public ComponentI {
     public:
-        std::function<void(const SPW::Entity& e, int keycode)> onKeyDownCallBack;
-        std::function<void(const SPW::Entity& e, int keycode)> onKeyHeldCallBack;
-        std::function<void(const SPW::Entity& e, int keycode)> onKeyReleasedCallBack;
+        std::function<void(const SPW::Entity& e, KeyCode keycode)> onKeyDownCallBack;
+        std::function<void(const SPW::Entity& e, KeyCode keycode)> onKeyHeldCallBack;
+        std::function<void(const SPW::Entity& e, KeyCode keycode)> onKeyReleasedCallBack;
     };
 
 }

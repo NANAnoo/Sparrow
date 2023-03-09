@@ -6,12 +6,13 @@
 #define SPARROW_KEYEVENT_HPP
 
 #include "Event/Event.h"
+#include "KeyCodes.h"
 
 namespace SPW {
     class KeyEvent : public EventI {
     public:
-        int keycode;
-        explicit KeyEvent(EventType type, int code):_type(type), keycode(code) {}
+        KeyCode keycode;
+        explicit KeyEvent(EventType type, KeyCode code):_type(type), keycode(code) {}
         EventCategory category() final {return EventCategory::KeyCategory;}
         EventType type() final {return _type;}
     private:

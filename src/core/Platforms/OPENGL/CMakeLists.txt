@@ -12,4 +12,5 @@ CORE_ADD_SOURCE(
         OpenGLTexture2D.h
         OpenGLFrameBuffer.h
         OpenGLFrameBuffer.cpp
+        OpenGLCubeMap.h
 )
