@@ -18,8 +18,8 @@ namespace SPW {
     template <Component ...components>
     struct ComponentGroup
     {
-
     };
+
 }
 
 #endif //SPARROW_COMPONENT_I_H

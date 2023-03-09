@@ -6,7 +6,7 @@
 #define SPARROW_NAMECOMPONENT_H
 
 #include "../ComponentI.h"
-
+#include <iostream>
 #include <string>
 
 namespace SPW {
@@ -15,6 +15,7 @@ namespace SPW {
     public:
         NameComponent() {
             name = "Unknown";
+            std::cout<< name << std::endl;
         };
         explicit NameComponent(const std::string &aName) {
             name = aName;
