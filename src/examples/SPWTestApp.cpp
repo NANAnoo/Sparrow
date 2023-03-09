@@ -9,6 +9,9 @@
 #include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
@@ -23,8 +26,12 @@
 #include "EcsFramework/Component/ModelComponent.h"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+
+#include "EcsFramework/Component/Audio/AudioComponent.h"
+#include "EcsFramework/Component/Audio/AudioListener.h"
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
+
 
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
@@ -33,6 +40,10 @@
 #include "Model/Model.h"
 
 #include "Utils/UUID.hpp"
+
+
+#include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "EcsFramework/System/AudioSystem/AudioSystem.h"
 
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
@@ -125,6 +136,7 @@ public:
             scene = SPW::Scene::create(app->delegate.lock());
 
             // add system
+            scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight()));
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
@@ -138,6 +150,57 @@ public:
             cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
             cam->near = 0.01;
             cam->far = 100;
+
+            //add a AudioSource Entity
+            auto clip = scene->createEntity("AuidoSource");
+            clip->emplace<SPW::TransformComponent>();
+            std::vector<std::string> soundPaths = {
+                    "./resources/sounds/test.wav"
+            };
+            clip->emplace<SPW::AudioComponent>(soundPaths);
+            //add a Audio Listener
+            auto listener = scene->createEntity("Listener");
+            listener->emplace<SPW::TransformComponent>();
+            listener->emplace<SPW::AudioListener>();
+            listener->emplace<SPW::MouseComponent>();
+            listener->component<SPW::TransformComponent>()->position.z = -10;
+            listener->component<SPW::MouseComponent>()->cursorMovementCallBack
+                = [](const SPW::Entity &en, double cursor_x, double cursor_y, double cursor_X_bias, double cursor_Y_bias) {
+                en.component<SPW::TransformComponent>()->rotation.y += cursor_X_bias;
+            };
+
+            clip->component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Play);
+            clip->component<SPW::AudioComponent>()->setLoop(soundPaths[0], true);
+            clip->component<SPW::AudioComponent>()->set3D(soundPaths[0], true);
+
+            auto keyCom =  clip->emplace<SPW::KeyComponent>();
+            keyCom->onKeyDownCallBack = [soundPaths](const SPW::Entity& e, SPW::KeyCode keycode) {
+                if (keycode == SPW::KeyCode::Space) {
+                    e.component<SPW::AudioComponent>()->setLoop(soundPaths[0], false);
+                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Pause);
+                }
+                if(keycode == SPW::KeyCode::LeftShift){
+                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Continue);
+                }
+                if(keycode == SPW::KeyCode::P){
+                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Play);
+                }
+                if(keycode == SPW::KeyCode::O){
+                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Stop);
+                }
+            };
+
+            // add a camera entity
+            auto camera2 = scene->createEntity("main camera");
+            auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
+            cam2_tran->position.y = 0.3;
+            cam2_tran->rotation.z = 90;
+            auto cam2 = camera2->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+            cam2->fov = 75;
+            cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
+            cam2->near = 0.01;
+            cam2->far = 100;
+
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
             cam->whetherMainCam = true;
             //add a key component for testing, press R to rotate
@@ -178,13 +241,9 @@ public:
                 auto transform = e.component<SPW::TransformComponent>();
                 transform->rotation.x += y_pos_bias;
                 transform->rotation.y += x_pos_bias;
-
-                // transform->position.x = x_pos;
-                // transform->position.y = y_pos;
             };
             mouse->onMouseScrollCallBack = [](const SPW::Entity& e, double scroll_offset){
                 auto transform = e.component<SPW::TransformComponent>();
-                
                 transform->position.z += scroll_offset * 0.1;
             };
 
@@ -227,7 +286,9 @@ public:
         scene->beforeUpdate();
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
+
         // physics, computation
+
         scene->onUpdate(du);
     }
 
