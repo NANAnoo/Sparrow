@@ -60,7 +60,8 @@ namespace SPW{
                                     ClipTransform clip);
         void initializeComponent(AnimationComponent& animationComponent,ModelComponent& modelComponent);
         void changeMap(AnimationComponent& animationComponent, ModelComponent& modelComponent);
-        void vertexBoneMapping(AnimationComponent& animationComponent,ModelComponent& modelComponent);
+        void vertexBoneMapping(AnimationComponent &animationComponent, ModelComponent &modelComponent,
+                               std::vector<VerMapBone> map);
 
 
         std::shared_ptr<BoneInfo> findRootNode(AnimationComponent& animationComponent);

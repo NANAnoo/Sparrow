@@ -37,7 +37,6 @@ namespace SPW {
         std::shared_ptr<StorageBuffer> mats;
     };
 
-    //
     struct AnimationClipTransform
     {
         ClipTransform finalKeyframeMatrices;
@@ -91,21 +90,17 @@ namespace SPW {
         AnimBufferInfo bufferInfo;
         AnimationClipSSBO current_clip;
 
-
         //Won't use
-//        std::vector<glm::mat4> finalBoneMatrices;
-//        std::vector<float*> finalBoneArray;
-//
+//       std::vector<glm::mat4> finalBoneMatrices;
+//       std::vector<float*> finalBoneArray;
+
         int indices [2];
         float frameWeights[2];
 
         // Used to
-        std::vector<VerMapBone> verMapBone;
         AnimBufferInfo vertexBoneMap;
 
     };
-
-
 }
 
 #endif //SPARROW_ANIMATIONCOMPONENT_H

@@ -242,7 +242,7 @@ void SPW::AnimationSystem::initializeComponent(AnimationComponent &animationComp
         //animationComponent.finalBoneMatrices.reserve(animationComponent.skeleton->m_Bones.size());
 
         changeMap(animationComponent, modelComponent);
-        vertexBoneMapping(animationComponent,modelComponent);
+
         animationComponent.bInitialized = true;
     }
 }
@@ -253,12 +253,13 @@ void SPW::AnimationSystem::changeMap(AnimationComponent &animationComponent, Mod
     //Get number of vertices
     std::weak_ptr<Model> model = modelComponent.model;
     unsigned int numVertex = 0;
+    std::vector<VerMapBone> verMapBone;
     for(std::weak_ptr<Mesh> mesh : model.lock()->GetMeshes())
     {
         numVertex+=mesh.lock()->vertices.size();
     }
 
-    animationComponent.verMapBone.reserve(numVertex);
+    verMapBone.reserve(numVertex);
 
     for(std::weak_ptr<BoneInfo> boneInfo : animationComponent.skeleton->m_Bones)
     {
@@ -268,23 +269,25 @@ void SPW::AnimationSystem::changeMap(AnimationComponent &animationComponent, Mod
             uint32_t boneID = boneInfo.lock()->boneID;
             float value = weight.value;
 
-            animationComponent.verMapBone[vertexID].boneID.push_back(boneID);
-            animationComponent.verMapBone[vertexID].weight.push_back(value);
+            verMapBone[vertexID].boneID.push_back(boneID);
+            verMapBone[vertexID].weight.push_back(value);
         }
     }
+    vertexBoneMapping(animationComponent, modelComponent, verMapBone);
 }
 
-void SPW::AnimationSystem::vertexBoneMapping(AnimationComponent &animationComponent, ModelComponent &modelComponent)
+void SPW::AnimationSystem::vertexBoneMapping(AnimationComponent &animationComponent, ModelComponent &modelComponent,
+                                             std::vector<VerMapBone> verMapBone)
 {
     //Get number of vertices
-    animationComponent.vertexBoneMap.startIndex.reserve(animationComponent.verMapBone.size());
+    animationComponent.vertexBoneMap.startIndex.reserve(verMapBone.size());
 
     //For every vertex
     int startIndex = 0;
-    for (int i = 0; i < animationComponent.verMapBone.size(); ++i)
+    for (int i = 0; i < verMapBone.size(); ++i)
     {
 
-        auto temp = animationComponent.verMapBone[i];
+        auto temp = verMapBone[i];
         animationComponent.vertexBoneMap.startIndex.push_back(startIndex);
 
         for (int j = 0; j < temp.boneID.size(); j++)

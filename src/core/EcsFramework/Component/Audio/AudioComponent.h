@@ -121,6 +121,7 @@ namespace SPW
                 allSounds[path]->isLoop = enable;
         }
         std::unordered_map<std::string, std::shared_ptr<SPWSound>> allSounds;
+
         SoundState getState(const std::string &path) {
             if (allSounds.find(path) != allSounds.end())
                 return allSounds[path]->state;
