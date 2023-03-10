@@ -26,6 +26,12 @@ namespace SPW {
         }
         int width() override {return data.width;}
         int height() override {return data.height;}
+        int frameWidth() override {
+            return fWidth;
+        }
+        int frameHeight() override {
+            return fHeight;
+        }
         void setSize(int w, int h) override {
             data.width = w;
             data.height = h;
@@ -43,9 +49,12 @@ namespace SPW {
         std::shared_ptr<GraphicsContext> graphicsContext;
     private:
         GLFWwindow *window = nullptr;
+        int fWidth;
+        int fHeight;
         WindowMeta data = {"", 0, 0, nullptr};
 
         std::function<void(GLFWwindow *handle)> windowCreatedCallback;
+        std::unordered_set<int> downKeys;
     };
 }
 

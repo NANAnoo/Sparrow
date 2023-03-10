@@ -12,5 +12,5 @@ CORE_ADD_SOURCE(
         RenderPass.hpp
         Material.h
         FrameBuffer.h
-
+        Light.h
 )

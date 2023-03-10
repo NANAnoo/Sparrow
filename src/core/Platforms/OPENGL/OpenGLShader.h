@@ -33,8 +33,8 @@ namespace SPW
         void setMat2(const std::string& name, glm::mat2 mat) const final;
         void setMat3(const std::string& name, glm::mat3 mat) const final;
         void setMat4(const std::string& name, glm::mat4 mat) const final;
-        void setDLight(const std::string& name,glm::vec3 color,glm::vec3 direction ,float intensity) const final;
-        void setPLight(const std::string& name,glm::vec3 color,glm::vec4 position ,float intensity) const final;
+        void setDLight(unsigned int idx, const DLight &light) const final;
+        void setPLight(unsigned int idx, const PLight &light) const final;
     public:
         unsigned int ID;
         std::string m_name;
