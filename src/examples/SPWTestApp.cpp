@@ -58,11 +58,36 @@
 
 
 std::shared_ptr<SPW::Model> createModel() {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/TestCharacter/dance.fbx");
-}
+  /*
+     * Animation Test:
+     * 1. Bones
+     * 2. Animation Clips
+     * TODO: Pointial Problems:
+     * 1. fbx 读不出权重和父子关系，gltf都可以。 建议尽量使用gltf模型，如果是一定要用的模型，建议在导入工程之前增加一步blender操作。
+     * 2. 骨骼父子关系按照aibone in assimp 的方式读， aibone在一个mesh里面，导致读出来的骨骼根节点，是当前mesh的根节点。
+     * 3. weight关系（已在沙盒实现vertex[BoneSlot<4>, weight<4>]映射关系）。
+     * */
+  auto animInstance = SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/mantis/scene.gltf");
 
-std::shared_ptr<SPW::Skeleton> createAnimation() {
-    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/TestCharacter/dance.fbx");
+  for(const auto& bone: animInstance->m_Bones)
+  {
+    std::cout <<"BoneName" << bone->name << std::endl;
+  }
+
+  for(const auto& clip: animInstance->m_animClips)
+  {
+    std::cout <<"Animation Clip Name" << clip->name << std::endl;
+    std::cout <<"Animation Clip Frames" << clip->frameCount << std::endl;
+    std::cout <<"Animation Clip FPS" << clip->FPS << std::endl;
+    for(uint32_t c = 0 ; c < clip->nodeAnimations.size(); ++c)
+    {
+      std::cout <<"Node " << c << "i" << clip->nodeAnimations[c].nodeName << std::endl;
+    }
+  }
+
+  return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
+
+
 }
 
 // test usage
@@ -120,7 +145,7 @@ public:
     void onAppInit() final {
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
-        app->window->setSize(1280, 720);
+        app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
 
         transformer = std::make_shared<Transformer>(app->delegate.lock());
@@ -277,7 +302,7 @@ public:
             model->modelProgram = shaderHandle;
             model->model = createModel();
             auto animation = obj->emplace<SPW::AnimationComponent>();
-            animation->skeleton = createAnimation();
+            //animation->skeleton = createAnimation();
 
             // add light 1
             auto light = scene->createEntity("light");
@@ -306,9 +331,7 @@ public:
         scene->beforeUpdate();
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
-
         // physics, computation
-
         scene->onUpdate(du);
     }
 
