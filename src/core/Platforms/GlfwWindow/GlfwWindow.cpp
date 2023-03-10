@@ -38,6 +38,7 @@ namespace SPW {
             if (windowCreatedCallback) {
                 windowCreatedCallback(window);
             }
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         } else {
             std::cout << "Window create failed !" << std::endl;
         }
@@ -72,16 +73,14 @@ namespace SPW {
             auto realWindow = all_windows[win];
             auto keyCode = static_cast<KeyCode>(key);
             if(action == GLFW_RELEASE){
+                realWindow->downKeys.erase(key);
                 realWindow->data.handler(std::make_shared<KeyEvent>(
                     KeyReleasedType, keyCode));
             }
             else if(action == GLFW_PRESS){
+                realWindow->downKeys.insert(key);
                 realWindow->data.handler(std::make_shared<KeyEvent>(
                         KeyDownType, keyCode));
-            }
-            else if(action == GLFW_REPEAT){
-                realWindow->data.handler(std::make_shared<KeyEvent>(
-                        KeyHeldType, keyCode));
             }
         });
 
@@ -126,16 +125,20 @@ namespace SPW {
     double sCursorY_PosBias = 0;
     void GlfwWindow::onUpdate() {
         glfwPollEvents();
-        glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos){
-
-            auto realWindow = all_windows[win];
-            sCursorX_PosBias = xpos - sCursorLastX_Pos;
-            sCursorY_PosBias = ypos - sCursorLastY_Pos;
-            sCursorLastX_Pos = xpos;
-            sCursorLastY_Pos = ypos;
-            auto cursor_e = std::make_shared<MouseEvent>(CursorMovementType, xpos, ypos, sCursorX_PosBias , sCursorY_PosBias);
-            realWindow->data.handler(cursor_e);
-        });
+        double xpos = 0, ypos = 0;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        sCursorX_PosBias = xpos - sCursorLastX_Pos;
+        sCursorY_PosBias = ypos - sCursorLastY_Pos;
+        sCursorLastX_Pos = xpos;
+        sCursorLastY_Pos = ypos;
+        auto cursor_e = std::make_shared<MouseEvent>(CursorMovementType, xpos, ypos, sCursorX_PosBias , sCursorY_PosBias);
+        data.handler(cursor_e);
+        for (auto &key : downKeys) {
+            if (glfwGetKey(window, key) == GLFW_PRESS) {
+                data.handler(std::make_shared<KeyEvent>(
+                        KeyHeldType, static_cast<KeyCode>(key)));
+            }
+        }
     }
 
     GlfwWindow::~GlfwWindow() {

@@ -129,8 +129,8 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
     glm::mat4x4 V, P;
     glm::mat4x4 cameraTransform = glm::mat4(1.0f);
     cameraTransform = glm::translate(cameraTransform, transformCom->position);
-    cameraTransform = cameraTransform * glm::eulerAngleXYZ(glm::radians(transformCom->rotation.x),
-                       glm::radians(transformCom->rotation.y),
+    cameraTransform = cameraTransform * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
+                       glm::radians(transformCom->rotation.x),
                        glm::radians(transformCom->rotation.z));
 
     glm::vec4 eye(0, 0, 1, 1), look_at(0, 0, 0, 1), up(0, 1, 0, 0);
@@ -227,8 +227,8 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
 
                 glm::mat4 M = glm::mat4(1.0f);
                 M = glm::translate(M,transformCom->position);
-                M = M * glm::eulerAngleXYZ(glm::radians(transformCom->rotation.x),
-                                      glm::radians(transformCom->rotation.y),
+                M = M * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
+                                      glm::radians(transformCom->rotation.x),
                                       glm::radians(transformCom->rotation.z));
                 M = glm::scale(M, transformCom->scale);
 
