@@ -23,6 +23,7 @@ add_subdirectory(Platforms)
 add_subdirectory(Render)
 add_subdirectory(Model)
 add_subdirectory(IO)
+add_subdirectory(LuaBinding)
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Core Sources:" ${CoreSourceFiles})
