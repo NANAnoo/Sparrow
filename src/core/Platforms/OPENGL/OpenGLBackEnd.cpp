@@ -142,8 +142,9 @@ namespace SPW
                 std::string path = material->TextureMap[type];
                 std::shared_ptr<OpenGLtexture2D> texture =
                 OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
-                shader->SetUniformValue<int>(name,i);
                 glActiveTexture(GL_TEXTURE0 + i);
+                shader->SetUniformValue<int>(name,i);
+
                 glBindTexture(GL_TEXTURE_2D, texture->ID);
             }
         }

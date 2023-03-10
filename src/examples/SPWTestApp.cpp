@@ -42,8 +42,13 @@
 #include "Model/Model.h"
 
 
-std::shared_ptr<SPW::Model> createModel() {
+std::shared_ptr<SPW::Model> createModel()
+{
     return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+}
+std::shared_ptr<SPW::Model> createCubeModel()
+{
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/cube.obj");
 }
 
 // test usage
@@ -199,6 +204,20 @@ public:
 
             model->modelProgram = shaderHandle;
             model->model = createModel();
+
+
+            auto cubeObj = scene->createEntity("floor");
+            auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
+            cubeTrans->scale = {1.0, 0.05, 1.0};
+            auto cubemodel = cubeObj->emplace<SPW::ModelComponent>(camera_id);
+            SPW::ShaderHandle CubeshaderHandle({
+                                                   "basic",
+                                                   "./resources/shaders/simpleVs.vert",
+                                                   "./resources/shaders/simplefrag.frag"
+                                           });
+            //model->bindCameras.insert(camera_id_2);
+            cubemodel->modelProgram = CubeshaderHandle;
+            cubemodel->model = createCubeModel();
 
             // add light 1
             auto light = scene->createEntity("light");
