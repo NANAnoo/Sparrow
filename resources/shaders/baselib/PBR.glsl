@@ -4,23 +4,7 @@
 
 precision highp float;
 vec3  lightColor  = vec3(23.47, 21.31, 20.79);
-
-vec3 getNormalFromMap()
-{
-    vec3 tangentNormal = texture(normalMap, texCoords).xyz * 2.0 - 1.0;
-
-    vec3 Q1  = dFdx(worldPos);
-    vec3 Q2  = dFdy(worldPos);
-    vec2 st1 = dFdx(texCoords);
-    vec2 st2 = dFdy(texCoords);
-
-    vec3 N   = normalize(Normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B  = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal);
-}
+const float PI = 3.14159265359;
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -64,9 +48,6 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 vec3 PBR_P(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec3 pos,vec3 camPos,PLight light)
 {
-    vec3 N = getNormalFromMap();
-    vec3 V = normalize(camPos - pos);
-
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
     vec3 F0 = vec3(0.04);
@@ -126,9 +107,6 @@ vec3 PBR_P(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec
 
 vec3 PBR_D(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec3 pos,vec3 camPos,DLight light)
 {
-    vec3 N = getNormalFromMap();
-    vec3 V = normalize(camPos - worldPos);
-
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
     vec3 F0 = vec3(0.04);

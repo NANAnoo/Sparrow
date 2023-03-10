@@ -56,7 +56,7 @@
 
 std::shared_ptr<SPW::Model> createModel() {
     //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/mantis.obj");
 }
 
 // test usage

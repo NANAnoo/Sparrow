@@ -31,17 +31,16 @@ uniform int PLightCount;
 in vec2 TexCoords;
 in vec3 normal;
 in vec4 position;
-
 vec3 getNormalFromMap()
 {
     vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
 
-    vec3 Q1  = dFdx(worldPos);
-    vec3 Q2  = dFdy(worldPos);
-    vec2 st1 = dFdx(texCoords);
-    vec2 st2 = dFdy(texCoords);
+    vec3 Q1  = dFdx(position.xyz);
+    vec3 Q2  = dFdy(position.xyz);
+    vec2 st1 = dFdx(TexCoords);
+    vec2 st2 = dFdy(TexCoords);
 
-    vec3 N   = normalize(Normal);
+    vec3 N   = normalize(normal);
     vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
     vec3 B  = -normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
@@ -72,7 +71,7 @@ vec3 PBR(vec3 N){
     float metallic  = texture(metallicMap, TexCoords).r;
     float roughness = texture(roughnessMap, TexCoords).r;
     float ao        = texture(AoMap, TexCoords).r;
-    vec3 V = normalize(camPos - position);
+    vec3 V = normalize(camPos - position.xyz);
 
     for (int i = 0; i < PLightCount && i < 10; i ++) {
         BP_scale += PBR_P(albedo,metallic,roughness,ao,N,V,vec3(position),camPos,PLights[i]);
@@ -87,14 +86,9 @@ vec3 PBR(vec3 N){
 void main()
 {
     vec3 norm = normalize(normal);
-    if (normalMap == (sampler2D)0) {
-        vec3 N=norm;
-    }
-    else{
-        vec3 N = getNormalFromMap();
-    }
+    vec3 N = getNormalFromMap();
     //vec3 BP_scale =BlinnPhong(norm)
-    vec3 BP_scale =PBR(N)
+    vec3 BP_scale =PBR(N);
 
     FragColor = vec4(BP_scale, 1.f);
 
