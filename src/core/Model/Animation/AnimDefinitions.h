@@ -1,6 +1,9 @@
 #pragma once
-#include "glm/gtx/quaternion.hpp"
 
+#include <vector>
+#include <string>
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 struct KeyFrame;
 struct AnimationClip;

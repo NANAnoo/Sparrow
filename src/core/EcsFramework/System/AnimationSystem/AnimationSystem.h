@@ -17,6 +17,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
+
+#include "Model/Animation/Skeleton.h"
+#include "Model/Animation/AnimDefinitions.h"
+
 #include <tuple>
 #include <vector>
 

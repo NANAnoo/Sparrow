@@ -316,12 +316,25 @@ namespace SPW
 		return tmp;
 	}
 
-	[[nodiscard]] std::vector<std::shared_ptr<BoneInfo>> ProcessBoneNodes(aiNode* node, const aiScene* scene)
-	{
-		// TODO Fix Here
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[0]];
-		return ProcessBoneNode(mesh, scene);
-	}
+        [[nodiscard]] std::vector<std::shared_ptr<BoneInfo>> ProcessBoneNodes(aiNode* node, const aiScene* scene)
+        {
+                std::vector<std::shared_ptr<BoneInfo>> bones;
+                bones.resize(0);
+                for (unsigned int i = 0; i < node->mNumMeshes; i++)
+                {
+                        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+                        auto res = ProcessBoneNode(mesh, scene);
+                        bones.insert(bones.end(), res.begin(), res.end());
+                }
+
+                for (unsigned int i = 0; i < node->mNumChildren; i++)
+                {
+                        auto res = ProcessBoneNodes(node->mChildren[i], scene);
+                        bones.insert(bones.end(), res.begin(), res.end());
+                }
+
+                return bones;
+        }
 
 	[[nodiscard]] std::shared_ptr<Model> ResourceManager::LoadModel(const std::filesystem::path& _filePath)
 	{
@@ -331,7 +344,7 @@ namespace SPW
 		// Create an instance of the Assimp importer
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(_filePath.string().c_str()
-				, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs 
+				, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs
 				| aiProcess_CalcTangentSpace | aiProcess_PopulateArmatureData);
 
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -341,7 +354,7 @@ namespace SPW
 		}
 
 		std::cout << "SUCESS::ASSIMP::" << _filePath << std::endl;
-		
+
 		std::shared_ptr<Model> model = std::make_shared<Model>(ProcessNodes(scene->mRootNode, scene));
 
 		model->SetFilePath(_filePath);
@@ -411,30 +424,32 @@ namespace SPW
 		return animClips;
 	}
 
-	[[nodiscard]] std::shared_ptr<Skeleton> LoadAnimation(const std::filesystem::path& filePath)
-	{
-		std::shared_ptr<Skeleton> tmp_skeleton = std::make_shared<Skeleton>();
+        [[nodiscard]] std::shared_ptr<Skeleton> ResourceManager::LoadAnimation(const std::filesystem::path& filePath)
+        {
+                std::shared_ptr<Skeleton> tmp_skeleton = std::make_shared<Skeleton>();
 
-		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(filePath.string().c_str()
-			, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs
-			| aiProcess_CalcTangentSpace | aiProcess_PopulateArmatureData);
+                Assimp::Importer importer;
+                const aiScene* scene = importer.ReadFile(filePath.string().c_str()
+                                                             , aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs
+                                                             | aiProcess_CalcTangentSpace | aiProcess_PopulateArmatureData);
 
-		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-		{
-			std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-			return nullptr;
-		}
+                if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+                {
+                        std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+                        // return NULL;
+                }
 
-		if (scene->HasAnimations())
-		{
-			tmp_skeleton->m_animClips = ProcessAnimationClips(scene->mRootNode, scene);
-		}
-		else
-		{
-			std::cout << "No AnimationClips Exist!\n";
-			return nullptr;
-		}
-        return nullptr;
-	}
+                if (scene->HasAnimations())
+                {
+                        tmp_skeleton->m_animClips = ProcessAnimationClips(scene->mRootNode, scene);
+                        tmp_skeleton->m_Bones = ProcessBoneNodes(scene->mRootNode, scene);
+                        return tmp_skeleton;
+                }
+                else
+                {
+                        std::cout << "No AnimationClips Exist!\n";
+                }
+
+                return nullptr;
+        }
 }
