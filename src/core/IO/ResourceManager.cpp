@@ -52,11 +52,11 @@ namespace SPW
 
 	std::shared_ptr<Material> LoadMaterial(aiMaterial* material)
 	{
-		std::shared_ptr<Material> tmp = std::make_shared<Material>();
+          std::shared_ptr<Material> tmp = std::make_shared<Material>();
 
-    	material->Get(AI_MATKEY_NAME, tmp->m_Name);
+    	  material->Get(AI_MATKEY_NAME, tmp->m_Name);
 
-		auto& tmpProp = tmp->m_Properties;
+          auto& tmpProp = tmp->m_Properties;
 
 		// Read material properties
 		aiColor4D diffuseColor;
@@ -119,29 +119,27 @@ namespace SPW
 		// Iterate through the texture slots of the material
 		for (unsigned int j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
 		{
-			aiTextureType textureType = static_cast<aiTextureType>(j);
-			unsigned int textureCount = material->GetTextureCount(textureType);
+                  aiTextureType textureType = static_cast<aiTextureType>(j);
+                  unsigned int textureCount = material->GetTextureCount(textureType);
 
-			// Iterate through the textures of the current slot
-			for (unsigned int k = 0; k < textureCount; k++) 
-			{
-				aiString texturePath;
-				material->GetTexture(textureType, k, &texturePath);
-				std::string str = texturePath.C_Str();
-				std::replace(begin(str), end(str), '\\', '/');
-				if (j == 1 || j == 12 || j == 16)
-					tmp->TextureMap.emplace(std::make_pair(TextureType::Albedo, str));
-				else if (j == 6)
-					tmp->TextureMap.emplace(std::make_pair(TextureType::Normal, str));
-				else if (j == 16)
-					tmp->TextureMap.emplace(std::make_pair(TextureType::Roughness, str));
-				else if (j == 17)
-					tmp->TextureMap.emplace(std::make_pair(TextureType::AmbientOcclusion, str));
-				else if (j == 15)
-					tmp->TextureMap.emplace(std::make_pair(TextureType::Metalness, str));
-				else 
-					tmp->TextureMap.emplace(std::make_pair(TextureType::Unknown, str));
-			}
+                  // Iterate through the textures of the current slot
+                  for (unsigned int k = 0; k < textureCount; k++) {
+                    aiString texturePath;
+                    material->GetTexture(textureType, k, &texturePath);
+                    std::string str = ReplaceSlash(texturePath.C_Str());
+                    if (j == 1 || j == 12 )
+                      tmp->TextureMap.emplace(std::make_pair(TextureType::Albedo, str));
+                    else if (j == 6)
+                            tmp->TextureMap.emplace(std::make_pair(TextureType::Normal, str));
+                    else if (j == 16)
+                            tmp->TextureMap.emplace(std::make_pair(TextureType::Roughness, str));
+                    else if (j == 17)
+                            tmp->TextureMap.emplace(std::make_pair(TextureType::AmbientOcclusion, str));
+                    else if (j == 15)
+                            tmp->TextureMap.emplace(std::make_pair(TextureType::Metalness, str));
+                    else
+                      tmp->TextureMap.emplace(std::make_pair(TextureType::Unknown, str));
+                  }
 		}
 
 		return tmp;
@@ -189,60 +187,16 @@ namespace SPW
 				tmp->indices.emplace_back(face.mIndices[j]);
 	    }
 
-	    // Bones
-	    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-			const aiBone* bone = mesh->mBones[i];
 
-			// TODO Open Animation Branch to DO
-			// Weights
-			// std::vector<Weight> weights;
-			// for (unsigned int j = 0; j < bone->mNumWeights; j++)
-			// 	weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
 
-			// m_BoneInfos.emplace_back(
-			// 	std::make_shared<BoneInfo>(bone->mName.C_Str(), bone->mNumWeights, std::move(weights), toMat4(bone->mOffsetMatrix))
-			// );
-		}
 
-		int numBones = mesh->mNumBones;
 
-        // Iterate through each bone and get its parent bone index
-        for (int i = 0; i < mesh->mNumBones; i++)
-        {
-            aiBone* bone = mesh->mBones[i];
-            int parentBoneIndex = -1;
 
-            // Check if the bone has a parent node
-            if (bone->mNode->mParent)
-            {
-                // Find the parent bone index by iterating through the bone array
-                for (int j = 0; j < mesh->mNumBones; j++)
-                {
-                    if (i == j) continue;
-
-                    aiBone* otherBone = mesh->mBones[j];
-                    if (otherBone->mNode == bone->mNode->mParent) {
-                        parentBoneIndex = j;
-                        break;
-                    }
-                }
-            }
-            // m_BoneInfos[i]->parentID = parentBoneIndex;
-        }
-
-        // Iterate through each bone and get its children indices
-        for (int i = 0; i < mesh->mNumBones; i++)
-        {
-        	// TODO Open Animation Branch to DO
-            // const auto& parentID = m_BoneInfos[i]->parentID;
-            // if (parentID == -1) continue;
-            // m_BoneInfos[parentID]->childrenIDs.emplace_back(i);
-        }
 
     	// TODO Deal with Materials
-		tmp->SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
+        tmp->SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
 
-		return tmp;
+              return tmp;
 	}
 
 	std::vector<std::shared_ptr<Mesh>> ProcessNodes(aiNode* node, const aiScene* scene)

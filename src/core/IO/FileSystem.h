@@ -28,6 +28,14 @@ namespace SPW
 			return directory.string().append("/").append(fileRoute);
 		}
 
+		static std::string ReplaceSlash(const std::string& str)
+		{
+			std::string result = str;
+			std::replace(begin(result), end(result), '\\', '/');
+			return result;
+		}
+
+
 	}
 
 }

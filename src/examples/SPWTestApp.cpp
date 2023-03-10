@@ -55,7 +55,7 @@
 #include <glm/glm/gtx/euler_angles.hpp>
 
 std::shared_ptr<SPW::Model> createModel() {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/atomic-heart-nora/source/norah.fbx");
 }
 
 // test usage
@@ -291,6 +291,19 @@ public:
             // init scene
             scene->initial();
             transformer->scene = scene;
+
+
+            scene->forEachEntity<SPW::IDComponent>([](const SPW::Entity &e)
+            {
+                auto IdCOm = e.component<SPW::IDComponent>();
+                if(e.has<SPW::CameraComponent>())
+                {
+                    auto CameraCom = e.component<SPW::CameraComponent>();
+                    CameraCom->fov;
+                    BP();
+                }
+
+            });
         });
     }
     void beforeAppUpdate() final{
@@ -355,4 +368,5 @@ int main(int argc, char **argv) {
     auto appProxy =
         SPW::Application::create<TestDelegate>("SPWTestApp");
     return appProxy->app->run(argc, argv);
+
 }
