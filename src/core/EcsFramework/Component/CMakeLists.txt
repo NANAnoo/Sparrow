@@ -1,5 +1,6 @@
 add_subdirectory(BasicComponent)
 add_subdirectory(AnimationComponent)
+add_subdirectory(Audio)
 CORE_ADD_SOURCE(ComponentI.h
         TransformComponent.hpp
         LightComponent.hpp

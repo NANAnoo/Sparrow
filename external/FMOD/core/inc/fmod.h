@@ -13,6 +13,7 @@
 #define _FMOD_H
 
 #include "fmod_common.h"
+#include "fmod.hpp"
 
 #ifdef __cplusplus
 extern "C" 
