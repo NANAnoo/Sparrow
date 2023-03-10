@@ -69,14 +69,15 @@ namespace SPW {
         //Constructor
         AnimationComponent() = default;
 
-        //Variables needed
+        //Status related
         State state = State::stopped;
         bool bInitialized = false;
         bool bLoaded = false;
+        std::string incomingAnimName;
+
+        //Current
         float playSpeed = 1.0f;
         float currentTime;
-
-        std::string incomingAnimName;
 
         std::weak_ptr<AnimationClip> currentAnimation;
 
