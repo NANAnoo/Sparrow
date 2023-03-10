@@ -69,25 +69,11 @@ std::shared_ptr<SPW::Model> createModel() {
      * */
   auto animInstance = SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/mantis/scene.gltf");
 
-  for(const auto& bone: animInstance->m_Bones)
-  {
-    std::cout <<"BoneName" << bone->name << std::endl;
-  }
-
-  for(const auto& clip: animInstance->m_animClips)
-  {
-    std::cout <<"Animation Clip Name" << clip->name << std::endl;
-    std::cout <<"Animation Clip Frames" << clip->frameCount << std::endl;
-    std::cout <<"Animation Clip FPS" << clip->FPS << std::endl;
-    for(uint32_t c = 0 ; c < clip->nodeAnimations.size(); ++c)
-    {
-      std::cout <<"Node " << c << "i" << clip->nodeAnimations[c].nodeName << std::endl;
-    }
-  }
-
   return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
+}
 
-
+std::shared_ptr<SPW::Skeleton> createSkeleton() {
+    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/mantis/scene.gltf");
 }
 
 // test usage
@@ -302,7 +288,7 @@ public:
             model->modelProgram = shaderHandle;
             model->model = createModel();
             auto animation = obj->emplace<SPW::AnimationComponent>();
-            //animation->skeleton = createAnimation();
+            animation->skeleton = createSkeleton();
 
             // add light 1
             auto light = scene->createEntity("light");
