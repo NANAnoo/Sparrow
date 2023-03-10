@@ -43,6 +43,72 @@ void SPW::AnimationSystem::beforeUpdate()
                      animationComp->finalKeyMatricesAllClips.reserve(animationComp->skeleton->m_animClips.size());
                      precalculateTransform(*animationComp);
                      animationComp->bLoaded = true;
+                     animationComp->current_clip.starts = std::make_shared<StorageBuffer>(
+                             "WeightDictStart",
+                             animationComp->vertexBoneMap.startIndex.size() * sizeof(int),
+                             0);
+                     animationComp->current_clip.starts->updateSubData(
+                             animationComp->vertexBoneMap.startIndex.data(),
+                             0,
+                             animationComp->vertexBoneMap.startIndex.size() * sizeof(int));
+
+                     animationComp->current_clip.sizes = std::make_shared<StorageBuffer>(
+                             "WeightDictSize",
+                             animationComp->vertexBoneMap.size.size() * sizeof(int),
+                             1);
+                     animationComp->current_clip.sizes->updateSubData(
+                             animationComp->vertexBoneMap.size.data(),
+                             0,
+                             animationComp->vertexBoneMap.size.size() * sizeof(int));
+
+                     animationComp->current_clip.boneIndices = std::make_shared<StorageBuffer>(
+                             "WeightDictKey",
+                             animationComp->vertexBoneMap.boneID.size() * sizeof(int),
+                             2);
+                     animationComp->current_clip.boneIndices->updateSubData(
+                             animationComp->vertexBoneMap.boneID.data(),
+                             0,
+                             animationComp->vertexBoneMap.boneID.size() * sizeof(int));
+
+                     animationComp->current_clip.weights = std::make_shared<StorageBuffer>(
+                             "WeightDictValue",
+                             animationComp->vertexBoneMap.weights.size() * sizeof(float),
+                             3);
+                     animationComp->current_clip.weights->updateSubData(
+                             animationComp->vertexBoneMap.weights.data(),
+                             0,
+                             animationComp->vertexBoneMap.weights.size() * sizeof(float));
+
+                     animationComp->current_clip.mats = std::make_shared<StorageBuffer>(
+                             "WeightMatries",
+                             animationComp->finalKeyMatricesAllClips[0].flattenTransform.size() * sizeof(glm::mat4),
+                             4);
+                     animationComp->current_clip.weights->updateSubData(
+                             &animationComp->finalKeyMatricesAllClips[0].frameCount,
+                             0,
+                             1 * sizeof(int)
+                     );
+                     animationComp->current_clip.weights->updateSubData(
+                             animationComp->finalKeyMatricesAllClips[0].flattenTransform.data(),
+                             1 * sizeof(int),
+                             animationComp->finalKeyMatricesAllClips[0].flattenTransform.size() * sizeof(glm::mat4)
+                     );
+
+                     modelComp->preRenderCommands.pushCommand(
+                             RenderCommand(&RenderBackEndI::initStorageBuffer,
+                                           animationComp->current_clip.starts));
+                     modelComp->preRenderCommands.pushCommand(
+                             RenderCommand(&RenderBackEndI::initStorageBuffer,
+                                           animationComp->current_clip.sizes));
+                     modelComp->preRenderCommands.pushCommand(
+                             RenderCommand(&RenderBackEndI::initStorageBuffer,
+                                           animationComp->current_clip.boneIndices));
+                     modelComp->preRenderCommands.pushCommand(
+                             RenderCommand(&RenderBackEndI::initStorageBuffer,
+                                           animationComp->current_clip.weights));
+                     modelComp->preRenderCommands.pushCommand(
+                             RenderCommand(&RenderBackEndI::initStorageBuffer,
+                                           animationComp->current_clip.mats));
                  }
             });
 }
@@ -63,6 +129,26 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 
          auto animationComp = entity.component<SPW::AnimationComponent>();
          auto modelComp = entity.component<SPW::ModelComponent>();
+
+         // load animation
+         modelComp->pipeLineCommands.pushCommand(
+                 RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.starts)
+                 );
+         modelComp->pipeLineCommands.pushCommand(
+                 RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.sizes)
+         );
+         modelComp->pipeLineCommands.pushCommand(
+                 RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.boneIndices)
+         );
+         modelComp->pipeLineCommands.pushCommand(
+                 RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.weights)
+         );
+         modelComp->pipeLineCommands.pushCommand(
+                 RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.mats)
+         );
+         modelComp->pipeLineCommands.pushCommand(
+                 RenderCommand(&Shader::SetUniformValue<int>, std::string("currentFrame"), 1)
+         );
 
          if (!animationComp->bInitialized)
             initializeComponent(*animationComp,*modelComp);
@@ -235,7 +321,7 @@ void SPW::AnimationSystem::playAnimation(std::string name, float dt, AnimationCo
     }
 }
 
-std::shared_ptr<AnimationClip> SPW::AnimationSystem::findAnimation(std::string name,AnimationComponent& animationComponent)
+std::shared_ptr<SPW::AnimationClip> SPW::AnimationSystem::findAnimation(std::string name,AnimationComponent& animationComponent)
 {
     for(std::weak_ptr<AnimationClip> n : animationComponent.skeleton->m_animClips)
     {
@@ -287,7 +373,7 @@ void SPW::AnimationSystem::updateFramesWeight(std::string name, float dt, Animat
 }
 
 
-std::shared_ptr<BoneInfo> SPW::AnimationSystem::findRootNode(AnimationComponent &animationComponent)
+std::shared_ptr<SPW::BoneInfo> SPW::AnimationSystem::findRootNode(AnimationComponent &animationComponent)
 {
     for(std::weak_ptr<BoneInfo> bone : animationComponent.skeleton->m_Bones)
     {
@@ -364,7 +450,7 @@ void SPW::AnimationSystem::stopAnimation(AnimationComponent& animationComponent)
     animationComponent.currentAnimation.reset();
 }
 
-AnimationNode SPW::AnimationSystem::findAnimationNode(std::string name,std::weak_ptr<AnimationClip> currentAnimation)
+SPW::AnimationNode SPW::AnimationSystem::findAnimationNode(std::string name,std::weak_ptr<AnimationClip> currentAnimation)
 {
     AnimationNode result;
     for(AnimationNode temp : currentAnimation.lock()->nodeAnimations)

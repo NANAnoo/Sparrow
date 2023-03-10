@@ -11,6 +11,8 @@
 #include "./Model/Animation/Skeleton.h"
 #include <vector>
 #include "glm/glm.hpp"
+#include "Render/StorageBuffer.h"
+
 //#include "Animation.h"
 namespace SPW {
 
@@ -26,31 +28,46 @@ namespace SPW {
         std::vector<float> weight;
     };
 
+    struct AnimationClipSSBO {
+        std::shared_ptr<StorageBuffer> starts;
+        std::shared_ptr<StorageBuffer> sizes;
+        std::shared_ptr<StorageBuffer> boneIndices;
+        std::shared_ptr<StorageBuffer> weights;
+        std::shared_ptr<StorageBuffer> mats;
+    };
+
     struct AnimationClipTransform
     {
         //TODO: 二维降成一维数组，
-        // 如何找到第n个骨骼的第i和i+1帧？（ a * frameCount + i)
+        // 如何找到第a个骨骼的第i和i+1帧？（ a * frameCount + i)
         ClipTransform finalKeyframeMatrices;
         FlattenTransform flattenTransform;
-        float frameCount;
+        int frameCount;
         std::string animName;
     };
 
     //For all vertices
-    struct VertexBoneMap
+    struct AnimBufferInfo
     {
         //Start index 只负责记录weights数组
         std::vector<uint32_t> startIndex;
         std::vector<uint32_t> size;
         std::vector<float> weights;
         std::vector<uint32_t> boneID;
+
+        ClipTransform finalKeyframeMatrices;
+        FlattenTransform flattenTransform;
+        int frameCount;
+        std::string animName;
     };
+
+
 
     class AnimationComponent : ComponentI
     {
     public:
         //Constructor
-        AnimationComponent();
+        AnimationComponent() = default;
 
         //Variables needed
         State state = State::stopped;
@@ -69,10 +86,15 @@ namespace SPW {
 
         std::vector<float*> finalBoneArray;
 
+        // Used to
         std::vector<VerMapBone> verMapBone;
 
+        AnimationClipSSBO current_clip;
+
         std::vector<AnimationClipTransform> finalKeyMatricesAllClips;
-        VertexBoneMap vertexBoneMap;
+
+
+        AnimBufferInfo vertexBoneMap;
         int indices [2];
         float frameWeights[2];
     };

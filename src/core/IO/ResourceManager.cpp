@@ -411,7 +411,7 @@ namespace SPW
 		return animClips;
 	}
 
-	[[nodiscard]] std::shared_ptr<Skeleton> LoadAnimation(const std::filesystem::path& filePath)
+	[[nodiscard]] std::shared_ptr<Skeleton> ResourceManager::LoadAnimation(const std::filesystem::path& filePath)
 	{
 		std::shared_ptr<Skeleton> tmp_skeleton = std::make_shared<Skeleton>();
 
@@ -429,6 +429,7 @@ namespace SPW
 		if (scene->HasAnimations())
 		{
 			tmp_skeleton->m_animClips = ProcessAnimationClips(scene->mRootNode, scene);
+            return tmp_skeleton;
 		}
 		else
 		{

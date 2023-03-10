@@ -24,7 +24,7 @@ namespace SPW
         virtual void Bind() const = 0;
         virtual void Unbind() const = 0;
         template<class T>
-        void SetUniformValue(const std::string& str,T value)
+        void SetUniformValue(std::string str,T value)
         {
             if constexpr (std::is_same<T,bool>::value)
                 setBool(str,value);

@@ -3,7 +3,7 @@
 
 uniform int currentFrame;
 
-layout (std430) buffer WeightDictStart {
+layout (std430) readonly buffer WeightDictStart {
     int starts[];
 } weightDictStart;
 
@@ -20,7 +20,7 @@ layout (std430) buffer WeightDictValue {
 } weightDictValue;
 
 layout (std430) buffer WeightMatries {
-    int boneNum;
+    int frameNum;
     mat4 mats[];
 } weightMatries;
 
@@ -30,9 +30,9 @@ vec4 animationTransForm(vec4 position, int index) {
     int end = start + weightDictSize.sizes[index];
     mat4 transform;
     for (int i = start; i < end && i < max + start; i ++) {
-        int mat_index = weightDictKey.keys[i];
+        int which_bone = weightDictKey.keys[i];
         float weight = weightDictValue.weights[i];
-        transform += weightMatries.mats[weightMatries.boneNum * currentFrame + mat_index] * weight;
+        transform += weightMatries.mats[weightMatries.frameNum * which_bone + currentFrame] * weight;
     }
     return position * transform;
 }

@@ -9,7 +9,7 @@
 #include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
-
+#include "Model/Animation/Skeleton.h"
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
 #include "Control/MouseEvent.hpp"
@@ -25,6 +25,7 @@
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
+#include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
 
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
@@ -43,7 +44,11 @@
 #include "Render/StorageBuffer.h"
 
 std::shared_ptr<SPW::Model> createModel() {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/TestCharacter/dance.fbx");
+}
+
+std::shared_ptr<SPW::Skeleton> createAnimation() {
+    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/TestCharacter/dance.fbx");
 }
 
 // test usage
@@ -199,6 +204,8 @@ public:
 
             model->modelProgram = shaderHandle;
             model->model = createModel();
+            auto animation = obj->emplace<SPW::AnimationComponent>();
+            animation->skeleton = createAnimation();
 
             // add light 1
             auto light = scene->createEntity("light");
