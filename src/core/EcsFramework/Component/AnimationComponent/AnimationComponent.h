@@ -37,10 +37,9 @@ namespace SPW {
         std::shared_ptr<StorageBuffer> mats;
     };
 
+    //
     struct AnimationClipTransform
     {
-        //TODO: 二维降成一维数组，
-        // 如何找到第a个骨骼的第i和i+1帧？（ a * frameCount + i)
         ClipTransform finalKeyframeMatrices;
         FlattenTransform flattenTransform;
         int frameCount;
@@ -60,6 +59,9 @@ namespace SPW {
         FlattenTransform flattenTransform;
         int frameCount;
         std::string animName;
+
+        int indices [2];
+        float frameWeights[2];
     };
 
 
@@ -76,29 +78,31 @@ namespace SPW {
         bool bLoaded = false;
         std::string incomingAnimName;
 
-        //Current
+        //Current state
         float playSpeed = 1.0f;
         float currentTime;
-
         std::weak_ptr<AnimationClip> currentAnimation;
 
+        //Essential information
         std::shared_ptr<Skeleton> skeleton;
+        std::vector<AnimationClipTransform> finalKeyMatricesAllClips;
 
-        std::vector<glm::mat4> finalBoneMatrices;
+        //Buffer information
+        AnimBufferInfo bufferInfo;
+        AnimationClipSSBO current_clip;
 
-        std::vector<float*> finalBoneArray;
+
+        //Won't use
+//        std::vector<glm::mat4> finalBoneMatrices;
+//        std::vector<float*> finalBoneArray;
+//
+        int indices [2];
+        float frameWeights[2];
 
         // Used to
         std::vector<VerMapBone> verMapBone;
-
-        AnimationClipSSBO current_clip;
-
-        std::vector<AnimationClipTransform> finalKeyMatricesAllClips;
-
-
         AnimBufferInfo vertexBoneMap;
-        int indices [2];
-        float frameWeights[2];
+
     };
 
 
