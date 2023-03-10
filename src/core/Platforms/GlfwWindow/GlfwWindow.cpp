@@ -33,6 +33,7 @@ namespace SPW {
         window = glfwCreateWindow(meta.width, meta.height, meta.title, nullptr, nullptr);
 
         if (window) {
+            glfwGetFramebufferSize(window, &fWidth, &fHeight);
             all_windows[window] = this;
             if (windowCreatedCallback) {
                 windowCreatedCallback(window);
@@ -61,6 +62,8 @@ namespace SPW {
 
         glfwSetFramebufferSizeCallback(window, [](GLFWwindow *win, int w, int h) {
             auto realWindow = all_windows[win];
+            realWindow->fWidth = w;
+            realWindow->fHeight = h;
             realWindow->data.handler(std::make_shared<WindowEvent>(
                     WindowFrameResizeType, w, h));
         });

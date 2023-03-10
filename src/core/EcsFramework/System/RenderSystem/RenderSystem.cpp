@@ -20,13 +20,6 @@ void SPW::RenderSystem::initial()
     renderBackEnd->Init();
     renderBackEnd->loadShaderLib("./resources/shaders/baselib");
 
-    frameBuffer = renderBackEnd->creatSenceFrameBuffer();
-    frameBuffer->genFrameBuffer();
-    frameBuffer->bind();
-    frameBuffer->AttachColorTexture(800,600,0);
-    frameBuffer->AttachDepthRenderBuffer(800,600);
-    frameBuffer->CheckFramebufferStatus();
-    frameBuffer->unbind();
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     renderBackEnd->InitSkyBox();
     std::vector<std::string> faces
