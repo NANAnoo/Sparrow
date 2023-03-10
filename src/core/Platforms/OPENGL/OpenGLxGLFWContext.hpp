@@ -23,6 +23,7 @@ namespace SPW
             if(!status)
                 assert("glad init false");
             glfwSwapInterval(1);
+            auto versoin = glGetString(GL_VERSION);
         }
 
         void SwapBuffers() override {

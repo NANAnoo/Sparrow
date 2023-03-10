@@ -203,13 +203,14 @@ void SPW::AnimationSystem::precalculateTransform(AnimationComponent &animationCo
     for(std::weak_ptr<AnimationClip> clip : animationComponent.skeleton->m_animClips)
     {
         ClipTransform keyframeMatrice;
-        keyframeMatrice.reserve(clip.lock()->frameCount);
+        keyframeMatrice.resize(clip.lock()->frameCount);
 
         //对每一帧进行计算，返回 a(骨骼数量) * [4*4](矩阵大小)
         for (uint32_t i = 0; i < clip.lock()->frameCount; ++i)
         {
-            keyframeMatrice[i].reserve(animationComponent.skeleton->m_Bones.size());
-            calcuKeyframeTransform(rootNode.lock(),glm::mat4(1.0f),animationComponent,i,keyframeMatrice);
+            keyframeMatrice[i].resize(animationComponent.skeleton->m_Bones.size());
+            calcuKeyframeTransform(rootNode.lock(), glm::mat4(1.0f), animationComponent, i, keyframeMatrice,
+                                   clip);
         }
 
 
@@ -259,7 +260,7 @@ void SPW::AnimationSystem::changeMap(AnimationComponent &animationComponent, Mod
         numVertex+=mesh.lock()->vertices.size();
     }
 
-    verMapBone.reserve(numVertex);
+    verMapBone.resize(numVertex);
 
     for(std::weak_ptr<BoneInfo> boneInfo : animationComponent.skeleton->m_Bones)
     {
@@ -390,11 +391,10 @@ std::shared_ptr<SPW::BoneInfo> SPW::AnimationSystem::findRootNode(AnimationCompo
 }
 
 
-void SPW::AnimationSystem::calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone,
-                                                  glm::mat4 parrentTransform,
-                                                  AnimationComponent &animationComponent,
-                                                  uint32_t frameIndex,
-                                                  ClipTransform clip)
+void SPW::AnimationSystem::calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone, glm::mat4 parrentTransform,
+                                                  AnimationComponent &animationComponent, uint32_t index,
+                                                  ClipTransform clip,
+                                                  std::weak_ptr<AnimationClip> Animclip)
 {
 
     //TODO: Performance optimize
@@ -405,20 +405,21 @@ void SPW::AnimationSystem::calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone
     glm::mat4 localTransform = glm::mat4(1.0);
     glm::mat4 boneOffset = glm::mat4(1.0);
 
-    AnimationNode currentNode = findAnimationNode(boneName,animationComponent.currentAnimation);
+    AnimationNode currentNode = findAnimationNode(boneName,Animclip);
 
     if (currentNode.nodeName == "")
         return;
     else
     {
-        localTransform = getKeyframeTransform(currentNode,frameIndex);
+        localTransform = getKeyframeTransform(currentNode, index);
         boneOffset = bone->offsetMatrix;
 
         glm::mat4 finalTransfrom = parrentTransform * localTransform * boneOffset;
-        clip[frameIndex][bone->boneID] = finalTransfrom;
+        clip[index][bone->boneID] = finalTransfrom;
 
         for(int i = 0; i < bone->childrenIDs.size(); i++)
-            calcuKeyframeTransform(animationComponent.skeleton->m_Bones[i],finalTransfrom,animationComponent,frameIndex,clip);
+            calcuKeyframeTransform(animationComponent.skeleton->m_Bones[i], finalTransfrom, animationComponent, index,
+                                   clip, std::weak_ptr<AnimationClip>());
     }
 }
 

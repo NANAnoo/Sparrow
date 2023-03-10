@@ -53,11 +53,10 @@ namespace SPW{
                                     AnimationComponent& animationComponent,
                                     float currentTime);
 
-        void calcuKeyframeTransform(std::shared_ptr<BoneInfo>bone,
-                                    glm::mat4 parrentTransform,
-                                    AnimationComponent& animationComponent,
-                                    uint32_t index,
-                                    ClipTransform clip);
+        void calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone, glm::mat4 parrentTransform,
+                                    AnimationComponent &animationComponent, uint32_t index, ClipTransform clip,
+                                    std::weak_ptr<AnimationClip> Animclip);
+
         void initializeComponent(AnimationComponent& animationComponent,ModelComponent& modelComponent);
         void changeMap(AnimationComponent& animationComponent, ModelComponent& modelComponent);
         void vertexBoneMapping(AnimationComponent &animationComponent, ModelComponent &modelComponent,
