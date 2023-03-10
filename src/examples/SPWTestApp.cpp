@@ -37,6 +37,7 @@
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
+#include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
 
 #include "Model/Model.h"
 
@@ -159,6 +160,7 @@ public:
             scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight()));
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");

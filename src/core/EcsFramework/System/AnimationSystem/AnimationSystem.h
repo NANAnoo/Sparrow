@@ -26,7 +26,7 @@
 
 
 namespace SPW{
-    class AnimationSystem : SystemI{
+    class AnimationSystem : public SystemI{
 
     public:
         explicit AnimationSystem(std::shared_ptr<Scene> &scene) : SystemI(scene){}

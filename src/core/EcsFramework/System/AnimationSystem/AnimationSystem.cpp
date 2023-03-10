@@ -567,3 +567,10 @@ SPW::AnimationNode SPW::AnimationSystem::findAnimationNode(std::string name,std:
 //            calculateBoneTransform(animationComponent.skeleton->m_Bones[i],finalTransfrom,animationComponent,currentTime);
 //    }
 //}
+
+void SPW::AnimationSystem::afterUpdate() {
+
+}
+void SPW::AnimationSystem::onStop() {
+
+}
