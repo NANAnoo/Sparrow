@@ -48,14 +48,15 @@
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
-#include "SimpleRender.h"
+#include "IO/EntitySerializer.h"
 #include "IO/ResourceManager.h"
-#include "Model/Model.h"
+#include "SimpleRender.h"
+
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
 std::shared_ptr<SPW::Model> createModel() {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/atomic-heart-nora/source/norah.fbx");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
 }
 
 // test usage
@@ -292,18 +293,31 @@ public:
             scene->initial();
             transformer->scene = scene;
 
-
-            scene->forEachEntity<SPW::IDComponent>([](const SPW::Entity &e)
+            std::vector<toml::table> sceneSerialer;
+            scene->forEachEntity<SPW::IDComponent>([&sceneSerialer](const SPW::Entity &e)
             {
-                auto IdCOm = e.component<SPW::IDComponent>();
+                SPW::EntitySerializer entitySerialer;
                 if(e.has<SPW::CameraComponent>())
-                {
-                    auto CameraCom = e.component<SPW::CameraComponent>();
-                    CameraCom->fov;
-                    BP();
-                }
+                    entitySerialer.AddComponment("camera", e.component<SPW::CameraComponent>()->save());
+                if(e.has<SPW::LightComponent>())
+                    entitySerialer.AddComponment("light", e.component<SPW::LightComponent>()->save());
 
+                auto com_name = e.component<SPW::NameComponent>()->getName();
+                auto uuid_str = e.component<SPW::IDComponent>()->getID().toString();
+
+                std::cout << entitySerialer.SaveEntity(com_name, uuid_str) << std::endl;
+                sceneSerialer.emplace_back(entitySerialer.SaveEntity(com_name, uuid_str));
             });
+
+            std::ofstream file("scene.toml");
+            if (file.is_open())
+            {
+                for(const auto e: sceneSerialer)
+                {
+                  file << e << std::endl << std::endl;
+                }
+                file.close();
+            }
         });
     }
     void beforeAppUpdate() final{

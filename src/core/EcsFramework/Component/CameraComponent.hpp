@@ -5,6 +5,7 @@
 #pragma once
 
 #include "ComponentI.h"
+#include "IO/EntitySerializer.h"
 
 namespace SPW {
     //  camera type, used for building ProjectionMatrix
@@ -33,6 +34,23 @@ namespace SPW {
 
         //whether main
         bool whetherMainCam = false;
+
+        SaveTable save()
+        {
+          auto tbl = SaveTable
+              {
+                  {"fov", fov},
+                  {"aspect", aspect},
+                  {"left", left},
+                  {"right", right},
+                  {"bottom", bottom},
+                  {"top", top},
+                  {"CameraType", static_cast<int>(getType())},
+                  {"whetherMainCam", whetherMainCam},
+              };
+          return tbl;
+        }
+
     private:
         CameraType cameraType = PerspectiveType;
     };

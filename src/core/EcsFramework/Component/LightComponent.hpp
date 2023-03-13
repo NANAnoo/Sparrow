@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "ComponentI.h"
+#include "IO/EntitySerializer.h"
 
 #include <glm/glm.hpp>
 
@@ -33,6 +34,21 @@ namespace SPW {
         [[nodiscard]] LightType getType() const {
             return lightType;
         };
+
+        SaveTable save()
+        {
+            auto tbl = SaveTable
+                {
+                    {"constant", constant},
+                    {"linear", linear},
+                    {"quadratic", quadratic},
+                    {"ambient", EntitySerializer::ToArray(ambient)},
+                    {"diffuse", EntitySerializer::ToArray(diffuse)},
+                    {"specular", EntitySerializer::ToArray(specular)},
+                    {"LightType", static_cast<int>(getType())},
+                };
+            return tbl;
+        }
     private:
         LightType lightType;
     };
