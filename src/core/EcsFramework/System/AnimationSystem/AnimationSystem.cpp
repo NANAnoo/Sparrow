@@ -44,42 +44,43 @@ void SPW::AnimationSystem::beforeUpdate()
                      animationComp->bufferInfo.finalKeyframeMatrices.reserve(animationComp->skeleton->m_animClips.size());
 
                      precalculateTransform(*animationComp);
+                     initializeComponent(*animationComp,*modelComp);
                      animationComp->bLoaded = true;
                      animationComp->current_clip.starts = std::make_shared<StorageBuffer>(
                              "WeightDictStart",
-                             animationComp->vertexBoneMap.startIndex.size() * sizeof(int),
+                             animationComp->bufferInfo.startIndex.size() * sizeof(int),
                              0);
                      animationComp->current_clip.starts->updateSubData(
-                             animationComp->vertexBoneMap.startIndex.data(),
+                             animationComp->bufferInfo.startIndex.data(),
                              0,
-                             animationComp->vertexBoneMap.startIndex.size() * sizeof(int));
+                             animationComp->bufferInfo.startIndex.size() * sizeof(int));
 
                      animationComp->current_clip.sizes = std::make_shared<StorageBuffer>(
                              "WeightDictSize",
-                             animationComp->vertexBoneMap.size.size() * sizeof(int),
+                             animationComp->bufferInfo.size.size() * sizeof(int),
                              1);
                      animationComp->current_clip.sizes->updateSubData(
-                             animationComp->vertexBoneMap.size.data(),
+                             animationComp->bufferInfo.size.data(),
                              0,
-                             animationComp->vertexBoneMap.size.size() * sizeof(int));
+                             animationComp->bufferInfo.size.size() * sizeof(int));
 
                      animationComp->current_clip.boneIndices = std::make_shared<StorageBuffer>(
                              "WeightDictKey",
-                             animationComp->vertexBoneMap.boneID.size() * sizeof(int),
+                             animationComp->bufferInfo.boneID.size() * sizeof(int),
                              2);
                      animationComp->current_clip.boneIndices->updateSubData(
-                             animationComp->vertexBoneMap.boneID.data(),
+                             animationComp->bufferInfo.boneID.data(),
                              0,
-                             animationComp->vertexBoneMap.boneID.size() * sizeof(int));
+                             animationComp->bufferInfo.boneID.size() * sizeof(int));
 
                      animationComp->current_clip.weights = std::make_shared<StorageBuffer>(
                              "WeightDictValue",
-                             animationComp->vertexBoneMap.weights.size() * sizeof(float),
+                             animationComp->bufferInfo.weights.size() * sizeof(float),
                              3);
                      animationComp->current_clip.weights->updateSubData(
-                             animationComp->vertexBoneMap.weights.data(),
+                             animationComp->bufferInfo.weights.data(),
                              0,
-                             animationComp->vertexBoneMap.weights.size() * sizeof(float));
+                             animationComp->bufferInfo.weights.size() * sizeof(float));
 
                      //TODO: A method to get specific animation
                      animationComp->current_clip.mats = std::make_shared<StorageBuffer>(
@@ -202,19 +203,21 @@ void SPW::AnimationSystem::precalculateTransform(AnimationComponent &animationCo
     //Calculate each animCli to get animNum of b(frame counts) * a(num_bones) * [4*4](matrix size) transform matrices
     for(std::weak_ptr<AnimationClip> clip : animationComponent.skeleton->m_animClips)
     {
-        ClipTransform keyframeMatrice;
-        keyframeMatrice.resize(clip.lock()->frameCount);
+        animationComponent.keyframeMatrice.resize(clip.lock()->frameCount);
 
         //对每一帧进行计算，返回 a(骨骼数量) * [4*4](矩阵大小)
-        for (uint32_t i = 0; i < clip.lock()->frameCount; ++i)
+        for (uint32_t i = 0; i < clip.lock()->frameCount; i++)
         {
-            keyframeMatrice[i].resize(animationComponent.skeleton->m_Bones.size());
-            calcuKeyframeTransform(rootNode.lock(), glm::mat4(1.0f), animationComponent, i, keyframeMatrice,
+            animationComponent.keyframeMatrice[i].resize(animationComponent.skeleton->m_Bones.size());
+
+            glm::mat4 rootTransfrom = glm::mat4(1.0);
+            calcuKeyframeTransform(rootNode.lock(), rootTransfrom, animationComponent, i, 0,
                                    clip);
         }
 
-
         std::string animName = clip.lock()->name;
+
+        ClipTransform keyframeMatrice = animationComponent.keyframeMatrice;
 
         AnimationClipTransform animationClipTransform;
         animationClipTransform.finalKeyframeMatrices=keyframeMatrice;
@@ -230,7 +233,7 @@ void SPW::AnimationSystem::precalculateTransform(AnimationComponent &animationCo
         }
         animationClipTransform.frameCount = clip.lock()->frameCount;
 
-        animationComponent.finalKeyMatricesAllClips.push_back(animationClipTransform);
+        animationComponent.finalKeyMatricesAllClips.emplace_back(animationClipTransform);
     }
 
 }
@@ -281,7 +284,7 @@ void SPW::AnimationSystem::vertexBoneMapping(AnimationComponent &animationCompon
                                              std::vector<VerMapBone> verMapBone)
 {
     //Get number of vertices
-    animationComponent.vertexBoneMap.startIndex.reserve(verMapBone.size());
+    animationComponent.bufferInfo.startIndex.reserve(verMapBone.size());
 
     //For every vertex
     int startIndex = 0;
@@ -289,15 +292,15 @@ void SPW::AnimationSystem::vertexBoneMapping(AnimationComponent &animationCompon
     {
 
         auto temp = verMapBone[i];
-        animationComponent.vertexBoneMap.startIndex.push_back(startIndex);
+        animationComponent.bufferInfo.startIndex.push_back(startIndex);
 
         for (int j = 0; j < temp.boneID.size(); j++)
         {
-            animationComponent.vertexBoneMap.boneID.push_back(temp.boneID[j]);
-            animationComponent.vertexBoneMap.weights.push_back(temp.weight[j]);
+            animationComponent.bufferInfo.boneID.push_back(temp.boneID[j]);
+            animationComponent.bufferInfo.weights.push_back(temp.weight[j]);
         }
         startIndex += temp.boneID.size();
-        animationComponent.vertexBoneMap.size.push_back(temp.boneID.size());
+        animationComponent.bufferInfo.size.push_back(temp.boneID.size());
     }
 }
 
@@ -392,8 +395,7 @@ std::shared_ptr<SPW::BoneInfo> SPW::AnimationSystem::findRootNode(AnimationCompo
 
 
 void SPW::AnimationSystem::calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone, glm::mat4 parrentTransform,
-                                                  AnimationComponent &animationComponent, uint32_t index,
-                                                  ClipTransform clip,
+                                                  AnimationComponent &animationComponent, uint32_t frameIndex,uint32_t boneIndex,
                                                   std::weak_ptr<AnimationClip> Animclip)
 {
 
@@ -408,19 +410,30 @@ void SPW::AnimationSystem::calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone
     AnimationNode currentNode = findAnimationNode(boneName,Animclip);
 
     if (currentNode.nodeName == "")
-        return;
-    else
     {
-        localTransform = getKeyframeTransform(currentNode, index);
+        glm::mat4 finalTransfrom = glm::mat4(1.0);
+        for (int i = 0; i < bone->childrenIDs.size(); i++)
+        {
+            std::int32_t id = bone->childrenIDs[i];
+            calcuKeyframeTransform(animationComponent.skeleton->m_Bones[id], finalTransfrom, animationComponent, frameIndex, id,
+                                   Animclip);
+        }
+
+    }else
+    {
+        localTransform = getKeyframeTransform(currentNode, frameIndex);
         boneOffset = bone->offsetMatrix;
 
         glm::mat4 finalTransfrom = parrentTransform * localTransform * boneOffset;
-        clip[index][bone->boneID] = finalTransfrom;
+        animationComponent.keyframeMatrice[frameIndex][boneIndex] = finalTransfrom;
 
         for(int i = 0; i < bone->childrenIDs.size(); i++)
-            calcuKeyframeTransform(animationComponent.skeleton->m_Bones[i], finalTransfrom, animationComponent, index,
-                                   clip, std::weak_ptr<AnimationClip>());
+        {
+            std::int32_t id = bone->childrenIDs[i];
+            calcuKeyframeTransform(animationComponent.skeleton->m_Bones[id], finalTransfrom, animationComponent, frameIndex,id,Animclip);
+        }
     }
+
 }
 
 glm::mat4 SPW::AnimationSystem::getKeyframeTransform(AnimationNode node,int index)
@@ -432,21 +445,23 @@ glm::mat4 SPW::AnimationSystem::getKeyframeTransform(AnimationNode node,int inde
         return transform;
     }
 
-    glm::mat4 transform;
+    glm::mat4 transform = glm::mat4(1.0f);
     //Get transform here
-    glm::vec3 position;
-    glm::quat rotation;
-    glm::vec3 scaling;
+    if (index < node.keyFrames.size())
+    {
+        glm::vec3 position;
+        glm::quat rotation;
+        glm::vec3 scaling;
 
-    position = node.keyFrames[index].position;
+        position = node.keyFrames[index].position;
 
-    rotation = node.keyFrames[index].rotation;
+        rotation = node.keyFrames[index].rotation;
 
-    scaling = node.keyFrames[index].sacling;
+        scaling = node.keyFrames[index].sacling;
 
-    //Missing glm::vec3 -> glm::mat4 transfrom
-    transform = glm::translate(glm::mat4(1.0f),position) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f),scaling);
-
+        //Missing glm::vec3 -> glm::mat4 transfrom
+        transform = glm::translate(glm::mat4(1.0f),position) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f),scaling);
+    }
     return transform;
 }
 

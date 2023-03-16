@@ -54,7 +54,8 @@ namespace SPW{
                                     float currentTime);
 
         void calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone, glm::mat4 parrentTransform,
-                                    AnimationComponent &animationComponent, uint32_t index, ClipTransform clip,
+                                    AnimationComponent &animationComponent, uint32_t frameIndex,
+                                    uint32_t boneIndex,
                                     std::weak_ptr<AnimationClip> Animclip);
 
         void initializeComponent(AnimationComponent& animationComponent,ModelComponent& modelComponent);

@@ -97,9 +97,8 @@ namespace SPW {
         int indices [2];
         float frameWeights[2];
 
-        // Used to
-        AnimBufferInfo vertexBoneMap;
-
+        // assist
+        ClipTransform keyframeMatrice;
     };
 }
 
