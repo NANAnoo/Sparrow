@@ -41,6 +41,7 @@ namespace SPW {
     {
         ClipTransform finalKeyframeMatrices;
         FlattenTransform flattenTransform;
+        int boundCount;
         int frameCount;
         std::string animName;
     };

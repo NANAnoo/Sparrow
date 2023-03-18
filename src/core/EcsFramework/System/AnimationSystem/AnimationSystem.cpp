@@ -88,14 +88,9 @@ void SPW::AnimationSystem::beforeUpdate()
                              "WeightMatries",
                              animationComp->finalKeyMatricesAllClips[0].flattenTransform.size() * sizeof(glm::mat4),
                              4);
-                     animationComp->current_clip.weights->updateSubData(
-                             &animationComp->finalKeyMatricesAllClips[0].frameCount,
-                             0,
-                             1 * sizeof(int)
-                     );
-                     animationComp->current_clip.weights->updateSubData(
+                     animationComp->current_clip.mats->updateSubData(
                              animationComp->finalKeyMatricesAllClips[0].flattenTransform.data(),
-                             1 * sizeof(int),
+                             0,
                              animationComp->finalKeyMatricesAllClips[0].flattenTransform.size() * sizeof(glm::mat4)
                      );
 
@@ -152,6 +147,10 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
          );
          modelComp->pipeLineCommands.pushCommand(
                  RenderCommand(&Shader::SetUniformValue<int>, std::string("currentFrame"), i)
+         );
+         int boneCount = animationComp->skeleton->m_Bones.size();
+         modelComp->pipeLineCommands.pushCommand(
+                 RenderCommand(&Shader::SetUniformValue<int>, std::string("boneCount"), boneCount)
          );
          i =  (i + 1) % 60;
 
@@ -244,6 +243,7 @@ void SPW::AnimationSystem::precalculateTransform(AnimationComponent &animationCo
             }
         }
         animationClipTransform.frameCount = clip.lock()->frameCount;
+        animationClipTransform.boundCount = keyframeMatrice[0].size();
 
         animationComponent.finalKeyMatricesAllClips.emplace_back(animationClipTransform);
 
