@@ -187,12 +187,6 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 
 
 
-
-
-
-
-
-
     });
 }
 float getScaling(float lastTimeStamp,float nextTimeStamp,float currentTime)
@@ -223,7 +217,6 @@ void SPW::AnimationSystem::precalculateTransform(AnimationComponent &animationCo
             glm::mat4 rootTransfrom = glm::mat4(1.0f);
             calcuKeyframeTransform(rootNode.lock(), rootTransfrom, animationComponent, i, 0,
                                    clip);
-
         }
 
         std::string animName = clip.lock()->name;
@@ -245,10 +238,7 @@ void SPW::AnimationSystem::precalculateTransform(AnimationComponent &animationCo
         animationClipTransform.frameCount = clip.lock()->frameCount;
 
         animationComponent.finalKeyMatricesAllClips.emplace_back(animationClipTransform);
-
     }
-
-
 
 }
 
