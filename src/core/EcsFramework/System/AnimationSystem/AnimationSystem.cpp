@@ -45,6 +45,7 @@ void SPW::AnimationSystem::beforeUpdate()
 
                      precalculateTransform(*animationComp);
                      initializeComponent(*animationComp,*modelComp);
+
                      animationComp->bLoaded = true;
                      animationComp->current_clip.starts = std::make_shared<StorageBuffer>(
                              "WeightDictStart",
@@ -130,14 +131,13 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 
          AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
 
-
          auto animationComp = entity.component<SPW::AnimationComponent>();
          auto modelComp = entity.component<SPW::ModelComponent>();
 
          // load animation
          modelComp->pipeLineCommands.pushCommand(
                  RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.starts)
-                 );
+         );
          modelComp->pipeLineCommands.pushCommand(
                  RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.sizes)
          );
@@ -183,6 +183,16 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
             }
         }
 
+        //loading data
+
+
+
+
+
+
+
+
+
     });
 }
 float getScaling(float lastTimeStamp,float nextTimeStamp,float currentTime)
@@ -208,11 +218,12 @@ void SPW::AnimationSystem::precalculateTransform(AnimationComponent &animationCo
         //对每一帧进行计算，返回 a(骨骼数量) * [4*4](矩阵大小)
         for (uint32_t i = 0; i < clip.lock()->frameCount; i++)
         {
-            animationComponent.keyframeMatrice[i].resize(animationComponent.skeleton->m_Bones.size());
+            animationComponent.keyframeMatrice[i].resize(animationComponent.skeleton->m_Bones.size(),glm::mat4(1.0f));
 
-            glm::mat4 rootTransfrom = glm::mat4(1.0);
+            glm::mat4 rootTransfrom = glm::mat4(1.0f);
             calcuKeyframeTransform(rootNode.lock(), rootTransfrom, animationComponent, i, 0,
                                    clip);
+
         }
 
         std::string animName = clip.lock()->name;
@@ -234,13 +245,16 @@ void SPW::AnimationSystem::precalculateTransform(AnimationComponent &animationCo
         animationClipTransform.frameCount = clip.lock()->frameCount;
 
         animationComponent.finalKeyMatricesAllClips.emplace_back(animationClipTransform);
+
     }
+
+
 
 }
 
 void SPW::AnimationSystem::initializeComponent(AnimationComponent &animationComponent,ModelComponent& modelComponent)
 {
-    if(animationComponent.skeleton != nullptr && animationComponent.skeleton->m_animClips.size() != 0)
+    if(animationComponent.skeleton != nullptr && animationComponent.skeleton->m_animClips.size() != 0 && animationComponent.bInitialized==false)
     {
 
         //animationComponent.finalBoneMatrices.reserve(animationComponent.skeleton->m_Bones.size());
@@ -411,7 +425,7 @@ void SPW::AnimationSystem::calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone
 
     if (currentNode.nodeName == "")
     {
-        glm::mat4 finalTransfrom = glm::mat4(1.0);
+        glm::mat4 finalTransfrom = glm::mat4(1.0f);
         for (int i = 0; i < bone->childrenIDs.size(); i++)
         {
             std::int32_t id = bone->childrenIDs[i];
@@ -421,10 +435,13 @@ void SPW::AnimationSystem::calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone
 
     }else
     {
+        glm::mat4 finalTransfrom = glm::mat4 (1.0f);
+        glm::mat4 testTransform = parrentTransform;
+
         localTransform = getKeyframeTransform(currentNode, frameIndex);
         boneOffset = bone->offsetMatrix;
 
-        glm::mat4 finalTransfrom = parrentTransform * localTransform * boneOffset;
+        finalTransfrom = parrentTransform * localTransform * boneOffset;
         animationComponent.keyframeMatrice[frameIndex][boneIndex] = finalTransfrom;
 
         for(int i = 0; i < bone->childrenIDs.size(); i++)

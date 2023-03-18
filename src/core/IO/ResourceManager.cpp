@@ -17,6 +17,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/include/stb_image.h>
+#include <algorithm>
 
 namespace SPW
 {
@@ -303,6 +304,7 @@ namespace SPW
 				}
 			}
 			tmp[i]->parentID = parentBoneIndex;
+            tmp[i]->boneID = i;
 		}
 
 		// Iterate through each bone and get its children indices
@@ -399,13 +401,91 @@ namespace SPW
 			tmp->nodeAnimations[j].nodeName = channel->mNodeName.C_Str();
 
 			// Iterate over all position keyframes in the channel
-			for (unsigned int k = 0; k < channel->mNumPositionKeys; k++)
+            int max_frame = std::max(channel->mNumPositionKeys,channel->mNumRotationKeys);
+            // Get delta time
+
+            float maxTime = 1.0f;
+            maxTime = channel->mPositionKeys[channel->mNumPositionKeys-1].mTime;
+
+            float delta_t = maxTime / max_frame;
+
+			for (unsigned int k = 0; k < max_frame; k++)
 			{
-				const auto time = channel->mPositionKeys[k].mTime;
-				const auto pos = SPW::toVec3(channel->mPositionKeys[k].mValue);
-				const auto rot = SPW::toQuat(channel->mRotationKeys[k].mValue);
-				const auto scaling = SPW::toVec3(channel->mScalingKeys[k].mValue);
-				tmp->nodeAnimations[j].keyFrames.emplace_back(KeyFrame{ time, pos, rot, scaling });
+                double currentTime = k * delta_t;
+                //Searching for correct scaling
+                glm::vec3 scale = glm::vec3 (1.0f);
+                for(int i = 0 ; i < channel->mNumScalingKeys ; i++)
+                {
+                    if (currentTime < channel->mScalingKeys[i].mTime)
+                    {
+                        int leftIndex = i - 1;
+                        int rightIndex = i;
+                        //Linear interpolation
+
+                        float leftTimeGap = currentTime -  channel->mScalingKeys[leftIndex].mTime;
+                        float rightTimeGap = channel->mScalingKeys[rightIndex].mTime - currentTime;
+
+                        float leftFactor = leftTimeGap / (leftTimeGap+rightTimeGap);
+                        float rightFactor = rightTimeGap / (leftTimeGap+rightTimeGap);
+
+                        glm::vec3 left = SPW::toVec3(channel->mScalingKeys[leftIndex].mValue);
+                        glm::vec3 right = SPW::toVec3(channel->mScalingKeys[rightIndex].mValue);
+
+                        scale = left * leftFactor + right * rightFactor;
+                    }
+                }
+                // curremt time
+                // mPositionKeys = [{time1...}, time2, time3 ,...., maxtime]
+                // l_index, r_index
+                // pos = channel->mPositionKeys[l_index] * alpha + channel->mPositionKeys[r_index] * (1 - alpha);
+
+                // pos interpolation
+                glm::vec3 position = glm::vec3 (1.0f);
+                for (int i = 0 ; i < channel->mNumPositionKeys ; i++)
+                {
+                    if (currentTime < channel->mPositionKeys[i].mTime)
+                    {
+                        int leftIndex = i - 1;
+                        int rightIndex = i;
+                        //Linear interpolation
+
+                        float leftTimeGap = currentTime -  channel->mPositionKeys[leftIndex].mTime;
+                        float rightTimeGap = channel->mPositionKeys[rightIndex].mTime - currentTime;
+
+                        float leftFactor = leftTimeGap / (leftTimeGap+rightTimeGap);
+                        float rightFactor = rightTimeGap / (leftTimeGap+rightTimeGap);
+
+                        glm::vec3 left = SPW::toVec3(channel->mPositionKeys[leftIndex].mValue);
+                        glm::vec3 right = SPW::toVec3(channel->mPositionKeys[rightIndex].mValue);
+
+                        position = left * leftFactor + right * rightFactor;
+                    }
+                }
+
+                // rotation interpolation
+                glm::quat rotation;
+                for (int i = 0 ; i < channel->mNumRotationKeys ; i++)
+                {
+                    if (currentTime < channel->mRotationKeys[i].mTime)
+                    {
+                        int leftIndex = i - 1;
+                        int rightIndex = i;
+                        //Linear interpolation
+
+                        float leftTimeGap = currentTime -  channel->mRotationKeys[leftIndex].mTime;
+                        float rightTimeGap = channel->mRotationKeys[rightIndex].mTime - currentTime;
+
+                        float leftFactor = leftTimeGap / (leftTimeGap+rightTimeGap);
+                        float rightFactor = rightTimeGap / (leftTimeGap+rightTimeGap);
+
+                        glm::quat left = SPW::toQuat(channel->mRotationKeys[leftIndex].mValue);
+                        glm::quat right = SPW::toQuat(channel->mRotationKeys[rightIndex].mValue);
+
+                        rotation = left * leftFactor + right * rightFactor;
+                    }
+                }
+
+				tmp->nodeAnimations[j].keyFrames.emplace_back(KeyFrame{ currentTime, position, rotation, scale });
 			}
 			if (channel->mNumPositionKeys > tmp->frameCount) tmp->frameCount = channel->mNumPositionKeys;
 		}
@@ -418,7 +498,7 @@ namespace SPW
 		for (unsigned int i = 0; i < scene->mNumAnimations; i++)
 		{
 			aiAnimation* animation = scene->mAnimations[i];
-			animClips.emplace_back(ProcessAnimationNode(animation, scene));
+			animClips.push_back(ProcessAnimationNode(animation, scene));
 		}
 
 		return animClips;

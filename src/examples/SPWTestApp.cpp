@@ -291,6 +291,7 @@ public:
             model->model = createModel();
             auto animation = obj->emplace<SPW::AnimationComponent>();
             animation->skeleton = createSkeleton();
+            animation->state = SPW::State::started;
 
             // add light 1
             auto light = scene->createEntity("light");
