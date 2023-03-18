@@ -190,60 +190,11 @@ namespace SPW
 				tmp->indices.emplace_back(face.mIndices[j]);
 	    }
 
-	    // Bones
-	    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-			const aiBone* bone = mesh->mBones[i];
 
-//			// TODO Open Animation Branch to DO
-//			 //Weights
-//			 std::vector<Weight> weights;
-//			 for (unsigned int j = 0; j < bone->mNumWeights; j++)
-//			 	weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
-//
-//			 m_BoneInfos.emplace_back(
-//			 	std::make_shared<BoneInfo>(bone->mName.C_Str(), bone->mNumWeights, std::move(weights), toMat4(bone->mOffsetMatrix))
-//			 );
-		}
+    	    // TODO Deal with Materials
+            tmp->SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
 
-		int numBones = mesh->mNumBones;
-
-        // Iterate through each bone and get its parent bone index
-        for (int i = 0; i < mesh->mNumBones; i++)
-        {
-            aiBone* bone = mesh->mBones[i];
-            int parentBoneIndex = -1;
-
-            // Check if the bone has a parent node
-            if (bone->mNode->mParent)
-            {
-                // Find the parent bone index by iterating through the bone array
-                for (int j = 0; j < mesh->mNumBones; j++)
-                {
-                    if (i == j) continue;
-
-                    aiBone* otherBone = mesh->mBones[j];
-                    if (otherBone->mNode == bone->mNode->mParent) {
-                        parentBoneIndex = j;
-                        break;
-                    }
-                }
-            }
-            // m_BoneInfos[i]->parentID = parentBoneIndex;
-        }
-
-        // Iterate through each bone and get its children indices
-        for (int i = 0; i < mesh->mNumBones; i++)
-        {
-        	// TODO Open Animation Branch to DO
-            // const auto& parentID = m_BoneInfos[i]->parentID;
-            // if (parentID == -1) continue;
-            // m_BoneInfos[parentID]->childrenIDs.emplace_back(i);
-        }
-
-    	// TODO Deal with Materials
-		tmp->SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
-
-		return tmp;
+            return tmp;
 	}
 
 	[[nodiscard]] std::vector<std::shared_ptr<Mesh>> ProcessNodes(aiNode* node, const aiScene* scene)
@@ -270,16 +221,16 @@ namespace SPW
 
 		// Bones
 		for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-			const aiBone* bone = mesh->mBones[i];
+                      const aiBone* bone = mesh->mBones[i];
 
-			// Weights
-			std::vector<Weight> weights;
-			for (unsigned int j = 0; j < bone->mNumWeights; j++)
-				weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
+                      // Weights
+                      std::vector<Weight> weights;
+                      for (unsigned int j = 0; j < bone->mNumWeights; j++)
+                              weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
 
-			tmp.emplace_back(
-				std::make_shared<BoneInfo>(bone->mName.C_Str(), bone->mNumWeights, std::move(weights), toMat4(bone->mOffsetMatrix))
-			);
+                      tmp.emplace_back(
+                        std::make_shared<BoneInfo>(i, bone->mName.C_Str(), bone->mNumWeights, std::move(weights), toMat4(bone->mOffsetMatrix))
+                      );
 		}
 
 		// Iterate through each bone and get its parent bone index
