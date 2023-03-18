@@ -412,8 +412,9 @@ namespace SPW
 			for (unsigned int k = 0; k < max_frame; k++)
 			{
                 double currentTime = k * delta_t;
+                KeyFrame keyFrame{};
+                keyFrame.time = currentTime;
                 //Searching for correct scaling
-                glm::vec3 scale = glm::vec3 (1.0f);
                 for(int i = 0 ; i < channel->mNumScalingKeys ; i++)
                 {
                     if (currentTime < channel->mScalingKeys[i].mTime)
@@ -431,7 +432,8 @@ namespace SPW
                         glm::vec3 left = SPW::toVec3(channel->mScalingKeys[leftIndex].mValue);
                         glm::vec3 right = SPW::toVec3(channel->mScalingKeys[rightIndex].mValue);
 
-                        scale = left * leftFactor + right * rightFactor;
+                        keyFrame.sacling = left * leftFactor + right * rightFactor;
+                        break;
                     }
                 }
                 // curremt time
@@ -440,7 +442,6 @@ namespace SPW
                 // pos = channel->mPositionKeys[l_index] * alpha + channel->mPositionKeys[r_index] * (1 - alpha);
 
                 // pos interpolation
-                glm::vec3 position = glm::vec3 (1.0f);
                 for (int i = 0 ; i < channel->mNumPositionKeys ; i++)
                 {
                     if (currentTime < channel->mPositionKeys[i].mTime)
@@ -458,7 +459,8 @@ namespace SPW
                         glm::vec3 left = SPW::toVec3(channel->mPositionKeys[leftIndex].mValue);
                         glm::vec3 right = SPW::toVec3(channel->mPositionKeys[rightIndex].mValue);
 
-                        position = left * leftFactor + right * rightFactor;
+                        keyFrame.position = left * leftFactor + right * rightFactor;
+                        break;
                     }
                 }
 
@@ -481,11 +483,12 @@ namespace SPW
                         glm::quat left = SPW::toQuat(channel->mRotationKeys[leftIndex].mValue);
                         glm::quat right = SPW::toQuat(channel->mRotationKeys[rightIndex].mValue);
 
-                        rotation = left * leftFactor + right * rightFactor;
+                        keyFrame.rotation = left * leftFactor + right * rightFactor;
+                        break;
                     }
                 }
 
-				tmp->nodeAnimations[j].keyFrames.emplace_back(KeyFrame{ currentTime, position, rotation, scale });
+				tmp->nodeAnimations[j].keyFrames.push_back(keyFrame);
 			}
 			if (channel->mNumPositionKeys > tmp->frameCount) tmp->frameCount = channel->mNumPositionKeys;
 		}

@@ -38,6 +38,7 @@
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 #include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
+#include "Render/StorageBuffer.h"
 
 #include "Model/Model.h"
 
@@ -123,6 +124,9 @@ public:
     std::weak_ptr<SPW::WindowI> window;
     std::weak_ptr<SPW::Scene> scene;
 };
+
+static std::vector<glm::vec4> sColors = {{1, 0, 0, 1}, {0, 1, 0, 1}, {0, 0, 1, 1}};
+static std::shared_ptr<SPW::StorageBuffer> testColor = std::make_shared<SPW::StorageBuffer>("TestColor", sizeof(glm::vec4) * sColors.size(), 8);
 
 class TestDelegate : public SPW::AppDelegateI {
 public:
@@ -238,23 +242,23 @@ public:
                 glm::vec3 up = {0, 1, 0};
                 glm::vec3 right = glm::normalize(glm::cross(forward, up));
                 if(keycode == SPW::Key::W)
-                    mainCameraTrans->position +=0.001f * forward;
+                    mainCameraTrans->position +=0.1f * forward;
                 if(keycode == SPW::Key::S)
-                    mainCameraTrans->position -=0.001f * forward;
+                    mainCameraTrans->position -=0.1f * forward;
                 if(keycode == SPW::Key::A)
-                    mainCameraTrans->position -=0.001f * right;
+                    mainCameraTrans->position -=0.1f * right;
                 if(keycode == SPW::Key::D)
-                    mainCameraTrans->position +=0.001f * right;
+                    mainCameraTrans->position +=0.1f * right;
                 if(keycode == SPW::Key::Q)
-                    mainCameraTrans->position -=0.001f * up;
+                    mainCameraTrans->position -=0.1f * up;
                 if(keycode == SPW::Key::E)
-                    mainCameraTrans->position +=0.001f * up;
+                    mainCameraTrans->position +=0.1f * up;
             };
             auto mouse = camera->emplace<SPW::MouseComponent>();
             mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
                 auto transform = e.component<SPW::TransformComponent>();
-                transform->rotation.x += y_pos_bias * 0.02;
-                transform->rotation.y += x_pos_bias * 0.1 ;
+                transform->rotation.x -= y_pos_bias * 0.02;
+                transform->rotation.y -= x_pos_bias * 0.1 ;
             };
             cameraKey->onKeyHeldCallBack = cb;
             cameraKey->onKeyDownCallBack = cb;
@@ -262,7 +266,7 @@ public:
             // add a test game object
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
-            transform->scale = {0.5, 0.5, 0.5};
+            transform->scale = {0.01, 0.01, 0.01};
             transform->rotation = {-90, 90, 0};
             transform->position = {0, -0.3, 0};
 
@@ -293,6 +297,9 @@ public:
             animation->skeleton = createSkeleton();
             animation->state = SPW::State::started;
 
+            testColor->updateSubData(sColors.data(), 0, sColors.size() * sizeof(glm::vec4));
+            model->preRenderCommands.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::initStorageBuffer, testColor));
+
             // add light 1
             auto light = scene->createEntity("light");
             auto lightTrans =light->emplace<SPW::TransformComponent>();
@@ -318,6 +325,9 @@ public:
     }
     void beforeAppUpdate() final{
         scene->beforeUpdate();
+        scene->forEachEntity<SPW::ModelComponent>([](const SPW::Entity &en){
+            en.component<SPW::ModelComponent>()->pipeLineCommands.pushCommand(SPW::RenderCommand(&SPW::Shader::setStorageBuffer, testColor));
+        });
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
         // physics, computation

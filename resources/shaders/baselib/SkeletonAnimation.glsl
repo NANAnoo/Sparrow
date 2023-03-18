@@ -24,12 +24,11 @@ layout (std430) buffer WeightMatries {
     mat4 mats[];
 } weightMatries;
 
-const int max = 10;
 vec4 animationTransForm(vec4 position, int index) {
     int start = weightDictStart.starts[index];
     int end = start + weightDictSize.sizes[index];
     mat4 transform;
-    for (int i = start; i < end && i < max + start; i ++) {
+    for (int i = start; i < end; i ++) {
         int which_bone = weightDictKey.keys[i];
         float weight = weightDictValue.weights[i];
         transform += weightMatries.mats[weightMatries.frameNum * which_bone + currentFrame] * weight;

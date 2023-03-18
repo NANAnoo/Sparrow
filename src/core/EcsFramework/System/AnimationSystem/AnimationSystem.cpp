@@ -117,7 +117,7 @@ void SPW::AnimationSystem::beforeUpdate()
                  }
             });
 }
-
+static int i = 0;
 void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 {
 
@@ -151,37 +151,38 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
                  RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.mats)
          );
          modelComp->pipeLineCommands.pushCommand(
-                 RenderCommand(&Shader::SetUniformValue<int>, std::string("currentFrame"), 1)
+                 RenderCommand(&Shader::SetUniformValue<int>, std::string("currentFrame"), i)
          );
+         i =  (i + 1) % 60;
 
-         if (!animationComp->bInitialized)
-            initializeComponent(*animationComp,*modelComp);
-        else
-        {
-
-            std::string animationName = animationComp->incomingAnimName;
-            if (animationName.compare(animationName))
-            {
-                this->playAnimation(animationName,deltaTime,*animationComp);
-
-            }else{
-
-                if (animationComp->state == SPW::State::started)
-                {
-                    this->updateFramesWeight(animationName,deltaTime,*animationComp);
-
-                //If we start an animation from stop state
-                }else{
-                    this->playAnimation(animationName,deltaTime,*std::get<0>(animatedEntity));
-                }
-            }
-
-            if (animationComp->state == SPW::State::stopped)
-            {
-                //Stop playing animation
-                this->stopAnimation(*animationComp);
-            }
-        }
+//         if (!animationComp->bInitialized)
+//            initializeComponent(*animationComp,*modelComp);
+//        else
+//        {
+//
+//            std::string animationName = animationComp->incomingAnimName;
+//            if (animationName.compare(animationName))
+//            {
+//                this->playAnimation(animationName,deltaTime,*animationComp);
+//
+//            }else{
+//
+//                if (animationComp->state == SPW::State::started)
+//                {
+//                    this->updateFramesWeight(animationName,deltaTime,*animationComp);
+//
+//                //If we start an animation from stop state
+//                }else{
+//                    this->playAnimation(animationName,deltaTime,*std::get<0>(animatedEntity));
+//                }
+//            }
+//
+//            if (animationComp->state == SPW::State::stopped)
+//            {
+//                //Stop playing animation
+//                this->stopAnimation(*animationComp);
+//            }
+//        }
 
         //loading data
 
