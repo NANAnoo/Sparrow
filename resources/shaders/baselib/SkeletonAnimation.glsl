@@ -33,6 +33,6 @@ vec4 animationTransForm(vec4 position, int index) {
         float weight = weightDictValue.weights[i];
         transform += weightMatries.mats[boneCount * currentFrame + which_bone] * weight;
     }
-    return position * transform;
+    return transform * position;
 }
 #endif
