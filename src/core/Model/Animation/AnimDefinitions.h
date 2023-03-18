@@ -28,8 +28,8 @@ namespace SPW {
         std::vector<Weight> weights;
         glm::mat4 offsetMatrix;
 
-        BoneInfo(std::string &&_name, uint32_t _mNumWeights, std::vector<Weight> &&_weights, glm::mat4 _offsetMatrix)
-                : name(_name), mNumWeights(_mNumWeights), weights(_weights), offsetMatrix(_offsetMatrix) {}
+        BoneInfo(uint32_t _boneID, std::string &&_name, uint32_t _mNumWeights, std::vector<Weight> &&_weights, glm::mat4 _offsetMatrix)
+                : boneID(_boneID), name(_name), mNumWeights(_mNumWeights), weights(_weights), offsetMatrix(_offsetMatrix) {}
     };
 
     struct AnimationClip {
