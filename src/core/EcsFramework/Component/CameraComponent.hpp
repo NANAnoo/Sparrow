@@ -60,43 +60,43 @@ namespace SPW {
             const auto& flied_name = std::string(k);
             if (flied_name == "CameraType")
             {
-              *v.as_integer();
+              camera_component.cameraType = static_cast<CameraType>(int64_t(*v.as_integer()));
             }
             if (flied_name == "fov")
             {
-              *v.as_floating_point();
+              camera_component.fov = static_cast<float>(double(*v.as_floating_point()));
             }
             if (flied_name == "aspect")
             {
-              *v.as_floating_point();
+              camera_component.aspect = static_cast<float>(double(*v.as_floating_point()));
             }
             if (flied_name == "near")
             {
-              *v.as_floating_point();
+              camera_component.near = static_cast<float>(double(*v.as_floating_point()));
             }
             if (flied_name == "far")
             {
-              *v.as_floating_point();
+              camera_component.far = static_cast<float>(double(*v.as_floating_point()));
             }
             if (flied_name == "left")
             {
-              *v.as_floating_point();
+              camera_component.left = static_cast<float>(double(*v.as_floating_point()));
             }
             if (flied_name == "right")
             {
-              *v.as_floating_point();
+              camera_component.right = static_cast<float>(double(*v.as_floating_point()));
             }
             if (flied_name == "bottom")
             {
-              *v.as_floating_point();
+              camera_component.bottom = static_cast<float>(double(*v.as_floating_point()));
             }
             if (flied_name == "top")
             {
-              *v.as_floating_point();
+              camera_component.top = static_cast<float>(double(*v.as_floating_point()));
             }
             if (flied_name == "whetherMainCam")
             {
-              *v.as_boolean();
+              camera_component.whetherMainCam = bool(*v.as_boolean());
             }
           }
 
