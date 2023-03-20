@@ -51,6 +51,12 @@ namespace SPW {
             return createEntity(name, UUID::randomUUID());
         }
 
+        std::shared_ptr<Entity> createEntityByID(const UUID &uid) {
+            auto ent = std::make_shared<SPW::Entity>(registry);
+            ent->emplace<SPW::IDComponent>(uid);
+            return ent;
+        }
+
         // delete entity
         void deleteEntity(const std::shared_ptr<Entity> &entity) {
             registry->destroy(entity->entity);

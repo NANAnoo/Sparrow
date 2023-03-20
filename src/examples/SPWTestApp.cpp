@@ -293,31 +293,14 @@ public:
             scene->initial();
             transformer->scene = scene;
 
-            std::vector<toml::table> sceneSerialer;
-            scene->forEachEntity<SPW::IDComponent>([&sceneSerialer](const SPW::Entity &e)
-            {
-                SPW::EntitySerializer entitySerialer;
-                if(e.has<SPW::CameraComponent>())
-                    entitySerialer.AddComponment("camera", e.component<SPW::CameraComponent>()->save());
-                if(e.has<SPW::LightComponent>())
-                    entitySerialer.AddComponment("light", e.component<SPW::LightComponent>()->save());
+//-----------------SAVE--------------------
+//            std::unique_ptr<SPW::EntitySerializer> saveSerializer  = std::make_unique<SPW::EntitySerializer>();
+//            saveSerializer->SaveScene(scene, "scene_01.toml");
+//-----------------LOAD--------------------
 
-                auto com_name = e.component<SPW::NameComponent>()->getName();
-                auto uuid_str = e.component<SPW::IDComponent>()->getID().toString();
+            std::unique_ptr<SPW::EntitySerializer> loadSerializer{};
+            loadSerializer->LoadScene(scene, std::string("C:/Dev/Sparrow-Engine/build/bin/scene.toml"));
 
-                std::cout << entitySerialer.SaveEntity(com_name, uuid_str) << std::endl;
-                sceneSerialer.emplace_back(entitySerialer.SaveEntity(com_name, uuid_str));
-            });
-
-            std::ofstream file("scene.toml");
-            if (file.is_open())
-            {
-                for(const auto e: sceneSerialer)
-                {
-                  file << e << std::endl << std::endl;
-                }
-                file.close();
-            }
         });
     }
     void beforeAppUpdate() final{

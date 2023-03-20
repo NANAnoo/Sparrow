@@ -51,6 +51,58 @@ namespace SPW {
           return tbl;
         }
 
+        CameraComponent& load(SaveTable&& tbl)
+        {
+          CameraComponent camera_component{CameraType::PerspectiveType};
+          for (const auto& [k, v] : tbl)
+          {
+            std::cout << k << std::endl;
+            const auto& flied_name = std::string(k);
+            if (flied_name == "CameraType")
+            {
+              *v.as_integer();
+            }
+            if (flied_name == "fov")
+            {
+              *v.as_floating_point();
+            }
+            if (flied_name == "aspect")
+            {
+              *v.as_floating_point();
+            }
+            if (flied_name == "near")
+            {
+              *v.as_floating_point();
+            }
+            if (flied_name == "far")
+            {
+              *v.as_floating_point();
+            }
+            if (flied_name == "left")
+            {
+              *v.as_floating_point();
+            }
+            if (flied_name == "right")
+            {
+              *v.as_floating_point();
+            }
+            if (flied_name == "bottom")
+            {
+              *v.as_floating_point();
+            }
+            if (flied_name == "top")
+            {
+              *v.as_floating_point();
+            }
+            if (flied_name == "whetherMainCam")
+            {
+              *v.as_boolean();
+            }
+          }
+
+          return camera_component;
+        }
+
     private:
         CameraType cameraType = PerspectiveType;
     };

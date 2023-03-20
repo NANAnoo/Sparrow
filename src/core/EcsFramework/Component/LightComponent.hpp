@@ -49,6 +49,52 @@ namespace SPW {
                 };
             return tbl;
         }
+
+        LightComponent& load(SaveTable&& tbl)
+        {
+            LightComponent light_tmp{LightType::DirectionalLightType};
+            for (const auto& [k, v] : tbl)
+            {
+              std::cout << k << std::endl;
+              const auto& flied_name = std::string(k);
+              if (flied_name == "LightType")
+              {
+                light_tmp.lightType = static_cast<LightType>(int64_t(*v.as_integer()));
+              }
+              if (flied_name == "ambient")
+              {
+                auto arr = *v.as_array();
+                light_tmp.ambient = EntitySerializer::ToVec3(std::move(arr));
+              }
+              if (flied_name == "constant")
+              {
+                light_tmp.constant = static_cast<float>(double(*v.as_floating_point()));
+              }
+              if (flied_name == "diffuse")
+              {
+                auto arr = *v.as_array();
+                light_tmp.diffuse = EntitySerializer::ToVec3(std::move(arr));
+              }
+              if (flied_name == "linear")
+              {
+                light_tmp.linear = static_cast<float>(double(*v.as_floating_point()));
+              }
+              if (flied_name == "quadratic")
+              {
+                light_tmp.quadratic = static_cast<float>(double(*v.as_floating_point()));
+
+              }
+              if (flied_name == "specular")
+              {
+                auto arr = *v.as_array();
+                light_tmp.specular = EntitySerializer::ToVec3(std::move(arr));
+              }
+            }
+
+            return light_tmp;
+        }
+
+
     private:
         LightType lightType;
     };
