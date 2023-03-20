@@ -297,9 +297,9 @@ public:
 //            std::unique_ptr<SPW::EntitySerializer> saveSerializer  = std::make_unique<SPW::EntitySerializer>();
 //            saveSerializer->SaveScene(scene, "scene_01.toml");
 //-----------------LOAD--------------------
-
             std::unique_ptr<SPW::EntitySerializer> loadSerializer{};
-            loadSerializer->LoadScene(scene, std::string("C:/Dev/Sparrow-Engine/build/bin/scene.toml"));
+            auto entts = loadSerializer->LoadScene(scene, std::string("C:/Dev/Sparrow-Engine/build/bin/scene.toml"));
+            for(const auto &e: entts) std::cout << e->getName() << std::endl;
 
         });
     }
