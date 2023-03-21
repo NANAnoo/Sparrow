@@ -23,7 +23,17 @@ public:
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
 
-        m_state.open_libraries(sol::lib::base, sol::lib::package);
+        m_state.open_libraries(sol::lib::base,
+                               sol::lib::package,
+                               sol::lib::coroutine,
+                               sol::lib::string,
+                               sol::lib::os,
+                               sol::lib::math,
+                               sol::lib::table,
+                               sol::lib::debug,
+                               sol::lib::bit32,
+                               sol::lib::io,
+                               sol::lib::utf8);
         std::string x = m_state["package"]["path"];
         m_state["package"]["path"] = x + ";./LuaLib/?.lua;./resources/scripts/lua/?.lua";
         try {
