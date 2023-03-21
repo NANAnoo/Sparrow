@@ -56,6 +56,7 @@ set(SparrowSRCDir "${ProjectRootDir}/src")
 set(SparrowCoreDir "${SparrowSRCDir}/core")
 set(SparrowExamplesDir "${SparrowSRCDir}/examples")
 set(SparrowExternalDir "${ProjectRootDir}/external")
+set(SparrowLuaLib "${SparrowSRCDir}/LuaLib")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DSPW_DEBUG)

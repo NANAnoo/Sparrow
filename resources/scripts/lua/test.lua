@@ -8,5 +8,5 @@
 require "test/print"
 
 function main()
-    my_func("hello lua")
+    my_func()
 end
