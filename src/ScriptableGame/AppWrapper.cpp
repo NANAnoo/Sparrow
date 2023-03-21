@@ -13,6 +13,30 @@
 
 #include "EcsFramework/Scene.hpp"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
+#include "LuaBinding/SceneWrapper.hpp"
+
+#include "EcsFramework/Component/BasicComponent/IDComponent.h"
+#include "EcsFramework/Component/ModelComponent.h"
+#include "EcsFramework/Component/CameraComponent.hpp"
+#include "EcsFramework/Component/TransformComponent.hpp"
+
+#include "EcsFramework/Component/Audio/AudioComponent.h"
+#include "EcsFramework/Component/Audio/AudioListener.h"
+#include "EcsFramework/Component/KeyComponent.hpp"
+#include "EcsFramework/Component/MouseComponent.hpp"
+#include "Platforms/OPENGL/OpenGLBackEnd.h"
+
+
+#include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
+#include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
+#include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "EcsFramework/System/AudioSystem/AudioSystem.h"
+
+
+extern "C"{
+#include <luasocket.h>
+}
 
 class GameWrapper : public SPW::AppDelegateI {
 public:
@@ -36,6 +60,10 @@ public:
                                sol::lib::utf8);
         std::string x = m_state["package"]["path"];
         m_state["package"]["path"] = x + ";./LuaLib/?.lua;./resources/scripts/lua/?.lua";
+
+        // debug
+        m_state.require("socket.core",luaopen_socket_core,true);
+        m_state.script(R"(require("LuaPanda").start("127.0.0.1", 8818))");
         try {
             if(m_state.script_file("./resources/scripts/lua/TestGame.lua").valid()) {
                 auto global_app = m_state["global"]["app"];
@@ -63,7 +91,28 @@ public:
             // initial context
             weak_window.lock()->graphicsContext->Init();
             // call lua onInit
-            onInit();
+            auto cpp_table = m_state["Cpp"].get_or_create<sol::table>();
+            cpp_table.new_usertype<SPW::SceneWrapper>("SceneWrapper",
+                "createEntity", &SPW::SceneWrapper::createEntity,
+                "remove", &SPW::SceneWrapper::remove);
+            // create render back end
+            int width = weak_window.lock()->frameWidth();
+            int height = weak_window.lock()->frameHeight();
+            
+            cpp_table["SceneWrapper"] = [this, width, height](const std::string &path){
+                auto scene = SPW::SceneWrapper(app, path);
+                auto renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
+                scene.m_scene->addSystem(std::make_shared<SPW::AudioSystem>(scene.m_scene));
+                scene.m_scene->addSystem(std::make_shared<SPW::RenderSystem>(scene.m_scene, renderBackEnd, width, height));
+                scene.m_scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene.m_scene));
+                scene.m_scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene.m_scene));
+                return scene;
+            };
+            try {
+                onInit();
+            } catch (sol::error &e) {
+                std::cout << e.what() << std::endl;
+            }
         });
     }
     void beforeAppUpdate() final{
@@ -113,7 +162,6 @@ public:
 
     const char *getName() final {return m_name.c_str();}
     std::string m_name;
-    std::shared_ptr<SPW::Scene> scene = nullptr;
     sol::state m_state;
     sol::function onInit = sol::nil;
     sol::function beforeUpdate = sol::nil;

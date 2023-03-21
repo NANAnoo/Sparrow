@@ -1,10 +1,9 @@
-Entity = {id = "", component_map = {}}
+require("luaclass")
 
-function Entity:new(o, cpp_obj)
-    o = o or {}
-    setmetatable(o, self)
-    self.cpp_entity = cpp_obj
-    self.id = cpp_obj.getID()
+Entity = class("Entity")
+function Entity:init(id)
+    self.id = id
+    self.component_map = {}
 end
 
 function Entity:addComponent(component_type, ...)

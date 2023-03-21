@@ -65,6 +65,8 @@ endif()
 add_custom_target(copy_resources)
 add_custom_command(TARGET copy_resources PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${SparrowResourcesDir} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/)
+        add_custom_command(TARGET copy_resources PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${SparrowLuaLib} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/LuaLib/)
 
 add_subdirectory(external)
 add_subdirectory(src)

@@ -52,6 +52,13 @@ if (NOT TARGET lua)
     set_target_properties(lua PROPERTIES FOLDER ${ExternalFolder}/lua)
 endif()
 
+if (NOT TARGET luasocket)
+    add_subdirectory(luasocket)
+    target_include_directories(luasocket PRIVATE "${ExternalDir}/lua/lua-5.4.3/include")
+    target_link_libraries(luasocket PRIVATE wsock32 ws2_32 lua_static )
+    set_target_properties(luasocket PROPERTIES FOLDER ${ExternalFolder}/luasocket)
+endif()
+
 if (NOT TARGET stduuid)
     add_subdirectory(stduuid)
     set_target_properties(stduuid PROPERTIES FOLDER ${ExternalFolder}/stduuid)

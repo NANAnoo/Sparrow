@@ -32,7 +32,7 @@ function class(classname, super)
         cls = clone(super)
         cls.super = super
     else
-        cls = {ctor = function() end}
+        cls = {init = function() end}
     end
 
     cls.__cname = classname
@@ -41,7 +41,7 @@ function class(classname, super)
     function cls.new(...)
         local instance = setmetatable({}, cls)
         instance.class = cls
-        instance:ctor(...)
+        instance:init(...)
         return instance
     end
 
