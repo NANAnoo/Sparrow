@@ -173,7 +173,6 @@ public:
 // main entrance
 int main(int argc, char **argv) {
     // app test
-    auto appProxy =
-            SPW::Application::create<GameWrapper>();
+    auto appProxy = SPW::Application::create<GameWrapper>();
     return appProxy->app->run(argc, argv);
 }

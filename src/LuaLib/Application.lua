@@ -2,6 +2,9 @@
 global = {}
 
 Application = {
+    name = "unknown",
+    width = 0,
+    height = 0,
     onInit = function () end,
     beforeUpdate = function () end,
     onUpdate = function (duration) end,
@@ -9,7 +12,7 @@ Application = {
     onStop = function () end
 }
 
-function Application:new(o, appInfo, onInit, beforeUpdate, onUpdate, afterUpdate, onStop)
+function Application:new(o, name, width, height, onInit, beforeUpdate, onUpdate, afterUpdate, onStop)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
@@ -18,11 +21,12 @@ function Application:new(o, appInfo, onInit, beforeUpdate, onUpdate, afterUpdate
     self.onUpdate = onUpdate or function(duration) print('onUpdate not implemented', duration) end
     self.afterUpdate = afterUpdate or function () print('afterUpdate not implemented') end
     self.onStop = onStop or function () print('onStop not implemented') end
-    self.name = appInfo.name or "unknown"
-    self.width = appInfo.width or 800
-    self.height = appInfo.height or 600
+    self.name = name or "unknown"
+    self.width = width or 800
+    self.height = height or 600
     return o
 end
-function App(appInfo, onInit, beforeUpdate, onUpdate, afterUpdate, onStop)
-    global.app = Application:new(nil, appInfo, onInit, beforeUpdate, onUpdate, afterUpdate, onStop)
+
+function App(app)
+    global.app = Application:new(nil, app.name, app.width, app.height, app.onInit, app.beforeUpdate, app.onUpdate, app.afterUpdate, app.onStop)
 end

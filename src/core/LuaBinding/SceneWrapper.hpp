@@ -27,10 +27,24 @@ namespace SPW {
         public:
         SceneWrapper() = delete;
 
+        SceneWrapper(const SceneWrapper&) = delete;
+        SceneWrapper& operator=(const SceneWrapper&) = delete;
+
+        SceneWrapper(SceneWrapper &&other) {
+            m_scene = std::move(other.m_scene);
+            all_entities = std::move(all_entities);
+        }
+        
+        SceneWrapper& operator=(SceneWrapper &&other) {
+            m_scene = std::move(other.m_scene);
+            all_entities = std::move(all_entities);
+            return *this;
+        }
+
         // TODO: load a scene from path
         SceneWrapper(std::shared_ptr<EventResponderI> parent, std::string path) 
          : m_scene(std::make_shared<Scene>(parent)) {
-
+            std::printf("SceneWrapper init, %p", this);
         }
 
         // create entity from lua
