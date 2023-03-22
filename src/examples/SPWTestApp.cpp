@@ -197,6 +197,7 @@ public:
             };
 
             // add a camera entity
+            /*
             auto camera2 = scene->createEntity("main camera");
             auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
             cam2_tran->position.y = 0.3;
@@ -206,6 +207,8 @@ public:
             cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
             cam2->near = 0.01;
             cam2->far = 100;
+             */
+
 
 
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
@@ -313,7 +316,7 @@ public:
             lightCom2->ambient = {0.2, 0.2, 0.2};
             lightCom2->diffuse = {0, 1, 1};
             lightCom2->specular = {0, 1, 1};
-            lightTrans2->rotation = {-30, 0, 0};
+            lightTrans2->rotation = {30, 0, 0};
 
             // init scene
             scene->initial();

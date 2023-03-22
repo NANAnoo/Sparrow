@@ -20,6 +20,6 @@ void main()
     gl_Position = P*V*position;
     
     TexCoords = aCoords;
-    normal = mat3(transpose(inverse(M))) * aNormal;
+    normal = transpose(inverse(mat3(M))) * aNormal;
     FragPosLightSpace = lightSpaceMatrix * position;
 }
