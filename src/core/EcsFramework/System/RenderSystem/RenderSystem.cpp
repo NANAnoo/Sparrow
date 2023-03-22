@@ -13,8 +13,8 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 #include <string>
-
-std::shared_ptr<SPW::FrameBuffer> frameBuffer;
+int windowWidth=1280,windowHeight=720;
+float rotetaAngle=0.0f;
 void SPW::RenderSystem::initial()
 {
     renderBackEnd->Init();
@@ -32,20 +32,14 @@ void SPW::RenderSystem::initial()
         "resources/texture/skybox/back.jpg"
     };
     renderBackEnd->SetSkyBox(faces);
-
+    depthBuffer = renderBackEnd->creatShadowFrameBuffer();
+    depthBuffer->genFrameBuffer();
+    depthBuffer->AttachDepthTexture();
+    depthBuffer->unbind();
 }
 
 void SPW::RenderSystem::beforeUpdate() {
     // clear buffer
-
-    frameBuffer->bind();
-    renderBackEnd->DepthTest(true);
-
-    //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    renderBackEnd->SetClearColor(glm::vec4(0.5));
-    renderBackEnd->Clear();
 }
 
 void SPW::RenderSystem::onUpdate(SPW::TimeDuration dt) {
@@ -54,6 +48,7 @@ void SPW::RenderSystem::onUpdate(SPW::TimeDuration dt) {
 
 void SPW::RenderSystem::afterUpdate(){
     // get all normal cameras and UI cameras
+
     RenderCamera uiCamera;
 
     ComponentGroup<SPW::IDComponent,
@@ -81,7 +76,7 @@ void SPW::RenderSystem::afterUpdate(){
 
     frameBuffer->unbind();
 
-    // RenderPass n-1, PostProcessing
+    //RenderPass n-1, PostProcessing
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::DepthTest, false));
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::SetClearColor,glm::vec4(0.5)));
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::Clear));
@@ -201,6 +196,13 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 programModelMap[program].push_back(en);
             }
         }
+        if(!isShadow)
+        {
+            frameBuffer->bind();
+            renderBackEnd->DepthTest(true);
+            renderBackEnd->SetClearColor(glm::vec4(0.5));
+            renderBackEnd->Clear();
+        }
 
         // for each program, draw every model
         for (auto [handle, entities] : programModelMap) {
@@ -218,6 +220,30 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 auto dl = dLights[i];
                 shader->setDLight(i, dl);
             }
+            rotetaAngle+=0.01f;
+            glm::vec3 lightPos = glm::vec3(3.0f, 4.0f, -1.0f);
+            glm::mat4 rotateMatrix = glm::rotate(glm::mat4(1.0f),glm::radians(rotetaAngle),glm::vec3(0.0f,0.0f,1.0f));
+            lightPos = rotateMatrix*glm::vec4(lightPos,1.0f);
+            if(lightPos.y<0.0f)
+                rotetaAngle += 180.0f;
+            glm::mat4 lightProjection, lightView;
+            glm::mat4 lightSpaceMatrix;
+
+            float near_plane = 1.0f, far_plane = 10.5f;
+            lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+            lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+            lightSpaceMatrix = lightProjection * lightView;
+            shader->SetUniformValue<glm::mat4> ("lightSpaceMatrix", lightSpaceMatrix);
+            if(isShadow)
+            {
+                renderBackEnd->SetViewport(0,0,FrameBuffer::SHADOW_WIDTH, FrameBuffer::SHADOW_HEIGHT);
+                depthBuffer->bind();
+                renderBackEnd->Clear();
+            }
+            else
+            {
+                renderBackEnd->BindTexture(5,depthBuffer->depthMapId);
+            }
             shader->SetUniformValue("PLightCount", int(pLights.size()));
             shader->SetUniformValue("DLightCount", int(dLights.size()));
             // render every model in this shader
@@ -234,6 +260,13 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
 
                 shader->SetUniformValue<glm::mat4>("M", M);
                 modelCom->model->Draw(renderBackEnd, handle);
+            }
+            if(isShadow)
+            {
+                depthBuffer->unbind();
+                // reset viewport
+                renderBackEnd->SetViewport(0,0,windowWidth, windowHeight);
+                renderBackEnd->Clear();
             }
         }
 
@@ -253,6 +286,8 @@ void SPW::RenderSystem::onStop() {
 bool SPW::RenderSystem::onFrameResize(int w, int h) {
     std::cout << "RenderSystem frame changed" << std::endl;
     // update frame buffer here
+    windowWidth = w;
+    windowHeight = h;
     frameBuffer->deleteFrameBuffer();
     frameBuffer->genFrameBuffer();
     frameBuffer->bind();

@@ -84,6 +84,7 @@ namespace SPW
             }
         }
 
+
         void setUpModel(std::shared_ptr<RenderBackEndI> &renderBackEnd) {
             for (auto& mesh : m_Meshes)
                 mesh->setupMesh(renderBackEnd);

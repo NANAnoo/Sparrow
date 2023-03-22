@@ -28,6 +28,11 @@ namespace SPW {
                 frameBuffer->AttachDepthRenderBuffer(w,h);
                 frameBuffer->CheckFramebufferStatus();
                 frameBuffer->unbind();
+
+                //depthBuffer = renderBackEnd->creatSenceFrameBuffer();
+                //depthBuffer->genFrameBuffer();
+                //depthBuffer->AttachDepthTexture();
+                //depthBuffer->unbind();
         }
         void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
             renderBackEnd = backEnd;
@@ -47,6 +52,7 @@ namespace SPW {
         void renderModelsWithCamera(const RenderCamera &camera,glm::mat4& View,glm::mat4& Pro);
         std::shared_ptr<RenderBackEndI> renderBackEnd;
         std::shared_ptr<SPW::FrameBuffer> frameBuffer;
+        std::shared_ptr<SPW::FrameBuffer> depthBuffer;
     };
 }
 

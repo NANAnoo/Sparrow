@@ -207,6 +207,7 @@ public:
             cam2->near = 0.01;
             cam2->far = 100;
 
+
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
             cam->whetherMainCam = true;
             //add a key component for testing, press R to rotate
@@ -245,6 +246,12 @@ public:
             cameraKey->onKeyDownCallBack = cb;
 
             // add a test game object
+            SPW::ShaderHandle ShadowShaderHandle({
+                                                   "shadow",
+                                                   "./resources/shaders/shadowMap.vert",
+                                                   "./resources/shaders/shadowMap.frag"
+                                           });
+
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.5, 0.5, 0.5};
@@ -273,12 +280,12 @@ public:
                                      });
 
             model->modelProgram = shaderHandle;
+            model->shadowProgram = ShadowShaderHandle;
             model->model = createModel();
-
-
             auto cubeObj = scene->createEntity("floor");
             auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
-            cubeTrans->scale = {1.0, 0.05, 1.0};
+            cubeTrans->scale = {5.0, 0.05, 5.0};
+            cubeTrans->position.y-=0.35f;
             auto cubemodel = cubeObj->emplace<SPW::ModelComponent>(camera_id);
             SPW::ShaderHandle CubeshaderHandle({
                                                    "basic",
@@ -287,6 +294,7 @@ public:
                                            });
             //model->bindCameras.insert(camera_id_2);
             cubemodel->modelProgram = CubeshaderHandle;
+            cubemodel->shadowProgram = ShadowShaderHandle;
             cubemodel->model = createCubeModel();
 
             // add light 1
@@ -305,7 +313,7 @@ public:
             lightCom2->ambient = {0.2, 0.2, 0.2};
             lightCom2->diffuse = {0, 1, 1};
             lightCom2->specular = {0, 1, 1};
-            lightTrans2->rotation = {0, -60, 0};
+            lightTrans2->rotation = {-30, 0, 0};
 
             // init scene
             scene->initial();
