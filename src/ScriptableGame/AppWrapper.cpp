@@ -90,11 +90,13 @@ public:
             weak_window.lock()->graphicsContext = std::make_shared<SPW::OpenGLxGLFWContext>(handle);
             // initial context
             weak_window.lock()->graphicsContext->Init();
-            // call lua onInit
-            auto cpp_table = m_state["Cpp"].get_or_create<sol::table>();
-            cpp_table.new_usertype<SPW::SceneWrapper>("SceneWrapper",
-                "createEntity", &SPW::SceneWrapper::createEntity,
-                "remove", &SPW::SceneWrapper::remove);
+
+            // create SPW root table
+            auto cpp_table = m_state["SPW"].get_or_create<sol::table>();
+            // bind wrappers
+            SPW::SceneWrapper::bindLuaTable(cpp_table);
+            SPW::EntityWrapper::bindLuaTable(cpp_table);
+
             // create render back end
             int width = weak_window.lock()->frameWidth();
             int height = weak_window.lock()->frameHeight();
@@ -138,9 +140,9 @@ public:
         }
     }
     void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
-        for (auto &e : events) {
-            DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
-        }
+        // for (auto &e : events) {
+        //     DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
+        // }
     }
     void onAppStopped() final{
         try {

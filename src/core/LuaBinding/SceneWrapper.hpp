@@ -1,25 +1,30 @@
+#include "EntityWrapper.hpp"
 #include "EcsFramework/Scene.hpp"
 #include "Utils/UUID.hpp"
-#include "EcsFramework/Component/BasicComponent/IDComponent.h"
-#include "EcsFramework/Component/ModelComponent.h"
-#include "EcsFramework/Component/CameraComponent.hpp"
-#include "EcsFramework/Component/TransformComponent.hpp"
-
-#include "EcsFramework/Component/Audio/AudioComponent.h"
-#include "EcsFramework/Component/Audio/AudioListener.h"
-#include "EcsFramework/Component/KeyComponent.hpp"
-#include "EcsFramework/Component/MouseComponent.hpp"
 
 
-#include "EcsFramework/System/RenderSystem/RenderSystem.h"
-#include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
-#include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
-#include "EcsFramework/System/RenderSystem/RenderSystem.h"
-#include "EcsFramework/System/AudioSystem/AudioSystem.h"
+
+// #include "EcsFramework/Component/BasicComponent/IDComponent.h"
+// #include "EcsFramework/Component/ModelComponent.h"
+// #include "EcsFramework/Component/CameraComponent.hpp"
+// #include "EcsFramework/Component/TransformComponent.hpp"
+
+// #include "EcsFramework/Component/Audio/AudioComponent.h"
+// #include "EcsFramework/Component/Audio/AudioListener.h"
+// #include "EcsFramework/Component/KeyComponent.hpp"
+// #include "EcsFramework/Component/MouseComponent.hpp"
+
+
+// #include "EcsFramework/System/RenderSystem/RenderSystem.h"
+// #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
+// #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
+// #include "EcsFramework/System/RenderSystem/RenderSystem.h"
+// #include "EcsFramework/System/AudioSystem/AudioSystem.h"
 
 
 #include <string>
 #include <unordered_map>
+#include <sol/sol.hpp>
 
 
 namespace SPW {
@@ -44,15 +49,14 @@ namespace SPW {
         // TODO: load a scene from path
         SceneWrapper(std::shared_ptr<EventResponderI> parent, std::string path) 
          : m_scene(std::make_shared<Scene>(parent)) {
-            std::printf("SceneWrapper init, %p", this);
         }
 
         // create entity from lua
-        std::string createEntity(const std::string &aName) {
+        EntityWrapper createEntity(const std::string &aName) {
             auto newEntity = m_scene->createEntity(aName);
             auto id = newEntity->getUUID().toString();
             all_entities[id] = newEntity;
-            return id;
+            return EntityWrapper(newEntity);
         }
 
         // remove entity from lua
@@ -61,6 +65,12 @@ namespace SPW {
                 m_scene->deleteEntity(all_entities[uuid]);
                 all_entities.erase(uuid);
             }
+        }
+
+        static void bindLuaTable(sol::table &parent) {
+            parent.new_usertype<SceneWrapper>("SceneWrapper",
+                "createEntity", &SPW::SceneWrapper::createEntity,
+                "remove", &SceneWrapper::remove);
         }
 
         std::shared_ptr<Scene> m_scene;
