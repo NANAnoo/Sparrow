@@ -124,12 +124,13 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
     glm::mat4x4 V, P;
     glm::mat4x4 cameraTransform = glm::mat4(1.0f);
     cameraTransform = glm::translate(cameraTransform, transformCom->position);
-    glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), glm::radians(transformCom->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), glm::radians(transformCom->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 rotationZ = glm::rotate(glm::mat4(1.0f), glm::radians(transformCom->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    cameraTransform = rotationZ*rotationY*rotationX*cameraTransform;
+    cameraTransform = cameraTransform * glm::eulerAngleYXZ(
+        glm::radians(transformCom->rotation.y),
+        glm::radians(transformCom->rotation.x),
+        glm::radians(transformCom->rotation.z)
+    );
 
-    glm::vec4 eye(0, 0, 1, 1), look_at(0, 0, 0, 1), up(0, 1, 0, 0);
+    glm::vec4 eye(0, 0, 0, 1), look_at(0, 0, -1, 1), up(0, 1, 0, 0);
     V = glm::lookAt(glm::vec3(cameraTransform * eye),
                     glm::vec3(cameraTransform *look_at),
                     glm::vec3(cameraTransform * up));
@@ -164,11 +165,11 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
             pLights.push_back(pl);
         } else {
             glm::vec4 dir = {0, 0, -1, 0};
-            auto rotMat = glm::eulerAngleXYZ(glm::radians(trans->rotation.x),
+            auto rotMat = glm::eulerAngleYX(
                        glm::radians(trans->rotation.y),
-                       glm::radians(trans->rotation.z));
+                       glm::radians(trans->rotation.x));
             DLight dl = {};
-            dl.direction = dir * rotMat;
+            dl.direction = rotMat * dir;
             dl.ambient = light->ambient;
             dl.diffuse = light->diffuse;
             dl.specular = light->specular;
