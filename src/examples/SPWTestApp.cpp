@@ -191,17 +191,6 @@ public:
                 }
             };
 
-            // add a camera entity
-            auto camera2 = scene->createEntity("main camera");
-            auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
-            cam2_tran->position.y = 0.3;
-            cam2_tran->rotation.z = 90;
-            auto cam2 = camera2->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
-            cam2->fov = 75;
-            cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
-            cam2->near = 0.01;
-            cam2->far = 100;
-
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
             cam->whetherMainCam = true;
             //add a key component for testing, press R to rotate
