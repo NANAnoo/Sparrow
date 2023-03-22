@@ -112,21 +112,22 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
             auto modelCom = en.component<SPW::ModelComponent>();
             // passing data to GPU
             if (modelCom->bindCameras.find(currentID) != modelCom->bindCameras.end()) {
-                if (!modelCom->ready) {
+                if (!modelCom->ready)
+                {
                     modelCom->model->setUpModel(renderBackEnd);
                     modelCom->ready = true;
                 }
                 renderModels.push_back(en);
             }
     });
-
     // 2. calculate VP from camera
     glm::mat4x4 V, P;
     glm::mat4x4 cameraTransform = glm::mat4(1.0f);
     cameraTransform = glm::translate(cameraTransform, transformCom->position);
-    cameraTransform = cameraTransform * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
-                       glm::radians(transformCom->rotation.x),
-                       glm::radians(transformCom->rotation.z));
+    glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), glm::radians(transformCom->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), glm::radians(transformCom->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 rotationZ = glm::rotate(glm::mat4(1.0f), glm::radians(transformCom->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    cameraTransform = rotationZ*rotationY*rotationX*cameraTransform;
 
     glm::vec4 eye(0, 0, 1, 1), look_at(0, 0, 0, 1), up(0, 1, 0, 0);
     V = glm::lookAt(glm::vec3(cameraTransform * eye),
@@ -220,12 +221,9 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 auto dl = dLights[i];
                 shader->setDLight(i, dl);
             }
-            rotetaAngle+=0.01f;
-            glm::vec3 lightPos = glm::vec3(3.0f, 4.0f, -1.0f);
-            glm::mat4 rotateMatrix = glm::rotate(glm::mat4(1.0f),glm::radians(rotetaAngle),glm::vec3(0.0f,0.0f,1.0f));
-            lightPos = rotateMatrix*glm::vec4(lightPos,1.0f);
-            if(lightPos.y<0.0f)
-                rotetaAngle += 180.0f;
+
+            glm::vec3 lightPos = -dLights[0].direction*3.0f;
+
             glm::mat4 lightProjection, lightView;
             glm::mat4 lightSpaceMatrix;
 
@@ -273,8 +271,11 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
     };
 
     // shadow pass
+    frameBuffer->bind();
+    renderBackEnd->DepthTest(true);
+    renderBackEnd->SetClearColor(glm::vec4(0.5));
+    renderBackEnd->Clear();
     renderPass(true);
-
     // model pass
     renderPass(false);
 }

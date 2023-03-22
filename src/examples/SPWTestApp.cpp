@@ -301,7 +301,7 @@ public:
             lightCom2->ambient = {0.2, 0.2, 0.2};
             lightCom2->diffuse = {0, 1, 1};
             lightCom2->specular = {0, 1, 1};
-            lightTrans2->rotation = {-30, 0, 0};
+            lightTrans2->rotation = {30, 0, 0};
 
             // init scene
             scene->initial();
