@@ -37,6 +37,7 @@ function class(classname, super)
 
     cls.__cname = classname
     cls.__index = cls
+    
 
     function cls.new(...)
         local instance = setmetatable({}, cls)

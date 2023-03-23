@@ -62,6 +62,12 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DSPW_DEBUG)
 endif()
 
+if (MSVC)
+  add_compile_options(/bigobj)
+else ()
+  add_compile_options(-Wa,-mbig-obj)
+endif ()
+
 add_custom_target(copy_resources)
 add_custom_command(TARGET copy_resources PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${SparrowResourcesDir} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/)

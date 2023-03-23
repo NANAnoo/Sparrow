@@ -6,10 +6,14 @@
 #define SPARROW_COMPONENT_I_H
 
 #include <type_traits>
+#include <sol/sol.hpp>
 
 namespace SPW {
     class ComponentI {
-
+        public:
+        virtual void update(const sol::table &value) {
+            std::printf("component update not implement");
+        }
     };
 
     template <class T>

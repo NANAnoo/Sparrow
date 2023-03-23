@@ -22,6 +22,16 @@ function Scene:addEntity(name)
     return en
 end
 
+function Scene:update()
+    for _, ent in pairs(self.ent_map) do
+        ent:updateAllComponent()
+    end
+end
+
+function Scene:getEntityFromID(id)
+    return self.ent_map[id]
+end
+
 function Scene:removeEntity(en)
     -- en : @Entity
     -- SceneWrapper.removeEntity() by id
