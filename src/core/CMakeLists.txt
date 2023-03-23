@@ -43,6 +43,7 @@ target_link_libraries(SparrowCore PUBLIC glfw
         PUBLIC imgui
         PUBLIC sol2
         PUBLIC lua_static
+        PUBLIC Physx::base Physx::foundation Physx::extension Physx::pvd 
         PUBLIC FMOD::Core FMOD::Fsbank FMOD::Studio
         PUBLIC assimp
         PUBLIC ${OPENGL_LIBRARIES}
