@@ -57,6 +57,8 @@ namespace SPW
         virtual void setMat4(const std::string& name, glm::mat4 mat) const = 0;
         virtual void setDLight(unsigned int idx, const DLight &light) const = 0;
         virtual void setPLight(unsigned int idx, const PLight &light) const = 0;
+        virtual void bindTex2D(unsigned int slot,unsigned int texid) const = 0;
+        virtual void bindTexArray(unsigned int slot,unsigned int texid) const = 0;
     };
 
     struct ShaderHandle {

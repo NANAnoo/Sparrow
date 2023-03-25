@@ -307,7 +307,7 @@ public:
             lightCom->ambient = {0.2, 0.2, 0.2};
             lightCom->diffuse = {1, 1, 0};
             lightCom->specular = {1, 1, 0};
-            lightTrans->rotation = {0, 60, 0};
+            lightTrans->rotation = {30, 60, 0};
 
             // add light 2
             auto light2 = scene->createEntity("light2");
@@ -316,7 +316,7 @@ public:
             lightCom2->ambient = {0.2, 0.2, 0.2};
             lightCom2->diffuse = {0, 1, 1};
             lightCom2->specular = {0, 1, 1};
-            lightTrans2->rotation = {30, 0, 0};
+            lightTrans2->rotation = {30, -30, 0};
 
             // init scene
             scene->initial();

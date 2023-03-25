@@ -61,6 +61,10 @@ namespace SPW
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
     }
+    void OpenGLFrameBuffer::AttachDepthTexture3D(unsigned int array,unsigned int depth)
+    {
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, array, 0, depth);
+    }
 
     void OpenGLFrameBuffer::AttachColorRenderBuffer(unsigned int width,unsigned int height,unsigned int slot)
     {

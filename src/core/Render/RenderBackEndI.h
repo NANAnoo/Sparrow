@@ -35,7 +35,8 @@ namespace SPW
     {
     public:
         std::shared_ptr<FrameBuffer> scenceFrameBuffer = nullptr;
-        std::shared_ptr<FrameBuffer> shadowFrameBuffer = nullptr;
+        std::vector<std::shared_ptr<FrameBuffer>> shadowFrameBuffers;
+        unsigned int depthTextureArray;
     public:
         enum class RenderAPIType
         {
@@ -60,11 +61,11 @@ namespace SPW
         virtual void InitSkyBox()=0;
         virtual void SetSkyBox(std::vector<std::string>& faces)=0;
         virtual void drawSkyBox(glm::mat4& V,glm::mat4& P)=0;
-        virtual void BindTexture(unsigned int slot,unsigned int texid) = 0;
 
         //frambuffer
         virtual std::shared_ptr<FrameBuffer> creatSenceFrameBuffer()=0;
-        virtual std::shared_ptr<FrameBuffer> creatShadowFrameBuffer()=0;
+        virtual void creatShadowFrameBuffer(unsigned int num)=0;
+        virtual void setUpShadowArray(unsigned  int num) = 0;
         virtual void drawInTexture(SPW::PostProcessingEffects effect = SPW::PostProcessingEffects::None)=0;
 
         //creat structure;

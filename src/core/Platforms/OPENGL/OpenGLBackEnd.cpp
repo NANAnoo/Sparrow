@@ -161,10 +161,27 @@ namespace SPW
         scenceFrameBuffer = std::make_shared<OpenGLFrameBuffer>();
         return scenceFrameBuffer;
     }
-    std::shared_ptr<FrameBuffer> OpenGLBackEnd::creatShadowFrameBuffer()
+    void OpenGLBackEnd::creatShadowFrameBuffer(unsigned int num)
     {
-        shadowFrameBuffer = std::make_shared<OpenGLFrameBuffer>();
-        return shadowFrameBuffer;
+        shadowFrameBuffers.resize(num);
+        for(int i = 0; i < num; i++)
+        {
+            shadowFrameBuffers[i] = std::make_shared<OpenGLFrameBuffer>();
+        }
+    }
+
+    void OpenGLBackEnd::setUpShadowArray(unsigned  int num)
+    {
+        glGenTextures(1, &depthTextureArray);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, depthTextureArray);
+
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, SPW::FrameBuffer::SHADOW_WIDTH, SPW::FrameBuffer::SHADOW_HEIGHT, num, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+        GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+        glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
     }
 
     void OpenGLBackEnd::drawInTexture(SPW::PostProcessingEffects effect)

@@ -35,6 +35,8 @@ namespace SPW
         void setMat4(const std::string& name, glm::mat4 mat) const final;
         void setDLight(unsigned int idx, const DLight &light) const final;
         void setPLight(unsigned int idx, const PLight &light) const final;
+        void bindTex2D(unsigned int slot,unsigned int texid) const final;
+        void bindTexArray(unsigned int slot,unsigned int texid) const final;
     public:
         unsigned int ID;
         std::string m_name;
