@@ -149,8 +149,9 @@ public:
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
+            camera->emplace<SPW::AudioListener>();
             auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
-            mainCameraTrans->position = glm::vec4(0.0f,0.0f,0.0f,1.0f);
+            mainCameraTrans->position = glm::vec4(0.0f,0.0f,-1.0f,1.0f);
             auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
             cam->fov = 60;
             cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
@@ -164,21 +165,9 @@ public:
                     "./resources/sounds/test.wav"
             };
             clip->emplace<SPW::AudioComponent>(soundPaths);
-            //add a Audio Listener
-            auto listener = scene->createEntity("Listener");
-            listener->emplace<SPW::TransformComponent>();
-            listener->emplace<SPW::AudioListener>();
-            listener->emplace<SPW::MouseComponent>();
-            listener->component<SPW::TransformComponent>()->position.z = -10;
-            listener->component<SPW::MouseComponent>()->cursorMovementCallBack
-                = [](const SPW::Entity &en, double cursor_x, double cursor_y, double cursor_X_bias, double cursor_Y_bias) {
-                en.component<SPW::TransformComponent>()->rotation.y += cursor_X_bias;
-            };
-
             clip->component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Play);
             clip->component<SPW::AudioComponent>()->setLoop(soundPaths[0], true);
             clip->component<SPW::AudioComponent>()->set3D(soundPaths[0], true);
-
             auto keyCom =  clip->emplace<SPW::KeyComponent>();
             keyCom->onKeyDownCallBack = [soundPaths](const SPW::Entity& e, SPW::KeyCode keycode) {
                 if (keycode == SPW::KeyCode::Space) {
@@ -196,21 +185,6 @@ public:
                 }
             };
 
-            // add a camera entity
-            /*
-            auto camera2 = scene->createEntity("main camera");
-            auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
-            cam2_tran->position.y = 0.3;
-            cam2_tran->rotation.z = 90;
-            auto cam2 = camera2->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
-            cam2->fov = 75;
-            cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
-            cam2->near = 0.01;
-            cam2->far = 100;
-             */
-
-
-
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
             cam->whetherMainCam = true;
             //add a key component for testing, press R to rotate
@@ -227,23 +201,23 @@ public:
                 glm::vec3 up = {0, 1, 0};
                 glm::vec3 right = glm::normalize(glm::cross(forward, up));
                 if(keycode == SPW::Key::W)
-                    mainCameraTrans->position +=0.001f * forward;
+                    mainCameraTrans->position +=0.01f * forward;
                 if(keycode == SPW::Key::S)
-                    mainCameraTrans->position -=0.001f * forward;
+                    mainCameraTrans->position -=0.01f * forward;
                 if(keycode == SPW::Key::A)
-                    mainCameraTrans->position -=0.001f * right;
+                    mainCameraTrans->position -=0.01f * right;
                 if(keycode == SPW::Key::D)
-                    mainCameraTrans->position +=0.001f * right;
+                    mainCameraTrans->position +=0.01f * right;
                 if(keycode == SPW::Key::Q)
-                    mainCameraTrans->position -=0.001f * up;
+                    mainCameraTrans->position -=0.01f * up;
                 if(keycode == SPW::Key::E)
-                    mainCameraTrans->position +=0.001f * up;
+                    mainCameraTrans->position +=0.01f * up;
             };
             auto mouse = camera->emplace<SPW::MouseComponent>();
             mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
                 auto transform = e.component<SPW::TransformComponent>();
-                transform->rotation.x += y_pos_bias * 0.02;
-                transform->rotation.y += x_pos_bias * 0.1 ;
+                transform->rotation.x -= y_pos_bias * 0.1;
+                transform->rotation.y -= x_pos_bias * 0.1 ;
             };
             cameraKey->onKeyHeldCallBack = cb;
             cameraKey->onKeyDownCallBack = cb;
@@ -316,7 +290,20 @@ public:
             lightCom2->ambient = {0.2, 0.2, 0.2};
             lightCom2->diffuse = {0, 1, 1};
             lightCom2->specular = {0, 1, 1};
-            lightTrans2->rotation = {30, -30, 0};
+            lightTrans2->rotation = {-30, 0, 0};
+
+            light2->emplace<SPW::KeyComponent>()->onKeyHeldCallBack =
+            [](const SPW::Entity &en, SPW::KeyCode code) {
+                if (code == SPW::KeyCode::Up) {
+                    en.component<SPW::TransformComponent>()->rotation.x --;
+                } else if (code == SPW::KeyCode::Down) {
+                    en.component<SPW::TransformComponent>()->rotation.x ++;
+                } else if (code == SPW::KeyCode::Left) {
+                    en.component<SPW::TransformComponent>()->rotation.y ++;
+                } else if (code == SPW::KeyCode::Right) {
+                    en.component<SPW::TransformComponent>()->rotation.y --;
+                }
+            };
 
             // init scene
             scene->initial();

@@ -16,6 +16,7 @@ namespace SPW {
     void AudioSystem::initial() {
         FMOD::System_Create(&mFmodSystem);
         mFmodSystem->init(32, FMOD_INIT_NORMAL, nullptr);
+        mFmodSystem->set3DNumListeners(1);
     }
 
     void AudioSystem::beforeUpdate() {
@@ -39,7 +40,7 @@ namespace SPW {
                     FMOD_VECTOR listenerPos = { trans->position.x, trans->position.y, trans->position.z }; // 获取当前帧的监听器位置
                     FMOD_VECTOR listenerVel = { 0, 0, 0 }; // 获取当前帧的监听器速度
                     glm::vec4 forward(0, 0, 1, 0);
-                    forward = forward * glm::eulerAngleXYZ(glm::radians(trans->rotation.x), glm::radians(trans->rotation.y), glm::radians(trans->rotation.z));
+                    forward = glm::eulerAngleXY(glm::radians(trans->rotation.x), glm::radians(trans->rotation.y)) * forward;
                     FMOD_VECTOR listenerForward = { forward.x, forward.y, forward.z }; // 获取当前帧的监听器前向方向
                     FMOD_VECTOR listenerUp = { 0, 1, 0 }; // 获取当前帧的监听器上向方向
                     mFmodSystem->set3DListenerAttributes(player->Listener_id, &listenerPos, &listenerVel, &listenerForward, &listenerUp);
