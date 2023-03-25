@@ -1,3 +1,4 @@
+#pragma once
 #include <sol/sol.hpp>
 #include "Utils/UUID.hpp"
 
@@ -29,14 +30,14 @@ namespace SPW {
 
         template<Component c, typename...Args>
         void setupComponent(const sol::table &value, Args ...args) {
-            comp = m_entity->emplace<c>(std::forward(args)...);
-            comp->update(value);
+            comp = m_entity->emplace<c>(args...);
+            comp->initFromLua(value);
         }
 
         // update from lua
-        void update(const sol::table &value) {
+        void update(const std::string &key, const sol::table &value) {
             if (comp) {
-                comp->update(value);
+                comp->update(key, value);
             }
         }
 

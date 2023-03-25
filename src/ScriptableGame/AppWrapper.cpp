@@ -13,7 +13,6 @@
 
 #include "EcsFramework/Scene.hpp"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
-#include "LuaBinding/SceneWrapper.hpp"
 
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "EcsFramework/Component/ModelComponent.h"
@@ -32,6 +31,12 @@
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/AudioSystem/AudioSystem.h"
+
+#include "Render/shader.h"
+
+#include "LuaBinding/SceneWrapper.hpp"
+#include "LuaBinding/ComponentWrapper.hpp"
+#include "LuaBinding/EntityWrapper.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -166,6 +171,15 @@ public:
             SPW::SceneWrapper::bindLuaTable(cpp_table);
             SPW::EntityWrapper::bindLuaTable(cpp_table);
             SPW::ComponentWrapper::bindLuaTable(cpp_table);
+
+            // bind shaderhandle
+            cpp_table.new_usertype<SPW::ShaderHandle>("ShaderHandle",
+                    sol::call_constructor, sol::constructors<SPW::ShaderHandle(const std::string&, const std::string&, const std::string&)>(),
+                    sol::meta_function::to_string,[] (const SPW::ShaderHandle* shader) {return shader->name;},
+                    "name", &SPW::ShaderHandle::name,
+                    "vertex", &SPW::ShaderHandle::vertex_shader_path,    
+                    "fragment", &SPW::ShaderHandle::frag_shader_path                
+            );
 
             // create render back end
             int width = weak_window.lock()->frameWidth();

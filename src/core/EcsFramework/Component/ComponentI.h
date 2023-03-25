@@ -11,8 +11,12 @@
 namespace SPW {
     class ComponentI {
         public:
-        virtual void update(const sol::table &value) {
-            std::printf("component update not implement");
+        virtual void update(const std::string&key, const sol::table &value) {
+            std::printf("component update not implement\n");
+        }
+
+        virtual void initFromLua(const sol::table &value) {
+            std::printf("initFromLua not implement\n");
         }
     };
 

@@ -1,3 +1,5 @@
+#pragma once
+#include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
 #include "Utils/UUID.hpp"
 #include <sol/sol.hpp>
@@ -13,8 +15,9 @@
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
-#include "EcsFramework/Component/LightComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/ModelComponent.h"
+#include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 
 namespace SPW {
     class EntityWrapper{
@@ -41,10 +44,23 @@ namespace SPW {
             return m_entity->getUUID().toString();
         }
 
+        // @lua, createComponent
         ComponentWrapper createComponent(const std::string &type, const sol::table &value) {
             auto res = ComponentWrapper(m_entity);
             if (type == "Transform") {
                 res.setupComponent<TransformComponent>(value);
+            } else if (type == "Model") {
+                std::string camera_id = value["camera_id"];
+                UUID cam = UUID::fromString(camera_id.c_str());
+                res.setupComponent<ModelComponent>(value, cam);
+            } else if (type == "PerspectiveCamera") {
+                res.setupComponent<CameraComponent>(value, CameraType::PerspectiveType);
+            } else if (type == "OrthoCamera") {
+                res.setupComponent<CameraComponent>(value, CameraType::OrthoType);
+            } else if (type == "DirectionalLight") {
+                res.setupComponent<DirectionalLightComponent>(value);
+            } else if (type == "PointLight") {
+                res.setupComponent<PointLightComponent>(value);
             }
             return res;
         }

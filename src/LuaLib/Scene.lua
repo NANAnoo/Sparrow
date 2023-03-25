@@ -22,10 +22,29 @@ function Scene:addEntity(name)
     return en
 end
 
-function Scene:update()
-    for _, ent in pairs(self.ent_map) do
-        ent:updateAllComponent()
-    end
+function Scene:initScene()
+    -- SceneWrapper.initScene
+    self.cpp_object:initial()
+end
+
+function Scene:beforeUpdate()
+    -- SceneWrapper.beforeUpdate
+    self.cpp_object:beforeUpdate()
+end
+
+function Scene:onUpdate(duration)
+    -- SceneWrapper.onUpdate
+    self.cpp_object:onUpdate(duration)
+end
+
+function Scene:afterUpdate()
+    -- SceneWrapper.afterUpdate
+    self.cpp_object:afterUpdate()
+end
+
+function Scene:onStop()
+    -- SceneWrapper.onStop
+    self.cpp_object:onStop()
 end
 
 function Scene:getEntityFromID(id)

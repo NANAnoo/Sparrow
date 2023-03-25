@@ -31,27 +31,7 @@ end
 
 function Entity:getComponent(component_type) 
     local com = self.component_map[component_type.__cname]
-    if com then
-        com.need_update = true
-    end
     return com
-end
-
-function Entity:updateAllComponent()
-    for type, comp in pairs(self.component_map) do
-        if comp.need_update == true then
-            comp:update()
-        end
-    end
-end
-
-function Entity:removeComponent(component_type)
-    if self.component_map[component_type.__cname] then
-        comp = self.component_map[component_type.__cname]
-        -- remove cpp object as well
-        comp.remove()
-        table.remove(self.component_map, component_type.__cname)
-    end
 end
 
 function Entity:hasComponent(component_type)

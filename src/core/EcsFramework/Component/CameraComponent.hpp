@@ -31,6 +31,68 @@ namespace SPW {
         float top = 1;
         [[nodiscard]] CameraType getType() const { return cameraType;}
 
+        // init from lua
+        void initFromLua(const sol::table &value) final {
+            if (value["fov"].valid()) {
+                fov = value["fov"];
+            }
+            if (value["aspect"].valid()) {
+                aspect = value["aspect"];
+            }
+            if (value["near"].valid()) {
+                near = value["near"];
+            }
+            if (value["far"].valid()) {
+                far = value["far"];
+            }
+            if (value["left"].valid()) {
+                left = value["left"];
+            }
+            if (value["right"].valid()) {
+                right = value["right"];
+            }
+            if (value["bottom"].valid()) {
+                bottom = value["bottom"];
+            }
+            if (value["top"].valid()) {
+                top = value["top"];
+            }
+            if (value["is_main"].valid()) {
+                whetherMainCam = value["is_main"];
+            }
+        }
+
+        // udpate from lua
+        void update(const std::string &key, const sol::table &value) final {
+            if (key == "fov" && value["value"].valid()) {
+                fov = value["value"];
+            }
+            if (key == "aspect" && value["value"].valid()) {
+                aspect = value["value"];
+            }
+            if (key == "near" && value["value"].valid()) {
+                near = value["value"];
+            }
+            if (key == "far" && value["value"].valid()) {
+                far = value["value"];
+            }
+            if (key == "left" && value["value"].valid()) {
+                left = value["value"];
+            }
+            if (key == "right" && value["value"].valid()) {
+                right = value["value"];
+            }
+            if (key == "bottom" && value["value"].valid()) {
+                bottom = value["value"];
+            }
+            if (key == "top" && value["value"].valid()) {
+                top = value["value"];
+            }
+            if (key == "is_main" && value["value"].valid()) {
+                whetherMainCam = value["value"];
+            }
+        }
+
         //whether main
         bool whetherMainCam = false;
     private:

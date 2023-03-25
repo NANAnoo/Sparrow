@@ -1,26 +1,7 @@
+#pragma once
 #include "EntityWrapper.hpp"
 #include "EcsFramework/Scene.hpp"
 #include "Utils/UUID.hpp"
-
-
-
-// #include "EcsFramework/Component/BasicComponent/IDComponent.h"
-// #include "EcsFramework/Component/ModelComponent.h"
-// #include "EcsFramework/Component/CameraComponent.hpp"
-// #include "EcsFramework/Component/TransformComponent.hpp"
-
-// #include "EcsFramework/Component/Audio/AudioComponent.h"
-// #include "EcsFramework/Component/Audio/AudioListener.h"
-// #include "EcsFramework/Component/KeyComponent.hpp"
-// #include "EcsFramework/Component/MouseComponent.hpp"
-
-
-// #include "EcsFramework/System/RenderSystem/RenderSystem.h"
-// #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
-// #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
-// #include "EcsFramework/System/RenderSystem/RenderSystem.h"
-// #include "EcsFramework/System/AudioSystem/AudioSystem.h"
-
 
 #include <string>
 #include <unordered_map>
@@ -67,10 +48,40 @@ namespace SPW {
             }
         }
 
+        // void initialize
+        void initial() {
+            m_scene->initial();
+        }
+
+        // before update
+        void beforeUpdate() {
+            m_scene->beforeUpdate();
+        }
+
+        // update
+        void onUpdate(double dt) {
+            m_scene->onUpdate(TimeDuration::second(dt));
+        }
+
+        // after update
+        void afterUpdate() {
+            m_scene->afterUpdate();
+        }
+
+        // stop
+        void onStop() {
+            m_scene->onStop();
+        }
+
         static void bindLuaTable(sol::table &parent) {
             parent.new_usertype<SceneWrapper>("SceneWrapper",
                 "createEntity", &SPW::SceneWrapper::createEntity,
-                "remove", &SceneWrapper::remove);
+                "remove", &SceneWrapper::remove,
+                "initial", &SceneWrapper::initial,
+                "beforeUpdate", &SceneWrapper::beforeUpdate,
+                "onUpdate", &SceneWrapper::onUpdate,
+                "afterUpdate", &SceneWrapper::afterUpdate,
+                "onStop", &SceneWrapper::onStop);
         }
 
         std::shared_ptr<Scene> m_scene;

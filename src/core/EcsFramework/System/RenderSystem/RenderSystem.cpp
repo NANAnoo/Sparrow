@@ -4,17 +4,17 @@
 
 #include "RenderSystem.h"
 #include "EcsFramework/Component/ComponentI.h"
+#include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
+#include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/ModelComponent.h"
-#include "EcsFramework/Component/LightComponent.hpp"
 #include "glm/fwd.hpp"
 #include "Render/Light.h"
 
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 #include <string>
-int windowWidth=1280,windowHeight=720;
-float rotetaAngle=0.0f;
+
 void SPW::RenderSystem::initial()
 {
     renderBackEnd->Init();
@@ -54,10 +54,6 @@ void SPW::RenderSystem::afterUpdate(){
     ComponentGroup<SPW::IDComponent,
         SPW::CameraComponent,
         SPW::TransformComponent> cameraGroup;
-
-    ComponentGroup<SPW::IDComponent, 
-                    SPW::TransformComponent, 
-                    SPW::LightComponent> lightGroup;
 
     glm::mat4 V,P;
     locatedScene.lock()->forEachEntityInGroup(cameraGroup,
@@ -144,37 +140,10 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                        cameraCom->bottom, cameraCom->top, cameraCom->near, cameraCom->far);
     }
 
-    // get lights from scene
-    ComponentGroup<SPW::IDComponent,
-        SPW::LightComponent,
-        SPW::TransformComponent> lightGroup;
+    // 3. get all lights
     std::vector<PLight> pLights;
     std::vector<DLight> dLights;
-    locatedScene.lock()->forEachEntityInGroup(lightGroup, [&lightGroup, &pLights, &dLights](const Entity &en){
-        auto [id, light, trans] = en.combinedInGroup(lightGroup);
-        if (light->getType() == PointLightType) {
-            PLight pl = {};
-            pl.position = trans->position;
-            pl.ambient = light->ambient;
-            pl.diffuse = light->diffuse;
-            pl.specular = light->specular;
-            pl.constant = light->constant;
-            pl.linear = light->linear;
-            pl.quadratic = light->quadratic;
-            pLights.push_back(pl);
-        } else {
-            glm::vec4 dir = {0, 0, -1, 0};
-            auto rotMat = glm::eulerAngleXYZ(glm::radians(trans->rotation.x),
-                       glm::radians(trans->rotation.y),
-                       glm::radians(trans->rotation.z));
-            DLight dl = {};
-            dl.direction = dir * rotMat;
-            dl.ambient = light->ambient;
-            dl.diffuse = light->diffuse;
-            dl.specular = light->specular;
-            dLights.push_back(dl);
-        }
-    });
+    findAllLights(pLights,dLights);
     
     if(cameraCom->whetherMainCam)
     {
@@ -263,7 +232,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
             {
                 depthBuffer->unbind();
                 // reset viewport
-                renderBackEnd->SetViewport(0,0,windowWidth, windowHeight);
+                renderBackEnd->SetViewport(0,0,width, height);
                 renderBackEnd->Clear();
             }
         }
@@ -280,6 +249,44 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
     renderPass(false);
 }
 
+void SPW::RenderSystem::findAllLights(std::vector<PLight> &pLights, std::vector<DLight> &dLights)
+{
+    // get directional lights
+    ComponentGroup<SPW::IDComponent,
+        SPW::DirectionalLightComponent,
+        SPW::TransformComponent> lightGroup;
+    locatedScene.lock()->forEachEntityInGroup(lightGroup, [&lightGroup, &pLights, &dLights](const Entity &en){
+        auto [id, light, trans] = en.combinedInGroup(lightGroup);
+        glm::vec4 dir = {0, 0, -1, 0};
+        auto rotMat = glm::eulerAngleXYZ(glm::radians(trans->rotation.x),
+                    glm::radians(trans->rotation.y),
+                    glm::radians(trans->rotation.z));
+        DLight dl = {};
+        dl.direction = dir * rotMat;
+        dl.ambient = light->ambient;
+        dl.diffuse = light->diffuse;
+        dl.specular = light->specular;
+        dLights.push_back(dl);
+    });
+
+    // get point lights
+    ComponentGroup<SPW::IDComponent,
+        SPW::PointLightComponent,
+        SPW::TransformComponent> pointLightGroup;
+    locatedScene.lock()->forEachEntityInGroup(pointLightGroup, [&pointLightGroup, &pLights](const Entity &en) {
+        auto [id, light, trans] = en.combinedInGroup(pointLightGroup);
+        PLight pl = {};
+        pl.position = trans->position;
+        pl.ambient = light->ambient;
+        pl.diffuse = light->diffuse;
+        pl.specular = light->specular;
+        pl.constant = light->constant;
+        pl.linear = light->linear;
+        pl.quadratic = light->quadratic;
+        pLights.push_back(pl);
+    });
+}
+
 void SPW::RenderSystem::onStop() {
 
 }
@@ -287,8 +294,8 @@ void SPW::RenderSystem::onStop() {
 bool SPW::RenderSystem::onFrameResize(int w, int h) {
     std::cout << "RenderSystem frame changed" << std::endl;
     // update frame buffer here
-    windowWidth = w;
-    windowHeight = h;
+    width = w;
+    height = h;
     frameBuffer->deleteFrameBuffer();
     frameBuffer->genFrameBuffer();
     frameBuffer->bind();
