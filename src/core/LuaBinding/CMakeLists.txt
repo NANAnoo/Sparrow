@@ -1,1 +1,1 @@
-CORE_ADD_SOURCE(EntityWrapper.hpp SceneWrapper.hpp ComponentWrapper.hpp ComponentWrapper.cpp)
+CORE_ADD_SOURCE(EntityWrapper.hpp SceneWrapper.hpp ComponentWrapper.hpp)

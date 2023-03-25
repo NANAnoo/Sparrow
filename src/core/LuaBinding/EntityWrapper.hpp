@@ -61,6 +61,10 @@ namespace SPW {
                 res.setupComponent<DirectionalLightComponent>(value);
             } else if (type == "PointLight") {
                 res.setupComponent<PointLightComponent>(value);
+            } else if (type == "KeyEventHandler") {
+                res.setupComponent<KeyComponent>(value);
+            } else if (type == "MouseEventHandler") {
+                res.setupComponent<MouseComponent>(value);
             }
             return res;
         }

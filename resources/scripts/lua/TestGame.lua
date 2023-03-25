@@ -1,12 +1,11 @@
 require "Application"
 require "Scene"
 require "Entity"
-require "TransformComponent"
-require "ModelComponent"
-require "PerspectiveCamera"
+
 require "MainCamera"
 require "MonaModel"
 require "MainLight"
+require "FloorModel"
 
 local scene = {}
 
@@ -16,8 +15,9 @@ App({name="Test", width = 1280, height = 720,
         local MainCamera = CreateMainCamera(scene, 1280, 720)
         local main_camera_id = MainCamera.id
         local MonaModel = CreateMonaModel(scene, main_camera_id)
+        local floor = CreateFloor(scene, main_camera_id)
         local MainLight = CreateMainLight(scene)
-        
+        local SubLight = CreateSubLight(scene)
         scene:initScene()
     end,
     beforeUpdate = function()

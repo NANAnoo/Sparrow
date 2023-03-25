@@ -1,7 +1,8 @@
 require "Scene" 
-require "TransformComponent"
-require "ModelComponent"
+require "Components/TransformComponent"
+require "Components/ModelComponent"
 
+-- create model from resources/models/mona2/mona.fbx
 function CreateMonaModel(scene, camera_id)
     local MonaModel = scene:addEntity("MonaModel")
     local trans = MonaModel:addComponent(Transform)

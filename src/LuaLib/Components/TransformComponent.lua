@@ -9,6 +9,11 @@ function Transform:init(position, rotation, scale)
     self.scale = scale or glm.vec3(1, 1, 1)
 end
 
+-- translate by set a new position
+function Transform:translate(transition)
+    self:setPosition(self.position + transition)
+end
+
 function Transform:setPosition(position)
     self:update("position", position)
     self.position = position

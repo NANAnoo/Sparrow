@@ -40,6 +40,8 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <glm/glm/ext.hpp>
+#include <glm/glm/gtx/euler_angles.hpp>
 
 extern "C"{
 #include <luasocket.h>
@@ -70,8 +72,10 @@ public:
 
         //绑定glm::vec3
         {
+            // bind multiple constructors for vec3
             auto glm_ns_table = m_state["glm"].get_or_create<sol::table>();
-            glm_ns_table.new_usertype<glm::vec3>("vec3",sol::call_constructor,sol::constructors<glm::vec3(const float&, const float&, const float&)>(),
+            glm_ns_table.new_usertype<glm::vec3>("vec3",
+                    sol::call_constructor,sol::constructors<glm::vec3(const float&, const float&, const float&)>(),
                     "x", &glm::vec3::x,
                     "y", &glm::vec3::y,
                     "z", &glm::vec3::z,
@@ -86,6 +90,8 @@ public:
                     sol::meta_function::unary_minus,[] (const glm::vec3* vec) {return (*vec)*-1.f;},
                     sol::meta_function::equal_to,[] (const glm::vec3* vec_a,const  glm::vec3* vec_b) {return (*vec_a)==(*vec_b);}
                     );
+            // bind a function to make vec3 from a vec4
+            glm_ns_table.set_function("toVec3", [](const glm::vec4& v) { return glm::vec3(v); });
         }
 
         //绑定glm::vec4
@@ -133,6 +139,14 @@ public:
                     [] (const glm::mat4* m) {return glm::to_string((*m));},
                     [] (const glm::vec3* v) {return glm::to_string((*v));}
                     ));
+            glm_ns_table.set_function("eulerAngleYXZ",sol::overload(
+                [] (const float y,const float x,const float z) {
+                    return glm::eulerAngleYXZ(y,x,z);
+                    }));
+            glm_ns_table.set_function("cross",sol::overload(
+                [] (const glm::vec3* v_a,const glm::vec3* v_b) {
+                    return glm::cross(*v_a,*v_b);
+                    }));
         }
 
         // debug
