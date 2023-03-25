@@ -12,6 +12,8 @@ function bindFPSController(scene, entity, speed)
     local keyContoller = entity:addComponent(KeyEventHandler)
     local mouseController = entity:addComponent(MouseEventHandler)
 
+    local speed_up = 1
+
     keyContoller:setOnKeyHeld(
         function(entity, code)
             local transform = entity:getComponent(Transform)
@@ -22,17 +24,35 @@ function bindFPSController(scene, entity, speed)
             local right = glm.cross(forward, up)
             
             if code == KeyCode.W then
-                transform:translate(forward * speed)
+                transform:translate(forward * speed * speed_up)
             elseif code == KeyCode.S then
-                transform:translate(forward * -speed)
+                transform:translate(forward * -speed * speed_up)
             elseif code == KeyCode.A then
-                transform:translate(right * -speed)
+                transform:translate(right * -speed * speed_up)
             elseif code == KeyCode.D then
-                transform:translate(right * speed)
+                transform:translate(right * speed * speed_up)
             elseif code == KeyCode.Q then
-                transform:translate(up * -speed)
+                transform:translate(up * -speed * speed_up)
             elseif code == KeyCode.E then
-                transform:translate(up * speed)
+                transform:translate(up * speed * speed_up)
+            end
+        end
+        , scene
+    )
+
+    keyContoller:setOnKeyDown(
+        function(entity, code)
+            if code == KeyCode.LeftShift then
+                speed_up = 10
+            end
+        end
+        , scene
+    )
+
+    keyContoller:setOnKeyUp(
+        function(entity, code)
+            if code == KeyCode.LeftShift then
+                speed_up = 1
             end
         end
         , scene
