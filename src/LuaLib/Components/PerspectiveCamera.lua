@@ -56,3 +56,12 @@ end
 function PerspectiveCamera:getIsMain()
     return self.is_main
 end
+
+-- synchronize
+function PerspectiveCamera:synchronize()
+    self.fov = self:getCppValue("fov")
+    self.aspect = self:getCppValue("aspect")
+    self.near = self:getCppValue("near")
+    self.far = self:getCppValue("far")
+    self.is_main = self:getCppValue("is_main")
+end

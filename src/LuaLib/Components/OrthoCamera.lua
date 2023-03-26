@@ -45,3 +45,11 @@ end
 function OrthoCamera:getTop()
     return self.top
 end
+
+-- synchronize
+function OrthoCamera:synchronize()
+    self.left = self:getCppValue("left")
+    self.right = self:getCppValue("right")
+    self.bottom = self:getCppValue("bottom")
+    self.top = self:getCppValue("top")
+end

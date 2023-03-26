@@ -44,5 +44,19 @@ namespace SPW {
                 scale = value["scale"];
             }
         }
+
+        // getLuaValue
+        virtual sol::object getLuaValue(const sol::table &value, const std::string &key) final {
+            if (key == "position") {
+                return sol::make_object(value.lua_state(), position);
+            }
+            if (key == "rotation") {
+                return sol::make_object(value.lua_state(), rotation);
+            }
+            if (key == "scale") {
+                return sol::make_object(value.lua_state(), scale);
+            }
+            return sol::nil;
+        }
     };
 }

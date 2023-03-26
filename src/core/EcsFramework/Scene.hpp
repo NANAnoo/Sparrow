@@ -43,6 +43,7 @@ namespace SPW {
             auto ent = std::make_shared<SPW::Entity>(registry);
             ent->emplace<SPW::IDComponent>(uid);
             ent->emplace<SPW::NameComponent>(name);
+            all_entities[uid.toString()] = ent;
             return ent;
         }
 
@@ -53,6 +54,22 @@ namespace SPW {
         // delete entity
         void deleteEntity(const std::shared_ptr<Entity> &entity) {
             registry->destroy(entity->entity);
+            all_entities.erase(entity->getUUID().toString());
+        }
+
+        // get entity by id
+        std::shared_ptr<Entity> getEntityByID(const std::string &uuid) {
+            if (all_entities.find(uuid) != all_entities.end()) {
+                return all_entities[uuid];
+            }
+            return nullptr;
+        }
+
+        // remove entity by id
+        void removeEntityByID(const std::string &uuid) {
+            if (all_entities.find(uuid) != all_entities.end()) {
+                deleteEntity(all_entities[uuid]);
+            }
         }
 
         // for each
@@ -131,6 +148,8 @@ namespace SPW {
             auto res = registry->view<C...>();
             return res;
         }
+
+        std::unordered_map<std::string, std::shared_ptr<Entity>> all_entities;
 
         std::shared_ptr<entt::registry> registry;
         std::vector<std::shared_ptr<SystemI>> systems;

@@ -44,6 +44,50 @@ namespace SPW {
             return m_entity->getUUID().toString();
         }
 
+        // @lua, getName
+        std::string getName() {
+            return m_entity->getName();
+        }
+
+        // check if the entity is valid
+        bool isValid() {
+            return m_entity != nullptr;
+        }
+
+        // @lua, get ComponentWrapper by type
+        ComponentWrapper getComponent(const std::string &type) {
+            // create a component wrapper based on type
+            if (type == "Transform") {
+                return ComponentWrapper::createCompWrapper<TransformComponent>(m_entity);
+            } else if (type == "Model") {
+                return ComponentWrapper::createCompWrapper<ModelComponent>(m_entity);
+            } else if (type == "PerspectiveCamera") {
+                auto wrapper = ComponentWrapper::createCompWrapper<CameraComponent>(m_entity);
+                if (wrapper.isValid() && m_entity->component<CameraComponent>()->getType() != CameraType::PerspectiveType) {
+                    return wrapper;
+                }
+            } else if (type == "OrthoCamera") {
+                auto wrapper = ComponentWrapper::createCompWrapper<CameraComponent>(m_entity);
+                if (wrapper.isValid()) {
+                    return wrapper;
+                }
+            } else if (type == "DirectionalLight") {
+                return ComponentWrapper::createCompWrapper<DirectionalLightComponent>(m_entity);
+            } else if (type == "PointLight") {
+                return ComponentWrapper::createCompWrapper<PointLightComponent>(m_entity);
+            } else if (type == "KeyEventHandler") {
+                return ComponentWrapper::createCompWrapper<KeyComponent>(m_entity);
+            } else if (type == "MouseEventHandler") {
+                return ComponentWrapper::createCompWrapper<MouseComponent>(m_entity);
+            } else if (type == "AudioComponent") {
+                return ComponentWrapper::createCompWrapper<AudioComponent>(m_entity);
+            } else if (type == "AudioListener") {
+                return ComponentWrapper::createCompWrapper<AudioListener>(m_entity);
+            }
+            return ComponentWrapper(m_entity);
+        }
+
+
         // @lua, createComponent
         ComponentWrapper createComponent(const std::string &type, const sol::table &value) {
             auto res = ComponentWrapper(m_entity);
@@ -76,7 +120,10 @@ namespace SPW {
         static void bindLuaTable(sol::table &parent) {
             parent.new_usertype<EntityWrapper>("EntityWrapper",
                 "getID", &EntityWrapper::getID,
-                "createComponent", &EntityWrapper::createComponent);
+                "createComponent", &EntityWrapper::createComponent,
+                "getComponent", &EntityWrapper::getComponent,
+                "isValid", &EntityWrapper::isValid,
+                "getName", &EntityWrapper::getName);
         }
 
         private:

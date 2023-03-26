@@ -70,7 +70,7 @@ public:
         std::string x = m_state["package"]["path"];
         m_state["package"]["path"] = x + ";./LuaLib/?.lua;./resources/scripts/lua/?.lua";
 
-        //绑定glm::vec3
+        // glm::vec3
         {
             // bind multiple constructors for vec3
             auto glm_ns_table = m_state["glm"].get_or_create<sol::table>();
@@ -94,7 +94,7 @@ public:
             glm_ns_table.set_function("toVec3", [](const glm::vec4& v) { return glm::vec3(v); });
         }
 
-        //绑定glm::vec4
+        // glm::vec4
         {
             auto glm_ns_table = m_state["glm"].get_or_create<sol::table>();
             glm_ns_table.new_usertype<glm::vec4>("vec4",sol::call_constructor,sol::constructors<glm::vec4(const float&, const float&, const float&, const float&)>(),
@@ -116,7 +116,7 @@ public:
                     );
         }
 
-        //绑定glm::mat4
+        // glm::mat4
         {
             auto glm_ns_table = m_state["glm"].get_or_create<sol::table>();
             glm_ns_table.new_usertype<glm::mat4>("mat4",sol::call_constructor,sol::constructors<glm::mat4(const float&)>(),
@@ -130,7 +130,7 @@ public:
             );
         }
 
-        //绑定glm函数
+        // glm functions
         {
             auto glm_ns_table = m_state["glm"].get_or_create<sol::table>();
             glm_ns_table.set_function("rotate",sol::overload([] (const glm::mat4* m,const float f,const glm::vec3* v) {return glm::rotate(*m,f,*v);}));
@@ -160,6 +160,7 @@ public:
                 onUpdate = global_app["onUpdate"];
                 afterUpdate = global_app["afterUpdate"];
                 onStop = global_app["onStop"];
+                onWindowResize = global_app["onWindowResize"];
                 std::string name = global_app["name"];
                 int width = global_app["width"];
                 int height = global_app["height"];
@@ -206,6 +207,18 @@ public:
                 scene.m_scene->addSystem(std::make_shared<SPW::RenderSystem>(scene.m_scene, renderBackEnd, width, height));
                 scene.m_scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene.m_scene));
                 scene.m_scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene.m_scene));
+                auto en = scene.m_scene->createEntity("cpp_test", SPW::UUID::fromString("ada92a74-0000-4f3c-0000-d966f5af169e"));
+                auto tran = en->emplace<SPW::TransformComponent>();
+                tran->position = glm::vec3(5.f, 0.f, -5.f);
+                std::vector<std::string> paths = {"./resources/sounds/EDM.wav"};
+                en->emplace<SPW::AudioComponent>(paths);
+                auto l = en->emplace<SPW::PointLightComponent>();
+                l->ambient = glm::vec3(1.f, 1.f, 1.f);
+                l->diffuse = glm::vec3(0.f, 0.5f, 0.5f);
+                l->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+                l->constant = 1.0f;
+                l->linear = 0.1f;
+                l->quadratic = 1.f;
                 return scene;
             };
             try {
@@ -257,6 +270,16 @@ public:
                     app->stop();
                     return true;
                 });
+        e->dispatch<SPW::WindowResizeType, SPW::WindowEvent>(
+                [this](SPW::WindowEvent *e){
+                    // resize window
+                    try {
+                        onWindowResize(e->width, e->height);
+                    } catch (sol::error &e) {
+                        std::cout << e.what() << std::endl;
+                    }
+                    return false;
+                });
         SPW::EventResponderI::solveEvent(e);
     }
 
@@ -268,6 +291,7 @@ public:
     sol::function onUpdate = sol::nil;
     sol::function afterUpdate = sol::nil;
     sol::function onStop = sol::nil;
+    sol::function onWindowResize = sol::nil;
 };
 
 // main entrance

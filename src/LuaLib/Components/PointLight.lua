@@ -67,3 +67,13 @@ end
 function PointLight:getQuadratic()
     return self.quadratic
 end
+
+-- synchronize
+function PointLight:synchronize()
+    self.ambient = self:getCppValue('ambient')
+    self.diffuse = self:getCppValue('diffuse')
+    self.specular = self:getCppValue('specular')
+    self.constant = self:getCppValue('constant')
+    self.linear = self:getCppValue('linear')
+    self.quadratic = self:getCppValue('quadratic')
+end

@@ -40,3 +40,10 @@ end
 function Transform:getScale()
     return self.scale
 end
+
+-- synchronize
+function Transform:synchronize()
+    self.position = self:getCppValue("position")
+    self.rotation = self:getCppValue("rotation")
+    self.scale = self:getCppValue("scale")
+end

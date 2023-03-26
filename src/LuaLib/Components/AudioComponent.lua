@@ -12,11 +12,23 @@ AudioComponent = class("AudioComponent", Component)
 
 -- init AudioComponent with an array of audio files
 function AudioComponent:init(audioFiles)
-    self.audioFiles = audioFiles
+    self.audioFiles = audioFiles or {}
     self.audioStates = {}
     -- set up state for each audio file
     for _, path in pairs(self.audioFiles) do
         self.audioStates[path] = AudioState.Stop
+    end
+end
+
+-- synchronize
+function AudioComponent:synchronize()
+    -- synchronize audio files
+    local audioFiles = self:getCppValue("audioFiles")
+    local idx = 1
+    for path, state in pairs(audioFiles) do
+        self.audioFiles[idx] = path
+        self.audioStates[path] = state
+        idx = idx + 1
     end
 end
 

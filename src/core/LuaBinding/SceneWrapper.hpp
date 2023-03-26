@@ -18,12 +18,10 @@ namespace SPW {
 
         SceneWrapper(SceneWrapper &&other) {
             m_scene = std::move(other.m_scene);
-            all_entities = std::move(all_entities);
         }
         
         SceneWrapper& operator=(SceneWrapper &&other) {
             m_scene = std::move(other.m_scene);
-            all_entities = std::move(all_entities);
             return *this;
         }
 
@@ -32,20 +30,27 @@ namespace SPW {
          : m_scene(std::make_shared<Scene>(parent)) {
         }
 
+        // load from an existing scene
+        SceneWrapper(const std::shared_ptr<Scene> &scene) 
+         : m_scene(scene) {
+        }
+
         // create entity from lua
         EntityWrapper createEntity(const std::string &aName) {
             auto newEntity = m_scene->createEntity(aName);
             auto id = newEntity->getUUID().toString();
-            all_entities[id] = newEntity;
             return EntityWrapper(newEntity);
         }
 
+        // create entity wrapper from id
+        EntityWrapper getEntityByID(const std::string &id) {
+            auto entity = m_scene->getEntityByID(id);
+            return EntityWrapper(entity);
+        }
+
         // remove entity from lua
-        void remove(const std::string &uuid) {
-            if (all_entities.find(uuid) != all_entities.end()) {
-                m_scene->deleteEntity(all_entities[uuid]);
-                all_entities.erase(uuid);
-            }
+        void remove(const std::string &id) {
+            m_scene->removeEntityByID(id);
         }
 
         // void initialize
@@ -81,10 +86,10 @@ namespace SPW {
                 "beforeUpdate", &SceneWrapper::beforeUpdate,
                 "onUpdate", &SceneWrapper::onUpdate,
                 "afterUpdate", &SceneWrapper::afterUpdate,
-                "onStop", &SceneWrapper::onStop);
+                "onStop", &SceneWrapper::onStop,
+                "getEntityByID", &SceneWrapper::getEntityByID);
         }
 
         std::shared_ptr<Scene> m_scene;
-        std::unordered_map<std::string, std::shared_ptr<Entity>> all_entities;
     };
 }

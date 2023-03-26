@@ -16,8 +16,8 @@ function Entity:addComponent(component_type, ...)
         print("Not a valid component : ", component_type)
         return
     end
-    if self.component_map[component_type.__cname] then
-        return self.component_map[component_type.__cname]
+    if self:getComponent(component_type) ~= nil then
+        return self:getComponent(component_type)
     end
     -- init value
     local component = component_type.new(...)
@@ -30,13 +30,22 @@ function Entity:addComponent(component_type, ...)
 end
 
 function Entity:getComponent(component_type) 
+    -- check if the component is in the map
     local com = self.component_map[component_type.__cname]
+
+    -- if not, try to get the component from cpp_object
+    if com == nil then
+        local cpp_com = self.cpp_object:getComponent(component_type.__cname)
+        if cpp_com ~= nil and cpp_com:isValid() then
+            com = component_type.new()
+            com:set_cpp_object(cpp_com)
+            com:synchronize()
+            self.component_map[component_type.__cname] = com
+        end
+    end
     return com
 end
 
 function Entity:hasComponent(component_type)
-    if self.component_map[component_type.__cname] then
-        return true
-    end
-    return false
+    return self:getComponent(component_type) ~= nil
 end

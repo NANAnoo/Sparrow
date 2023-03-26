@@ -30,6 +30,13 @@ namespace SPW
 
         // no update function
 
+        // getLuaValue
+        virtual sol::object getLuaValue(const sol::table &value, const std::string &key) override {
+            if (key == "listener_id") {
+                return sol::make_object(value.lua_state(), Listener_id);
+            }
+            return sol::nil;
+        }
     };
 
 

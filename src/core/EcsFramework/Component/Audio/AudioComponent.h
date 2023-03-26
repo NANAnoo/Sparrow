@@ -169,6 +169,18 @@ namespace SPW
             }
         }
 
+        // getLuaValue
+        virtual sol::object getLuaValue(const sol::table &value, const std::string &key) override {
+            if (key == "audioFiles") {
+                sol::table audioFiles = sol::state_view(value.lua_state()).create_table();
+                for (auto &sound : allSounds) {
+                    audioFiles[sound.first] = sound.second->state;
+                }
+                return audioFiles;
+            }
+            return sol::nil;
+        }
+
         std::unordered_map<std::string, std::shared_ptr<SPWSound>> allSounds;
     };
 

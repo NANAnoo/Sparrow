@@ -5,7 +5,7 @@ Model = class('Model', Component)
 
 -- init only with a unchandled camera_id, store the camera_id in an array
 function Model:init(camera_id, path, shadow_handle, object_handle)
-    self.camera_id = camera_id
+    self.camera_id = camera_id or ""
     self.path = path or nil
     self.shadow_handle = shadow_handle or nil
     self.object_handle = object_handle or nil
@@ -33,4 +33,12 @@ end
 -- get model path : string, return the path stored in the component
 function Model:getModelPath()
     return self.path
+end
+
+-- synchronize
+function Model:synchronize()
+    self.camera_id = self:getCppValue('camera_id')
+    self.path = self:getCppValue('path')
+    self.shadow_handle = self:getCppValue('shadow_handle')
+    self.object_handle = self:getCppValue('object_handle')
 end

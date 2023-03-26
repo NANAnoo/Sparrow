@@ -45,6 +45,20 @@ namespace SPW {
             }
         }
 
+        // getLuaValue
+        virtual sol::object getLuaValue(const sol::table &value, const std::string &key) {
+            if (key == "path") {
+                return sol::make_object(value.lua_state(), model->getFilePath());
+            }
+            if (key == "shadow_handle") {
+                return sol::make_object(value.lua_state(), shadowProgram);
+            }
+            if (key == "object_handle") {
+                return sol::make_object(value.lua_state(), modelProgram);
+            }
+            return sol::nil;
+        }
+
         ShaderHandle shadowProgram;
         ShaderHandle modelProgram;
         std::shared_ptr<Model> model;

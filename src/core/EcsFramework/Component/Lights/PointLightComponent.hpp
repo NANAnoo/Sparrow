@@ -58,5 +58,28 @@ namespace SPW {
                 specular = value["specular"];
             }
         }
+
+        // getLuaValue
+        virtual sol::object getLuaValue(const sol::table &value, const std::string &key) final {
+            if (key == "constant") {
+                return sol::make_object(value.lua_state(), constant);
+            }
+            if (key == "linear") {
+                return sol::make_object(value.lua_state(), linear);
+            }
+            if (key == "quadratic") {
+                return sol::make_object(value.lua_state(), quadratic);
+            }
+            if (key == "ambient") {
+                return sol::make_object(value.lua_state(), ambient);
+            }
+            if (key == "diffuse") {
+                return sol::make_object(value.lua_state(), diffuse);
+            }
+            if (key == "specular") {
+                return sol::make_object(value.lua_state(), specular);
+            }
+            return sol::nil;
+        }
     };
 }

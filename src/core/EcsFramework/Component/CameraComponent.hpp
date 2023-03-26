@@ -93,6 +93,38 @@ namespace SPW {
             }
         }
 
+        // getLuaValue
+        virtual sol::object getLuaValue(const sol::table &value, const std::string &key) final {
+            if (key == "fov") {
+                return sol::make_object(value.lua_state(), fov);
+            }
+            if (key == "aspect") {
+                return sol::make_object(value.lua_state(), aspect);
+            }
+            if (key == "near") {
+                return sol::make_object(value.lua_state(), near);
+            }
+            if (key == "far") {
+                return sol::make_object(value.lua_state(), far);
+            }
+            if (key == "left") {
+                return sol::make_object(value.lua_state(), left);
+            }
+            if (key == "right") {
+                return sol::make_object(value.lua_state(), right);
+            }
+            if (key == "bottom") {
+                return sol::make_object(value.lua_state(), bottom);
+            }
+            if (key == "top") {
+                return sol::make_object(value.lua_state(), top);
+            }
+            if (key == "is_main") {
+                return sol::make_object(value.lua_state(), whetherMainCam);
+            }
+            return sol::nil;
+        }
+
         //whether main
         bool whetherMainCam = false;
     private:

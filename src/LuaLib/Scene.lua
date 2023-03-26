@@ -48,7 +48,19 @@ function Scene:onStop()
 end
 
 function Scene:getEntityFromID(id)
-    return self.ent_map[id]
+    if self.ent_map[id] ~= nil then
+        return self.ent_map[id]
+    end
+    -- try to get the entity from cpp_object
+    local cpp_entity = self.cpp_object:getEntityByID(id)
+    -- check if the entity is valid
+    if cpp_entity ~= nil and cpp_entity:isValid() then
+        local en = Entity.new(cpp_entity:getName(), cpp_entity)
+        self.ent_map[en.id] = en
+        return en
+    end
+    -- return nil if not found
+    return nil
 end
 
 function Scene:removeEntity(en)
