@@ -132,6 +132,43 @@ namespace SPW
                 allSounds[path]->setState(s);
         }
 
+        // init from lua
+        void initFromLua(const sol::table &value) override {
+            if (!value["audioFiles"].valid())
+                return;
+            sol::table audioFiles = value["audioFiles"];
+            for (int i = 1; i <= audioFiles.size(); ++i) {
+                if (!audioFiles[i].valid())
+                    continue;
+                std::string path = audioFiles[i];
+                auto sound = std::make_shared<SPWSound>(path);
+                allSounds.insert({path, sound});
+            }
+        }
+
+        // update from lua
+        void update(const std::string&key, const sol::table &value) override {
+            if (key == "enable3D" && value["value"].valid()) {
+                std::string path = value["value"];
+                set3D(path, true);
+            } else if (key == "disable3D" && value["value"].valid()) {
+                std::string path = value["value"];
+                set3D(path, false);
+            } else if (key == "enableLoop" && value["value"].valid()) {
+                std::string path = value["value"];
+                setLoop(path, true);
+            } else if (key == "enableLoop" && value["value"].valid()) {
+                std::string path = value["value"];
+                setLoop(path, false);
+            } else if (key == "setState" && value["value"].valid()) {
+                if (!value["value"]["path"].valid() || !value["value"]["state"].valid())
+                    return;
+                std::string path = value["value"]["path"];
+                int s = value["value"]["state"];
+                setState(path, (SoundState)s);
+            }
+        }
+
         std::unordered_map<std::string, std::shared_ptr<SPWSound>> allSounds;
     };
 

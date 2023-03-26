@@ -21,6 +21,15 @@ namespace SPW
 
         int Listener_id;
 
+        // init from lua
+        void initFromLua(const sol::table &value) override {
+            // listener_id
+            if (value["listener_id"].valid())
+                Listener_id = value["listener_id"];
+        }
+
+        // no update function
+
     };
 
 

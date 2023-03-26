@@ -60,3 +60,9 @@ function is_sub_class_of(sub,super)
         return is_sub_class_of(sub.__index.super,super)
     end
 end
+
+function Set (list)
+    local set = {}
+    for _, l in ipairs(list) do set[l] = true end
+    return set
+  end

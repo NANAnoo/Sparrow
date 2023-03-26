@@ -65,6 +65,10 @@ namespace SPW {
                 res.setupComponent<KeyComponent>(value);
             } else if (type == "MouseEventHandler") {
                 res.setupComponent<MouseComponent>(value);
+            } else if (type == "AudioComponent") {
+                res.setupComponent<AudioComponent>(value);
+            } else if (type == "AudioListener") {
+                res.setupComponent<AudioListener>(value);
             }
             return res;
         }

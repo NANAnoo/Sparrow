@@ -5,6 +5,8 @@ require "Entity"
 require "Components/TransformComponent"
 require "Components/MouseEventHandler"
 require "Components/KeyEventHandler"
+require "Components/AudioListener"
+
 require "Codes/KeyCode"
 require "Codes/MouseCode"
 
@@ -75,6 +77,9 @@ function CreateMainCamera(scene, width, height)
     MainCamera:addComponent(Transform)
     MainCamera:addComponent(PerspectiveCamera, 60, width / height, 0.1, 100, true)
     bindFPSController(scene, MainCamera, 0.01)
+
+    MainCamera:addComponent(AudioListener, 0)
+
     print("MainCamera id : ", MainCamera.id)
     return MainCamera
 end
