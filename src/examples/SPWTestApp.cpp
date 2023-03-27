@@ -54,9 +54,9 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
-std::shared_ptr<SPW::Model> createModel()
-{
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+std::shared_ptr<SPW::Model> createModel() {
+    //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/mantis.obj");
 }
 std::shared_ptr<SPW::Model> createCubeModel()
 {
