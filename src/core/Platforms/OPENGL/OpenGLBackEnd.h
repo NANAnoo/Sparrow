@@ -36,6 +36,11 @@ namespace SPW
         void InitSkyBox() final;
         void SetSkyBox(std::vector<std::string>& faces) final;
         void drawSkyBox(glm::mat4& V,glm::mat4& P) final;
+        void BindTexture(unsigned int slot,unsigned int texid) final
+        {
+            glActiveTexture(GL_TEXTURE0 + slot);
+            glBindTexture(GL_TEXTURE_2D,texid);
+        }
 
         //for draw
         std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) final
@@ -57,6 +62,7 @@ namespace SPW
         }
 
         std::shared_ptr<FrameBuffer> creatSenceFrameBuffer() final;
+        std::shared_ptr<FrameBuffer> creatShadowFrameBuffer() final;
         void drawInTexture(SPW::PostProcessingEffects effect = SPW::PostProcessingEffects::None) final;
     private:
         

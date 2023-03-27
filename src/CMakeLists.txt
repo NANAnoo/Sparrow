@@ -14,7 +14,11 @@ endif()
 
 file(COPY ${SparrowResourcesDir}
 DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+message("SparrowLuaLib" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+file(COPY ${SparrowLuaLib}
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_subdirectory(core)
 add_subdirectory(examples)
+add_subdirectory(ScriptableGame)
 add_subdirectory(editor)
