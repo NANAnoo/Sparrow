@@ -20,11 +20,6 @@ App({name="Test", width = 1280, height = 720,
         local MainLight = CreateMainLight(scene)
         local SubLight = CreateSubLight(scene)
         scene:initScene()
-        local testcpp = scene:getEntityFromID("ada92a74-0000-4f3c-0000-d966f5af169e")
-        local testTran = testcpp:getComponent(Transform)
-        local testAu = testcpp:getComponent(AudioComponent)
-        testAu:setState(testAu.audioFiles[1], AudioState.Play)
-        testAu:set3D(testAu.audioFiles[1], true)
     end,
     beforeUpdate = function()
         scene:beforeUpdate()

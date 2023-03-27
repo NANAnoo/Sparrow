@@ -207,18 +207,6 @@ public:
                 scene.m_scene->addSystem(std::make_shared<SPW::RenderSystem>(scene.m_scene, renderBackEnd, width, height));
                 scene.m_scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene.m_scene));
                 scene.m_scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene.m_scene));
-                auto en = scene.m_scene->createEntity("cpp_test", SPW::UUID::fromString("ada92a74-0000-4f3c-0000-d966f5af169e"));
-                auto tran = en->emplace<SPW::TransformComponent>();
-                tran->position = glm::vec3(5.f, 0.f, -5.f);
-                std::vector<std::string> paths = {"./resources/sounds/EDM.wav"};
-                en->emplace<SPW::AudioComponent>(paths);
-                auto l = en->emplace<SPW::PointLightComponent>();
-                l->ambient = glm::vec3(1.f, 1.f, 1.f);
-                l->diffuse = glm::vec3(0.f, 0.5f, 0.5f);
-                l->specular = glm::vec3(1.0f, 1.0f, 1.0f);
-                l->constant = 1.0f;
-                l->linear = 0.1f;
-                l->quadratic = 1.f;
                 return scene;
             };
             try {
