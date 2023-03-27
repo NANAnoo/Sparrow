@@ -20,36 +20,36 @@ namespace SPW {
             return false;
         }
 
-        bool onMouseHeld(SPW::MouseEvent *e) {
+        bool onMouseHeld(SPW::MouseEvent *e) override {
 
             mouse_queue.push(e);
 
             return false;
         };
 
-        bool onMouseReleased(MouseEvent *e) {
+        bool onMouseReleased(MouseEvent *e) override {
 
             mouse_queue.push(e);
 
             return false;
         };
 
-        bool onMouseScroll(MouseEvent *e) {
+        bool onMouseScroll(MouseEvent *e) override {
 
             mouse_queue.push(e);
 
             return false;
         };
 
-        bool cursorMovement(MouseEvent *e) {
+        bool cursorMovement(MouseEvent *e) override {
 
             mouse_queue.push(e);
 
             return false;
         };
 
-        void initial(){};
-        void beforeUpdate(){
+        void initial() override {};
+        void beforeUpdate() override {
 
             while(mouse_queue.size() != 0){
 
@@ -95,14 +95,15 @@ namespace SPW {
                                 entity.component<MouseComponent>()->cursorMovementCallBack(entity, e->cursor_xpos, e->cursor_ypos, e->cursor_xpos_bias, e->cursor_ypos_bias);
                         });
                         break;
+                    default:
+                        break;
                 }
-
                 mouse_queue.pop();
             }
         };
-        void onUpdate(TimeDuration dt){};
-        void afterUpdate(){};
-        void onStop(){};
+        void onUpdate(TimeDuration dt) override {};
+        void afterUpdate() override {};
+        void onStop() override {};
 
 private:
         std::queue<MouseEvent *> mouse_queue;

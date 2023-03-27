@@ -23,6 +23,7 @@ add_subdirectory(Platforms)
 add_subdirectory(Render)
 add_subdirectory(Model)
 add_subdirectory(IO)
+add_subdirectory(LuaBinding)
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Core Sources:" ${CoreSourceFiles})
@@ -46,5 +47,6 @@ target_link_libraries(SparrowCore PUBLIC glfw
         PUBLIC Physx::base Physx::foundation Physx::extension Physx::pvd 
         PUBLIC FMOD::Core FMOD::Fsbank FMOD::Studio
         PUBLIC assimp
+        PUBLIC luasocket
         PUBLIC ${OPENGL_LIBRARIES}
         )

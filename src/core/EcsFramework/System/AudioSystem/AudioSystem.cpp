@@ -36,12 +36,12 @@ namespace SPW {
                 [this](const Entity &en) {
                     auto trans = en.component<TransformComponent>();
                     auto player = en.component<AudioListener>();
-                    FMOD_VECTOR listenerPos = { trans->position.x, trans->position.y, trans->position.z }; // 获取当前帧的监听器位置
-                    FMOD_VECTOR listenerVel = { 0, 0, 0 }; // 获取当前帧的监听器速度
-                    glm::vec4 forward(0, 0, 1, 0);
-                    forward = forward * glm::eulerAngleXYZ(glm::radians(trans->rotation.x), glm::radians(trans->rotation.y), glm::radians(trans->rotation.z));
-                    FMOD_VECTOR listenerForward = { forward.x, forward.y, forward.z }; // 获取当前帧的监听器前向方向
-                    FMOD_VECTOR listenerUp = { 0, 1, 0 }; // 获取当前帧的监听器上向方向
+                    FMOD_VECTOR listenerPos = { trans->position.x, trans->position.y, trans->position.z };
+                    FMOD_VECTOR listenerVel = { 0, 0, 0 };
+                    glm::vec4 forward(0, 0, -1, 0);
+                    forward = forward * glm::eulerAngleY(glm::radians(trans->rotation.y));
+                    FMOD_VECTOR listenerForward = { forward.x, forward.y, -forward.z }; 
+                    FMOD_VECTOR listenerUp = { 0, 1, 0 }; 
                     mFmodSystem->set3DListenerAttributes(player->Listener_id, &listenerPos, &listenerVel, &listenerForward, &listenerUp);
                 });
         mFmodSystem->update();

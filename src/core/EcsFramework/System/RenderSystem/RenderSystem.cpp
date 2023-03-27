@@ -4,9 +4,10 @@
 
 #include "RenderSystem.h"
 #include "EcsFramework/Component/ComponentI.h"
+#include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
+#include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/ModelComponent.h"
-#include "EcsFramework/Component/LightComponent.hpp"
 #include "glm/fwd.hpp"
 #include "Render/Light.h"
 
@@ -14,7 +15,6 @@
 #include <glm/glm/gtx/euler_angles.hpp>
 #include <string>
 
-std::shared_ptr<SPW::FrameBuffer> frameBuffer;
 void SPW::RenderSystem::initial()
 {
     renderBackEnd->Init();
@@ -32,20 +32,14 @@ void SPW::RenderSystem::initial()
         "resources/texture/skybox/back.jpg"
     };
     renderBackEnd->SetSkyBox(faces);
-
+    depthBuffer = renderBackEnd->creatShadowFrameBuffer();
+    depthBuffer->genFrameBuffer();
+    depthBuffer->AttachDepthTexture();
+    depthBuffer->unbind();
 }
 
 void SPW::RenderSystem::beforeUpdate() {
     // clear buffer
-
-    frameBuffer->bind();
-    renderBackEnd->DepthTest(true);
-
-    //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    renderBackEnd->SetClearColor(glm::vec4(0.5));
-    renderBackEnd->Clear();
 }
 
 void SPW::RenderSystem::onUpdate(SPW::TimeDuration dt) {
@@ -54,15 +48,12 @@ void SPW::RenderSystem::onUpdate(SPW::TimeDuration dt) {
 
 void SPW::RenderSystem::afterUpdate(){
     // get all normal cameras and UI cameras
+
     RenderCamera uiCamera;
 
     ComponentGroup<SPW::IDComponent,
         SPW::CameraComponent,
         SPW::TransformComponent> cameraGroup;
-
-    ComponentGroup<SPW::IDComponent, 
-                    SPW::TransformComponent, 
-                    SPW::LightComponent> lightGroup;
 
     glm::mat4 V,P;
     locatedScene.lock()->forEachEntityInGroup(cameraGroup,
@@ -81,7 +72,7 @@ void SPW::RenderSystem::afterUpdate(){
 
     frameBuffer->unbind();
 
-    // RenderPass n-1, PostProcessing
+    //RenderPass n-1, PostProcessing
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::DepthTest, false));
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::SetClearColor,glm::vec4(0.5)));
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::Clear));
@@ -117,23 +108,22 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
             auto modelCom = en.component<SPW::ModelComponent>();
             // passing data to GPU
             if (modelCom->bindCameras.find(currentID) != modelCom->bindCameras.end()) {
-                if (!modelCom->ready) {
+                if (!modelCom->ready)
+                {
                     modelCom->model->setUpModel(renderBackEnd);
                     modelCom->ready = true;
                 }
                 renderModels.push_back(en);
             }
     });
-
     // 2. calculate VP from camera
     glm::mat4x4 V, P;
-    glm::mat4x4 cameraTransform = glm::mat4(1.0f);
-    cameraTransform = glm::translate(cameraTransform, transformCom->position);
+    glm::mat4x4 cameraTransform = glm::translate(glm::mat4(1.f), transformCom->position);
     cameraTransform = cameraTransform * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
-                       glm::radians(transformCom->rotation.x),
-                       glm::radians(transformCom->rotation.z));
+                        glm::radians(transformCom->rotation.x),
+                        glm::radians(transformCom->rotation.z));
 
-    glm::vec4 eye(0, 0, 1, 1), look_at(0, 0, 0, 1), up(0, 1, 0, 0);
+    glm::vec4 eye(0, 0, 0, 1), look_at(0, 0, -1, 1), up(0, 1, 0, 0);
     V = glm::lookAt(glm::vec3(cameraTransform * eye),
                     glm::vec3(cameraTransform *look_at),
                     glm::vec3(cameraTransform * up));
@@ -148,37 +138,10 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                        cameraCom->bottom, cameraCom->top, cameraCom->near, cameraCom->far);
     }
 
-    // get lights from scene
-    ComponentGroup<SPW::IDComponent,
-        SPW::LightComponent,
-        SPW::TransformComponent> lightGroup;
+    // 3. get all lights
     std::vector<PLight> pLights;
     std::vector<DLight> dLights;
-    locatedScene.lock()->forEachEntityInGroup(lightGroup, [&lightGroup, &pLights, &dLights](const Entity &en){
-        auto [id, light, trans] = en.combinedInGroup(lightGroup);
-        if (light->getType() == PointLightType) {
-            PLight pl = {};
-            pl.position = trans->position;
-            pl.ambient = light->ambient;
-            pl.diffuse = light->diffuse;
-            pl.specular = light->specular;
-            pl.constant = light->constant;
-            pl.linear = light->linear;
-            pl.quadratic = light->quadratic;
-            pLights.push_back(pl);
-        } else {
-            glm::vec4 dir = {0, 0, -1, 0};
-            auto rotMat = glm::eulerAngleXYZ(glm::radians(trans->rotation.x),
-                       glm::radians(trans->rotation.y),
-                       glm::radians(trans->rotation.z));
-            DLight dl = {};
-            dl.direction = dir * rotMat;
-            dl.ambient = light->ambient;
-            dl.diffuse = light->diffuse;
-            dl.specular = light->specular;
-            dLights.push_back(dl);
-        }
-    });
+    findAllLights(pLights,dLights);
     
     if(cameraCom->whetherMainCam)
     {
@@ -201,6 +164,13 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 programModelMap[program].push_back(en);
             }
         }
+        if(!isShadow)
+        {
+            frameBuffer->bind();
+            renderBackEnd->DepthTest(true);
+            renderBackEnd->SetClearColor(glm::vec4(0.5));
+            renderBackEnd->Clear();
+        }
 
         // for each program, draw every model
         for (auto [handle, entities] : programModelMap) {
@@ -217,6 +187,27 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
             for (unsigned int i = 0; i < dLights.size(); i++) {
                 auto dl = dLights[i];
                 shader->setDLight(i, dl);
+            }
+
+            glm::vec3 lightPos = -dLights[0].direction*3.0f;
+
+            glm::mat4 lightProjection, lightView;
+            glm::mat4 lightSpaceMatrix;
+
+            float near_plane = 1.0f, far_plane = 10.5f;
+            lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+            lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+            lightSpaceMatrix = lightProjection * lightView;
+            shader->SetUniformValue<glm::mat4> ("lightSpaceMatrix", lightSpaceMatrix);
+            if(isShadow)
+            {
+                renderBackEnd->SetViewport(0,0,FrameBuffer::SHADOW_WIDTH, FrameBuffer::SHADOW_HEIGHT);
+                depthBuffer->bind();
+                renderBackEnd->Clear();
+            }
+            else
+            {
+                renderBackEnd->BindTexture(5,depthBuffer->depthMapId);
             }
             shader->SetUniformValue("PLightCount", int(pLights.size()));
             shader->SetUniformValue("DLightCount", int(dLights.size()));
@@ -235,15 +226,63 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 shader->SetUniformValue<glm::mat4>("M", M);
                 modelCom->model->Draw(renderBackEnd, handle);
             }
+            if(isShadow)
+            {
+                depthBuffer->unbind();
+                // reset viewport
+                renderBackEnd->SetViewport(0,0,width, height);
+                renderBackEnd->Clear();
+            }
         }
 
     };
 
     // shadow pass
+    frameBuffer->bind();
+    renderBackEnd->DepthTest(true);
+    renderBackEnd->SetClearColor(glm::vec4(0.5));
+    renderBackEnd->Clear();
     renderPass(true);
-
     // model pass
     renderPass(false);
+}
+
+void SPW::RenderSystem::findAllLights(std::vector<PLight> &pLights, std::vector<DLight> &dLights)
+{
+    // get directional lights
+    ComponentGroup<SPW::IDComponent,
+        SPW::DirectionalLightComponent,
+        SPW::TransformComponent> lightGroup;
+    locatedScene.lock()->forEachEntityInGroup(lightGroup, [&lightGroup, &pLights, &dLights](const Entity &en){
+        auto [id, light, trans] = en.combinedInGroup(lightGroup);
+        glm::vec4 dir = {0, 0, -1, 0};
+        auto rotMat = glm::eulerAngleXYZ(glm::radians(trans->rotation.x),
+                    glm::radians(trans->rotation.y),
+                    glm::radians(trans->rotation.z));
+        DLight dl = {};
+        dl.direction = dir * rotMat;
+        dl.ambient = light->ambient;
+        dl.diffuse = light->diffuse;
+        dl.specular = light->specular;
+        dLights.push_back(dl);
+    });
+
+    // get point lights
+    ComponentGroup<SPW::IDComponent,
+        SPW::PointLightComponent,
+        SPW::TransformComponent> pointLightGroup;
+    locatedScene.lock()->forEachEntityInGroup(pointLightGroup, [&pointLightGroup, &pLights](const Entity &en) {
+        auto [id, light, trans] = en.combinedInGroup(pointLightGroup);
+        PLight pl = {};
+        pl.position = trans->position;
+        pl.ambient = light->ambient;
+        pl.diffuse = light->diffuse;
+        pl.specular = light->specular;
+        pl.constant = light->constant;
+        pl.linear = light->linear;
+        pl.quadratic = light->quadratic;
+        pLights.push_back(pl);
+    });
 }
 
 void SPW::RenderSystem::onStop() {
@@ -253,6 +292,8 @@ void SPW::RenderSystem::onStop() {
 bool SPW::RenderSystem::onFrameResize(int w, int h) {
     std::cout << "RenderSystem frame changed" << std::endl;
     // update frame buffer here
+    width = w;
+    height = h;
     frameBuffer->deleteFrameBuffer();
     frameBuffer->genFrameBuffer();
     frameBuffer->bind();

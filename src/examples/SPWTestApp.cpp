@@ -4,7 +4,7 @@
 #include <memory>
 #include <sol/sol.hpp>
 
-#include "EcsFramework/Component/LightComponent.hpp"
+#include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
 #include "Model/Mesh.h"
 #include "SparrowCore.h"
@@ -54,8 +54,13 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
-std::shared_ptr<SPW::Model> createModel() {
+std::shared_ptr<SPW::Model> createModel()
+{
     return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+}
+std::shared_ptr<SPW::Model> createCubeModel()
+{
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/cube.obj");
 }
 
 // test usage
@@ -191,17 +196,6 @@ public:
                 }
             };
 
-            // add a camera entity
-            auto camera2 = scene->createEntity("main camera");
-            auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
-            cam2_tran->position.y = 0.3;
-            cam2_tran->rotation.z = 90;
-            auto cam2 = camera2->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
-            cam2->fov = 75;
-            cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
-            cam2->near = 0.01;
-            cam2->far = 100;
-
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
             cam->whetherMainCam = true;
             //add a key component for testing, press R to rotate
@@ -218,28 +212,34 @@ public:
                 glm::vec3 up = {0, 1, 0};
                 glm::vec3 right = glm::normalize(glm::cross(forward, up));
                 if(keycode == SPW::Key::W)
-                    mainCameraTrans->position +=0.001f * forward;
+                    mainCameraTrans->position +=0.01f * forward;
                 if(keycode == SPW::Key::S)
-                    mainCameraTrans->position -=0.001f * forward;
+                    mainCameraTrans->position -=0.01f * forward;
                 if(keycode == SPW::Key::A)
-                    mainCameraTrans->position -=0.001f * right;
+                    mainCameraTrans->position -=0.01f * right;
                 if(keycode == SPW::Key::D)
-                    mainCameraTrans->position +=0.001f * right;
+                    mainCameraTrans->position +=0.01f * right;
                 if(keycode == SPW::Key::Q)
-                    mainCameraTrans->position -=0.001f * up;
+                    mainCameraTrans->position -=0.01f * up;
                 if(keycode == SPW::Key::E)
-                    mainCameraTrans->position +=0.001f * up;
+                    mainCameraTrans->position +=0.01f * up;
             };
             auto mouse = camera->emplace<SPW::MouseComponent>();
             mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
                 auto transform = e.component<SPW::TransformComponent>();
-                transform->rotation.x += y_pos_bias * 0.02;
-                transform->rotation.y += x_pos_bias * 0.1 ;
+                transform->rotation.x -= y_pos_bias * 0.02;
+                transform->rotation.y -= x_pos_bias * 0.1 ;
             };
             cameraKey->onKeyHeldCallBack = cb;
             cameraKey->onKeyDownCallBack = cb;
 
             // add a test game object
+            SPW::ShaderHandle ShadowShaderHandle({
+                                                   "shadow",
+                                                   "./resources/shaders/shadowMap.vert",
+                                                   "./resources/shaders/shadowMap.frag"
+                                           });
+
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.5, 0.5, 0.5};
@@ -268,12 +268,27 @@ public:
                                      });
 
             model->modelProgram = shaderHandle;
+            model->shadowProgram = ShadowShaderHandle;
             model->model = createModel();
+            auto cubeObj = scene->createEntity("floor");
+            auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
+            cubeTrans->scale = {5.0, 0.05, 5.0};
+            cubeTrans->position.y-=0.35f;
+            auto cubemodel = cubeObj->emplace<SPW::ModelComponent>(camera_id);
+            SPW::ShaderHandle CubeshaderHandle({
+                                                   "basic",
+                                                   "./resources/shaders/simpleVs.vert",
+                                                   "./resources/shaders/simplefrag.frag"
+                                           });
+            //model->bindCameras.insert(camera_id_2);
+            cubemodel->modelProgram = CubeshaderHandle;
+            cubemodel->shadowProgram = ShadowShaderHandle;
+            cubemodel->model = createCubeModel();
 
             // add light 1
             auto light = scene->createEntity("light");
             auto lightTrans =light->emplace<SPW::TransformComponent>();
-            auto lightCom = light->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            auto lightCom = light->emplace<SPW::DirectionalLightComponent>();
             lightCom->ambient = {0.2, 0.2, 0.2};
             lightCom->diffuse = {1, 1, 0};
             lightCom->specular = {1, 1, 0};
@@ -282,11 +297,11 @@ public:
             // add light 2
             auto light2 = scene->createEntity("light2");
             auto lightTrans2 =light2->emplace<SPW::TransformComponent>();
-            auto lightCom2 = light2->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            auto lightCom2 = light2->emplace<SPW::DirectionalLightComponent>();
             lightCom2->ambient = {0.2, 0.2, 0.2};
             lightCom2->diffuse = {0, 1, 1};
             lightCom2->specular = {0, 1, 1};
-            lightTrans2->rotation = {0, -60, 0};
+            lightTrans2->rotation = {30, 0, 0};
 
             // init scene
             scene->initial();

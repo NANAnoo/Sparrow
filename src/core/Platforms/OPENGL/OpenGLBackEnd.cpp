@@ -142,11 +142,13 @@ namespace SPW
                 std::string path = material->TextureMap[type];
                 std::shared_ptr<OpenGLtexture2D> texture =
                 OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
-                shader->SetUniformValue<int>(name,i);
                 glActiveTexture(GL_TEXTURE0 + i);
+                shader->SetUniformValue<int>(name,i);
+
                 glBindTexture(GL_TEXTURE_2D, texture->ID);
             }
         }
+        shader->SetUniformValue<int>("shadowMap",5);
         // TODO @ Zhou, read other material in resources manager
         shader->SetUniformValue<float>("diffusion", 0.4);
         shader->SetUniformValue<float>("shininess", 3);
@@ -158,6 +160,11 @@ namespace SPW
     {
         scenceFrameBuffer = std::make_shared<OpenGLFrameBuffer>();
         return scenceFrameBuffer;
+    }
+    std::shared_ptr<FrameBuffer> OpenGLBackEnd::creatShadowFrameBuffer()
+    {
+        shadowFrameBuffer = std::make_shared<OpenGLFrameBuffer>();
+        return shadowFrameBuffer;
     }
 
     void OpenGLBackEnd::drawInTexture(SPW::PostProcessingEffects effect)
