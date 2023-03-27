@@ -9,16 +9,16 @@ function CreateMonaModel(scene, camera_id)
     local MonaModel = scene:addEntity("MonaModel")
     local trans = MonaModel:addComponent(Transform)
     trans:setPosition(glm.vec3(0, -0.3, 0))
-    trans:setRotation(glm.vec3(-90, 90, 0))
+    trans:setRotation(glm.vec3(0, 0, 0))
     trans:setScale(glm.vec3(0.5, 0.5, 0.5))
     
     -- render model
-    local model = MonaModel:addComponent(Model, camera_id, "resources/models/mona2/mona.fbx")
-    local handle = SPW.ShaderHandle("main", "./resources/shaders/simpleVs.vert", "./resources/shaders/simplefrag.frag")
+    local model = MonaModel:addComponent(Model, camera_id, "resources/models/mantis/scene.gltf")
+    local handle = SPW.ShaderHandle("main", "./resources/shaders/simpleVs.vert", "./resources/shaders/pbrFrag.frag")
     model:setObjectHandle(handle)
 
-    local shadow = SPW.ShaderHandle("shadow", "./resources/shaders/shadowMap.vert", "./resources/shaders/shadowMap.frag")
-    model:setShadowHandle(shadow)
+    -- local shadow = SPW.ShaderHandle("shadow", "./resources/shaders/shadowMap.vert", "./resources/shaders/shadowMap.frag")
+    -- model:setShadowHandle(shadow)
 
     -- add audio component
     local audio = MonaModel:addComponent(AudioComponent, { "resources/sounds/test.wav" })

@@ -4,7 +4,6 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 #include </structure.glsl>
-#include </BlinnPhong.glsl>
 #include </PBR.glsl>
 
 out vec4 FragColor;
@@ -48,22 +47,6 @@ vec3 getNormalFromMap()
     return normalize(TBN * tangentNormal);
 }
 
-vec3 BlinnPhong(vec3 norm){
-    vec3 BP_scale = vec3(0, 0, 0);
-
-    for (int i = 0; i < PLightCount && i < 10; i ++) {
-            BP_scale += BlinnPhong_P(norm, vec3(position), camPos, PLights[i],
-                                diffusion, lambertin, shininess, specularPower);
-    }
-
-    for (int i = 0; i < DLightCount && i < 10; i ++) {
-            BP_scale += BlinnPhong_D(norm, vec3(position), camPos, DLights[i],
-                                diffusion, lambertin, shininess, specularPower);
-    }
-
-    return BP_scale;
-}
-
 vec3 PBR(vec3 N){
     vec3 BP_scale = vec3(0, 0, 0);
 
@@ -87,7 +70,6 @@ void main()
 {
     vec3 norm = normalize(normal);
     vec3 N = getNormalFromMap();
-    //vec3 BP_scale =BlinnPhong(norm)
     vec3 BP_scale =PBR(N);
 
     FragColor = vec4(BP_scale, 1.f);
