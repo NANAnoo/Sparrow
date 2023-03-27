@@ -69,7 +69,7 @@ namespace SPW {
                 registry.lock()->remove<C>(entity);
         }
 
-        UUID getUUID() {
+        UUID getUUID() const{
             // check validation of weak_scene
             if (!registry.expired())
                 return component<SPW::IDComponent>()->getID();

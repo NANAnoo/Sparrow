@@ -56,17 +56,21 @@ namespace SPW {
                         if(entity.component<KeyComponent>()->onKeyHeldCallBack)
                             entity.component<KeyComponent>()->onKeyHeldCallBack(entity, e->keycode);
                     });
+                        break;
 
                     case SPW::EventType::KeyReleasedType:
                         locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity &entity){
                         if(entity.component<KeyComponent>()->onKeyReleasedCallBack)
                             entity.component<KeyComponent>()->onKeyReleasedCallBack(entity, e->keycode);
                     });
+                        break;
+                    default:
+                    break;
                 }
-
                 key_queue.pop();
             }
         }
+        
         void onUpdate(TimeDuration dt) final{}
         void afterUpdate() final{}
         void onStop() final{}

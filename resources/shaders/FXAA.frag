@@ -16,7 +16,7 @@ float rgb2luma(vec3 rgb){
 	return sqrt(dot(rgb, vec3(0.299, 0.587, 0.114)));
 }
 
-vec2 inverseScreenSize = vec2(1.0/1920.0,1.0/1080.0);
+vec2 inverseScreenSize = vec2(1.0/3840.0,1.0/2160.0);
 
 void main()
 {

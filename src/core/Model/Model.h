@@ -96,6 +96,11 @@ namespace SPW
             m_Directory = filePath.parent_path();
         }
 
+        std::string getFilePath() const
+        {
+            return m_FilePath.string();
+        }
+
     private:
         std::filesystem::path m_FilePath;
         std::filesystem::path m_Directory;

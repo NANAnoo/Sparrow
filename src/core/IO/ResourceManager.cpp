@@ -129,7 +129,7 @@ namespace SPW
 				material->GetTexture(textureType, k, &texturePath);
 				std::string str = texturePath.C_Str();
 				std::replace(begin(str), end(str), '\\', '/');
-				if (j == 1 || j == 12 || j == 16)
+				if (j == 1 || j == 12)
 					tmp->TextureMap.emplace(std::make_pair(TextureType::Albedo, str));
 				else if (j == 6)
 					tmp->TextureMap.emplace(std::make_pair(TextureType::Normal, str));

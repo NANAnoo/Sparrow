@@ -4,7 +4,7 @@
 #include <memory>
 #include <sol/sol.hpp>
 
-#include "EcsFramework/Component/LightComponent.hpp"
+#include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
 #include "Model/Mesh.h"
 #include "SparrowCore.h"
@@ -54,9 +54,9 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
-std::shared_ptr<SPW::Model> createModel()
-{
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+std::shared_ptr<SPW::Model> createModel() {
+    //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/mantis.obj");
 }
 std::shared_ptr<SPW::Model> createCubeModel()
 {
@@ -216,7 +216,7 @@ public:
             auto mouse = camera->emplace<SPW::MouseComponent>();
             mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
                 auto transform = e.component<SPW::TransformComponent>();
-                transform->rotation.x -= y_pos_bias * 0.1;
+                transform->rotation.x -= y_pos_bias * 0.02;
                 transform->rotation.y -= x_pos_bias * 0.1 ;
             };
             cameraKey->onKeyHeldCallBack = cb;
@@ -277,7 +277,7 @@ public:
             // add light 1
             auto light = scene->createEntity("light");
             auto lightTrans =light->emplace<SPW::TransformComponent>();
-            auto lightCom = light->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            auto lightCom = light->emplace<SPW::DirectionalLightComponent>();
             lightCom->ambient = {0.2, 0.2, 0.2};
             lightCom->diffuse = {1, 1, 0};
             lightCom->specular = {1, 1, 0};
@@ -286,7 +286,7 @@ public:
             // add light 2
             auto light2 = scene->createEntity("light2");
             auto lightTrans2 =light2->emplace<SPW::TransformComponent>();
-            auto lightCom2 = light2->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            auto lightCom2 = light2->emplace<SPW::DirectionalLightComponent>();
             lightCom2->ambient = {0.2, 0.2, 0.2};
             lightCom2->diffuse = {0, 1, 1};
             lightCom2->specular = {0, 1, 1};
@@ -366,9 +366,17 @@ public:
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
 };
 
+#include <PxPhysicsAPI.h>
+using namespace physx;
+PxDefaultAllocator		gAllocator;
+PxDefaultErrorCallback	gErrorCallback;
+
+PxFoundation*			gFoundation = NULL;
 // main entrance
 int main(int argc, char **argv) {
     // app test
+    gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+    PX_RELEASE(gFoundation);
     auto appProxy =
         SPW::Application::create<TestDelegate>("SPWTestApp");
     return appProxy->app->run(argc, argv);
