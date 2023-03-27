@@ -364,9 +364,17 @@ public:
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
 };
 
+#include <PxPhysicsAPI.h>
+using namespace physx;
+PxDefaultAllocator		gAllocator;
+PxDefaultErrorCallback	gErrorCallback;
+
+PxFoundation*			gFoundation = NULL;
 // main entrance
 int main(int argc, char **argv) {
     // app test
+    gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+    PX_RELEASE(gFoundation);
     auto appProxy =
         SPW::Application::create<TestDelegate>("SPWTestApp");
     return appProxy->app->run(argc, argv);
