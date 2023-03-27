@@ -3,7 +3,7 @@
 #include <memory>
 #include <sol/sol.hpp>
 
-#include "EcsFramework/Component/LightComponent.hpp"
+#include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
 #include "Model/Mesh.h"
 #include "SparrowCore.h"
@@ -231,7 +231,7 @@ public:
             // add light 1
             auto light = scene->createEntity("light");
             auto lightTrans =light->emplace<SPW::TransformComponent>();
-            auto lightCom = light->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            auto lightCom = light->emplace<SPW::DirectionalLightComponent>();
             lightCom->ambient = {0.2, 0.2, 0.2};
             lightCom->diffuse = {1, 1, 0};
             lightCom->specular = {1, 1, 0};
@@ -240,7 +240,7 @@ public:
             // add light 2
             auto light2 = scene->createEntity("light2");
             auto lightTrans2 =light2->emplace<SPW::TransformComponent>();
-            auto lightCom2 = light2->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            auto lightCom2 = light2->emplace<SPW::DirectionalLightComponent>();
             lightCom2->ambient = {0.2, 0.2, 0.2};
             lightCom2->diffuse = {0, 1, 1};
             lightCom2->specular = {0, 1, 1};

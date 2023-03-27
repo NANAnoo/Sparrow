@@ -1,1 +1,3 @@
-CORE_ADD_SOURCE(PointLightComponent.hpp)
+CORE_ADD_SOURCE(
+PointLightComponent.hpp
+DirectionalLightComponent.hpp)
