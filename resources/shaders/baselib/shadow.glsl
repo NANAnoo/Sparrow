@@ -1,10 +1,12 @@
 #define PI 3.141592653589793
 #define PI2 6.283185307179586
 
+uniform float RandomSeed;
+
 highp float rand_2to1(vec2 uv ) {//传入一个二维数，传出一个假随机数。
     // 0 - 1
     const highp float a = 12.9898, b = 78.233, c = 43758.5453;
-    highp float dt = dot( uv.xy, vec2( a,b ) );
+    highp float dt = dot( uv.xy, vec2( a,b ) ) + RandomSeed;
     highp float sn = mod( dt, PI );
     return fract(sin(sn) * c);//只取小数部分（取值范围0~1，若为负+1）
 }

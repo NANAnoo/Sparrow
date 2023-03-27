@@ -240,6 +240,8 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 shader->SetUniformValue<glm::vec3>("camPos", camPos);
                 shader->SetUniformValue<glm::mat4>("V", V);
                 shader->SetUniformValue<glm::mat4>("P", P);
+                float randvalue = float(rand()) / RAND_MAX;
+                shader->SetUniformValue<float>("RandomSeed", randvalue);
                 // bind light
                 for (unsigned int i = 0; i < pLights.size(); i++) {
                     auto pl = pLights[i];

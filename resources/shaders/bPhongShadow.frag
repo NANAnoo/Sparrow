@@ -33,7 +33,7 @@ in vec4 position;
 in vec4 FragPosLightSpace[10];
 
 
-#define NUM_SAMPLES 100
+#define NUM_SAMPLES 11
 #define NUM_RINGS 15
 vec2 poissonDisk[NUM_SAMPLES];
 #include</shadow.glsl>
