@@ -33,9 +33,9 @@ void SPW::RenderSystem::initial()
         "resources/texture/skybox/back.jpg"
     };
     renderBackEnd->SetSkyBox(faces);
-    renderBackEnd->creatShadowFrameBuffer(DLightNum);
-    renderBackEnd->setUpShadowArray(DLightNum);
-    for(int i = 0; i < DLightNum; i++)
+    renderBackEnd->creatShadowFrameBuffer(10);
+    renderBackEnd->setUpShadowArray(10);
+    for(int i = 0; i < 10; i++)
     {
         renderBackEnd->shadowFrameBuffers[i]->genFrameBuffer();
         renderBackEnd->shadowFrameBuffers[i]->bind();
@@ -127,20 +127,10 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
     });
     // 2. calculate VP from camera
     glm::mat4x4 V, P;
-<<<<<<< HEAD
-    glm::mat4x4 cameraTransform = glm::mat4(1.0f);
-    cameraTransform = glm::translate(cameraTransform, transformCom->position);
-    cameraTransform = cameraTransform * glm::eulerAngleYXZ(
-        glm::radians(transformCom->rotation.y),
-        glm::radians(transformCom->rotation.x),
-        glm::radians(transformCom->rotation.z)
-    );
-=======
     glm::mat4x4 cameraTransform = glm::translate(glm::mat4(1.f), transformCom->position);
     cameraTransform = cameraTransform * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
                         glm::radians(transformCom->rotation.x),
                         glm::radians(transformCom->rotation.z));
->>>>>>> main
 
     glm::vec4 eye(0, 0, 0, 1), look_at(0, 0, -1, 1), up(0, 1, 0, 0);
     V = glm::lookAt(glm::vec3(cameraTransform * eye),
@@ -160,35 +150,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
     // 3. get all lights
     std::vector<PLight> pLights;
     std::vector<DLight> dLights;
-<<<<<<< HEAD
-    locatedScene.lock()->forEachEntityInGroup(lightGroup, [&lightGroup, &pLights, &dLights](const Entity &en){
-        auto [id, light, trans] = en.combinedInGroup(lightGroup);
-        if (light->getType() == PointLightType) {
-            PLight pl = {};
-            pl.position = trans->position;
-            pl.ambient = light->ambient;
-            pl.diffuse = light->diffuse;
-            pl.specular = light->specular;
-            pl.constant = light->constant;
-            pl.linear = light->linear;
-            pl.quadratic = light->quadratic;
-            pLights.push_back(pl);
-        } else {
-            glm::vec4 dir = {0, 0, -1, 0};
-            auto rotMat = glm::eulerAngleYX(
-                       glm::radians(trans->rotation.y),
-                       glm::radians(trans->rotation.x));
-            DLight dl = {};
-            dl.direction = rotMat * dir;
-            dl.ambient = light->ambient;
-            dl.diffuse = light->diffuse;
-            dl.specular = light->specular;
-            dLights.push_back(dl);
-        }
-    });
-=======
     findAllLights(pLights,dLights);
->>>>>>> main
     
     if(cameraCom->whetherMainCam)
     {
@@ -228,7 +190,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                     shader->setDLight(i, dl);
                 }
 
-                for(int i = 0; i < DLightNum; i++)
+                for(int i = 0; i < dLights.size(); i++)
                 {
                     renderBackEnd->shadowFrameBuffers[i]->bind();
                     glm::vec3 lightPos = -dLights[i].direction*5.0f;
@@ -260,7 +222,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                     }
                     renderBackEnd->shadowFrameBuffers[i]->unbind();
                     // reset viewport
-                    renderBackEnd->SetViewport(0,0,windowWidth, windowHeight);
+                    renderBackEnd->SetViewport(0,0,width, height);
                     renderBackEnd->Clear();
                 }
             }
@@ -288,11 +250,10 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                     shader->setDLight(i, dl);
                 }
 
-                for(int i = 0; i< DLightNum; i++)
+                for(int i = 0; i< dLights.size(); i++)
                 {
                     glm::vec3 lightPos = -dLights[i].direction*5.0f;
 
-<<<<<<< HEAD
                     glm::mat4 lightProjection, lightView;
                     glm::mat4 lightSpaceMatrix;
 
@@ -323,17 +284,6 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                     shader->SetUniformValue<glm::mat4>("M", M);
                     modelCom->model->Draw(renderBackEnd, handle);
                 }
-=======
-                shader->SetUniformValue<glm::mat4>("M", M);
-                modelCom->model->Draw(renderBackEnd, handle);
-            }
-            if(isShadow)
-            {
-                depthBuffer->unbind();
-                // reset viewport
-                renderBackEnd->SetViewport(0,0,width, height);
-                renderBackEnd->Clear();
->>>>>>> main
             }
         }
     };

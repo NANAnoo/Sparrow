@@ -153,7 +153,7 @@ namespace SPW
         shader->SetUniformValue<float>("diffusion", 0.4);
         shader->SetUniformValue<float>("shininess", 3);
         shader->SetUniformValue<float>("lambertin", 0.3);
-        shader->SetUniformValue<float>("specularPower", 64);
+        shader->SetUniformValue<float>("specularPower", 128);
 
     }
     std::shared_ptr<FrameBuffer> OpenGLBackEnd::creatSenceFrameBuffer()

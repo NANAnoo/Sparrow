@@ -9,7 +9,7 @@ require "Components/KeyEventHandler"
 function CreateMainLight(scene)
     local MainLight = scene:addEntity("MainLight")
     local lightTrans = MainLight:addComponent(Transform)
-    MainLight:addComponent(DirectionalLight, glm.vec3(1, 1, 1), glm.vec3(1, 1, 0), glm.vec3(1.0, 1.0, 0.0))
+    MainLight:addComponent(DirectionalLight, glm.vec3(0.5, 0.5, 0.5), glm.vec3(1, 1, 0), glm.vec3(1.0, 1.0, 0.0))
     lightTrans:setRotation(glm.vec3(30, 60, 0))
 
     local LightController = MainLight:addComponent(KeyEventHandler)
@@ -31,11 +31,10 @@ function CreateMainLight(scene)
 end
 
 function CreateSubLight(scene)
-    local SubLight = scene:addEntity("SubLight")
+    local SubLight = scene:addEntity("MainLight")
     local lightTrans = SubLight:addComponent(Transform)
-    SubLight:addComponent(PointLight, glm.vec3(0.2, 0.2, 0.2), glm.vec3(0, 1, 0), glm.vec3(0.0, 1.0, 0.0), 0.1, 1, 0.1)
-
-    lightTrans:setPosition(glm.vec3(0, 0, 0.5))
+    SubLight:addComponent(DirectionalLight, glm.vec3(0.5, 0.5, 0.5), glm.vec3(0, 1, 1), glm.vec3(0.0, 1.0, 1.0))
+    lightTrans:setRotation(glm.vec3(30, -60, 0))
 
     print("SubLight id : ", SubLight.id)
     return SubLight

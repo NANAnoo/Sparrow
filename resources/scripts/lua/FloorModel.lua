@@ -13,11 +13,11 @@ function CreateFloor(scene, camera_id)
 
     local model = floor:addComponent(Model, camera_id, "resources/models/cube.obj")
 
-    local handle = SPW.ShaderHandle("main", "./resources/shaders/simpleVs.vert", "./resources/shaders/simplefrag.frag")
+    local handle = SPW.ShaderHandle("Phong", "./resources/shaders/simpleVs.vert", "./resources/shaders/bPhongShadow.frag")
     model:setObjectHandle(handle)
 
-    local shadow = SPW.ShaderHandle("shadow", "./resources/shaders/shadowMap.vert", "./resources/shaders/shadowMap.frag")
-    model:setShadowHandle(shadow)
+    -- local shadow = SPW.ShaderHandle("shadow", "./resources/shaders/shadowMap.vert", "./resources/shaders/shadowMap.frag")
+    -- model:setShadowHandle(shadow)
 
     print("floor id : ", floor.id)
     

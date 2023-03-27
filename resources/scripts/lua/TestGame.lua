@@ -4,6 +4,7 @@ require "Entity"
 
 require "MainCamera"
 require "MonaModel"
+require "MantisModel"
 require "MainLight"
 require "FloorModel"
 
@@ -16,6 +17,7 @@ App({name="Test", width = 1280, height = 720,
         MainCamera = CreateMainCamera(scene, 1280, 720)
         local main_camera_id = MainCamera.id
         local MonaModel = CreateMonaModel(scene, main_camera_id)
+        CreateMantisModel(scene, main_camera_id)
         local floor = CreateFloor(scene, main_camera_id)
         local MainLight = CreateMainLight(scene)
         local SubLight = CreateSubLight(scene)
