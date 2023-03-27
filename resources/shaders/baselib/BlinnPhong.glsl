@@ -31,7 +31,7 @@ vec3 BlinnPhong_P(vec3 normal, vec3 pos, vec3 camPos, PLight light,float ambient
 }
 
 // BlinnPhong for Dlight
-vec3 BlinnPhong_D(vec3 normal, vec3 pos, vec3 camPos, DLight light, float ambient, float diffusion , float shininess, float specularPower, int i)
+vec3 BlinnPhong_D(vec3 normal, vec3 pos, vec3 camPos, DLight light, float ambient, float diffusion , float shininess, float specularPower, float shadow)
 {
     vec3 amb = light.ambient * ambient;
     
@@ -51,11 +51,6 @@ vec3 BlinnPhong_D(vec3 normal, vec3 pos, vec3 camPos, DLight light, float ambien
 	float NdotH = dot(normal, halfVec);
     intensity = pow(max(0, min(1, NdotH)), specularPower);
     vec3 spe = intensity * light.specular * shininess;
-
-    vec3 projCoords = FragPosLightSpace[i].xyz / FragPosLightSpace[i].w;
-    projCoords = projCoords * 0.5 + 0.5;
-    poissonDiskSamples(projCoords.xy);
-    float shadow = PCSS(projCoords,i);
 
     return (amb +(1.0 - shadow)*(dif + spe));
 }

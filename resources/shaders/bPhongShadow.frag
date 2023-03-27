@@ -37,6 +37,7 @@ in vec4 FragPosLightSpace[10];
 #define NUM_RINGS 15
 vec2 poissonDisk[NUM_SAMPLES];
 #include</shadow.glsl>
+
 #include </BlinnPhong.glsl>
 
 void main()
@@ -49,8 +50,12 @@ void main()
                             diffusion, lambertin, shininess, specularPower);
     }       
     for (int i = 0; i < DLightCount && i < 10; i ++) {
+        vec3 projCoords = FragPosLightSpace[i].xyz / FragPosLightSpace[i].w;
+        projCoords = projCoords * 0.5 + 0.5;
+        poissonDiskSamples(projCoords.xy);
+        float shadow = PCSS(projCoords,i);
         vec3 tempColor = BlinnPhong_D(norm, vec3(position), camPos, DLights[i],
-                            diffusion, lambertin, shininess, specularPower,i);
+                            diffusion, lambertin, shininess, specularPower,shadow);
 
         BP_scale += tempColor;
     }

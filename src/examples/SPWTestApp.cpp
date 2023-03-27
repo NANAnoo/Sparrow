@@ -253,7 +253,7 @@ public:
             SPW::ShaderHandle shaderHandle({
                                          "basic",
                                          "./resources/shaders/simpleVs.vert",
-                                         "./resources/shaders/simplefrag.frag"
+                                         "./resources/shaders/bPhongShadow.frag"
                                      });
 
             model->modelProgram = shaderHandle;
@@ -267,7 +267,7 @@ public:
             SPW::ShaderHandle CubeshaderHandle({
                                                    "basic",
                                                    "./resources/shaders/simpleVs.vert",
-                                                   "./resources/shaders/simplefrag.frag"
+                                                   "./resources/shaders/bPhongShadow.frag"
                                            });
             //model->bindCameras.insert(camera_id_2);
             cubemodel->modelProgram = CubeshaderHandle;
@@ -281,7 +281,7 @@ public:
             lightCom->ambient = {0.2, 0.2, 0.2};
             lightCom->diffuse = {1, 1, 0};
             lightCom->specular = {1, 1, 0};
-            lightTrans->rotation = {30, 60, 0};
+            lightTrans->rotation = {-30, 60, 0};
 
             // add light 2
             auto light2 = scene->createEntity("light2");
