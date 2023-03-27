@@ -24,10 +24,10 @@ namespace SPW
         void drawinTexture() final;
     private:
         unsigned int framebufferId;
-
         unsigned int rboId;
     public:
         unsigned int textureColorbufferId;
+
     };
 
 } // SPW

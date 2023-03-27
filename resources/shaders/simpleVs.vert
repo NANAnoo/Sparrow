@@ -7,15 +7,19 @@ layout (location = 2) in vec2 aCoords;
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
+uniform mat4 lightSpaceMatrix;
 
 out vec2 TexCoords;
 out vec3 normal;
 out vec4 position;
+out vec4 FragPosLightSpace;
+
 void main()
 {
     position = M*vec4(aPos, 1.0);
     gl_Position = P*V*position;
     
     TexCoords = aCoords;
-    normal = mat3(transpose(inverse(M))) * aNormal;
+    normal = transpose(inverse(mat3(M))) * aNormal;
+    FragPosLightSpace = lightSpaceMatrix * position;
 }

@@ -20,6 +20,9 @@ namespace SPW
         virtual void AttachDepthRenderBuffer(unsigned int width,unsigned int height)=0;
         virtual void CheckFramebufferStatus()=0;
         virtual void drawinTexture()=0;
+    public:
+        static const unsigned int SHADOW_WIDTH = 4096, SHADOW_HEIGHT = 4096;
+        unsigned int depthMapId;
     };
 }
 
