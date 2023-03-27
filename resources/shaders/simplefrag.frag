@@ -1,11 +1,8 @@
 #version 410 core
 #extension GL_ARB_shading_language_include : require
-#extension GL_ARB_separate_shader_objects : enable
-#extension GL_ARB_shading_language_420pack : enable
 
 #include </structure.glsl>
 #include </BlinnPhong.glsl>
-#include </PBR.glsl>
 
 out vec4 FragColor;
 uniform sampler2D albedoMap;
@@ -13,6 +10,7 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D normalMap;
 uniform sampler2D AoMap;
+uniform sampler2D shadowMap;
 
 // parameters of Blinn phong
 uniform float diffusion;
@@ -31,65 +29,60 @@ uniform int PLightCount;
 in vec2 TexCoords;
 in vec3 normal;
 in vec4 position;
-vec3 getNormalFromMap()
+in vec4 FragPosLightSpace;
+
+float ShadowCalculation(vec4 fragPosLightSpace)
 {
-    vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    float bias = max(0.05 * (1.0 - dot(normal, -DLights[0].direction)), 0.005);
+    //float bias = 0.005;
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 
-    vec3 Q1  = dFdx(position.xyz);
-    vec3 Q2  = dFdy(position.xyz);
-    vec2 st1 = dFdx(TexCoords);
-    vec2 st2 = dFdy(TexCoords);
+    return shadow;
+}
+float PCF(vec4 fragPosLightSpace)
+{
+    float radius = 0.3f;
+    int PCF_RADIUS = 5;
 
-    vec3 N   = normalize(normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B  = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal);
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float shadow = 0.0;
+    float currentDepth = projCoords.z;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0); // 0 级纹理相邻纹素的距离
+    for(int x = -PCF_RADIUS; x <= PCF_RADIUS; ++x) {
+        for(int y = -PCF_RADIUS; y <= PCF_RADIUS; ++y) {
+            float shadowMapDepth = texture(shadowMap, projCoords.xy + radius*vec2(x, y) * texelSize).r;
+            float BIAS = max(0.05 * (1.0 - dot(normal, -DLights[0].direction)), 0.005);;
+            shadow += currentDepth-BIAS > shadowMapDepth  ? 1.0 : 0.0;
+        }
+    }
+    float total = (2*PCF_RADIUS+1);
+    return shadow/(total*total);
 }
 
-vec3 BlinnPhong(vec3 norm){
-    vec3 BP_scale = vec3(0, 0, 0);
-
-    for (int i = 0; i < PLightCount && i < 10; i ++) {
-            BP_scale += BlinnPhong_P(norm, vec3(position), camPos, PLights[i],
-                                diffusion, lambertin, shininess, specularPower);
-    }
-
-    for (int i = 0; i < DLightCount && i < 10; i ++) {
-            BP_scale += BlinnPhong_D(norm, vec3(position), camPos, DLights[i],
-                                diffusion, lambertin, shininess, specularPower);
-    }
-
-    return BP_scale;
-}
-
-vec3 PBR(vec3 N){
-    vec3 BP_scale = vec3(0, 0, 0);
-
-    vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
-    float metallic  = texture(metallicMap, TexCoords).r;
-    float roughness = texture(roughnessMap, TexCoords).g;
-    float ao        = texture(AoMap, TexCoords).r;
-    vec3 V = normalize(camPos - position.xyz);
-
-    for (int i = 0; i < PLightCount && i < 10; i ++) {
-        BP_scale += PBR_P(albedo,metallic,roughness,ao,N,V,vec3(position),camPos,PLights[i]);
-    }
-
-    for (int i = 0; i < DLightCount && i < 10; i ++) {
-        BP_scale += PBR_D(albedo,metallic,roughness,ao,N,V,vec3(position),camPos,DLights[i]);
-    }
-
-    return BP_scale;
-}
 void main()
 {
     vec3 norm = normalize(normal);
-    vec3 N = getNormalFromMap();
-    //vec3 BP_scale =BlinnPhong(norm)
-    vec3 BP_scale =PBR(N);
+    vec3 BP_scale = vec3(0, 0, 0);
 
-    FragColor = vec4(BP_scale, 1.f);
+    for (int i = 0; i < PLightCount && i < 10; i ++) {
+        BP_scale += BlinnPhong_P(norm, vec3(position), camPos, PLights[i],
+                            diffusion, lambertin, shininess, specularPower);
+    }       
+    for (int i = 0; i < DLightCount && i < 10; i ++) {
+        BP_scale += BlinnPhong_D(norm, vec3(position), camPos, DLights[i],
+                            diffusion, lambertin, shininess, specularPower);
+    }
+    //float shadow = ShadowCalculation(FragPosLightSpace);
+    float shadow = PCF(FragPosLightSpace);
 
+    FragColor = (1.0-shadow)*(vec4(BP_scale, 1.f) * texture(albedoMap, TexCoords));
 }
