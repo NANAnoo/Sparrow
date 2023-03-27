@@ -21,7 +21,6 @@ namespace SPW {
         std::vector<std::string> &getArgumentList() {return arguments;}
         // window
         std::shared_ptr<WindowI> window = nullptr;
-
         // post event
         void postEvent(const std::shared_ptr<EventI> &e) {
             onEvent(e);

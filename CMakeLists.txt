@@ -54,6 +54,7 @@ set(ProjectRootDir "${CMAKE_CURRENT_SOURCE_DIR}")
 set(SparrowResourcesDir "${ProjectRootDir}/resources")
 set(SparrowSRCDir "${ProjectRootDir}/src")
 set(SparrowCoreDir "${SparrowSRCDir}/core")
+set(SparrowEditorDir "${SparrowSRCDir}/editor")
 set(SparrowExamplesDir "${SparrowSRCDir}/examples")
 set(SparrowExternalDir "${ProjectRootDir}/external")
 

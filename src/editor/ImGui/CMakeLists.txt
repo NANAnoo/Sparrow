@@ -1,0 +1,9 @@
+EDITOR_ADD_SOURCE(
+        ImGuiDefinitions.h
+        UIComponent/ImGuiPanel.h
+        UIComponent/ImGuiDockSpace.h
+        UIComponent/ImGuiMenuBar.h
+        UIComponent/ImGuiInspectorPanel.h
+        UIComponent/ImGuiObjectPanel.h
+        UIComponent/ImGuiTreeNodePanel.h
+        )

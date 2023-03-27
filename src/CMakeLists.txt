@@ -17,3 +17,4 @@ DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_subdirectory(core)
 add_subdirectory(examples)
+add_subdirectory(editor)

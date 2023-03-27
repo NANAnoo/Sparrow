@@ -1,4 +1,3 @@
-#include <cmath>
 #include <iostream>
 
 #include <memory>
@@ -11,28 +10,21 @@
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
-#include "Control/MouseEvent.hpp"
 
 #include "Control/KeyCodes.h"
-#include "Control/MouseCodes.h"
 
 #include "EcsFramework/Scene.hpp"
-
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "EcsFramework/Component/ModelComponent.h"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
-
 #include "EcsFramework/Component/Audio/AudioComponent.h"
 #include "EcsFramework/Component/Audio/AudioListener.h"
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
-
-
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
@@ -41,8 +33,6 @@
 
 #include "Utils/UUID.hpp"
 
-
-#include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/AudioSystem/AudioSystem.h"
 
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
@@ -50,19 +40,19 @@
 
 #include "SimpleRender.h"
 #include "IO/ResourceManager.h"
-#include "Model/Model.h"
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
 #include "ImGui/ImGuiManager.hpp"
+
 
 std::shared_ptr<SPW::Model> createModel() {
     return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
 }
 
 // test usage
-class Transformer :
-        public SPW::WindowEventResponder {
+class Transformer : public SPW::WindowEventResponder
+{
 public:
     explicit Transformer (const std::shared_ptr<SPW::EventResponderI> &parent)
             : SPW::WindowEventResponder(parent) {
@@ -105,24 +95,28 @@ public:
     }
     std::weak_ptr<SPW::WindowI> window;
     std::weak_ptr<SPW::Scene> scene;
+
 };
 
-class SPWTestApp : public SPW::AppDelegateI {
+class SPWTestApp : public SPW::AppDelegateI
+{
 public:
-    explicit SPWTestApp(std::shared_ptr<SPW::EventResponderI> &app, const char *name) :
-            SPW::AppDelegateI(app), _name(name) {
-    }
-    void onAppInit() final {
-        auto window = std::make_shared<SPW::GlfwWindow>();
+    explicit SPWTestApp(std::shared_ptr<SPW::EventResponderI> &app, const char *name)
+      : SPW::AppDelegateI(app), _name(name)
+    {    }
+
+    void onAppInit() final
+    {
+        std::shared_ptr<SPW::GlfwWindow> window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
         app->window->setSize(1280, 720);
-        app->window->setTitle("SPWTestApp");
+        app->window->setTitle("Editor Test");
 
         transformer = std::make_shared<Transformer>(app->delegate.lock());
         transformer->window = window;
 
         // weak strong dance
-        std::weak_ptr<SPW::GlfwWindow> weak_window = window;
+        std::weak_ptr weak_window = window;
         window->onWindowCreated([weak_window, this](GLFWwindow *handle){
             if (weak_window.expired()) {
                 return;
@@ -154,44 +148,6 @@ public:
             cam->near = 0.01;
             cam->far = 100;
 
-            //add a AudioSource Entity
-            auto clip = scene->createEntity("AuidoSource");
-            clip->emplace<SPW::TransformComponent>();
-            std::vector<std::string> soundPaths = {
-                    "./resources/sounds/test.wav"
-            };
-            clip->emplace<SPW::AudioComponent>(soundPaths);
-            //add a Audio Listener
-            auto listener = scene->createEntity("Listener");
-            listener->emplace<SPW::TransformComponent>();
-            listener->emplace<SPW::AudioListener>();
-            listener->emplace<SPW::MouseComponent>();
-            listener->component<SPW::TransformComponent>()->position.z = -10;
-            listener->component<SPW::MouseComponent>()->cursorMovementCallBack
-                = [](const SPW::Entity &en, double cursor_x, double cursor_y, double cursor_X_bias, double cursor_Y_bias) {
-                en.component<SPW::TransformComponent>()->rotation.y += cursor_X_bias;
-            };
-
-            clip->component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Play);
-            clip->component<SPW::AudioComponent>()->setLoop(soundPaths[0], true);
-            clip->component<SPW::AudioComponent>()->set3D(soundPaths[0], true);
-
-            auto keyCom =  clip->emplace<SPW::KeyComponent>();
-            keyCom->onKeyDownCallBack = [soundPaths](const SPW::Entity& e, SPW::KeyCode keycode) {
-                if (keycode == SPW::KeyCode::Space) {
-                    e.component<SPW::AudioComponent>()->setLoop(soundPaths[0], false);
-                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Pause);
-                }
-                if(keycode == SPW::KeyCode::LeftShift){
-                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Continue);
-                }
-                if(keycode == SPW::KeyCode::P){
-                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Play);
-                }
-                if(keycode == SPW::KeyCode::O){
-                    e.component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Stop);
-                }
-            };
 
             // add a camera entity
             auto camera2 = scene->createEntity("main camera");
@@ -220,7 +176,7 @@ public:
                 glm::vec3 up = {0, 1, 0};
                 glm::vec3 right = glm::normalize(glm::cross(forward, up));
                 if(keycode == SPW::Key::W)
-                    mainCameraTrans->position +=0.001f * forward;
+                    mainCameraTrans->position +=0.001f * forward; 
                 if(keycode == SPW::Key::S)
                     mainCameraTrans->position -=0.001f * forward;
                 if(keycode == SPW::Key::A)
@@ -244,7 +200,7 @@ public:
             // add a test game object
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
-            transform->scale = {0.5, 0.5, 0.5};
+            transform->scale    = {0.5, 0.5, 0.5};
             transform->rotation = {-90, 90, 0};
             transform->position = {0, -0.3, 0};
 
@@ -290,23 +246,49 @@ public:
             lightCom2->specular = {0, 1, 1};
             lightTrans2->rotation = {0, -60, 0};
 
+    m_ImguiManager = std::make_shared<SPW::ImGuiManager>();
+    m_ImguiManager->Init(handle);
+
+  std::cout << "ImGui" << IMGUI_VERSION << std::endl;
+#ifdef IMGUI_HAS_VIEWPORT
+  std::cout << " +viewport";
+#endif
+#ifdef IMGUI_HAS_DOCK
+  std::cout << " +docking"<< std::endl;
+#endif
+
             // init scene
             scene->initial();
             transformer->scene = scene;
         });
     }
-    void beforeAppUpdate() final{
+    void beforeAppUpdate() final
+	{
         scene->beforeUpdate();
+
+    	m_ImguiManager->Begin();
+
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
 
         // physics, computation
-
         scene->onUpdate(du);
     }
 
     void afterAppUpdate() final{
         scene->afterUpdate();
+
+        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Right Dock Space");
+        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Left Dock Space");
+        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Bottom Dock Space");
+        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::MenuBar>();
+        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::ObjectPanel>();
+        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::HierarchyPanel>();
+        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::InspectorPanel>();
+
+    	m_ImguiManager->End();
+        m_ImguiManager->EnableViewport();
+
     }
     void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
         // for (auto &e : events) {
@@ -349,6 +331,7 @@ public:
     std::shared_ptr<SimpleRender> render;
     std::shared_ptr<SPW::Scene> scene;
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
+    std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
 };
 
 // main entrance

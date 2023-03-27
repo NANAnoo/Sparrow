@@ -26,9 +26,9 @@
 #include <fmod.hpp>
 
 
-class TestDelegate : public SPW::AppDelegateI {
+class SPWTestApp : public SPW::AppDelegateI {
 public:
-    explicit TestDelegate(std::shared_ptr<SPW::EventResponderI> &app, const char *name) :
+    explicit SPWTestApp(std::shared_ptr<SPW::EventResponderI> &app, const char *name) :
             SPW::AppDelegateI(app), _name(name) {
     }
     void onAppInit() final {
@@ -121,6 +121,6 @@ public:
 int main(int argc, char **argv) {
     // app test
     auto appProxy =
-            SPW::Application::create<TestDelegate>("SPWTestApp");
+            SPW::Application::create<SPWTestApp>("SPWTestApp");
     return appProxy->app->run(argc, argv);
 }
