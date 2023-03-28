@@ -26,7 +26,17 @@ protected:
 	{
         if (m_Entity != nullptr) 
         {
-            ImGui::Text("Name: %s", m_Entity->component<SPW::NameComponent>()->getName().c_str());
+            ImGui::Text("Name:"); ImGui::SameLine();
+            std::string name = m_Entity->component<SPW::NameComponent>()->getName();
+            char nameBuffer[256];
+            strcpy(nameBuffer, m_Entity->component<SPW::NameComponent>()->getName().c_str());
+            ImGui::InputText("*", nameBuffer, 256);
+            if (ImGui::Button("Update Name"))
+            {
+                name.assign(nameBuffer);
+                m_Entity->component<SPW::NameComponent>()->updateName(name);
+                std::cout << "Update name to " << m_Entity->component<SPW::NameComponent>()->getName() << std::endl;
+            }
             if (m_Entity->has<SPW::TransformComponent>()) 
                 DrawTransformComponent(m_Entity->component<SPW::TransformComponent>());
             if (m_Entity->has<SPW::CameraComponent>())
@@ -130,6 +140,8 @@ private:
         }
         ImGui::PopID();
     }
+
+    //Key Event
 
     const SPW::Entity* m_Entity = nullptr;
 };

@@ -65,7 +65,6 @@ namespace SPW
         float emissiveIntensity{};
         VolumeProperties volumeProperties;
         float transmissionFactor{};
-
     };
 
 

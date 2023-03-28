@@ -7,47 +7,57 @@
 
 namespace SPW
 {
+	void ImGuiManager::Init(GLFWwindow *window)
+	{
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO &io = ImGui::GetIO();
+		(void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		ImGui::StyleColorsDark();
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init(nullptr);
 
-void ImGuiManager::Init(GLFWwindow *window) {
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO &io = ImGui::GetIO();
-  (void)io;
-  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-  ImGui::StyleColorsDark();
-  ImGui_ImplGlfw_InitForOpenGL(window, true);
-  ImGui_ImplOpenGL3_Init(nullptr);
+		windowHandle = window;
 
-  windowHandle = window;
+		InitLayout();
+	}
 
-  InitLayout();
-}
-void ImGuiManager::Begin() {
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
-}
-void ImGuiManager::End() {
-  ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-void ImGuiManager::CleanUp() {
-  ImGui_ImplOpenGL3_Shutdown();
-  ImGui_ImplGlfw_Shutdown();
-  ImGui::DestroyContext();
-}
-void ImGuiManager::ShowDemoWindow(bool show_demo_window) {
-  ImGui::ShowDemoWindow(&show_demo_window);
-}
-void ImGuiManager::EnableViewport() {
-  ImGuiIO &io = ImGui::GetIO();
-  (void)io;
-  if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-    ImGui::UpdatePlatformWindows();
-    ImGui::RenderPlatformWindowsDefault();
-    glfwMakeContextCurrent(windowHandle);
-  }
-}
+	void ImGuiManager::Begin()
+	{
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+	}
+
+	void ImGuiManager::End()
+	{
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+
+	void ImGuiManager::CleanUp()
+	{
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+	}
+
+	void ImGuiManager::ShowDemoWindow(bool show_demo_window)
+	{
+		ImGui::ShowDemoWindow(&show_demo_window);
+	}
+
+	void ImGuiManager::EnableViewport() const
+	{
+		ImGuiIO &io = ImGui::GetIO(); (void)io;
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) 
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(windowHandle);
+		}
+	}
 
 }

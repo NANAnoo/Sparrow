@@ -329,6 +329,7 @@ public:
     }
 
     void solveEvent(const std::shared_ptr<SPW::EventI> &e) final {
+
         e->dispatch<SPW::WindowCloseType, SPW::WindowEvent>(
                 [this](SPW::WindowEvent *e){
                     // close application

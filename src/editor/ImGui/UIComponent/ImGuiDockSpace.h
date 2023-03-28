@@ -8,7 +8,7 @@
 
 namespace SPW {
 
-class ImGuiDockSpace {
+class ImGuiDockSpace final {
 public:
   ImGuiDockSpace() = default;
 
