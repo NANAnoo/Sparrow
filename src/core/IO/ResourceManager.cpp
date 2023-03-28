@@ -221,16 +221,15 @@ namespace SPW
 
 		// Bones
 		for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-                      const aiBone* bone = mesh->mBones[i];
 
-                      // Weights
-                      std::vector<Weight> weights;
-                      for (unsigned int j = 0; j < bone->mNumWeights; j++)
-                              weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
+            const aiBone* bone = mesh->mBones[i];
+            // Weights
+            std::vector<Weight> weights;
 
-                      tmp.emplace_back(
-                        std::make_shared<BoneInfo>(i, bone->mName.C_Str(), bone->mNumWeights, std::move(weights), toMat4(bone->mOffsetMatrix))
-                      );
+            for (unsigned int j = 0; j < bone->mNumWeights; j++)
+                 weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
+
+            tmp.emplace_back(std::make_shared<BoneInfo>(i, bone->mName.C_Str(), bone->mNumWeights, std::move(weights), toMat4(bone->mOffsetMatrix)));
 		}
 
 		// Iterate through each bone and get its parent bone index
@@ -335,7 +334,18 @@ namespace SPW
 		}
 	}
 
-	[[nodiscard]] std::shared_ptr<AnimationClip> ProcessAnimationNode(aiAnimation* animation, const aiScene* scene)
+
+    uint32_t findBoneId (std::vector<std::shared_ptr<BoneInfo>> m_Bones,std::string name)
+    {
+        for(auto bone : m_Bones)
+        {
+            if(bone->name == name)
+                return bone->boneID;
+        }
+    }
+
+
+	[[nodiscard]] std::shared_ptr<AnimationClip> ProcessAnimationNode(aiAnimation* animation, const aiScene* scene,std::vector<std::shared_ptr<BoneInfo>> m_Bones)
 	{
 		std::shared_ptr<AnimationClip> tmp = std::make_shared<AnimationClip>();
 		tmp->name = animation->mName.C_Str();
@@ -349,12 +359,16 @@ namespace SPW
 		{
 			const aiNodeAnim* channel = animation->mChannels[j];
 
-			tmp->nodeAnimations[j].nodeName = channel->mNodeName.C_Str();
+            //Find boneId
+            uint32_t boneId = findBoneId(m_Bones,animation->mChannels[j]->mNodeName.C_Str());
 
-			// Iterate over all position keyframes in the channel
+			tmp->nodeAnimations[j].nodeName = channel->mNodeName.C_Str();
+            tmp->nodeAnimations[j].boneID = boneId;
+
+            // Iterate over all position keyframes in the channel
             int max_frame = std::max(channel->mNumPositionKeys,channel->mNumRotationKeys);
             // Get delta time
-
+            std::string name = channel->mNodeName.C_Str();
             float maxTime = 1.0f;
             maxTime = channel->mPositionKeys[channel->mNumPositionKeys-1].mTime;
 
@@ -362,10 +376,12 @@ namespace SPW
 
 			for (unsigned int k = 0; k < max_frame; k++)
 			{
+
                 double currentTime = k * delta_t;
                 KeyFrame keyFrame{};
                 keyFrame.time = currentTime;
                 //Searching for correct scaling
+                bool cIsLoad = false;
                 for(int i = 0 ; i < channel->mNumScalingKeys ; i++)
                 {
                     if (currentTime < channel->mScalingKeys[i].mTime)
@@ -384,15 +400,23 @@ namespace SPW
                         glm::vec3 right = SPW::toVec3(channel->mScalingKeys[rightIndex].mValue);
 
                         keyFrame.sacling = left * leftFactor + right * rightFactor;
+
+                        cIsLoad = true;
                         break;
                     }
                 }
+                if (!cIsLoad)
+                {
+                    keyFrame.sacling = SPW::toVec3 (channel->mScalingKeys[channel->mNumScalingKeys-1].mValue);
+                }
+
                 // curremt time
                 // mPositionKeys = [{time1...}, time2, time3 ,...., maxtime]
                 // l_index, r_index
                 // pos = channel->mPositionKeys[l_index] * alpha + channel->mPositionKeys[r_index] * (1 - alpha);
 
                 // pos interpolation
+                bool pIsLoad = false;
                 for (int i = 0 ; i < channel->mNumPositionKeys ; i++)
                 {
                     if (currentTime < channel->mPositionKeys[i].mTime)
@@ -411,11 +435,16 @@ namespace SPW
                         glm::vec3 right = SPW::toVec3(channel->mPositionKeys[rightIndex].mValue);
 
                         keyFrame.position = left * leftFactor + right * rightFactor;
+                        pIsLoad = true;
                         break;
                     }
                 }
+                if (!pIsLoad)
+                    keyFrame.position = SPW::toVec3(channel->mPositionKeys[channel->mNumPositionKeys-1].mValue);
+
 
                 // rotation interpolation
+                bool rIsLoad = false;
                 glm::quat rotation;
                 for (int i = 0 ; i < channel->mNumRotationKeys ; i++)
                 {
@@ -435,55 +464,93 @@ namespace SPW
                         glm::quat right = SPW::toQuat(channel->mRotationKeys[rightIndex].mValue);
 
                         keyFrame.rotation = left * leftFactor + right * rightFactor;
+                        rIsLoad = true;
                         break;
                     }
                 }
+                if (!rIsLoad)
+                    keyFrame.rotation = SPW::toQuat(channel->mRotationKeys[channel->mNumRotationKeys-1].mValue);
 
 				tmp->nodeAnimations[j].keyFrames.push_back(keyFrame);
 			}
+
 			if (channel->mNumPositionKeys > tmp->frameCount) tmp->frameCount = channel->mNumPositionKeys;
 		}
+
 		return tmp;
 	}
 
-	[[nodiscard]] std::vector<std::shared_ptr<AnimationClip>> ProcessAnimationClips(aiNode* node, const aiScene* scene)
+
+
+
+
+	[[nodiscard]] std::vector<std::shared_ptr<AnimationClip>> ProcessAnimationClips(aiNode* node, const aiScene* scene,std::vector<std::shared_ptr<BoneInfo>> m_Bones)
 	{
 		std::vector<std::shared_ptr<AnimationClip>> animClips;
 		for (unsigned int i = 0; i < scene->mNumAnimations; i++)
 		{
 			aiAnimation* animation = scene->mAnimations[i];
-			animClips.push_back(ProcessAnimationNode(animation, scene));
+			animClips.push_back(ProcessAnimationNode(animation, scene,m_Bones));
 		}
 
 		return animClips;
 	}
 
-        [[nodiscard]] std::shared_ptr<Skeleton> ResourceManager::LoadAnimation(const std::filesystem::path& filePath)
+    /**
+     * Record hierarchical information of bones
+     * @param rootNode rootNode of custom assimpNodeData data structure. Used to record hierarchical information
+     * @param src rootNode of actually aiNode from assimp lib
+     */
+    void ReadHierarchyData(AssimpNodeData& rootNode, const aiNode* src)
+    {
+
+        assert(src);
+
+        rootNode.name = src->mName.data;
+        rootNode.transformation = toMat4(src->mTransformation);
+        rootNode.childrenCount = src->mNumChildren;
+
+        for (int i = 0; i < src->mNumChildren; i++)
         {
-                std::shared_ptr<Skeleton> tmp_skeleton = std::make_shared<Skeleton>();
-
-                Assimp::Importer importer;
-                const aiScene* scene = importer.ReadFile(filePath.string().c_str()
-                                                             , aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs
-                                                             | aiProcess_CalcTangentSpace | aiProcess_PopulateArmatureData);
-
-                if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-                {
-                        std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-                        // return NULL;
-                }
-
-                if (scene->HasAnimations())
-                {
-                        tmp_skeleton->m_animClips = ProcessAnimationClips(scene->mRootNode, scene);
-                        tmp_skeleton->m_Bones = ProcessBoneNodes(scene->mRootNode, scene);
-                        return tmp_skeleton;
-                }
-                else
-                {
-                        std::cout << "No AnimationClips Exist!\n";
-                }
-
-                return nullptr;
+            AssimpNodeData newData;
+            ReadHierarchyData(newData, src->mChildren[i]);
+            rootNode.children.push_back(newData);
         }
+    }
+
+
+
+
+
+    [[nodiscard]] std::shared_ptr<Skeleton> ResourceManager::LoadAnimation(const std::filesystem::path& filePath)
+    {
+        std::shared_ptr<Skeleton> tmp_skeleton = std::make_shared<Skeleton>();
+        AssimpNodeData m_RootNode;
+        Assimp::Importer importer;
+        const aiScene* scene = importer.ReadFile(filePath.string().c_str()
+                , aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs
+                  | aiProcess_CalcTangentSpace | aiProcess_PopulateArmatureData);
+
+        if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+        {
+            std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+            // return NULL;
+        }
+
+        if (scene->HasAnimations())
+        {
+            tmp_skeleton->m_Bones = ProcessBoneNodes(scene->mRootNode, scene);
+            tmp_skeleton->m_animClips = ProcessAnimationClips(scene->mRootNode, scene,tmp_skeleton->m_Bones);
+
+            ReadHierarchyData(m_RootNode,scene->mRootNode);
+            tmp_skeleton->m_assimpRootNode = m_RootNode;
+            return tmp_skeleton;
+        }
+        else
+        {
+            std::cout << "No AnimationClips Exist!\n";
+        }
+
+        return nullptr;
+    }
 }

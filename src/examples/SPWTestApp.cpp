@@ -295,6 +295,7 @@ public:
             model->model = createModel();
             auto animation = obj->emplace<SPW::AnimationComponent>();
             animation->skeleton = createSkeleton();
+            animation->incomingAnimName = "mantis_anim";
             animation->state = SPW::State::started;
 
             testColor->updateSubData(sColors.data(), 0, sColors.size() * sizeof(glm::vec4));

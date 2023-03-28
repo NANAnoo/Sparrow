@@ -32,16 +32,29 @@ namespace SPW {
                 : boneID(_boneID), name(_name), mNumWeights(_mNumWeights), weights(_weights), offsetMatrix(_offsetMatrix) {}
     };
 
+
+    struct AssimpNodeData
+    {
+        glm::mat4 transformation;
+        std::string name;
+        int childrenCount;
+        std::vector<AssimpNodeData> children;
+
+    };
+
+
     struct AnimationClip {
         std::string name;
         double duration;
         uint32_t FPS;
         uint32_t frameCount;
+        AssimpNodeData aiRootNode;
         std::vector<AnimationNode> nodeAnimations;
     };
 
     struct AnimationNode {
         std::string nodeName;
+        uint32_t boneID;
         std::vector<KeyFrame> keyFrames;
     };
 

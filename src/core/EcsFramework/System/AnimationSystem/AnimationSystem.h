@@ -40,41 +40,42 @@ namespace SPW{
 
     private:
 
-        void precalculateTransform(AnimationComponent& animationComponent);
-
 
         void updateAnimation(std::string name,float dt,AnimationComponent& animationComponent);
-        void updateFramesWeight(std::string name,float dt,AnimationComponent& animationComponent);
-
         void playAnimation(std::string name,float dt,AnimationComponent& animationComponent);
         void stopAnimation(AnimationComponent& animationComponent);
-        void calculateBoneTransform(std::shared_ptr<BoneInfo>bone,
+
+        //TODO: bone is actually aiNode
+        void calculateBoneTransform(const AssimpNodeData* node,
                                     glm::mat4 parrentTransform,
                                     AnimationComponent& animationComponent,
                                     float currentTime);
-
-        void calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone, glm::mat4 parrentTransform,
-                                    AnimationComponent &animationComponent, uint32_t frameIndex,
-                                    uint32_t boneIndex,
-                                    std::weak_ptr<AnimationClip> Animclip);
 
         void initializeComponent(AnimationComponent& animationComponent,ModelComponent& modelComponent);
         void changeMap(AnimationComponent& animationComponent, ModelComponent& modelComponent);
         void vertexBoneMapping(AnimationComponent &animationComponent, ModelComponent &modelComponent,
                                std::vector<VerMapBone> map);
 
-
-        std::shared_ptr<BoneInfo> findRootNode(AnimationComponent& animationComponent);
         AnimationNode findAnimationNode(std::string name,std::weak_ptr<AnimationClip> currentAnimation);
         std::shared_ptr<AnimationClip> findAnimation(std::string name,AnimationComponent& animationComponent);
 
-        glm::mat4 getUpdatedTransform(AnimationNode node,float currentTime);
+        glm::mat4 getUpdatedTransform(AnimationNode* node,float currentTime);
+
+        //================================================================================================================
         glm::mat4 getKeyframeTransform(AnimationNode node,int index);
 
         KeyFrame interpolateKeyFrame(float playTime);
         int  getIndexOfCurrentFrame(float playTime);
 
         inline int getTickPerSecond(){return tickPerSecond;};
+
+        void calcuKeyframeTransform(std::shared_ptr<BoneInfo> bone, glm::mat4 parrentTransform,
+                                    AnimationComponent &animationComponent, uint32_t frameIndex,
+                                    uint32_t boneIndex,
+                                    std::weak_ptr<AnimationClip> Animclip);
+        void updateFramesWeight(std::string name,float dt,AnimationComponent& animationComponent);
+        void precalculateTransform(AnimationComponent& animationComponent);
+
         int tickPerSecond;
 
     };

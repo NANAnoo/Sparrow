@@ -11,5 +11,6 @@ namespace SPW {
 		Skeleton() = default;
 		std::vector<std::shared_ptr<AnimationClip>> m_animClips;
 		std::vector<std::shared_ptr<BoneInfo>> m_Bones;
+        AssimpNodeData m_assimpRootNode;
 	};
 }

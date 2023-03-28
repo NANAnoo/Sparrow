@@ -18,7 +18,6 @@
 namespace SPW {
 
     enum class State {started,stopped};
-    using ClipTransform = std::vector<std::vector<glm::mat4>>;
     using FlattenTransform = std::vector<glm::mat4>;
 
     struct VerMapBone
@@ -37,14 +36,6 @@ namespace SPW {
         std::shared_ptr<StorageBuffer> mats;
     };
 
-    struct AnimationClipTransform
-    {
-        ClipTransform finalKeyframeMatrices;
-        FlattenTransform flattenTransform;
-        int frameCount;
-        std::string animName;
-    };
-
     //For all vertices
     struct AnimBufferInfo
     {
@@ -54,13 +45,12 @@ namespace SPW {
         std::vector<float> weights;
         std::vector<uint32_t> boneID;
 
-        ClipTransform finalKeyframeMatrices;
-        FlattenTransform flattenTransform;
-        int frameCount;
-        std::string animName;
-
-        int indices [2];
-        float frameWeights[2];
+//        ClipTransform finalKeyframeMatrices;
+//        FlattenTransform flattenTransform;
+//        int frameCount;
+//        std::string animName;
+//        int indices [2];
+//        float frameWeights[2];
     };
 
 
@@ -83,22 +73,18 @@ namespace SPW {
         std::weak_ptr<AnimationClip> currentAnimation;
 
         //Essential information
+
+        FlattenTransform flattenTransform;
         std::shared_ptr<Skeleton> skeleton;
-        std::vector<AnimationClipTransform> finalKeyMatricesAllClips;
+
 
         //Buffer information
         AnimBufferInfo bufferInfo;
         AnimationClipSSBO current_clip;
 
-        //Won't use
-//       std::vector<glm::mat4> finalBoneMatrices;
-//       std::vector<float*> finalBoneArray;
 
         int indices [2];
         float frameWeights[2];
-
-        // assist
-        ClipTransform keyframeMatrice;
     };
 }
 
