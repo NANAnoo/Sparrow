@@ -28,10 +28,12 @@ namespace SPW
         SPWSound() = default;
         explicit SPWSound(const std::string &path) : soundPath(path) {
         }
+
         void play(SPWSoundDelegateI *delegate) {
             chan = delegate->playSound(soundPath, is3D, isLoop);
             shouldUpdate = false;
         }
+
         void pause() {
             if (chan) {
                 FMOD_MODE mode = is3D ? FMOD_3D : FMOD_2D;
@@ -112,6 +114,7 @@ namespace SPW
                 allSounds.insert({path, sound});
             }
         };
+
         void set3D(const std::string &path, bool enable) {
             if (allSounds.find(path) != allSounds.end())
                 allSounds[path]->is3D = enable;

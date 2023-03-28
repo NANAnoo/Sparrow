@@ -1,5 +1,5 @@
 add_subdirectory(AudioSystem)
 add_subdirectory(RenderSystem)
 add_subdirectory(ControlSystem)
-
+add_subdirectory(PhysicSystem)
 CORE_ADD_SOURCE(SystemI.h)
