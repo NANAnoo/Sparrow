@@ -11,67 +11,57 @@ namespace SPW {
 class ImGuiObjectPanel : public ImGuiPanel
 {
 public:
-  using MenuItemCallback = std::function<void()>;
+	using MenuItemCallback = std::function<void()>;
 
-  struct MenuItem
+	struct MenuItem
+	{
+		std::string ID;
+		std::string name;
+		MenuItemCallback callback;
+	};
+
+	ImGuiObjectPanel(const std::string& title, bool* open = nullptr)
+		: ImGuiPanel(title, open)
+	{ }
+
+	void AddMenuItem(const std::string& id, const std::string& label, MenuItemCallback callback)
+	{
+	  if (m_Items.find(id) == m_Items.end())
+	  {
+	      m_Items[id] = { id, label, std::move(callback) };
+	  }
+	}
+
+	void ClearItems()
+	{
+		m_Items.clear();
+	}
+
+  void RemoveMenuItem(const std::string& ID)
   {
-    std::string label;
-    MenuItemCallback callback;
-  };
+	  auto it = m_Items.find(ID);
 
-  ImGuiObjectPanel(const std::string& title, bool* open = nullptr)
-      : ImGuiPanel(title, open)
-  { }
-
-  void AddMenuItem(const std::string& label, MenuItemCallback callback)
-  {
-    m_items.push_back({ label, std::move(callback) });
-  }
-
-  void SetMenuItems(const std::vector<std::shared_ptr<GameObject>>& gameObjects, const std::shared_ptr<ImGuiInspectorPanel>& panel)
-  {
-    ClearItems();
-
-    for (const auto& gameObject : gameObjects)
-    {
-      AddMenuItem(gameObject->name, [&, gameObject]()
-                  {
-                    panel->SetSelectedGameObject(gameObject);
-                  });
-    }
-
-  }
-
-  void ClearItems()
-  {
-    m_items.clear();
-  }
-
-  void RemoveMenuItem(const std::string& label)
-  {
-    auto it = std::find_if(m_items.begin(), m_items.end(),
-                           [&](const MenuItem& item) { return item.label == label; });
-
-    if (it != m_items.end())
-    {
-      m_items.erase(it);
-    }
+	  if (it != m_Items.end())
+	  {
+		  m_Items.erase(it);
+	  }
   }
 
 protected:
   void Draw() override
   {
-    for (const auto& item : m_items)
-    {
-      if (ImGui::MenuItem(item.label.c_str()))
-      {
-        item.callback();
-      }
-    }
+	  for (const auto& item_pair : m_Items)
+	  {
+		  const auto& item = item_pair.second;
+		  if (ImGui::MenuItem(item.name.c_str()))
+		  {
+			  item.callback();
+		  }
+	  }
   }
 
 private:
-  std::vector<MenuItem> m_items;
+  std::unordered_map<std::string, MenuItem> m_Items;
 };
 
 }

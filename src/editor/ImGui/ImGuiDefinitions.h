@@ -37,7 +37,7 @@ enum class UIComponentType {
   InspectorPanel
 };
 
-enum class GameOjbectComponentType {
+enum class EntityComponentType {
   Transform,
   Camera,
   Light,
@@ -45,9 +45,9 @@ enum class GameOjbectComponentType {
   // ... Add more component types.
 };
 
-template <GameOjbectComponentType T> struct ComponentData {};
+template <EntityComponentType T> struct ComponentData {};
 
-template <> struct ComponentData<GameOjbectComponentType::Transform> {
+template <> struct ComponentData<EntityComponentType::Transform> {
   glm::vec3 position;
   glm::vec3 rotation;
   glm::vec3 scale;
@@ -57,20 +57,20 @@ template <> struct ComponentData<GameOjbectComponentType::Transform> {
         scale(std::move(scale)) {}
 };
 
-template <> struct ComponentData<GameOjbectComponentType::Light> {
+template <> struct ComponentData<EntityComponentType::Light> {
   glm::vec3 position;
   // TODO Add more attributes, and move position to transform
   ComponentData() = default;
   ComponentData(glm::vec3 position) : position(std::move(position)) {}
 };
 
-template <> struct ComponentData<GameOjbectComponentType::Camera> {
+template <> struct ComponentData<EntityComponentType::Camera> {
   glm::vec3 position;
   glm::vec3 rotation;
   glm::vec3 scale;
 };
 
-template <> struct ComponentData<GameOjbectComponentType::Renderer> {
+template <> struct ComponentData<EntityComponentType::Renderer> {
   glm::vec3 position;
   glm::vec3 rotation;
   glm::vec3 scale;
@@ -79,15 +79,15 @@ template <> struct ComponentData<GameOjbectComponentType::Renderer> {
 // Continue with other component types
 
 using ComponentVariant =
-    std::variant<ComponentData<GameOjbectComponentType::Transform>,
-                 ComponentData<GameOjbectComponentType::Camera>,
-                 ComponentData<GameOjbectComponentType::Light>,
-                 ComponentData<GameOjbectComponentType::Renderer>
+    std::variant<ComponentData<EntityComponentType::Transform>,
+                 ComponentData<EntityComponentType::Camera>,
+                 ComponentData<EntityComponentType::Light>,
+                 ComponentData<EntityComponentType::Renderer>
                  // ... Add more component types.
                  >;
 
 struct GameOjbectComponent {
-  GameOjbectComponentType type;
+  EntityComponentType type;
   ComponentVariant
       data; // which is point to the data of the component of the game object.
   ComponentCallback callback;

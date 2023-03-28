@@ -55,7 +55,7 @@ namespace SPW {
 
         // check if a component with type C is existed in this entity
         template<Component C>
-        bool has() {
+        [[nodiscard]] bool has() const {
             // check validation of weak_scene
             assert(!registry.expired());
             return registry.lock()->all_of<C>(entity);

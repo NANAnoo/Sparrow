@@ -29,10 +29,10 @@ namespace SPW {
         float right = 0;
         float bottom = 1;
         float top = 1;
-        [[nodiscard]] CameraType getType() const { return cameraType;}
+        [[nodiscard]] CameraType getType() const { return cameraType; }
 
         // init from lua
-        void initFromLua(const sol::table &value) final {
+        void initFromLua(const sol::table& value) final {
             if (value["fov"].valid()) {
                 fov = value["fov"];
             }
@@ -63,7 +63,7 @@ namespace SPW {
         }
 
         // udpate from lua
-        void update(const std::string &key, const sol::table &value) final {
+        void update(const std::string& key, const sol::table& value) final {
             if (key == "fov" && value["value"].valid()) {
                 fov = value["value"];
             }
@@ -94,7 +94,7 @@ namespace SPW {
         }
 
         // getLuaValue
-        virtual sol::object getLuaValue(const sol::table &value, const std::string &key) final {
+        virtual sol::object getLuaValue(const sol::table& value, const std::string& key) final {
             if (key == "fov") {
                 return sol::make_object(value.lua_state(), fov);
             }

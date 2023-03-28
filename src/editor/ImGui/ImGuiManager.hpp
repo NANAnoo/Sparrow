@@ -29,7 +29,7 @@ public:
 
   GLFWwindow* GetWindowHandle() const {return windowHandle;}
 
-  std::shared_ptr<ImGuiObjectPanel>     GetProfilingPanel() { return m_ObjectPanel; }
+  std::shared_ptr<ImGuiObjectPanel>     GetEntityPanel() { return m_ObjectPanel; }
   std::shared_ptr<ImGuiInspectorPanel>  GetInspectorPanel() { return m_InspectorPanel; }
 
   template <UIComponentType C>

@@ -12,8 +12,6 @@
 #include <GLFW/glfw3.h>
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
-#include "Control/KeyEvent.hpp"
-
 #include "Control/KeyCodes.h"
 
 #include "EcsFramework/Scene.hpp"
@@ -21,8 +19,6 @@
 #include "EcsFramework/Component/ModelComponent.h"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
-#include "EcsFramework/Component/Audio/AudioComponent.h"
-#include "EcsFramework/Component/Audio/AudioListener.h"
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
@@ -49,6 +45,11 @@
 std::shared_ptr<SPW::Model> createModel() {
     return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
 }
+
+struct NoOpDeleter {
+    template <typename T>
+    void operator()(T*) const noexcept {}
+};
 
 // test usage
 class Transformer : public SPW::WindowEventResponder
@@ -266,7 +267,6 @@ public:
 	{
         scene->beforeUpdate();
 
-    	m_ImguiManager->Begin();
 
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
@@ -278,13 +278,26 @@ public:
     void afterAppUpdate() final{
         scene->afterUpdate();
 
-        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Right Dock Space");
+        m_ImguiManager->Begin();
+    	m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Right Dock Space");
         m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Left Dock Space");
         m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Bottom Dock Space");
         m_ImguiManager->RenderUIComponent<SPW::UIComponentType::MenuBar>();
         m_ImguiManager->RenderUIComponent<SPW::UIComponentType::ObjectPanel>();
         m_ImguiManager->RenderUIComponent<SPW::UIComponentType::HierarchyPanel>();
         m_ImguiManager->RenderUIComponent<SPW::UIComponentType::InspectorPanel>();
+
+    	// const auto& activeEntityPanel  = m_ImguiManager->GetEntityPanel();
+        // const auto& activeInspector = m_ImguiManager->GetInspectorPanel();
+    	scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
+        {
+	        const auto component_name= e.component<SPW::NameComponent>()->getName();
+	        const auto component_id  = e.component<SPW::IDComponent>()->getID().toString();
+            m_ImguiManager->GetEntityPanel()->AddMenuItem(component_id, component_name, [&,e]()
+            {
+                m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
+            });
+        });
 
     	m_ImguiManager->End();
         m_ImguiManager->EnableViewport();
