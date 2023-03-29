@@ -46,7 +46,7 @@ float PCF(vec3 projCoords,int r,int slot)
     // 取得当前片段在光源视角下的深度
     float currentDepth = projCoords.z;
     // 检查当前片段是否在阴影中
-    float bias = max(0.05 * (1.0 - dot(normal, -DLights[slot].direction)), 0.005);
+    float bias = max(0.05 * (1.0 - dot(normal, -DLights[slot].direction)), 0.000001);
 
        //PCF
     float shadow = 0.0;
@@ -60,7 +60,7 @@ float PCF(vec3 projCoords,int r,int slot)
         coord.y = clamp(coord.y,0.0f,1.0f);
 
         float pcfDepth = texture(shadowMap, vec3(coord,float(slot))).r;
-        shadow += currentDepth - bias  > pcfDepth ? 1.0 : 0.0;
+        shadow += float(int(currentDepth - bias  > pcfDepth));
     }
 
     shadow /= float(NUM_SAMPLES);
@@ -74,7 +74,7 @@ float averageBlockDep(vec3 projCoords,vec2 texelSize,int slot)
 {
     float blockerZ = 0.0;//遮挡物总深度
     int count = 0;
-    int r=10;
+    float r=10;
     poissonDiskSamples(projCoords.xy+vec2(0.1314,0.351));
     float bias = max(0.05 * (1.0 - dot(normal, -DLights[slot].direction)), 0.005);
     for(int i=0;i<NUM_SAMPLES;++i)

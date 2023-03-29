@@ -133,8 +133,9 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                         glm::radians(transformCom->rotation.z));
 
     glm::vec4 eye(0, 0, 0, 1), look_at(0, 0, -1, 1), up(0, 1, 0, 0);
+    glm::vec3 cam_center = cameraTransform *look_at;
     V = glm::lookAt(glm::vec3(cameraTransform * eye),
-                    glm::vec3(cameraTransform *look_at),
+                    cam_center,
                     glm::vec3(cameraTransform * up));
     if (cameraCom->getType() == SPW::PerspectiveType) {
         P = glm::perspective(glm::radians(cameraCom->fov),
@@ -160,7 +161,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
 
     // RenderPass 1, shadow
     // sort models with program, build a map with shadow_program -> models[]
-    auto renderPass = [this, &renderModels, &V, &P, &camPos, &pLights, &dLights](bool isShadow){
+    auto renderPass = [this, &renderModels, &V, &P, &camPos, &pLights, &dLights, &cam_center](bool isShadow){
         ShaderModelMap programModelMap;
         for (auto &en : renderModels)
         {
@@ -193,12 +194,12 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 for(int i = 0; i < dLights.size(); i++)
                 {
                     renderBackEnd->shadowFrameBuffers[i]->bind();
-                    glm::vec3 lightPos = -dLights[i].direction*5.0f;
+                    glm::vec3 lightPos = cam_center -dLights[i].direction*5.0f;
                     glm::mat4 lightProjection, lightView;
                     glm::mat4 lightSpaceMatrix;
                     float near_plane = 1.0f, far_plane = 10.5f;
-                    lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
-                    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+                    lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+                    lightView = glm::lookAt(lightPos, cam_center, glm::vec3(0.0, 1.0, 0.0));
                     lightSpaceMatrix = lightProjection * lightView;
                     shader->SetUniformValue<glm::mat4> ("lightSpaceMatrix", lightSpaceMatrix);
                     renderBackEnd->SetViewport(0,0,FrameBuffer::SHADOW_WIDTH, FrameBuffer::SHADOW_HEIGHT);
@@ -254,14 +255,14 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
 
                 for(int i = 0; i< dLights.size(); i++)
                 {
-                    glm::vec3 lightPos = -dLights[i].direction*5.0f;
+                    glm::vec3 lightPos = cam_center-dLights[i].direction*5.0f;
 
                     glm::mat4 lightProjection, lightView;
                     glm::mat4 lightSpaceMatrix;
 
                     float near_plane = 1.0f, far_plane = 10.5f;
-                    lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
-                    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+                    lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+                    lightView = glm::lookAt(lightPos, cam_center, glm::vec3(0.0, 1.0, 0.0));
                     lightSpaceMatrix = lightProjection * lightView;
                     shader->SetUniformValue<glm::mat4> ("lightSpaceMatrix["+std::to_string(i)+"]", lightSpaceMatrix);
                     shader->bindTexArray(5+i,renderBackEnd->depthTextureArray);

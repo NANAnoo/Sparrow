@@ -21,6 +21,7 @@ App({name="Test", width = 1280, height = 720,
         local floor = CreateFloor(scene, main_camera_id)
         local MainLight = CreateMainLight(scene)
         local SubLight = CreateSubLight(scene)
+        --createPointLight(scene, glm.vec3(0, 1, 1), glm.vec3(0.5, 0.5, 0))
         scene:initScene()
     end,
     beforeUpdate = function()

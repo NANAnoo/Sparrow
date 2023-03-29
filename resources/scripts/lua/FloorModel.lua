@@ -11,9 +11,9 @@ function CreateFloor(scene, camera_id)
     trans:setRotation(glm.vec3(0, 0, 0))
     trans:setScale(glm.vec3(5.0, 0.05, 5.0))
 
-    local model = floor:addComponent(Model, camera_id, "resources/models/cube.obj")
+    local model = floor:addComponent(Model, camera_id, "./resources/models/sand_cube/cube.obj")
 
-    local handle = SPW.ShaderHandle("Phong", "./resources/shaders/simpleVs.vert", "./resources/shaders/bPhongShadow.frag")
+    local handle = SPW.ShaderHandle("Phong", "./resources/shaders/simpleVs.vert", "./resources/shaders/pbrShadowTiled.frag")
     model:setObjectHandle(handle)
 
     -- local shadow = SPW.ShaderHandle("shadow", "./resources/shaders/shadowMap.vert", "./resources/shaders/shadowMap.frag")

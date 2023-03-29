@@ -25,6 +25,7 @@ function CreateMonaModel(scene, camera_id)
     audio:setLoop("resources/sounds/test.wav", true)
     audio:set3D("resources/sounds/test.wav", true)
     audio:setState("resources/sounds/test.wav", AudioState.Play)
+    audio:setVolume("resources/sounds/test.wav", 0.3)
 
     -- add key event handler
     local keyHandler = MonaModel:addComponent(KeyEventHandler)
@@ -38,6 +39,18 @@ function CreateMonaModel(scene, camera_id)
                 else
                     audio:setState("resources/sounds/test.wav", AudioState.Continue)
                 end
+            end
+
+            if code == KeyCode.PageUp then
+                local audio = entity:getComponent(AudioComponent)
+                local volume = audio:getVolume("resources/sounds/test.wav")
+                audio:setVolume("resources/sounds/test.wav", volume + 0.1)
+            end
+
+            if code == KeyCode.PageDown then
+                local audio = entity:getComponent(AudioComponent)
+                local volume = audio:getVolume("resources/sounds/test.wav")
+                audio:setVolume("resources/sounds/test.wav", volume - 0.1)
             end
         end
         , scene

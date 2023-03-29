@@ -50,10 +50,13 @@ void main()
                             diffusion, lambertin, shininess, specularPower);
     }       
     for (int i = 0; i < DLightCount && i < 10; i ++) {
+        float shadow = 0.f;
         vec3 projCoords = FragPosLightSpace[i].xyz / FragPosLightSpace[i].w;
-        projCoords = projCoords * 0.5 + 0.5;
-        poissonDiskSamples(projCoords.xy);
-        float shadow = PCSS(projCoords,i);
+        if (abs(projCoords.x) < 1.0 && abs(projCoords.y) < 1) {
+            projCoords = projCoords * 0.5 + 0.5;
+            poissonDiskSamples(projCoords.xy);
+            shadow = PCSS(projCoords,i);
+        }
         vec3 tempColor = BlinnPhong_D(norm, vec3(position), camPos, DLights[i],
                             diffusion, lambertin, shininess, specularPower,shadow);
 

@@ -38,14 +38,26 @@ in vec4 FragPosLightSpace[10];
 vec2 poissonDisk[NUM_SAMPLES];
 #include</shadow.glsl>
 
+vec2 tiledTexCoords(int level) {
+    vec2 texCoords = TexCoords;
+    texCoords.x *= level;
+    texCoords.y *= level;
+    float x = floor(texCoords.x);
+    float y = floor(texCoords.y);
+    texCoords.x -= x;
+    texCoords.y -= y;
+    return texCoords;
+}
+
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
+    vec2 texCoord =  tiledTexCoords(100);
+    vec3 tangentNormal = texture(normalMap, texCoord).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(position.xyz);
     vec3 Q2  = dFdy(position.xyz);
-    vec2 st1 = dFdx(TexCoords);
-    vec2 st2 = dFdy(TexCoords);
+    vec2 st1 = dFdx(texCoord);
+    vec2 st2 = dFdy(texCoord);
 
     vec3 N   = normalize(normal);
     vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
@@ -56,12 +68,13 @@ vec3 getNormalFromMap()
 }
 
 vec3 PBR(vec3 N){
+    vec2 texCoord =  tiledTexCoords(100);
     vec3 BP_scale = vec3(0, 0, 0);
 
-    vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
-    float metallic  = texture(metallicMap, TexCoords).r;
-    float roughness = texture(roughnessMap, TexCoords).r;
-    float ao        = texture(AoMap, TexCoords).r;
+    vec3 albedo     = pow(texture(albedoMap, texCoord).rgb, vec3(2.2));
+    float metallic  = texture(metallicMap, texCoord).r;
+    float roughness = texture(roughnessMap, texCoord).r;
+    float ao        = texture(AoMap, texCoord).r;
     vec3 V = normalize(camPos - position.xyz);
 
     for (int i = 0; i < PLightCount && i < 10; i ++) {

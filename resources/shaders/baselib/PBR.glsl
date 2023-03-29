@@ -87,7 +87,7 @@ vec3 PBR_P(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec
     float NdotL = max(dot(N, L), 0.0);
 
     // add to outgoing radiance Lo
-    // Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 
 
 
@@ -105,7 +105,7 @@ vec3 PBR_P(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec
     return color;
 }
 
-vec3 PBR_D(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec3 pos,vec3 camPos,DLight light)
+vec3 PBR_D(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec3 pos,vec3 camPos,DLight light, float shadow)
 {
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
@@ -145,14 +145,14 @@ vec3 PBR_D(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec
     float NdotL = max(dot(N, L), 0.0);
 
     // add to outgoing radiance Lo
-    Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    Lo += (kD * albedo / PI * light.diffuse + specular * light.specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 
 
     // ambient lighting (note that the next IBL tutorial will replace
     // this ambient lighting with environment lighting).
     vec3 ambient = vec3(0.03) * albedo * ao;
 
-    vec3 color = ambient + Lo;
+    vec3 color = ambient * light.ambient + (1.0 - shadow) * Lo;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

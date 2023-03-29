@@ -105,8 +105,8 @@ namespace SPW {
                                     break;
                             }
                         }
-                        sound->update();
                         sound->setPos(tc->position.x, tc->position.y, tc->position.z);
+                        sound->update();
                     }
                 });
     }

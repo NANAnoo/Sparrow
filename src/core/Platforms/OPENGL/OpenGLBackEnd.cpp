@@ -146,14 +146,17 @@ namespace SPW
                 shader->SetUniformValue<int>(name,i);
 
                 glBindTexture(GL_TEXTURE_2D, texture->ID);
+            } else {
+                glActiveTexture(GL_TEXTURE0 + i);
+                glBindTexture(GL_TEXTURE_2D, 0);
             }
         }
         shader->SetUniformValue<int>("shadowMap",5);
         // TODO @ Zhou, read other material in resources manager
         shader->SetUniformValue<float>("diffusion", 0.4);
-        shader->SetUniformValue<float>("shininess", 3);
+        shader->SetUniformValue<float>("shininess", 0.3);
         shader->SetUniformValue<float>("lambertin", 0.3);
-        shader->SetUniformValue<float>("specularPower", 128);
+        shader->SetUniformValue<float>("specularPower", 64);
 
     }
     std::shared_ptr<FrameBuffer> OpenGLBackEnd::creatSenceFrameBuffer()
