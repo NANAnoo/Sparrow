@@ -8,6 +8,7 @@
 #include "OpenGLTextureManager.h"
 #include "OpenGLTexture2D.h"
 #include "OpenGLFrameBuffer.h"
+#include "OpenGLAttachmentTexture.hpp"
 #include "Render/Material.h"
 #include "IO/FileSystem.h"
 #include <fstream>
@@ -164,6 +165,11 @@ namespace SPW
         scenceFrameBuffer = std::make_shared<OpenGLFrameBuffer>();
         return scenceFrameBuffer;
     }
+
+    std::shared_ptr<FrameBuffer> OpenGLBackEnd::createFrameBuffer()
+    {
+        return std::make_shared<OpenGLFrameBuffer>();
+    }
     void OpenGLBackEnd::creatShadowFrameBuffer(unsigned int num)
     {
         shadowFrameBuffers.resize(num);
@@ -308,4 +314,25 @@ namespace SPW
         glBindVertexArray(0);
         glDepthFunc(GL_LESS);
     }
+
+    // create attachment texture
+    std::shared_ptr<AttachmentTexture> OpenGLBackEnd::createAttachmentTexture() {
+        return std::make_shared<OpenGLAttachmentTexture>();
+    }
+
+    // create attachment texture array
+    std::shared_ptr<AttachmentTextureArray> OpenGLBackEnd::createAttachmentTextureArray() {
+        return std::make_shared<OpenGLAttachmentTextureArray>();
+    }
+
+    //  create attachment texture cube
+    std::shared_ptr<AttachmentTextureCube> OpenGLBackEnd::createAttachmentTextureCube() {
+        return std::make_shared<OpenGLAttachmentTextureCube>();
+    }
+
+    //  create attachment texture cube array 
+    std::shared_ptr<AttachmentTextureCubeArray> OpenGLBackEnd::createAttachmentTextureCubeArray() {
+        return std::make_shared<OpenGLAttachmentTextureCubeArray>();
+    }
+
 }

@@ -10,6 +10,7 @@
 #include "OpenGLVertexBuffer.h"
 #include "OpenGLShader.h"
 #include "OpenGLCubeMap.h"
+#include "OpenGLAttachmentTexture.hpp"
 namespace SPW
 {
 
@@ -56,10 +57,17 @@ namespace SPW
             return std::make_shared<OpenGLShader>(handle);
         }
 
+        std::shared_ptr<FrameBuffer> createFrameBuffer() final;
         std::shared_ptr<FrameBuffer> creatSenceFrameBuffer() final;
         void creatShadowFrameBuffer(unsigned int num) final;
         void setUpShadowArray(unsigned  int num) final;
         void drawInTexture(SPW::PostProcessingEffects effect = SPW::PostProcessingEffects::None) final;
+
+        // attachment tetxures
+        std::shared_ptr<AttachmentTexture> createAttachmentTexture() final;
+        std::shared_ptr<AttachmentTextureArray> createAttachmentTextureArray() final;
+        std::shared_ptr<AttachmentTextureCube> createAttachmentTextureCube() final;
+        std::shared_ptr<AttachmentTextureCubeArray> createAttachmentTextureCubeArray() final;
     private:
         
         unsigned int quadVAO, quadVBO;

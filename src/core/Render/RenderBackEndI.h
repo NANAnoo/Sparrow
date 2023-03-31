@@ -15,6 +15,7 @@
 #include "Render/shader.h"
 #include "Render/Material.h"
 #include "Render/FrameBuffer.h"
+#include "AttachmentTexture.h"
 namespace SPW
 {
     enum class DepthComp
@@ -63,6 +64,7 @@ namespace SPW
         virtual void drawSkyBox(glm::mat4& V,glm::mat4& P)=0;
 
         //frambuffer
+        virtual std::shared_ptr<FrameBuffer> createFrameBuffer()=0;
         virtual std::shared_ptr<FrameBuffer> creatSenceFrameBuffer()=0;
         virtual void creatShadowFrameBuffer(unsigned int num)=0;
         virtual void setUpShadowArray(unsigned  int num) = 0;
@@ -87,6 +89,12 @@ namespace SPW
             }
 
         }
+
+        // attachment textures
+        virtual std::shared_ptr<AttachmentTexture> createAttachmentTexture() = 0;
+        virtual std::shared_ptr<AttachmentTextureArray> createAttachmentTextureArray() = 0;
+        virtual std::shared_ptr<AttachmentTextureCube> createAttachmentTextureCube() = 0;
+        virtual std::shared_ptr<AttachmentTextureCubeArray> createAttachmentTextureCubeArray() = 0;
     public:
         virtual void Init() = 0;
         virtual ~RenderBackEndI() = default;

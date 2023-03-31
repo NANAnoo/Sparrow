@@ -10,7 +10,7 @@ function CreateMainLight(scene)
     local MainLight = scene:addEntity("MainLight")
     local lightTrans = MainLight:addComponent(Transform)
     MainLight:addComponent(DirectionalLight, glm.vec3(0.4, 0.4, 0.4), glm.vec3(1, 1, 1), glm.vec3(1, 1, 1))
-    lightTrans:setRotation(glm.vec3(30, 60, 0))
+    lightTrans:setRotation(glm.vec3(5, 60, 0))
 
     local LightController = MainLight:addComponent(KeyEventHandler)
 
@@ -34,7 +34,7 @@ function CreateSubLight(scene)
     local SubLight = scene:addEntity("SubLight")
     local lightTrans = SubLight:addComponent(Transform)
     SubLight:addComponent(DirectionalLight, glm.vec3(0.4, 0.4, 0.4), glm.vec3(0, 0.5, 1), glm.vec3(0.0, 0.5, 1.0))
-    lightTrans:setRotation(glm.vec3(30, -60, 0))
+    lightTrans:setRotation(glm.vec3(5, -60, 0))
 
     local LightController = SubLight:addComponent(KeyEventHandler)
 
