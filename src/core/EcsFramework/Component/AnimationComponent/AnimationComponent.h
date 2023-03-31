@@ -17,7 +17,17 @@
 //#include "Animation.h"
 namespace SPW {
 
-    enum class State {started,stopped};
+    //Start: Start an animation from 'Stopped' state or 'Paused' state
+        //Reset the current time and change to OnPlaying
+    //Stopped: Animation is stopped at time: 0
+        //OnPlaying -> stop: bUpdate = false; (Swaping
+    //Pause: Animation is stopped during playing
+    //Onplaying: Animation is playing and keeps updating
+
+
+
+
+    enum class AnimationState {Start,Stopped,Pause,OnPlaying};
     using FlattenTransform = std::vector<glm::mat4>;
 
     struct VerMapBone
@@ -44,15 +54,86 @@ namespace SPW {
         std::vector<uint32_t> size;
         std::vector<float> weights;
         std::vector<uint32_t> boneID;
-
-//        ClipTransform finalKeyframeMatrices;
-//        FlattenTransform flattenTransform;
-//        int frameCount;
-//        std::string animName;
-//        int indices [2];
-//        float frameWeights[2];
     };
 
+
+    class SPWAnimationDelegateI{
+    public:
+        virtual std::weak_ptr<AnimationClip> playAnim(const std::string &name, bool isLoop);
+    };
+
+
+    //SPW::Animation class
+    //包装AnimationClip
+    class SPWAnimation
+    {
+    public:
+        SPWAnimation() = default;
+
+        explicit SPWAnimation(std::shared_ptr<AnimationClip> clip,std::shared_ptr<Skeleton> skeleton)
+        {
+            animationClip = clip;
+            animationName = clip->name;
+            currentTime = 0.0f;
+            duration = clip->duration;
+            tickPerSecond = clip->FPS;
+            finalBoneMatrices.resize(skeleton->m_Bones.size(),glm::mat4(1.0f));
+        }
+
+        void play(SPWAnimationDelegateI *delegateI)
+        {
+
+        }
+
+        void resume()
+        {
+            if (!animationClip.expired())
+            {
+                //setState(paused)
+            }
+        }
+
+        //void stop()
+
+
+        void setState(AnimationState state)
+        {
+
+
+
+        }
+
+        //void setPos()
+
+        //bool needUpdate();
+
+        bool isLoop;
+
+        AnimationState state = AnimationState::Stopped;
+
+    private:
+
+        bool bUpdate;
+
+        std::weak_ptr<AnimationClip> animationClip;
+
+        std::string animationName;
+
+        float currentTime;
+
+        float duration;
+
+        int tickPerSecond;
+
+        std::vector<glm::mat4> finalBoneMatrices;
+    };
+
+
+
+
+
+    //SPW::Skeleton class
+    //包装一个骨骼类
 
 
     class AnimationComponent : ComponentI
@@ -62,9 +143,10 @@ namespace SPW {
         AnimationComponent() = default;
 
         //Status related
-        State state = State::stopped;
+        AnimationState state = AnimationState::Stopped;
         bool bInitialized = false;
         bool bLoaded = false;
+        bool bHasAnim = false;
         std::string incomingAnimName;
 
         //Current state

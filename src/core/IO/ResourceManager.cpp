@@ -33,7 +33,7 @@ namespace SPW
 
     glm::quat toQuat(const aiQuaternion& _val)
     {
-        return glm::quat(glm::vec4(_val.x, _val.y, _val.z, _val.w));
+        return glm::quat( _val.w,_val.x, _val.y, _val.z);
     }
 
     glm::vec3 quatToEuler(const glm::quat& _quat)
@@ -179,22 +179,55 @@ namespace SPW
 				? glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z)
 				: glm::vec3();
 
+
+
 			tmp->vertices.emplace_back(Vertex{position, normal, uv, tangent, bitangent});
+
+            //Initialize boneID and weights Array
+//            for (int wIndex = 0; wIndex < 6; ++wIndex)
+//            {
+//                tmp->vertices[tmp->vertices.size()-1].m_boneIDs[i] = -1;
+//                tmp->vertices[tmp->vertices.size()-1].m_weights[i] = 0.0f;
+//            }
+
 		}
+        //Bone weights for each vertices
+//        for (int i = 0; i < mesh->mNumBones; ++i)
+//        {
+//            auto weights = mesh->mBones[i]->mWeights;
+//            int numWeights = mesh->mBones[i]->mNumWeights;
+//
+//            for (int wIndex = 0; wIndex < numWeights; ++wIndex)
+//            {
+//                int vertexId = weights[wIndex].mVertexId;
+//                float weight = weights[wIndex].mWeight;
+//                assert(vertexId <= tmp->vertices.size());
+//
+//                for (int j = 0; j < 6; ++j)
+//                {
+//                    if (tmp->vertices[vertexId].m_weights[j] < 0)
+//                    {
+//                        tmp->vertices[vertexId].m_weights[j] = weight;
+//                        tmp->vertices[vertexId].m_boneIDs[j] = i;
+//                    }
+//                }
+//            }
+//        }
+
 
 	    // Indices
 	    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 	    {
 			const auto& face = mesh->mFaces[i];
+
 			for (unsigned int j = 0; j < face.mNumIndices; j++)
 				tmp->indices.emplace_back(face.mIndices[j]);
 	    }
 
+    	//TODO: Deal with Materials
+        tmp->SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
 
-    	    // TODO Deal with Materials
-            tmp->SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
-
-            return tmp;
+        return tmp;
 	}
 
 	[[nodiscard]] std::vector<std::shared_ptr<Mesh>> ProcessNodes(aiNode* node, const aiScene* scene)
@@ -372,107 +405,38 @@ namespace SPW
             float maxTime = 1.0f;
             maxTime = channel->mPositionKeys[channel->mNumPositionKeys-1].mTime;
 
-            float delta_t = maxTime / max_frame;
 
-			for (unsigned int k = 0; k < max_frame; k++)
-			{
+            for (int positionIndex = 0; positionIndex < channel->mNumPositionKeys; ++positionIndex)
+            {
+                aiVector3D aiPosition = channel->mPositionKeys[positionIndex].mValue;
+                float timeStamp = channel->mPositionKeys[positionIndex].mTime;
+                KeyPosition data{};
+                data.position = SPW::toVec3(aiPosition);
+                data.time = timeStamp;
+                tmp->nodeAnimations[j].m_Position.push_back(data);
+            }
 
-                double currentTime = k * delta_t;
-                KeyFrame keyFrame{};
-                keyFrame.time = currentTime;
-                //Searching for correct scaling
-                bool cIsLoad = false;
-                for(int i = 0 ; i < channel->mNumScalingKeys ; i++)
-                {
-                    if (currentTime < channel->mScalingKeys[i].mTime)
-                    {
-                        int leftIndex = i - 1;
-                        int rightIndex = i;
-                        //Linear interpolation
+            for (int rotationIndex = 0; rotationIndex < channel->mNumRotationKeys; ++rotationIndex)
+            {
+                aiQuaternion aiOrientation = channel->mRotationKeys[rotationIndex].mValue;
+                float timeStamp = channel->mRotationKeys[rotationIndex].mTime;
+                KeyRotation data;
+                data.rotation = SPW::toQuat(aiOrientation);
+                data.time = timeStamp;
+                tmp->nodeAnimations[j].m_Rotation.push_back(data);
+            }
 
-                        float leftTimeGap = currentTime -  channel->mScalingKeys[leftIndex].mTime;
-                        float rightTimeGap = channel->mScalingKeys[rightIndex].mTime - currentTime;
-
-                        float leftFactor = leftTimeGap / (leftTimeGap+rightTimeGap);
-                        float rightFactor = rightTimeGap / (leftTimeGap+rightTimeGap);
-
-                        glm::vec3 left = SPW::toVec3(channel->mScalingKeys[leftIndex].mValue);
-                        glm::vec3 right = SPW::toVec3(channel->mScalingKeys[rightIndex].mValue);
-
-                        keyFrame.sacling = left * leftFactor + right * rightFactor;
-
-                        cIsLoad = true;
-                        break;
-                    }
-                }
-                if (!cIsLoad)
-                {
-                    keyFrame.sacling = SPW::toVec3 (channel->mScalingKeys[channel->mNumScalingKeys-1].mValue);
-                }
-
-                // curremt time
-                // mPositionKeys = [{time1...}, time2, time3 ,...., maxtime]
-                // l_index, r_index
-                // pos = channel->mPositionKeys[l_index] * alpha + channel->mPositionKeys[r_index] * (1 - alpha);
-
-                // pos interpolation
-                bool pIsLoad = false;
-                for (int i = 0 ; i < channel->mNumPositionKeys ; i++)
-                {
-                    if (currentTime < channel->mPositionKeys[i].mTime)
-                    {
-                        int leftIndex = i - 1;
-                        int rightIndex = i;
-                        //Linear interpolation
-
-                        float leftTimeGap = currentTime -  channel->mPositionKeys[leftIndex].mTime;
-                        float rightTimeGap = channel->mPositionKeys[rightIndex].mTime - currentTime;
-
-                        float leftFactor = leftTimeGap / (leftTimeGap+rightTimeGap);
-                        float rightFactor = rightTimeGap / (leftTimeGap+rightTimeGap);
-
-                        glm::vec3 left = SPW::toVec3(channel->mPositionKeys[leftIndex].mValue);
-                        glm::vec3 right = SPW::toVec3(channel->mPositionKeys[rightIndex].mValue);
-
-                        keyFrame.position = left * leftFactor + right * rightFactor;
-                        pIsLoad = true;
-                        break;
-                    }
-                }
-                if (!pIsLoad)
-                    keyFrame.position = SPW::toVec3(channel->mPositionKeys[channel->mNumPositionKeys-1].mValue);
+            for (int scaleIndex = 0; scaleIndex < channel->mNumScalingKeys; ++scaleIndex)
+            {
+                aiVector3D scale = channel->mScalingKeys[scaleIndex].mValue;
+                float timeStamp = channel->mScalingKeys[scaleIndex].mTime;
+                KeyScale data;
+                data.scaling = SPW::toVec3(scale);
+                data.time = timeStamp;
+                tmp->nodeAnimations[j].m_Scaling.push_back(data);
+            }
 
 
-                // rotation interpolation
-                bool rIsLoad = false;
-                glm::quat rotation;
-                for (int i = 0 ; i < channel->mNumRotationKeys ; i++)
-                {
-                    if (currentTime < channel->mRotationKeys[i].mTime)
-                    {
-                        int leftIndex = i - 1;
-                        int rightIndex = i;
-                        //Linear interpolation
-
-                        float leftTimeGap = currentTime -  channel->mRotationKeys[leftIndex].mTime;
-                        float rightTimeGap = channel->mRotationKeys[rightIndex].mTime - currentTime;
-
-                        float leftFactor = leftTimeGap / (leftTimeGap+rightTimeGap);
-                        float rightFactor = rightTimeGap / (leftTimeGap+rightTimeGap);
-
-                        glm::quat left = SPW::toQuat(channel->mRotationKeys[leftIndex].mValue);
-                        glm::quat right = SPW::toQuat(channel->mRotationKeys[rightIndex].mValue);
-
-                        keyFrame.rotation = left * leftFactor + right * rightFactor;
-                        rIsLoad = true;
-                        break;
-                    }
-                }
-                if (!rIsLoad)
-                    keyFrame.rotation = SPW::toQuat(channel->mRotationKeys[channel->mNumRotationKeys-1].mValue);
-
-				tmp->nodeAnimations[j].keyFrames.push_back(keyFrame);
-			}
 
 			if (channel->mNumPositionKeys > tmp->frameCount) tmp->frameCount = channel->mNumPositionKeys;
 		}

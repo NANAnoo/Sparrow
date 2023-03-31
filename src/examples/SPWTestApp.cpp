@@ -267,7 +267,7 @@ public:
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.01, 0.01, 0.01};
-            transform->rotation = {-90, 90, 0};
+            transform->rotation = {0, 90, 0};
             transform->position = {0, -0.3, 0};
 
             //add a key component for testing, press R to rotate
@@ -296,7 +296,9 @@ public:
             auto animation = obj->emplace<SPW::AnimationComponent>();
             animation->skeleton = createSkeleton();
             animation->incomingAnimName = "mantis_anim";
-            animation->state = SPW::State::started;
+            animation->currentAnimation = animation->skeleton->m_animClips[0];
+            animation->bHasAnim = true;
+            animation->state = SPW::AnimationState::Stopped;
 
             testColor->updateSubData(sColors.data(), 0, sColors.size() * sizeof(glm::vec4));
             model->preRenderCommands.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::initStorageBuffer, testColor));
@@ -359,7 +361,7 @@ public:
         } catch (sol::error &e) {
             std::cout << e.what() << std::endl;
         }
-        std::cout << "app stopped" << std::endl;
+        std::cout << "app Stopped" << std::endl;
         scene->onStop();
     }
 

@@ -2,37 +2,42 @@
 #define SKELETON_ANIMATION_GLSL
 
 uniform int currentFrame;
+uniform int boneCount;
 
 layout (std430) readonly buffer WeightDictStart {
     int starts[];
 } weightDictStart;
 
-layout (std430) buffer WeightDictSize {
+layout (std430) readonly buffer WeightDictSize {
     int sizes[];
 } weightDictSize;
 
-layout (std430) buffer WeightDictKey {
+layout (std430) readonly buffer WeightDictKey {
     int keys[];
 } weightDictKey;
 
-layout (std430) buffer WeightDictValue {
+layout (std430) readonly buffer WeightDictValue {
     float weights[];
 } weightDictValue;
 
-layout (std430) buffer WeightMatries {
-    int frameNum;
+layout (std430) readonly buffer WeightMatries {
     mat4 mats[];
 } weightMatries;
 
-vec4 animationTransForm(vec4 position, int index) {
+vec4 animationTransForm(vec4 position, unsigned int index) {
     int start = weightDictStart.starts[index];
     int end = start + weightDictSize.sizes[index];
-    mat4 transform;
+    mat4 transform = mat4(0.0f);
+    vec4 totalPosition = vec4(0.0f);
+
     for (int i = start; i < end; i ++) {
         int which_bone = weightDictKey.keys[i];
         float weight = weightDictValue.weights[i];
-        transform += weightMatries.mats[weightMatries.frameNum * which_bone + currentFrame] * weight;
+        //transform += weightMatries.mats[which_bone] * weight;
+        vec4 localPosition = weightMatries.mats[which_bone] * position;
+
+        totalPosition += localPosition * weight;
     }
-    return position * transform;
+    return totalPosition;
 }
 #endif

@@ -91,10 +91,6 @@ void SPW::AnimationSystem::beforeUpdate()
                              animationComp->flattenTransform.size() * sizeof(glm::mat4),
                              4);
 
-
-
-
-
                      modelComp->preRenderCommands.pushCommand(
                              RenderCommand(&RenderBackEndI::initStorageBuffer,
                                            animationComp->current_clip.starts));
@@ -111,6 +107,7 @@ void SPW::AnimationSystem::beforeUpdate()
                              RenderCommand(&RenderBackEndI::initStorageBuffer,
                                            animationComp->current_clip.mats));
                  }
+
             });
 }
 static int i = 0;
@@ -123,18 +120,13 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 
     locatedScene.lock()->forEachEntityInGroup
     (animatedGroup,
-     [this,&animatedGroup,&deltaTime](const Entity &entity){
+     [this,&animatedGroup,deltaTime](const Entity &entity){
 
          AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
 
          auto animationComp = entity.component<SPW::AnimationComponent>();
          auto modelComp = entity.component<SPW::ModelComponent>();
 
-         animationComp->current_clip.mats->updateSubData(
-                 animationComp->flattenTransform.data(),
-                 0,
-                 animationComp->flattenTransform.size() * sizeof(glm::mat4)
-         );
 
          modelComp->pipeLineCommands.pushCommand(
                  RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.starts)
@@ -148,55 +140,55 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
          modelComp->pipeLineCommands.pushCommand(
                  RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.weights)
          );
+
+
+         if (!animationComp->bInitialized)
+             initializeComponent(*animationComp,*modelComp);
+         else
+         {
+             std::string animationName = animationComp->incomingAnimName;
+             //Swap animation
+             if (animationComp->bHasAnim)
+             {
+                 if (animationName != animationComp->currentAnimation.lock()->name)
+                 {
+                     this->playAnimation(animationName,deltaTime,*animationComp);
+                 }else
+                 {
+                     //Update animation
+                     if (animationComp->state == SPW::AnimationState::Start)
+                     {
+                         this->updateAnimation(animationName,deltaTime,*animationComp);
+
+                         //If we start an animation from stop state
+                     }else{
+                         this->playAnimation(animationName,deltaTime,*std::get<0>(animatedEntity));
+                     }
+                 }
+             }
+
+             if (animationComp->state == SPW::AnimationState::Stopped)
+             {
+                 //Stop playing animation
+                 this->stopAnimation(*animationComp);
+             }
+         }
+
+         animationComp->currentTime,animationComp->flattenTransform;
+
+         animationComp->current_clip.mats->updateSubData(
+                 animationComp->flattenTransform.data(),
+                 0,
+                 animationComp->flattenTransform.size() * sizeof(glm::mat4)
+         );
+
+
          modelComp->pipeLineCommands.pushCommand(
                  RenderCommand(&Shader::setStorageBuffer, animationComp->current_clip.mats)
          );
-//         modelComp->pipeLineCommands.pushCommand(
-//                 RenderCommand(&Shader::SetUniformValue<int>, std::string("currentFrame"), i)
-//         );
-//         i =  (i + 1) % 60;
-
-         if (!animationComp->bInitialized)
-            initializeComponent(*animationComp,*modelComp);
-        else
-        {
-
-            std::string animationName = animationComp->incomingAnimName;
-            if (!animationName.compare(animationName))
-            {
-                this->playAnimation(animationName,deltaTime,*animationComp);
-
-            }else{
-
-                if (animationComp->state == SPW::State::started)
-                {
-                    this->updateAnimation(animationName,deltaTime,*animationComp);
-
-                //If we start an animation from stop state
-                }else{
-                    this->playAnimation(animationName,deltaTime,*std::get<0>(animatedEntity));
-                }
-            }
-
-            if (animationComp->state == SPW::State::stopped)
-            {
-                //Stop playing animation
-                this->stopAnimation(*animationComp);
-            }
-        }
-        //loading data
-    });
+         //loading data
+     });
 }
-float getScaling(float lastTimeStamp,float nextTimeStamp,float currentTime)
-{
-    float factor = 0.0f;
-    float midLength = currentTime - lastTimeStamp;
-    float frameLength = nextTimeStamp - lastTimeStamp;
-    factor = midLength/frameLength;
-    return factor;
-}
-
-
 
 void SPW::AnimationSystem::initializeComponent(AnimationComponent &animationComponent,ModelComponent& modelComponent)
 {
@@ -204,6 +196,8 @@ void SPW::AnimationSystem::initializeComponent(AnimationComponent &animationComp
     {
 
         //animationComponent.finalBoneMatrices.reserve(animationComponent.skeleton->m_Bones.size());
+
+        animationComponent.flattenTransform.resize(animationComponent.skeleton->m_Bones.size(),glm::mat4(1.0f));
 
         changeMap(animationComponent, modelComponent);
 
@@ -268,13 +262,13 @@ void SPW::AnimationSystem::vertexBoneMapping(AnimationComponent &animationCompon
 void SPW::AnimationSystem::playAnimation(std::string name, float dt, AnimationComponent &animationComponent)
 {
     std::weak_ptr<AnimationClip> temp = findAnimation(name,animationComponent);
-    animationComponent.flattenTransform.resize(animationComponent.skeleton->m_Bones.size());
+    animationComponent.flattenTransform.resize(animationComponent.skeleton->m_Bones.size(),glm::mat4(1.0f));
     if (temp.expired())
         return;
     else
     {
         //Start an animation from stop state
-        if (animationComponent.currentAnimation.expired())
+        if (animationComponent.state == SPW::AnimationState::Stopped)
         {
             animationComponent.currentAnimation = temp.lock();
             animationComponent.currentTime = 0.0f;
@@ -286,7 +280,7 @@ void SPW::AnimationSystem::playAnimation(std::string name, float dt, AnimationCo
             animationComponent.currentAnimation = temp.lock();
         }
 
-        animationComponent.state = SPW::State::started;
+        animationComponent.state = SPW::AnimationState::Start;
         temp.reset();
         //updateFramesWeight(name,dt,animationComponent);
         updateAnimation(name,dt,animationComponent);
@@ -301,12 +295,11 @@ void SPW::AnimationSystem::updateAnimation(std::string name, float dt, Animation
     {
         float currentTime = animationComponent.currentTime;
 
-        currentTime += dt;
+        float deltaTime = dt;
 
-        if (currentTime >= animationComponent.currentAnimation.lock()->duration)
-        {
-            animationComponent.currentTime = 0.0f;
-        }
+        currentTime += animationComponent.currentAnimation.lock()->FPS * deltaTime;
+
+        currentTime = fmod(currentTime,animationComponent.currentAnimation.lock()->duration);
 
         animationComponent.currentTime = currentTime;
 
@@ -314,68 +307,22 @@ void SPW::AnimationSystem::updateAnimation(std::string name, float dt, Animation
                                glm::mat4(1.0f),
                                animationComponent,
                                currentTime);
+
     }
 }
 glm::mat4 SPW::AnimationSystem::getUpdatedTransform(AnimationNode* node,float currentTime)
 {
-
-    if (node->keyFrames.size() == 1)
-    {
-        KeyFrame keyFrame = node->keyFrames[0];
-        glm::mat4 transform;
-        return transform;
-    }
-
     int index = 0;
     int nextIndex = 0;
     glm::mat4 transform;
     //Get transform here
-    glm::vec3 position;
-    glm::quat rotation;
-    glm::vec3 scaling;
-    for (int i = 0; i < node->keyFrames.size()-1; i++)
-    {
-        if (currentTime < node->keyFrames[i+1].time)
-        {
-            index = i;
-            nextIndex = index+1;
-            break;
-        }
-    }
+    glm::mat4 position = node->InterpolatePosition(currentTime);
+    glm::mat4 rotation = node->InterpolateRotation(currentTime);
+    glm::mat4 scaling = node->InterpolateScaling(currentTime);
 
-
-    //All keyframes are at 0 second and won't change
-    if (node->keyFrames[nextIndex].time - node->keyFrames[index].time < 1e-6)
-    {
-
-        position = node->keyFrames[index].position;
-        rotation = glm::normalize(node->keyFrames[index].rotation);
-        scaling = node->keyFrames[index].sacling;
-
-        glm::mat4 pos_translate = glm::translate(glm::mat4(1.0f),position);
-        glm::mat4 rot_cast = glm::mat4_cast(rotation);
-        glm::mat4 scal_scale = glm::scale(glm::mat4(1.0f),scaling);
-
-        transform = pos_translate * rot_cast * scal_scale;
-
-    }else
-    {
-        float factor = getScaling(node->keyFrames[index].time,node->keyFrames[nextIndex].time,currentTime);
-
-        position = glm::mix(node->keyFrames[index].position,node->keyFrames[nextIndex].position,factor);
-
-        rotation = glm::normalize(glm::slerp(node->keyFrames[index].rotation,node->keyFrames[nextIndex].rotation,factor));
-
-        scaling = glm::mix(node->keyFrames[index].sacling,node->keyFrames[nextIndex].sacling,factor);
-
-        //Missing glm::vec3 -> glm::mat4 transfrom
-        transform = glm::translate(glm::mat4(1.0f),position) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f),scaling);
-    }
-
+    transform = position * rotation * scaling;
     return transform;
 }
-
-
 
 std::shared_ptr<SPW::BoneInfo> findBoneInSkeleton(SPW::AnimationComponent& animationComponent,std::string animNodeName)
 {
@@ -406,6 +353,7 @@ void SPW::AnimationSystem::calculateBoneTransform(const AssimpNodeData* node,
     {
         localTransform = getUpdatedTransform(&currentNode,currentTime);
     }
+    localTransform;
 
     localTransform = parrentTransform * localTransform;
     //Check if this assimpNode has a corresponding bone in skeleton

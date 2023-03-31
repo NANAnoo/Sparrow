@@ -17,9 +17,15 @@ out vec3 normal;
 out vec4 position;
 void main()
 {
-    position = M*vec4(aPos, 1.0);
-    position = animationTransForm(position, gl_VertexID);
-    gl_Position = P*V*position;
+    vec4 position = vec4(aPos, 1.0);
+    //position = M*animationTransForm(position, gl_VertexID);
+
+    vec4 totalPosition = vec4(0.0f);
+    totalPosition = animationTransForm(position, gl_VertexID);
+
+    mat4 viewModel = V * M;
+
+    gl_Position = P * viewModel * totalPosition;
     
     TexCoords = aCoords;
     normal = mat3(transpose(inverse(M))) * aNormal;
