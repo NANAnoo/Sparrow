@@ -37,6 +37,8 @@ namespace SPW
         void InitSkyBox() final;
         void SetSkyBox(std::vector<std::string>& faces) final;
         void drawSkyBox(glm::mat4& V,glm::mat4& P) final;
+        void BindImageTex(std::string path, int slot) final;
+        void BindCubeMap(std::vector<std::string> paths, int slot) final;
 
         //for draw
         std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) final
@@ -62,6 +64,8 @@ namespace SPW
         void creatShadowFrameBuffer(unsigned int num) final;
         void setUpShadowArray(unsigned  int num) final;
         void drawInTexture(SPW::PostProcessingEffects effect = SPW::PostProcessingEffects::None) final;
+
+        void drawInQuad() final;
 
         // attachment tetxures
         std::shared_ptr<AttachmentTexture> createAttachmentTexture() final;

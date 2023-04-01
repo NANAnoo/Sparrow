@@ -8,10 +8,13 @@
 namespace SPW
 {
 
-    class OpenGLFrameBuffer :public FrameBuffer
+    class OpenGLFrameBuffer final :public FrameBuffer
     {
     public:
         explicit OpenGLFrameBuffer()=default;
+        ~OpenGLFrameBuffer() final {
+            deleteFrameBuffer();
+        }
         void genFrameBuffer()final;
         void bind()final;
         void unbind()final;

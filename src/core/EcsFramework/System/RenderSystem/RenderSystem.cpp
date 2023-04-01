@@ -265,10 +265,11 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                     lightView = glm::lookAt(lightPos, cam_center, glm::vec3(0.0, 1.0, 0.0));
                     lightSpaceMatrix = lightProjection * lightView;
                     shader->SetUniformValue<glm::mat4> ("lightSpaceMatrix["+std::to_string(i)+"]", lightSpaceMatrix);
-                    shader->bindTexArray(5+i,renderBackEnd->depthTextureArray);
-                    shader->setInt("shadowMap",5+i);
+                    
 
                 }
+                shader->bindTexArray(5,renderBackEnd->depthTextureArray);
+                shader->setInt("shadowMap",5);
                 shader->SetUniformValue("PLightCount", int(pLights.size()));
                 shader->SetUniformValue("DLightCount", int(dLights.size()));
                 // render every model in this shader

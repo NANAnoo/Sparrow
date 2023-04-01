@@ -103,7 +103,12 @@ namespace SPW
 
     void OpenGLBackEnd::DepthFunc(DepthComp comp)
     {
-
+        switch (comp) {
+            case DepthComp::EQUAL: glDepthFunc(GL_EQUAL); break;
+            case DepthComp::LEQUAL: glDepthFunc(GL_LEQUAL); break;
+            case DepthComp::LESS: glDepthFunc(GL_LESS); break;
+            break;
+        }
     }
 
     void OpenGLBackEnd::Cull(int32_t Bit)
@@ -160,6 +165,26 @@ namespace SPW
         shader->SetUniformValue<float>("specularPower", 64);
 
     }
+
+    void OpenGLBackEnd::BindImageTex(std::string path, int slot) {
+        if (path == "") {
+            glActiveTexture(GL_TEXTURE0 + slot);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            return;
+        }
+        glActiveTexture(GL_TEXTURE0 + slot);
+        std::shared_ptr<OpenGLtexture2D> texture =
+            OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
+        glBindTexture(GL_TEXTURE_2D, texture->ID);
+    }
+
+    void OpenGLBackEnd::BindCubeMap(std::vector<std::string> paths, int slot) {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        std::shared_ptr<OpenGLCubeMap> cubeMap =
+            OpenGLTextureManager::getInstance()->getOpenGLCubeMap(paths);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap->ID);
+    }
+
     std::shared_ptr<FrameBuffer> OpenGLBackEnd::creatSenceFrameBuffer()
     {
         scenceFrameBuffer = std::make_shared<OpenGLFrameBuffer>();
@@ -313,6 +338,12 @@ namespace SPW
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS);
+    }
+
+    void OpenGLBackEnd::drawInQuad() {
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
     }
 
     // create attachment texture

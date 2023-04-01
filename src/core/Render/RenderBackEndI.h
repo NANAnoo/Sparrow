@@ -63,12 +63,17 @@ namespace SPW
         virtual void SetSkyBox(std::vector<std::string>& faces)=0;
         virtual void drawSkyBox(glm::mat4& V,glm::mat4& P)=0;
 
+        // bind texture at slot with a file path
+        virtual void BindImageTex(std::string path, int slot) = 0;
+        virtual void BindCubeMap(std::vector<std::string> paths, int slot) = 0;
+
         //frambuffer
         virtual std::shared_ptr<FrameBuffer> createFrameBuffer()=0;
         virtual std::shared_ptr<FrameBuffer> creatSenceFrameBuffer()=0;
         virtual void creatShadowFrameBuffer(unsigned int num)=0;
         virtual void setUpShadowArray(unsigned  int num) = 0;
         virtual void drawInTexture(SPW::PostProcessingEffects effect = SPW::PostProcessingEffects::None)=0;
+        virtual void drawInQuad() = 0;
 
         //creat structure;
         virtual std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) = 0;

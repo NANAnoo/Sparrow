@@ -10,6 +10,7 @@ namespace SPW
     {
     public:
         explicit FrameBuffer() = default;
+        virtual ~FrameBuffer() = default;
         virtual void genFrameBuffer()=0;
         virtual void bind()=0;
         virtual void unbind()=0;

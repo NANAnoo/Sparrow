@@ -44,6 +44,11 @@ namespace SPW
 
         }
 
+        void PureDraw(const std::shared_ptr<RenderBackEndI>& renderBackEnd)
+        {
+            renderBackEnd->DrawElement(VBuffer,EBO);
+        }
+
         void setupMesh(std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
 

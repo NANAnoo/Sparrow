@@ -10,7 +10,11 @@
 namespace SPW {
     class MeshComponent : public ComponentI {
     public:
-        MeshComponent() = default;
+        MeshComponent() = delete;
+
+        explicit MeshComponent(const UUID &id) {
+            bindCamera = id;
+        }
 
         void update(const std::string &key, const sol::table &value) final {
 

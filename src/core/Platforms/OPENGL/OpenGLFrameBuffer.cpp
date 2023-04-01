@@ -26,6 +26,7 @@ namespace SPW
 
     void OpenGLFrameBuffer::deleteFrameBuffer()
     {
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
         glDeleteFramebuffers(1,&framebufferId);
     }
     void OpenGLFrameBuffer::AttachColorTexture(unsigned int width, unsigned int height, unsigned int slot)
@@ -79,9 +80,9 @@ namespace SPW
     {
         glGenRenderbuffers(1, &rboId);
         glBindRenderbuffer(GL_RENDERBUFFER, rboId);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
         //glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboId);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboId);
     }
 
     void OpenGLFrameBuffer::CheckFramebufferStatus()

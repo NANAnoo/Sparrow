@@ -23,7 +23,7 @@
 #include "EcsFramework/Scene.hpp"
 
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
-#include "EcsFramework/Component/ModelComponent.h"
+#include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
 
@@ -33,7 +33,8 @@
 #include "EcsFramework/Component/MouseComponent.hpp"
 
 
-#include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "EcsFramework/System/NewRenderSystem/FlexibleRenderSystem.h"
+#include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 
@@ -41,8 +42,6 @@
 
 #include "Utils/UUID.hpp"
 
-
-#include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/AudioSystem/AudioSystem.h"
 
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
@@ -55,12 +54,12 @@
 #include <glm/glm/gtx/euler_angles.hpp>
 
 std::shared_ptr<SPW::Model> createModel() {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-    //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
+    //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
 }
 std::shared_ptr<SPW::Model> createCubeModel()
 {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/cube.obj");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sand_cube/cube.obj");
 }
 
 // test usage
@@ -119,7 +118,7 @@ public:
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
         app->window->setSize(1280, 720);
-        app->window->setTitle("SPWTestApp");
+        app->window->setTitle("Test");
 
         transformer = std::make_shared<Transformer>(app->delegate.lock());
         transformer->window = window;
@@ -141,9 +140,20 @@ public:
             // create scene
             scene = SPW::Scene::create(app->delegate.lock());
 
+            // create render system
+            auto rendersystem = std::make_shared<SPW::FlexibleRenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight());
+
+            auto shadow_pass = rendersystem->addModelSubPass(SPW::D_shadowPass());
+            auto forward_pbr_pass = rendersystem->addModelSubPass(SPW::F_pbr_lightPass());
+
+            auto fxaa_pass = rendersystem->addImageSubPass(SPW::FXAA_postPass());
+
+            auto pbr_shadow_pass = rendersystem->addRenderPass({0, {shadow_pass, forward_pbr_pass}, {}});
+
+            rendersystem->setPostProcessPass({0, {}, {fxaa_pass}});
             // add system
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight()));
+            scene->addSystem(rendersystem);
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 
@@ -151,7 +161,7 @@ public:
             auto camera = scene->createEntity("main camera");
             camera->emplace<SPW::AudioListener>();
             auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
-            mainCameraTrans->position = glm::vec4(0.0f,0.0f,-1.0f,1.0f);
+            mainCameraTrans->position = glm::vec4(0.0f,0.0f,1.0f,1.0f);
             auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
             cam->fov = 60;
             cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
@@ -231,7 +241,7 @@ public:
 
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
-            transform->scale = {0.5, 0.5, 0.5};
+            transform->scale = {0.1, 0.1, 0.1};
             transform->rotation = {0, 90, 0};
             transform->position = {0, -0.3, 0};
 
@@ -248,7 +258,7 @@ public:
             };
 
             // add a model to show
-            auto model = obj->emplace<SPW::ModelComponent>(camera_id);
+            auto model = obj->emplace<SPW::MeshComponent>(camera_id);
             //model->bindCameras.insert(camera_id_2);
             SPW::ShaderHandle shaderHandle({
                                          "basic",
@@ -256,31 +266,35 @@ public:
                                          "./resources/shaders/pbrShadow.frag"
                                      });
 
-            model->modelProgram = shaderHandle;
-            model->shadowProgram = ShadowShaderHandle;
+            model->bindRenderPass = pbr_shadow_pass;
+            model->modelSubPassProgram[shadow_pass] = ShadowShaderHandle;
+            model->modelSubPassProgram[forward_pbr_pass] = shaderHandle;
+
             model->model = createModel();
             auto cubeObj = scene->createEntity("floor");
             auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
             cubeTrans->scale = {5.0, 0.05, 5.0};
             cubeTrans->position.y-=0.35f;
-            auto cubemodel = cubeObj->emplace<SPW::ModelComponent>(camera_id);
+            auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
             SPW::ShaderHandle CubeshaderHandle({
                                                    "basic",
                                                    "./resources/shaders/simpleVs.vert",
-                                                   "./resources/shaders/pbrShadow.frag"
+                                                   "./resources/shaders/pbrShadowTiled.frag"
                                            });
             //model->bindCameras.insert(camera_id_2);
-            cubemodel->modelProgram = CubeshaderHandle;
-            cubemodel->shadowProgram = ShadowShaderHandle;
+            cubemodel->bindRenderPass = pbr_shadow_pass;
             cubemodel->model = createCubeModel();
+
+            cubemodel->bindRenderPass = pbr_shadow_pass;
+            cubemodel->modelSubPassProgram[forward_pbr_pass] = CubeshaderHandle;
 
             // add light 1
             auto light = scene->createEntity("light");
             auto lightTrans =light->emplace<SPW::TransformComponent>();
             auto lightCom = light->emplace<SPW::DirectionalLightComponent>();
             lightCom->ambient = {0.2, 0.2, 0.2};
-            lightCom->diffuse = {1, 1, 0};
-            lightCom->specular = {1, 1, 0};
+            lightCom->diffuse = {3, 1, 0};
+            lightCom->specular = {3, 1, 0};
             lightTrans->rotation = {30, 60, 0};
 
             // add light 2
@@ -288,8 +302,8 @@ public:
             auto lightTrans2 =light2->emplace<SPW::TransformComponent>();
             auto lightCom2 = light2->emplace<SPW::DirectionalLightComponent>();
             lightCom2->ambient = {0.2, 0.2, 0.2};
-            lightCom2->diffuse = {0, 1, 1};
-            lightCom2->specular = {0, 1, 1};
+            lightCom2->diffuse = {0, 1, 3};
+            lightCom2->specular = {0, 1, 3};
             lightTrans2->rotation = {30, 0, 0};
 
             light2->emplace<SPW::KeyComponent>()->onKeyHeldCallBack =
