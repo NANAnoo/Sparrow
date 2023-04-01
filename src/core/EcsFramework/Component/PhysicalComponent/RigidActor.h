@@ -7,19 +7,26 @@
 
 #endif //SPARROW_RIGIDACTOR_H
 #include "../ComponentI.h"
+#include "EcsFramework/System/PhysicSystem/PhysicSystem.h"
 #include <PxPhysicsAPI.h>
 #include <memory>
 
 namespace SPW{
 
-    enum RigidComponent{Sleep,Awake,WithCollider};
+    enum RigidState{Sleep,Awake,Awake2};
 
-    class RigidActor : public ComponentI{
+
+    class RigidStaticComponent : public ComponentI{
     public:
-        RigidComponent rigidState = Sleep;
-        std::shared_ptr<physx::PxRigidActor> rigid;
-    protected:
+        physx::PxRigidActor* rigid;
+        RigidState rigidState = Sleep;
+    };
 
-
+    class RigidDynamicComponent : public ComponentI{
+    public:
+        physx::PxRigidBody* rigid;
+        RigidState rigidState = Sleep;
+    private:
+      bool enable_ccd_;
     };
 };
