@@ -293,12 +293,11 @@ public:
 
             model->modelProgram = shaderHandle;
             model->model = createModel();
-            auto animation = obj->emplace<SPW::AnimationComponent>();
+            auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
             animation->skeleton = createSkeleton();
-            animation->incomingAnimName = "mantis_anim";
-            animation->currentAnimation = animation->skeleton->m_animClips[0];
-            animation->bHasAnim = true;
-            animation->state = SPW::AnimationState::Stopped;
+            animation->swapCurrentAnim("mantis_anim");
+            //animation->incomingAnimName = "mantis_anim";
+            //animation->currentAnimation = animation->skeleton->m_animClips[0];
 
             testColor->updateSubData(sColors.data(), 0, sColors.size() * sizeof(glm::vec4));
             model->preRenderCommands.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::initStorageBuffer, testColor));

@@ -436,8 +436,6 @@ namespace SPW
                 tmp->nodeAnimations[j].m_Scaling.push_back(data);
             }
 
-
-
 			if (channel->mNumPositionKeys > tmp->frameCount) tmp->frameCount = channel->mNumPositionKeys;
 		}
 
@@ -467,9 +465,7 @@ namespace SPW
      */
     void ReadHierarchyData(AssimpNodeData& rootNode, const aiNode* src)
     {
-
         assert(src);
-
         rootNode.name = src->mName.data;
         rootNode.transformation = toMat4(src->mTransformation);
         rootNode.childrenCount = src->mNumChildren;
@@ -481,8 +477,6 @@ namespace SPW
             rootNode.children.push_back(newData);
         }
     }
-
-
 
 
 
