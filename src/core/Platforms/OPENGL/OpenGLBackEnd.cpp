@@ -8,11 +8,15 @@
 #include "OpenGLTextureManager.h"
 #include "OpenGLTexture2D.h"
 #include "OpenGLFrameBuffer.h"
+#include "OpenGLRenderGraph.h"
+#include "OpenGLAttachmentTexture.hpp"
 #include "Render/Material.h"
 #include "IO/FileSystem.h"
 #include <fstream>
 #include <vector>
 #include <unordered_set>
+
+
 float quadVertices[] =
 {
                 // positions   // texCoords
@@ -79,6 +83,20 @@ namespace SPW
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
+    void OpenGLBackEnd::ClearColor()
+    {
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    std::shared_ptr<RenderGraph> OpenGLBackEnd::createRenderGraph() {
+        return std::make_shared<OpenGLRenderGraph>();
+    }
+
+    void OpenGLBackEnd::ClearDepth()
+    {
+        glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    }
+
     void OpenGLBackEnd::DrawElement(std::shared_ptr<VertexBufferI> &vertexBuffer,
                                     std::shared_ptr<IndexBuffer> &indexBuffer)
     {
@@ -102,7 +120,12 @@ namespace SPW
 
     void OpenGLBackEnd::DepthFunc(DepthComp comp)
     {
-
+        switch (comp) {
+            case DepthComp::EQUAL: glDepthFunc(GL_EQUAL); break;
+            case DepthComp::LEQUAL: glDepthFunc(GL_LEQUAL); break;
+            case DepthComp::LESS: glDepthFunc(GL_LESS); break;
+            break;
+        }
     }
 
     void OpenGLBackEnd::Cull(int32_t Bit)
@@ -142,22 +165,74 @@ namespace SPW
                 std::string path = material->TextureMap[type];
                 std::shared_ptr<OpenGLtexture2D> texture =
                 OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
-                shader->SetUniformValue<int>(name,i);
                 glActiveTexture(GL_TEXTURE0 + i);
+                shader->SetUniformValue<int>(name,i);
+
                 glBindTexture(GL_TEXTURE_2D, texture->ID);
+            } else {
+                glActiveTexture(GL_TEXTURE0 + i);
+                glBindTexture(GL_TEXTURE_2D, 0);
             }
         }
+        shader->SetUniformValue<int>("shadowMap",5);
         // TODO @ Zhou, read other material in resources manager
         shader->SetUniformValue<float>("diffusion", 0.4);
-        shader->SetUniformValue<float>("shininess", 3);
+        shader->SetUniformValue<float>("shininess", 0.3);
         shader->SetUniformValue<float>("lambertin", 0.3);
         shader->SetUniformValue<float>("specularPower", 64);
 
     }
+
+    void OpenGLBackEnd::BindImageTex(std::string path, int slot) {
+        if (path == "") {
+            glActiveTexture(GL_TEXTURE0 + slot);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            return;
+        }
+        glActiveTexture(GL_TEXTURE0 + slot);
+        std::shared_ptr<OpenGLtexture2D> texture =
+            OpenGLTextureManager::getInstance()->getOpenGLtexture2D(path);
+        glBindTexture(GL_TEXTURE_2D, texture->ID);
+    }
+
+    void OpenGLBackEnd::BindCubeMap(std::vector<std::string> paths, int slot) {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        std::shared_ptr<OpenGLCubeMap> cubeMap =
+            OpenGLTextureManager::getInstance()->getOpenGLCubeMap(paths);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap->ID);
+    }
+
     std::shared_ptr<FrameBuffer> OpenGLBackEnd::creatSenceFrameBuffer()
     {
         scenceFrameBuffer = std::make_shared<OpenGLFrameBuffer>();
         return scenceFrameBuffer;
+    }
+
+    std::shared_ptr<FrameBuffer> OpenGLBackEnd::createFrameBuffer()
+    {
+        return std::make_shared<OpenGLFrameBuffer>();
+    }
+    void OpenGLBackEnd::creatShadowFrameBuffer(unsigned int num)
+    {
+        shadowFrameBuffers.resize(num);
+        for(int i = 0; i < num; i++)
+        {
+            shadowFrameBuffers[i] = std::make_shared<OpenGLFrameBuffer>();
+        }
+    }
+
+    void OpenGLBackEnd::setUpShadowArray(unsigned  int num)
+    {
+        glGenTextures(1, &depthTextureArray);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, depthTextureArray);
+
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, SPW::FrameBuffer::SHADOW_WIDTH, SPW::FrameBuffer::SHADOW_HEIGHT, num, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+        GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+        glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
     }
 
     void OpenGLBackEnd::drawInTexture(SPW::PostProcessingEffects effect)
@@ -281,4 +356,31 @@ namespace SPW
         glBindVertexArray(0);
         glDepthFunc(GL_LESS);
     }
+
+    void OpenGLBackEnd::drawInQuad() {
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+    }
+
+    // create attachment texture
+    std::shared_ptr<AttachmentTexture> OpenGLBackEnd::createAttachmentTexture() {
+        return std::make_shared<OpenGLAttachmentTexture>();
+    }
+
+    // create attachment texture array
+    std::shared_ptr<AttachmentTextureArray> OpenGLBackEnd::createAttachmentTextureArray() {
+        return std::make_shared<OpenGLAttachmentTextureArray>();
+    }
+
+    //  create attachment texture cube
+    std::shared_ptr<AttachmentTextureCube> OpenGLBackEnd::createAttachmentTextureCube() {
+        return std::make_shared<OpenGLAttachmentTextureCube>();
+    }
+
+    //  create attachment texture cube array 
+    std::shared_ptr<AttachmentTextureCubeArray> OpenGLBackEnd::createAttachmentTextureCubeArray() {
+        return std::make_shared<OpenGLAttachmentTextureCubeArray>();
+    }
+
 }

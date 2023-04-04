@@ -159,5 +159,17 @@ namespace SPW
         setFloat(name+".quadratic",light.quadratic);
     }
 
+    void OpenGLShader::bindTex2D(unsigned int slot, unsigned int texid) const
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D,texid);
+    }
+
+    void OpenGLShader::bindTexArray(unsigned int slot, unsigned int texid) const
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D_ARRAY,texid);
+
+    }
 
 }

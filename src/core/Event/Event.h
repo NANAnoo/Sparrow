@@ -85,7 +85,6 @@ namespace SPW {
     private:
         std::unordered_set<EventResponderI*> subResponders;
         std::weak_ptr<EventResponderI> parent;
-
         // private logic
         void onEvent(const std::shared_ptr<EventI> &e) {
             if (e->consumed || !canRespondTo(e)) return;
