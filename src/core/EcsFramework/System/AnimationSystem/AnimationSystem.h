@@ -5,10 +5,10 @@
 #ifndef SPARROW_ANIMATIONSYSTEM_H
 #define SPARROW_ANIMATIONSYSTEM_H
 
+#include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/System/SystemI.h"
 #include "glm/glm.hpp"
 #include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
-#include "EcsFramework/Component/ModelComponent.h"
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "EcsFramework/Scene.hpp"
 #include <glm/glm/ext.hpp>
@@ -30,7 +30,7 @@ namespace SPW{
 
     public:
         explicit AnimationSystem(std::shared_ptr<Scene> &scene) : SystemI(scene){}
-        using AnimatedEntity = std::tuple<AnimationComponent*, IDComponent*,ModelComponent*>;
+        using AnimatedEntity = std::tuple<AnimationComponent*, IDComponent*,MeshComponent*>;
 
         void initial() final;
         void beforeUpdate() final;
@@ -51,9 +51,9 @@ namespace SPW{
                                     AnimationComponent& animationComponent,
                                     float currentTime);
 
-        void initializeComponent(AnimationComponent& animationComponent,ModelComponent& modelComponent);
-        void changeMap(AnimationComponent& animationComponent, ModelComponent& modelComponent);
-        void vertexBoneMapping(AnimationComponent &animationComponent, ModelComponent &modelComponent,
+        void initializeComponent(AnimationComponent& animationComponent,MeshComponent& MeshComponent);
+        void changeMap(AnimationComponent& animationComponent, MeshComponent& MeshComponent);
+        void vertexBoneMapping(AnimationComponent &animationComponent, MeshComponent &MeshComponent,
                                std::vector<VerMapBone> map);
 
         AnimationNode findAnimationNode(std::string name,std::weak_ptr<AnimationClip> currentAnimation);

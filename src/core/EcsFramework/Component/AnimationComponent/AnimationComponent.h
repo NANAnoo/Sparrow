@@ -8,11 +8,11 @@
 #define SPARROW_ANIMATIONCOMPONENT_H
 
 #include "../ComponentI.h"
+#include "EcsFramework/Component/MeshComponent.hpp"
 #include "Model/Animation/Skeleton.h"
 #include "Model/Animation/AnimDefinitions.h"
 #include "Model/Model.h"
 #include "Model/Mesh.h"
-#include "../ModelComponent.h"
 #include <vector>
 #include <map>
 #include "glm/glm.hpp"
@@ -390,47 +390,39 @@ namespace SPW {
             }
         }
 
-        void bindingBuffer(ModelComponent* modelComponent)
+        void bindingBuffer(MeshComponent* mesh)
         {
+            mesh->beforeDraw = [this](RenderCommandsQueue<RenderBackEndI>& queue) {
+                queue.pushCommand(
+                        RenderCommand(&RenderBackEndI::initStorageBuffer,
+                                    starts));
+                queue.pushCommand(
+                        RenderCommand(&RenderBackEndI::initStorageBuffer,
+                                    sizes));
+                queue.pushCommand(
+                        RenderCommand(&RenderBackEndI::initStorageBuffer,
+                                    boneIndices));
+                queue.pushCommand(
+                        RenderCommand(&RenderBackEndI::initStorageBuffer,
+                                    weights));
+                queue.pushCommand(
+                        RenderCommand(&RenderBackEndI::initStorageBuffer,
+                                    mats));
+            };
 
-            modelComponent->preRenderCommands.pushCommand(
-                    RenderCommand(&RenderBackEndI::initStorageBuffer,
-                                  starts));
-            modelComponent->preRenderCommands.pushCommand(
-                    RenderCommand(&RenderBackEndI::initStorageBuffer,
-                                  sizes));
-            modelComponent->preRenderCommands.pushCommand(
-                    RenderCommand(&RenderBackEndI::initStorageBuffer,
-                                  boneIndices));
-            modelComponent->preRenderCommands.pushCommand(
-                    RenderCommand(&RenderBackEndI::initStorageBuffer,
-                                  weights));
-            modelComponent->preRenderCommands.pushCommand(
-                    RenderCommand(&RenderBackEndI::initStorageBuffer,
-                                  mats));
             bBinding = true;
         }
 
-        void pushData(ModelComponent* modelComponent)
+        void pushData(MeshComponent* mesh)
         {
-
-            modelComponent->pipeLineCommands.pushCommand(
-                    RenderCommand(&Shader::setStorageBuffer, starts)
-            );
-            modelComponent->pipeLineCommands.pushCommand(
-                    RenderCommand(&Shader::setStorageBuffer, sizes)
-            );
-            modelComponent->pipeLineCommands.pushCommand(
-                    RenderCommand(&Shader::setStorageBuffer, boneIndices)
-            );
-            modelComponent->pipeLineCommands.pushCommand(
-                    RenderCommand(&Shader::setStorageBuffer, weights)
-            );
-            modelComponent->pipeLineCommands.pushCommand(
-                    RenderCommand(&Shader::setStorageBuffer, mats)
-            );
+            mesh->onDraw = [this](RenderCommandsQueue<Shader>& queue) {
+                queue.pushCommand(RenderCommand(&Shader::setStorageBuffer, starts));
+                queue.pushCommand(RenderCommand(&Shader::setStorageBuffer, sizes));
+                queue.pushCommand(RenderCommand(&Shader::setStorageBuffer, boneIndices));
+                queue.pushCommand(RenderCommand(&Shader::setStorageBuffer, weights));
+                queue.pushCommand(RenderCommand(&Shader::setStorageBuffer, mats));
+            };
         }
-
 
         std::shared_ptr<StorageBuffer> starts;
         std::shared_ptr<StorageBuffer> sizes;

@@ -68,11 +68,21 @@ namespace SPW
     {
     public:
         Model() = default;
-        explicit Model(std::vector<std::shared_ptr<Mesh>>&& _meshes) { m_Meshes = std::move(_meshes); }
+        explicit Model(std::vector<std::shared_ptr<Mesh>>&& _meshes) { 
+            m_Meshes = std::move(_meshes); 
+            // reverse the order of the meshes
+            for (unsigned int i = 0; i < m_Meshes.size(); i++)
+            {
+                m_Meshes[i]->offset = i == 0 ? 0 : m_Meshes[i - 1]->offset + m_Meshes[i - 1]->indices.size();
+            }
+        }
     	  ~Model() {}
 
         [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return m_Meshes; }
-        void AddMesh(std::shared_ptr<Mesh> _mesh) { m_Meshes.emplace_back(std::move(_mesh)); }
+        void AddMesh(std::shared_ptr<Mesh> _mesh) { 
+            _mesh->offset = m_Meshes.size() == 0 ? 0 : m_Meshes.back()->offset + m_Meshes.back()->indices.size();
+            m_Meshes.emplace_back(std::move(_mesh)); 
+        }
 
         // draws the model, and thus all its meshes
         void Draw(std::shared_ptr<RenderBackEndI> &renderBackEnd,  const ShaderHandle& handle)

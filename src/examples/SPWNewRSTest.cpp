@@ -7,6 +7,7 @@
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
+#include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
 #include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
@@ -54,9 +55,13 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
+std::shared_ptr<SPW::Skeleton> createSkeleton() {
+    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/Standing 2H Magic Attack 01.fbx");
+}
+
 std::shared_ptr<SPW::Model> createModel() {
     //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/Standing 2H Magic Attack 01.fbx");
 }
 std::shared_ptr<SPW::Model> createCubeModel()
 {
@@ -216,6 +221,7 @@ public:
             scene->addSystem(rendersystem);
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
 
             // ------ create main render graph ----------------
             auto pbr_with_PDshadow = rendersystem->createRenderGraph();
@@ -263,7 +269,11 @@ public:
                                          "./resources/shaders/simpleVs.vert",
                                          "./resources/shaders/pbrShadow.frag"
                                      });
-
+            SPW::ShaderHandle pbr_ani_light_shadow({
+                                         "pbr_light_shadow",
+                                         "./resources/shaders/ani_model.vert",
+                                         "./resources/shaders/pbrShadow.frag"
+                                     });
             SPW::ShaderHandle pbr_light_shadow_tiled({
                                             "pbr_light_shadow_tiled",
                                             "./resources/shaders/simpleVs.vert",
@@ -271,7 +281,10 @@ public:
                                     });
             auto p_shadow_desc = SPW::P_shadowmap_desc();
             auto d_shadow_desc = SPW::D_shadowmap_desc();
+            auto p_ani_shadow_desc = SPW::P_ani_shadowmap_desc();
+            auto d_ani_shadow_desc = SPW::D_ani_shadowmap_desc();
 
+            auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_ani_light_shadow);
             auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
             auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow_tiled);
             
@@ -281,6 +294,9 @@ public:
             rendersystem->addShaderDesciptor(p_shadow_desc);
             rendersystem->addShaderDesciptor(d_shadow_desc);
             rendersystem->addShaderDesciptor(skybox_desc);
+            rendersystem->addShaderDesciptor(p_ani_shadow_desc);
+            rendersystem->addShaderDesciptor(d_ani_shadow_desc);
+            rendersystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
 
             // --------------- create shader ---------------
             auto camera_id = createMaincamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
@@ -288,7 +304,7 @@ public:
 
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
-            transform->scale = {0.1, 0.1, 0.1};
+            transform->scale = {0.005, 0.005, 0.005};
             transform->rotation = {0, 90, 0};
             transform->position = {0, -0.3, 0};
 
@@ -296,11 +312,15 @@ public:
             auto model = obj->emplace<SPW::MeshComponent>(camera_id);
 
             model->bindRenderGraph = pbr_with_PDshadow->graph_id;
-            model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
-            model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
-            model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
+            model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
+            model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
+            model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_ani_light_shadow_desc.uuid;
 
             model->model = createModel();
+            auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
+            animation->skeleton = createSkeleton();
+            animation->swapCurrentAnim("mixamo.com");
+            //animation->swapCurrentAnim("mantis_anim");
 
             // --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
@@ -398,21 +418,6 @@ public:
         // }
     }
     void onAppStopped() final{
-        sol::state state;
-        state.open_libraries(sol::lib::base, sol::lib::package);
-        std::string x = state["package"]["path"];
-        state["package"]["path"] = x + ";./resources/scripts/lua/?.lua";
-        try {
-            if(state.script_file("./resources/scripts/lua/test.lua").valid()) {
-                sol::protected_function main_function=state["main"];
-                sol::protected_function_result result=main_function();
-                if (!result.valid()) {
-                    std::cout << "execution error" << std::endl;
-                }
-            }
-        } catch (sol::error &e) {
-            std::cout << e.what() << std::endl;
-        }
         std::cout << "app stopped" << std::endl;
         scene->onStop();
     }

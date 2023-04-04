@@ -205,9 +205,12 @@ namespace SPW {
                 shader->setVec3(name, camPos);
                 break;
             }
-            case RandomNumber:
+            case RandomNumber: {
                 shader->setFloat(name, float(rand()) / float(RAND_MAX));
-                    break;
+                break;
+            }
+            default:
+                break;
             }
         }
     }
@@ -436,9 +439,17 @@ namespace SPW {
                     }
                 }
                 
+                if (mesh->onDraw) {
+                    RenderCommandsQueue<Shader> queue;
+                    mesh->onDraw(queue);
+                    queue.executeWithAPI(shader);
+                }
+
                 // draw submeshes
                 for (auto &submesh : mesh->model->GetMeshes()) {
                     bindMaterial(shader, shader_desc.mat_inputs, input.backend, submesh->GetMaterial(), slot);
+                    if (shader_desc.context_inputs.find(MeshOffset) != shader_desc.context_inputs.end())
+                        shader->setInt(shader_desc.context_inputs.at(MeshOffset), submesh->offset);
                     submesh->PureDraw(input.backend);
                 }
             }

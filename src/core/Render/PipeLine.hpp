@@ -72,6 +72,8 @@ namespace SPW {
         CameraPosition = 1 << 3,
         // random uniform float
         RandomNumber = 1 << 4,
+        // mesh offset
+        MeshOffset = 1 << 5,
     };
 
     // light uniforms, should be uniform array object

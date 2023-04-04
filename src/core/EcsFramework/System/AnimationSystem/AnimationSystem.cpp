@@ -3,6 +3,7 @@
 //
 
 #include "AnimationSystem.h"
+#include "EcsFramework/Component/MeshComponent.hpp"
 
 
 void SPW::AnimationSystem::initial()
@@ -11,7 +12,7 @@ void SPW::AnimationSystem::initial()
 }
 void SPW::AnimationSystem::beforeUpdate()
 {
-    ComponentGroup<SPW::AnimationComponent,SPW::IDComponent,SPW::ModelComponent> animatedGroup;
+    ComponentGroup<SPW::AnimationComponent,SPW::IDComponent,SPW::MeshComponent> animatedGroup;
     locatedScene.lock()->forEachEntityInGroup
             (animatedGroup,
              [this,&animatedGroup](const Entity &entity)
@@ -20,7 +21,7 @@ void SPW::AnimationSystem::beforeUpdate()
                  AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
                  //Get animationComp and modelComp of this entity
                  auto animationComp = entity.component<SPW::AnimationComponent>();
-                 auto modelComp = entity.component<SPW::ModelComponent>();
+                 auto modelComp = entity.component<SPW::MeshComponent>();
 
                  //Binding buffer
                  if (animationComp->SPW_AnimSSBO)
@@ -39,7 +40,7 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 
     double deltaTime = dt.toSecond();
 
-    ComponentGroup<SPW::AnimationComponent,SPW::IDComponent,SPW::ModelComponent> animatedGroup;
+    ComponentGroup<SPW::AnimationComponent,SPW::IDComponent,SPW::MeshComponent> animatedGroup;
     locatedScene.lock()->forEachEntityInGroup
     (animatedGroup,
      [this,&animatedGroup,deltaTime](const Entity &entity){
@@ -47,7 +48,7 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
          AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
 
          auto animationComp = entity.component<SPW::AnimationComponent>();
-         auto modelComp = entity.component<SPW::ModelComponent>();
+         auto modelComp = entity.component<SPW::MeshComponent>();
 
          if (!animationComp->onGoingAnim.expired())
          {

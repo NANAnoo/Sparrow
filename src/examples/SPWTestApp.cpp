@@ -224,7 +224,6 @@ public:
                 glm::vec3 up = {0, 1, 0};
                 glm::vec3 right = glm::normalize(glm::cross(forward, up));
                 if(keycode == SPW::Key::W)
-<<<<<<< HEAD
                     mainCameraTrans->position +=0.1f * forward;
                 if(keycode == SPW::Key::S)
                     mainCameraTrans->position -=0.1f * forward;
@@ -236,19 +235,6 @@ public:
                     mainCameraTrans->position -=0.1f * up;
                 if(keycode == SPW::Key::E)
                     mainCameraTrans->position +=0.1f * up;
-=======
-                    mainCameraTrans->position +=0.01f * forward;
-                if(keycode == SPW::Key::S)
-                    mainCameraTrans->position -=0.01f * forward;
-                if(keycode == SPW::Key::A)
-                    mainCameraTrans->position -=0.01f * right;
-                if(keycode == SPW::Key::D)
-                    mainCameraTrans->position +=0.01f * right;
-                if(keycode == SPW::Key::Q)
-                    mainCameraTrans->position -=0.01f * up;
-                if(keycode == SPW::Key::E)
-                    mainCameraTrans->position +=0.01f * up;
->>>>>>> main
             };
             auto mouse = camera->emplace<SPW::MouseComponent>();
             mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
@@ -268,11 +254,7 @@ public:
 
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
-<<<<<<< HEAD
             transform->scale = {0.01, 0.01, 0.01};
-=======
-            transform->scale = {0.5, 0.5, 0.5};
->>>>>>> main
             transform->rotation = {0, 90, 0};
             transform->position = {0, -0.3, 0};
 
@@ -300,7 +282,6 @@ public:
             model->modelProgram = shaderHandle;
             model->shadowProgram = ShadowShaderHandle;
             model->model = createModel();
-<<<<<<< HEAD
             auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
             animation->skeleton = createSkeleton();
             animation->swapCurrentAnim("mixamo.com");
@@ -309,7 +290,6 @@ public:
 
             testColor->updateSubData(sColors.data(), 0, sColors.size() * sizeof(glm::vec4));
             model->preRenderCommands.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::initStorageBuffer, testColor));
-=======
             auto cubeObj = scene->createEntity("floor");
             auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
             cubeTrans->scale = {5.0, 0.05, 5.0};
@@ -324,7 +304,6 @@ public:
             cubemodel->modelProgram = CubeshaderHandle;
             cubemodel->shadowProgram = ShadowShaderHandle;
             cubemodel->model = createCubeModel();
->>>>>>> main
 
             // add light 1
             auto light = scene->createEntity("light");

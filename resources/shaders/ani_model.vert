@@ -4,10 +4,16 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aCoords;
 layout(early_fragment_tests) in;
 
+#extension GL_ARB_shading_language_include : require
+
+#include </SkeletonAnimation.glsl>
+
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
 uniform mat4 lightSpaceMatrix[10];
+
+uniform int offset;
 
 out vec2 TexCoords;
 out vec3 normal;
@@ -16,7 +22,8 @@ out vec4 FragPosLightSpace[10];
 
 void main()
 {
-    position = M*vec4(aPos, 1.0);
+    mat4 anim = animationTransFormMat(gl_VertexID + offset);
+    position = M * anim * vec4(aPos, 1.0);
     gl_Position = P*V*position;
     
     TexCoords = aCoords;
