@@ -289,7 +289,6 @@ namespace SPW {
                         for (unsigned int i = 0; i < max_count; i ++) {
                             subPass.attchmentFrameBuffers[i]->bind();
                             renderBackEnd->SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
-                            renderBackEnd->Clear();
                             if (subPass.config.outputType == CubeMapType) {
                                 for (unsigned int face = 0; face < 6; face ++) {
                                     // attach MRT texture
@@ -297,7 +296,7 @@ namespace SPW {
                                     for (unsigned int idx = 0; idx < subPass.attchmentTextures.size(); idx ++) {
                                         auto &texture = subPass.attchmentTextures[idx];
                                         auto format = subPass.config.attachments[idx];
-                                        assert(texture.textureCubeArray == nullptr);
+                                        assert(texture.textureCubeArray != nullptr);
                                         if (format == Depth) {
                                             texture.textureCubeArray->attach(0, i, face);
                                         } else {
@@ -311,12 +310,14 @@ namespace SPW {
                                     if (RepeatForPLights == type) {
                                         position = glm::vec4(pLights[i].position, 1.f);
                                     }
+                                    renderBackEnd->Clear();
                                     renderModelSubPass(
                                         position, glm::vec3(0.f), 
                                         getCubeViewOnFace(position, face), getCubeProjection(), 
                                         shaderModelMap, id, prevID, type, i);
                                 }
                             } else if (subPass.config.outputType == ColorType) {
+                                renderBackEnd->Clear();
                                 // draw per shader dLights[i]
                                 renderModelSubPass(camPos, cam_center, view, proj, shaderModelMap, id, prevID, type, i);
                             } else {

@@ -19,9 +19,14 @@ namespace SPW
     {
     public:
         void Init() override;
+
+        std::shared_ptr<RenderGraph> createRenderGraph() override;
+
         void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
         void SetClearColor(const glm::vec4 color) override;
         void Clear() override;
+        void ClearColor() override;
+        void ClearDepth() override;
         void DrawElement(std::shared_ptr<VertexBufferI>& vertexBuffer , std::shared_ptr<IndexBuffer>& indexBuffer) override;
         //depth
         void DepthTest(bool enable) override;

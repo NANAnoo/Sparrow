@@ -190,10 +190,15 @@ namespace SPW {
         // light uniforms
         std::unordered_map<LightType, std::string> light_inputs;
 
+
+        // TODO : delete this
         // attchment textures uniforms, from previous ModelSubPass
         // previeous attachment must be in [ColorType, CubeMapType]
         std::unordered_map<unsigned int, std::string> previous_attachment_inputs;
+        
 
+        // attach depend model passes
+        
         // MRT output
         AttachmentType outputType;
         std::vector<ColorAttachmentFormat> attachments;

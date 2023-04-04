@@ -32,6 +32,8 @@ namespace SPW
         FXAA
     };
 
+    class RenderGraph;
+
     class RenderBackEndI
     {
     public:
@@ -45,9 +47,13 @@ namespace SPW
             OpenGL,
         };
 
+        virtual std::shared_ptr<RenderGraph> createRenderGraph() = 0;
+
         virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
         virtual void SetClearColor(const glm::vec4 color) = 0;
         virtual void Clear() = 0;
+        virtual void ClearColor() = 0;
+        virtual void ClearDepth() = 0;
         virtual void DrawElement(std::shared_ptr<VertexBufferI>& vertexBuffer ,std::shared_ptr<IndexBuffer>& indexBuffer) = 0;
         //depth
         virtual void DepthTest(bool enable) = 0;

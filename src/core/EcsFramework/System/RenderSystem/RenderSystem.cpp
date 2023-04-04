@@ -102,7 +102,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
     auto transformCom = std::get<2>(camera);
     glm::vec3 camPos = transformCom->position;
 
-    using ShaderModelMap = std::unordered_map<ShaderHandle, std::vector<SPW::Entity>, ShaderHash, ShaderEqual>;
+    using ShaderModelMap = std::unordered_map<ShaderHandle, std::vector<SPW::Entity>, ShaderHash>;
 
     // predefine render objects
     ComponentGroup<SPW::IDComponent,

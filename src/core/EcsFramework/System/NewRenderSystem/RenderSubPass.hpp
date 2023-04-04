@@ -322,13 +322,13 @@ namespace SPW {
                 auto &texture = lastSubPass.attchmentTextures[idx];
                 shader->setInt(name, slot);
                 if (texture.texture) {
-                    slot = texture.texture->bind(slot);
+                    slot = texture.texture->use(slot);
                 } else if (texture.textureArray) {
-                    slot = texture.textureArray->bind(slot);
+                    slot = texture.textureArray->use(slot);
                 } else if (texture.textureCube) {
-                    slot = texture.textureCube->bind(slot);
+                    slot = texture.textureCube->use(slot);
                 } else if (texture.textureCubeArray) {
-                    slot = texture.textureCubeArray->bind(slot);
+                    slot = texture.textureCubeArray->use(slot);
                 }
             }
             
@@ -500,13 +500,13 @@ namespace SPW {
                 auto &texture = lastSubPass.attchmentTextures[idx];
                 shader->setInt(name, slot);
                 if (texture.texture) {
-                    slot = texture.texture->bind(slot);
+                    slot = texture.texture->use(slot);
                 } else if (texture.textureArray) {
-                    slot = texture.textureArray->bind(slot);
+                    slot = texture.textureArray->use(slot);
                 } else if (texture.textureCube) {
-                    slot = texture.textureCube->bind(slot);
+                    slot = texture.textureCube->use(slot);
                 } else if (texture.textureCubeArray) {
-                    slot = texture.textureCubeArray->bind(slot);
+                    slot = texture.textureCubeArray->use(slot);
                 }
             }
 
@@ -536,7 +536,7 @@ namespace SPW {
             for (auto &[idx, name] : config.previous_attachment_inputs) {
                 assert(idx < lastSubPass.attchmentTextures.size());
                 shader->setInt(name, slot);
-                slot = lastSubPass.attchmentTextures[idx]->bind(slot);
+                slot = lastSubPass.attchmentTextures[idx]->use(slot);
             }
 
             return slot;
@@ -552,9 +552,9 @@ namespace SPW {
             for (auto &[type, name] : config.screen_attachment_inputs) {
                 shader->setInt(name, slot);
                 if (type == ScreenColorType) {
-                    slot = screenTexture->bind(slot);
+                    slot = screenTexture->use(slot);
                 } else if (type == ScreenDepthType) {
-                    slot = screenDepthTexture->bind(slot);
+                    slot = screenDepthTexture->use(slot);
                 }
             }
             return slot;

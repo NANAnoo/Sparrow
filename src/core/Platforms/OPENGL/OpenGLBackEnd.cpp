@@ -8,12 +8,15 @@
 #include "OpenGLTextureManager.h"
 #include "OpenGLTexture2D.h"
 #include "OpenGLFrameBuffer.h"
+#include "OpenGLRenderGraph.h"
 #include "OpenGLAttachmentTexture.hpp"
 #include "Render/Material.h"
 #include "IO/FileSystem.h"
 #include <fstream>
 #include <vector>
 #include <unordered_set>
+
+
 float quadVertices[] =
 {
                 // positions   // texCoords
@@ -78,6 +81,20 @@ namespace SPW
     void OpenGLBackEnd::Clear()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    }
+
+    void OpenGLBackEnd::ClearColor()
+    {
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    std::shared_ptr<RenderGraph> OpenGLBackEnd::createRenderGraph() {
+        return std::make_shared<OpenGLRenderGraph>();
+    }
+
+    void OpenGLBackEnd::ClearDepth()
+    {
+        glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
     void OpenGLBackEnd::DrawElement(std::shared_ptr<VertexBufferI> &vertexBuffer,

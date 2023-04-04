@@ -14,4 +14,6 @@ CORE_ADD_SOURCE(
         OpenGLFrameBuffer.cpp
         OpenGLCubeMap.h
         OpenGLAttachmentTexture.hpp
+        OpenGLRenderGraph.cpp
+        OpenGLRenderGraph.h
 )

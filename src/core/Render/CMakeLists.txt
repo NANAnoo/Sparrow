@@ -15,4 +15,5 @@ CORE_ADD_SOURCE(
         Light.h
         Pipeline.hpp
         AttachmentTexture.h
+        RenderGraph.hpp
 )

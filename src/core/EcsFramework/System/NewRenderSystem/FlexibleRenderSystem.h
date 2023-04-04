@@ -101,7 +101,7 @@ namespace SPW {
         const char *getName() override {return "SPW_RENDER_SYSTEM";}
         bool onFrameResize(int w, int h) override;
     private:
-        using ShaderModelMap = std::unordered_map<ShaderHandle, std::vector<SPW::Entity>, ShaderHash, ShaderEqual>;
+        using ShaderModelMap = std::unordered_map<ShaderHandle, std::vector<SPW::Entity>, ShaderHash>;
         void renderModelSubPasses(
             const glm::vec4 &camPos, const glm::vec3 &cam_center,
             const glm::mat4x4 &V, const glm::mat4x4 &P, 

@@ -100,7 +100,7 @@ namespace SPW {
                 }
             }
             // bind to slot in shader
-            unsigned int bind(unsigned int slot) override
+            unsigned int use(unsigned int slot) override
             {
                 glActiveTexture(GL_TEXTURE0 + slot);
                 glBindTexture(GL_TEXTURE_2D, m_textureID);
@@ -159,7 +159,7 @@ namespace SPW {
                 }
             }
 
-            unsigned int bind(unsigned int slot) override
+            unsigned int use(unsigned int slot) override
             {
                 glActiveTexture(GL_TEXTURE0 + slot);
                 glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureID);
@@ -219,7 +219,7 @@ namespace SPW {
                 }
             }
 
-            unsigned int bind(unsigned int slot) override
+            unsigned int use(unsigned int slot) override
             {
                 glActiveTexture(GL_TEXTURE0 + slot);
                 glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
@@ -253,7 +253,7 @@ namespace SPW {
                 glGenTextures(1, &m_textureID);
                 glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_textureID);
                 //glTexStorage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 1, formatType, width, height, count * 6);
-                glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, formatType, width, height, count,  0, formatType == GL_DEPTH_COMPONENT24 ? GL_DEPTH_COMPONENT: formatType, dataType, nullptr);
+                glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, formatType, width, height, count * 6,  0, formatType == GL_DEPTH_COMPONENT24 ? GL_DEPTH_COMPONENT: formatType, dataType, nullptr);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -277,7 +277,7 @@ namespace SPW {
                 }
             }
 
-            unsigned int bind(unsigned int slot) override
+            unsigned int use(unsigned int slot) override
             {
                 glActiveTexture(GL_TEXTURE0 + slot);
                 glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_textureID);

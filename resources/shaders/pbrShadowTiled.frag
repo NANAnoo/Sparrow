@@ -12,13 +12,8 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D normalMap;
 uniform sampler2D AoMap;
+uniform samplerCubeArray P_shadowMap;
 uniform sampler2DArray shadowMap;
-
-// parameters of Blinn phong
-uniform float diffusion;
-uniform float shininess;
-uniform float lambertin;
-uniform float specularPower;
 
 uniform vec3 camPos;
 
@@ -26,7 +21,6 @@ uniform DLight DLights[10];
 uniform int DLightCount;
 uniform PLight PLights[10];
 uniform int PLightCount;
-
 
 in vec2 TexCoords;
 in vec3 normal;
@@ -37,6 +31,23 @@ in vec4 FragPosLightSpace[10];
 #define NUM_RINGS 15
 vec2 poissonDisk[NUM_SAMPLES];
 #include</shadow.glsl>
+
+float ShadowCalculation(int slot)
+{
+    // get vector between fragment position and light position
+    vec3 fragToLight = vec3(position) - PLights[slot].position;
+    // use the light to fragment vector to sample from the depth map    
+    float closestDepth = texture(P_shadowMap, vec4(fragToLight,float(slot))).r;
+    // it is currently in linear range between [0,1]. Re-transform back to original value
+    closestDepth *= 100.f;
+    // now get current linear depth as the length between the fragment and light position
+    float currentDepth = length(fragToLight);
+    // now test for shadows
+    float bias = 0.0001; 
+    float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+} 
 
 vec2 tiledTexCoords(int level) {
     vec2 texCoords = TexCoords;
@@ -78,7 +89,8 @@ vec3 PBR(vec3 N){
     vec3 V = normalize(camPos - position.xyz);
 
     for (int i = 0; i < PLightCount && i < 10; i ++) {
-        BP_scale += PBR_P(albedo,metallic,roughness,ao,N,V,vec3(position),camPos,PLights[i]);
+        float shadow = ShadowCalculation(i);
+        BP_scale += PBR_P(albedo,metallic,roughness,ao,N,V,vec3(position),camPos,PLights[i], shadow);
     }
 
     for (int i = 0; i < DLightCount && i < 10; i ++) {
