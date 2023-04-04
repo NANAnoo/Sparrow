@@ -221,8 +221,8 @@ public:
             auto pbr_with_PDshadow = rendersystem->createRenderGraph();
 
             auto p_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::CubeMapType, SPW::RepeatForPLights, 10);
-            p_shadowmap_node->width = 1024;
-            p_shadowmap_node->height = 1024;
+            p_shadowmap_node->width = 256;
+            p_shadowmap_node->height = 256;
             p_shadowmap_node->clearType = SPW::ClearDepth;
 
 
