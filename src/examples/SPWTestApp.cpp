@@ -69,13 +69,13 @@ std::shared_ptr<SPW::Model> createModel() {
      * 2. 骨骼父子关系按照aibone in assimp 的方式读， aibone在一个mesh里面，导致读出来的骨骼根节点，是当前mesh的根节点。
      * 3. weight关系（已在沙盒实现vertex[BoneSlot<4>, weight<4>]映射关系）。
      * */
-  auto animInstance = SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/mantis/scene.gltf");
+  auto animInstance = SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/Standing 2H Magic Attack 01.fbx");
 
-  return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
+  return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/Standing 2H Magic Attack 01.fbx");
 }
 
 std::shared_ptr<SPW::Skeleton> createSkeleton() {
-    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/mantis/scene.gltf");
+    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/Standing 2H Magic Attack 01.fbx");
 }
 
 // test usage
@@ -295,7 +295,7 @@ public:
             model->model = createModel();
             auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
             animation->skeleton = createSkeleton();
-            animation->swapCurrentAnim("mantis_anim");
+            animation->swapCurrentAnim("mixamo.com");
             //animation->incomingAnimName = "mantis_anim";
             //animation->currentAnimation = animation->skeleton->m_animClips[0];
 

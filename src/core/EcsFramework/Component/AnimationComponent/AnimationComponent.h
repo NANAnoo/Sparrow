@@ -380,12 +380,14 @@ namespace SPW {
 
         void updateDynamicBuffer(std::weak_ptr<SPW::SPWAnimation> onGoingAnim)
         {
-            mats->updateSubData(
-                    onGoingAnim.lock()->finalBoneMatrices.data(),
-                    0,
-                    onGoingAnim.lock()->finalBoneMatrices.size() * sizeof(glm::mat4)
-            );
-
+            if (!onGoingAnim.expired())
+            {
+                mats->updateSubData(
+                        onGoingAnim.lock()->finalBoneMatrices.data(),
+                        0,
+                        onGoingAnim.lock()->finalBoneMatrices.size() * sizeof(glm::mat4)
+                );
+            }
         }
 
         void bindingBuffer(ModelComponent* modelComponent)

@@ -222,6 +222,7 @@ namespace SPW
 
 			for (unsigned int j = 0; j < face.mNumIndices; j++)
 				tmp->indices.emplace_back(face.mIndices[j]);
+
 	    }
 
     	//TODO: Deal with Materials
@@ -233,9 +234,14 @@ namespace SPW
 	[[nodiscard]] std::vector<std::shared_ptr<Mesh>> ProcessNodes(aiNode* node, const aiScene* scene)
 	{
 		std::vector<std::shared_ptr<Mesh>> meshes;
+        int formerSize = 0;
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+//            if (meshes.size() > 0)
+//            {
+//                formerSize = meshes[i-1]->vertices.size();
+//            }
 			meshes.emplace_back(std::move(ProcessMeshNode(mesh, scene)));
 		}
 
