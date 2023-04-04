@@ -358,7 +358,6 @@ namespace SPW
         glDepthFunc(GL_LESS);
     }
 
-<<<<<<< HEAD
     void OpenGLBackEnd::initStorageBuffer(std::shared_ptr<StorageBuffer> ub) {
         auto ubo = std::make_shared<OpenGLSSBO>();
         ubo->alloc(ub->bufferSize);
@@ -366,7 +365,6 @@ namespace SPW
         ub->ssbo = ubo;
         ub->flush();
     }
-=======
     void OpenGLBackEnd::drawInQuad() {
         glBindVertexArray(quadVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -393,5 +391,4 @@ namespace SPW
         return std::make_shared<OpenGLAttachmentTextureCubeArray>();
     }
 
->>>>>>> main
 }

@@ -381,6 +381,7 @@ namespace SPW
             if(bone->name == name)
                 return bone->boneID;
         }
+		return 0;
     }
 
 

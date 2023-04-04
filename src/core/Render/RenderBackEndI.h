@@ -70,14 +70,11 @@ namespace SPW
         virtual void SetSkyBox(std::vector<std::string>& faces)=0;
         virtual void drawSkyBox(glm::mat4& V,glm::mat4& P)=0;
 
-<<<<<<< HEAD
         // uniform buffer
         virtual void initStorageBuffer(std::shared_ptr<StorageBuffer> ubo) = 0;
-=======
         // bind texture at slot with a file path
         virtual void BindImageTex(std::string path, int slot) = 0;
         virtual void BindCubeMap(std::vector<std::string> paths, int slot) = 0;
->>>>>>> main
 
         //frambuffer
         virtual std::shared_ptr<FrameBuffer> createFrameBuffer()=0;

@@ -21,14 +21,10 @@ out vec4 FragPosLightSpace[10];
 void main()
 {
     vec4 position = vec4(aPos, 1.0);
+
+    position = M * position;
     //position = M*animationTransForm(position, gl_VertexID);
-
-    vec4 totalPosition = vec4(0.0f);
-    totalPosition = animationTransForm(position, gl_VertexID);
-
-    mat4 viewModel = V * M;
-
-    gl_Position = P * viewModel * totalPosition;
+    gl_Position = P * V * position;
     
     TexCoords = aCoords;
     normal = transpose(inverse(mat3(M))) * aNormal;
