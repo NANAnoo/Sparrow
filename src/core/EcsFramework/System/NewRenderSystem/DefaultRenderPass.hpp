@@ -5,6 +5,8 @@
 namespace SPW {
     static ShaderDesc FXAA_desc(const AttachmentPort &port) {
         ShaderDesc res{};
+        res.context_inputs[ContextType::FrameWidth] = "screen_width";
+        res.context_inputs[ContextType::FrameHeight] = "screen_height";
         res.shader = ShaderHandle(
             "FXAA", 
             "./resources/shaders/screen.vert",
@@ -72,6 +74,41 @@ namespace SPW {
         res.shader = shader;
 
         return res;
+    }
+
+    static ShaderDesc SkyBoxShader_desc() {
+        ShaderDesc res{};
+
+        res.transform_inputs[TransformType::VP] = "VP";
+
+        res.mat_inputs[MaterialType::CubeTextureType] = "skybox";
+        res.context_inputs[ContextType::CameraPosition] = "camPos";
+
+        res.shader = {
+            "SkyBox",
+            "./resources/shaders/skybox.vert",
+            "./resources/shaders/skybox.frag"
+        };
+        return res;
+    }
+
+    static std::shared_ptr<Model> createSkyBoxModel(const std::vector<std::string> &faces) {
+        auto mesh = std::make_shared<Mesh>();
+        mesh->mMaterial = std::make_shared<Material>();
+        mesh->mMaterial->cubeMapTextures = faces;
+        // push 8 vertices on cube
+        mesh->vertices.emplace_back(Vertex{glm::vec3(1.0f,  1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(1.0f,  1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(-1.0f,  1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(-1.0f,  1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(1.0f,  -1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(1.0f,  -1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(-1.0f,  -1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(-1.0f,  -1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->indices = {0, 3, 4, 3, 7, 4, 3, 2, 7, 2, 6, 7, 2, 1, 6, 1, 5, 6, 1, 0, 5, 0, 4, 5, 0, 1, 2, 0, 2, 3, 4, 7, 6, 4, 6, 5};
+
+        auto model = std::make_shared<Model>( std::vector<std::shared_ptr<Mesh>>{mesh});
+        return model;
     }
 
 }

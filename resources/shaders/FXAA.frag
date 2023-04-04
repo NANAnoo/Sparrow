@@ -4,6 +4,8 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D screenTexture;
+uniform float screen_width;
+uniform float screen_height;
 
 // Settings for FXAA
 #define EDGE_THRESHOLD_MIN 0.0312
@@ -16,10 +18,10 @@ float rgb2luma(vec3 rgb){
 	return sqrt(dot(rgb, vec3(0.299, 0.587, 0.114)));
 }
 
-vec2 inverseScreenSize = vec2(1.0/3840.0,1.0/2160.0);
 
 void main()
 {
+	vec2 inverseScreenSize = vec2(1.0/screen_width,1.0/screen_height);
     vec3 colorCenter = texture(screenTexture, TexCoords).rgb;
     // Luma at the current fragment
     float lumaCenter = rgb2luma(colorCenter);

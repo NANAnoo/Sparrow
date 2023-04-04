@@ -118,12 +118,6 @@ namespace SPW {
 
         // screen depth buffer
         ScreenDepthType = 1 << 2,
-
-        // screen all types
-        ScreenAllType = ScreenColorType | ScreenDepthType,
-
-        // present to screen
-        PresentType = 1 << 3,
     };
 
     // color attachment format
