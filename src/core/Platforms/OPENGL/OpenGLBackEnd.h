@@ -10,6 +10,7 @@
 #include "OpenGLVertexBuffer.h"
 #include "OpenGLShader.h"
 #include "OpenGLCubeMap.h"
+#include "OpenGLAttachmentTexture.hpp"
 namespace SPW
 {
 
@@ -18,9 +19,14 @@ namespace SPW
     {
     public:
         void Init() override;
+
+        std::shared_ptr<RenderGraph> createRenderGraph() override;
+
         void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
         void SetClearColor(const glm::vec4 color) override;
         void Clear() override;
+        void ClearColor() override;
+        void ClearDepth() override;
         void DrawElement(std::shared_ptr<VertexBufferI>& vertexBuffer , std::shared_ptr<IndexBuffer>& indexBuffer) override;
         //depth
         void DepthTest(bool enable) override;
@@ -36,6 +42,8 @@ namespace SPW
         void InitSkyBox() final;
         void SetSkyBox(std::vector<std::string>& faces) final;
         void drawSkyBox(glm::mat4& V,glm::mat4& P) final;
+        void BindImageTex(std::string path, int slot) final;
+        void BindCubeMap(std::vector<std::string> paths, int slot) final;
 
         // uniform buffer
         void initStorageBuffer(std::shared_ptr<StorageBuffer> ub) final;
@@ -59,8 +67,19 @@ namespace SPW
             return std::make_shared<OpenGLShader>(handle);
         }
 
+        std::shared_ptr<FrameBuffer> createFrameBuffer() final;
         std::shared_ptr<FrameBuffer> creatSenceFrameBuffer() final;
+        void creatShadowFrameBuffer(unsigned int num) final;
+        void setUpShadowArray(unsigned  int num) final;
         void drawInTexture(SPW::PostProcessingEffects effect = SPW::PostProcessingEffects::None) final;
+
+        void drawInQuad() final;
+
+        // attachment tetxures
+        std::shared_ptr<AttachmentTexture> createAttachmentTexture() final;
+        std::shared_ptr<AttachmentTextureArray> createAttachmentTextureArray() final;
+        std::shared_ptr<AttachmentTextureCube> createAttachmentTextureCube() final;
+        std::shared_ptr<AttachmentTextureCubeArray> createAttachmentTextureCubeArray() final;
     private:
         
         unsigned int quadVAO, quadVBO;

@@ -11,10 +11,13 @@ layout (location = 2) in vec2 aCoords;
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
+uniform mat4 lightSpaceMatrix[10];
 
 out vec2 TexCoords;
 out vec3 normal;
 out vec4 position;
+out vec4 FragPosLightSpace[10];
+
 void main()
 {
     vec4 position = vec4(aPos, 1.0);
@@ -28,5 +31,9 @@ void main()
     gl_Position = P * viewModel * totalPosition;
     
     TexCoords = aCoords;
-    normal = mat3(transpose(inverse(M))) * aNormal;
+    normal = transpose(inverse(mat3(M))) * aNormal;
+    for(int i = 0; i<10; i++)
+    {
+        FragPosLightSpace[i] = lightSpaceMatrix[i] * position;
+    }
 }

@@ -164,6 +164,18 @@ namespace SPW
     {
         buffer->flush();
         auto ubo = std::dynamic_pointer_cast<OpenGLSSBO>(buffer->ssbo);
+    void OpenGLShader::bindTex2D(unsigned int slot, unsigned int texid) const
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D,texid);
+    }
+
+    void OpenGLShader::bindTexArray(unsigned int slot, unsigned int texid) const
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D_ARRAY,texid);
+
+    }
 
         GLuint idx = glGetProgramResourceIndex(ID, GL_SHADER_STORAGE_BLOCK, buffer->name.c_str());
         glShaderStorageBlockBinding(ID, idx, buffer->slot);

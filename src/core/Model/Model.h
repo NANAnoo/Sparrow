@@ -84,6 +84,7 @@ namespace SPW
             }
         }
 
+
         void setUpModel(std::shared_ptr<RenderBackEndI> &renderBackEnd) {
             for (auto& mesh : m_Meshes)
                 mesh->setupMesh(renderBackEnd);
@@ -93,6 +94,11 @@ namespace SPW
         {
             m_FilePath = filePath;
             m_Directory = filePath.parent_path();
+        }
+
+        std::string getFilePath() const
+        {
+            return m_FilePath.string();
         }
 
     private:

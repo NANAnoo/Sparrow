@@ -31,7 +31,7 @@ namespace SPW {
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwSetErrorCallback(glfw_error_callback);
         }
-        window = glfwCreateWindow(meta.width, meta.height, meta.title, nullptr, nullptr);
+        window = glfwCreateWindow(meta.width, meta.height, meta.title.c_str(), nullptr, nullptr);
 
         if (window) {
             glfwGetFramebufferSize(window, &fWidth, &fHeight);

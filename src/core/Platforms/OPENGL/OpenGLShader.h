@@ -36,6 +36,8 @@ namespace SPW
         void setDLight(unsigned int idx, const DLight &light) const final;
         void setPLight(unsigned int idx, const PLight &light) const final;
         void setStorageBuffer(std::shared_ptr<StorageBuffer> buffer) final;
+        void bindTex2D(unsigned int slot,unsigned int texid) const final;
+        void bindTexArray(unsigned int slot,unsigned int texid) const final;
     public:
         unsigned int ID;
         std::string m_name;

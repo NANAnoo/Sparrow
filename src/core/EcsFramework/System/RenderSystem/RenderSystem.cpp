@@ -4,9 +4,10 @@
 
 #include "RenderSystem.h"
 #include "EcsFramework/Component/ComponentI.h"
+#include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
+#include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/ModelComponent.h"
-#include "EcsFramework/Component/LightComponent.hpp"
 #include "glm/fwd.hpp"
 #include "Render/Light.h"
 
@@ -17,6 +18,7 @@
 
 void SPW::RenderSystem::initial()
 {
+
     renderBackEnd->Init();
     renderBackEnd->loadShaderLib("./resources/shaders/baselib");
 
@@ -32,20 +34,20 @@ void SPW::RenderSystem::initial()
         "resources/texture/skybox/back.jpg"
     };
     renderBackEnd->SetSkyBox(faces);
+    renderBackEnd->creatShadowFrameBuffer(10);
+    renderBackEnd->setUpShadowArray(10);
+    for(int i = 0; i < 10; i++)
+    {
+        renderBackEnd->shadowFrameBuffers[i]->genFrameBuffer();
+        renderBackEnd->shadowFrameBuffers[i]->bind();
+        renderBackEnd->shadowFrameBuffers[i]->AttachDepthTexture3D(renderBackEnd->depthTextureArray,i);
+        renderBackEnd->shadowFrameBuffers[i]->unbind();
+    }
 
 }
 
 void SPW::RenderSystem::beforeUpdate() {
     // clear buffer
-
-    frameBuffer->bind();
-    renderBackEnd->DepthTest(true);
-
-    //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    renderBackEnd->SetClearColor(glm::vec4(0.5));
-    renderBackEnd->Clear();
 }
 
 void SPW::RenderSystem::onUpdate(SPW::TimeDuration dt) {
@@ -54,15 +56,12 @@ void SPW::RenderSystem::onUpdate(SPW::TimeDuration dt) {
 
 void SPW::RenderSystem::afterUpdate(){
     // get all normal cameras and UI cameras
+
     RenderCamera uiCamera;
 
     ComponentGroup<SPW::IDComponent,
         SPW::CameraComponent,
         SPW::TransformComponent> cameraGroup;
-
-    ComponentGroup<SPW::IDComponent, 
-                    SPW::TransformComponent, 
-                    SPW::LightComponent> lightGroup;
 
     glm::mat4 V,P;
     locatedScene.lock()->forEachEntityInGroup(cameraGroup,
@@ -81,7 +80,7 @@ void SPW::RenderSystem::afterUpdate(){
 
     frameBuffer->unbind();
 
-    // RenderPass n-1, PostProcessing
+    //RenderPass n-1, PostProcessing
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::DepthTest, false));
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::SetClearColor,glm::vec4(0.5)));
     postProcessPass.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::Clear));
@@ -93,8 +92,10 @@ void SPW::RenderSystem::afterUpdate(){
 }
 
 
-void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::mat4& View,glm::mat4& Pro) {
-    if (std::get<0>(camera) == nullptr) {
+void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::mat4& View,glm::mat4& Pro)
+{
+    if (std::get<0>(camera) == nullptr)
+    {
         return;
     }
     UUID currentID = std::get<0>(camera)->getID();
@@ -102,7 +103,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
     auto transformCom = std::get<2>(camera);
     glm::vec3 camPos = transformCom->position;
 
-    using ShaderModelMap = std::unordered_map<ShaderHandle, std::vector<SPW::Entity>, ShaderHash, ShaderEqual>;
+    using ShaderModelMap = std::unordered_map<ShaderHandle, std::vector<SPW::Entity>, ShaderHash>;
 
     // predefine render objects
     ComponentGroup<SPW::IDComponent,
@@ -117,7 +118,8 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
             auto modelCom = en.component<SPW::ModelComponent>();
             // passing data to GPU
             if (modelCom->bindCameras.find(currentID) != modelCom->bindCameras.end()) {
-                if (!modelCom->ready) {
+                if (!modelCom->ready)
+                {
                     modelCom->model->setUpModel(renderBackEnd);
                     modelCom->ready = true;
                 }
@@ -125,18 +127,17 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 renderModels.push_back(en);
             }
     });
-
     // 2. calculate VP from camera
     glm::mat4x4 V, P;
-    glm::mat4x4 cameraTransform = glm::mat4(1.0f);
-    cameraTransform = glm::translate(cameraTransform, transformCom->position);
+    glm::mat4x4 cameraTransform = glm::translate(glm::mat4(1.f), transformCom->position);
     cameraTransform = cameraTransform * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
-                       glm::radians(transformCom->rotation.x),
-                       glm::radians(transformCom->rotation.z));
+                        glm::radians(transformCom->rotation.x),
+                        glm::radians(transformCom->rotation.z));
 
-    glm::vec4 eye(0, 0, 1, 1), look_at(0, 0, 0, 1), up(0, 1, 0, 0);
+    glm::vec4 eye(0, 0, 0, 1), look_at(0, 0, -1, 1), up(0, 1, 0, 0);
+    glm::vec3 cam_center = cameraTransform *look_at;
     V = glm::lookAt(glm::vec3(cameraTransform * eye),
-                    glm::vec3(cameraTransform *look_at),
+                    cam_center,
                     glm::vec3(cameraTransform * up));
     if (cameraCom->getType() == SPW::PerspectiveType) {
         P = glm::perspective(glm::radians(cameraCom->fov),
@@ -149,37 +150,10 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                        cameraCom->bottom, cameraCom->top, cameraCom->near, cameraCom->far);
     }
 
-    // get lights from scene
-    ComponentGroup<SPW::IDComponent,
-        SPW::LightComponent,
-        SPW::TransformComponent> lightGroup;
+    // 3. get all lights
     std::vector<PLight> pLights;
     std::vector<DLight> dLights;
-    locatedScene.lock()->forEachEntityInGroup(lightGroup, [&lightGroup, &pLights, &dLights](const Entity &en){
-        auto [id, light, trans] = en.combinedInGroup(lightGroup);
-        if (light->getType() == PointLightType) {
-            PLight pl = {};
-            pl.position = trans->position;
-            pl.ambient = light->ambient;
-            pl.diffuse = light->diffuse;
-            pl.specular = light->specular;
-            pl.constant = light->constant;
-            pl.linear = light->linear;
-            pl.quadratic = light->quadratic;
-            pLights.push_back(pl);
-        } else {
-            glm::vec4 dir = {0, 0, -1, 0};
-            auto rotMat = glm::eulerAngleXYZ(glm::radians(trans->rotation.x),
-                       glm::radians(trans->rotation.y),
-                       glm::radians(trans->rotation.z));
-            DLight dl = {};
-            dl.direction = dir * rotMat;
-            dl.ambient = light->ambient;
-            dl.diffuse = light->diffuse;
-            dl.specular = light->specular;
-            dLights.push_back(dl);
-        }
-    });
+    findAllLights(pLights,dLights);
     
     if(cameraCom->whetherMainCam)
     {
@@ -189,9 +163,10 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
 
     // RenderPass 1, shadow
     // sort models with program, build a map with shadow_program -> models[]
-    auto renderPass = [this, &renderModels, &V, &P, &camPos, &pLights, &dLights](bool isShadow){
+    auto renderPass = [this, &renderModels, &V, &P, &camPos, &pLights, &dLights, &cam_center](bool isShadow){
         ShaderModelMap programModelMap;
-        for (auto &en : renderModels) {
+        for (auto &en : renderModels)
+        {
             // get program that used in shadow rendering
             auto program =
                 isShadow ? en.component<SPW::ModelComponent>()->shadowProgram :
@@ -202,50 +177,172 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 programModelMap[program].push_back(en);
             }
         }
+        if(isShadow)
+        {
+            for (auto [handle, entities] : programModelMap)
+            {
+                auto shader = renderBackEnd->getShader(handle);
+                shader->Bind();
+                // bind light
+                for (unsigned int i = 0; i < pLights.size(); i++) {
+                    auto pl = pLights[i];
+                    shader->setPLight(i, pl);
+                }
+                for (unsigned int i = 0; i < dLights.size(); i++) {
+                    auto dl = dLights[i];
+                    shader->setDLight(i, dl);
+                }
 
-        // for each program, draw every model
-        for (auto [handle, entities] : programModelMap) {
-            auto shader = renderBackEnd->getShader(handle);
-            shader->Bind();
-            shader->SetUniformValue<glm::vec3>("camPos", camPos);
-            shader->SetUniformValue<glm::mat4>("V", V);
-            shader->SetUniformValue<glm::mat4>("P", P);
-            // bind light
-            for (unsigned int i = 0; i < pLights.size(); i++) {
-                auto pl = pLights[i];
-                shader->setPLight(i, pl);
-            }
-            for (unsigned int i = 0; i < dLights.size(); i++) {
-                auto dl = dLights[i];
-                shader->setDLight(i, dl);
-            }
-            shader->SetUniformValue("PLightCount", int(pLights.size()));
-            shader->SetUniformValue("DLightCount", int(dLights.size()));
-            // render every model in this shader
-            for (auto &model : entities) {
-                auto modelCom = model.component<ModelComponent>();
-                auto transformCom = model.component<TransformComponent>();
+                for(int i = 0; i < dLights.size(); i++)
+                {
+                    renderBackEnd->shadowFrameBuffers[i]->bind();
+                    glm::vec3 lightPos = cam_center -dLights[i].direction*5.0f;
+                    glm::mat4 lightProjection, lightView;
+                    glm::mat4 lightSpaceMatrix;
+                    float near_plane = 1.0f, far_plane = 10.5f;
+                    lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+                    lightView = glm::lookAt(lightPos, cam_center, glm::vec3(0.0, 1.0, 0.0));
+                    lightSpaceMatrix = lightProjection * lightView;
+                    shader->SetUniformValue<glm::mat4> ("lightSpaceMatrix", lightSpaceMatrix);
+                    renderBackEnd->SetViewport(0,0,FrameBuffer::SHADOW_WIDTH, FrameBuffer::SHADOW_HEIGHT);
+                    renderBackEnd->shadowFrameBuffers[i]->bind();
+                    renderBackEnd->Clear();
+                    // render every model in this shader
+                    for (auto &model : entities)
+                    {
+                        auto modelCom = model.component<ModelComponent>();
+                        auto transformCom = model.component<TransformComponent>();
 
-                glm::mat4 M = glm::mat4(1.0f);
-                M = glm::translate(M,transformCom->position);
-                M = M * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
-                                      glm::radians(transformCom->rotation.x),
-                                      glm::radians(transformCom->rotation.z));
-                M = glm::scale(M, transformCom->scale);
+                        glm::mat4 M = glm::mat4(1.0f);
+                        M = glm::translate(M,transformCom->position);
+                        M = M * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
+                                                   glm::radians(transformCom->rotation.x),
+                                                   glm::radians(transformCom->rotation.z));
+                        M = glm::scale(M, transformCom->scale);
 
-                shader->SetUniformValue<glm::mat4>("M", M);
-                modelCom->pipeLineCommands.executeWithAPI(shader);
-                modelCom->model->Draw(renderBackEnd, handle);
+                        shader->SetUniformValue<glm::mat4>("M", M);
+                        modelCom->pipeLineCommands.executeWithAPI(shader);
+                        modelCom->model->Draw(renderBackEnd, handle);
+                        shader->SetUniformValue<glm::mat4>("M", M);
+                        modelCom->model->Draw(renderBackEnd, handle);
+                    }
+                    renderBackEnd->shadowFrameBuffers[i]->unbind();
+                    // reset viewport
+                    renderBackEnd->SetViewport(0,0,width, height);
+                    renderBackEnd->Clear();
+                }
             }
         }
+        else
+        {
+            frameBuffer->bind();
+            renderBackEnd->DepthTest(true);
+            renderBackEnd->SetClearColor(glm::vec4(0.5));
+            renderBackEnd->Clear();
+            for (auto [handle, entities] : programModelMap)
+            {
+                auto shader = renderBackEnd->getShader(handle);
+                shader->Bind();
+                shader->SetUniformValue<glm::vec3>("camPos", camPos);
+                shader->SetUniformValue<glm::mat4>("V", V);
+                shader->SetUniformValue<glm::mat4>("P", P);
+                float randvalue = float(rand()) / RAND_MAX;
+                shader->SetUniformValue<float>("RandomSeed", randvalue);
+                // bind light
+                for (unsigned int i = 0; i < pLights.size(); i++) {
+                    auto pl = pLights[i];
+                    shader->setPLight(i, pl);
+                }
+                for (unsigned int i = 0; i < dLights.size(); i++) {
+                    auto dl = dLights[i];
+                    shader->setDLight(i, dl);
+                }
 
+                for(int i = 0; i< dLights.size(); i++)
+                {
+                    glm::vec3 lightPos = cam_center-dLights[i].direction*5.0f;
+
+                    glm::mat4 lightProjection, lightView;
+                    glm::mat4 lightSpaceMatrix;
+
+                    float near_plane = 1.0f, far_plane = 10.5f;
+                    lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+                    lightView = glm::lookAt(lightPos, cam_center, glm::vec3(0.0, 1.0, 0.0));
+                    lightSpaceMatrix = lightProjection * lightView;
+                    shader->SetUniformValue<glm::mat4> ("lightSpaceMatrix["+std::to_string(i)+"]", lightSpaceMatrix);
+                    
+
+                }
+                shader->bindTexArray(5,renderBackEnd->depthTextureArray);
+                shader->setInt("shadowMap",5);
+                shader->SetUniformValue("PLightCount", int(pLights.size()));
+                shader->SetUniformValue("DLightCount", int(dLights.size()));
+                // render every model in this shader
+                for (auto &model : entities)
+                {
+                    auto modelCom = model.component<ModelComponent>();
+                    auto transformCom = model.component<TransformComponent>();
+
+                    glm::mat4 M = glm::mat4(1.0f);
+                    M = glm::translate(M,transformCom->position);
+                    M = M * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
+                                               glm::radians(transformCom->rotation.x),
+                                               glm::radians(transformCom->rotation.z));
+                    M = glm::scale(M, transformCom->scale);
+
+                    shader->SetUniformValue<glm::mat4>("M", M);
+                    modelCom->model->Draw(renderBackEnd, handle);
+                }
+            }
+        }
     };
 
     // shadow pass
+    frameBuffer->bind();
+    renderBackEnd->DepthTest(true);
+    renderBackEnd->SetClearColor(glm::vec4(0.5));
+    renderBackEnd->Clear();
     renderPass(true);
-
     // model pass
     renderPass(false);
+}
+
+void SPW::RenderSystem::findAllLights(std::vector<PLight> &pLights, std::vector<DLight> &dLights)
+{
+    // get directional lights
+    ComponentGroup<SPW::IDComponent,
+        SPW::DirectionalLightComponent,
+        SPW::TransformComponent> lightGroup;
+    locatedScene.lock()->forEachEntityInGroup(lightGroup, [&lightGroup, &pLights, &dLights](const Entity &en){
+        auto [id, light, trans] = en.combinedInGroup(lightGroup);
+        glm::vec4 dir = {0, 0, -1, 0};
+        auto rotMat = glm::eulerAngleXYZ(glm::radians(trans->rotation.x),
+                    glm::radians(trans->rotation.y),
+                    glm::radians(trans->rotation.z));
+        DLight dl = {};
+        dl.direction = dir * rotMat;
+        dl.ambient = light->ambient;
+        dl.diffuse = light->diffuse;
+        dl.specular = light->specular;
+        dLights.push_back(dl);
+    });
+
+    // get point lights
+    ComponentGroup<SPW::IDComponent,
+        SPW::PointLightComponent,
+        SPW::TransformComponent> pointLightGroup;
+    locatedScene.lock()->forEachEntityInGroup(pointLightGroup, [&pointLightGroup, &pLights](const Entity &en) {
+        auto [id, light, trans] = en.combinedInGroup(pointLightGroup);
+        PLight pl = {};
+        pl.position = trans->position;
+        pl.ambient = light->ambient;
+        pl.diffuse = light->diffuse;
+        pl.specular = light->specular;
+        pl.constant = light->constant;
+        pl.linear = light->linear;
+        pl.quadratic = light->quadratic;
+        pLights.push_back(pl);
+    });
 }
 
 void SPW::RenderSystem::onStop() {
@@ -255,6 +352,8 @@ void SPW::RenderSystem::onStop() {
 bool SPW::RenderSystem::onFrameResize(int w, int h) {
     std::cout << "RenderSystem frame changed" << std::endl;
     // update frame buffer here
+    width = w;
+    height = h;
     frameBuffer->deleteFrameBuffer();
     frameBuffer->genFrameBuffer();
     frameBuffer->bind();
