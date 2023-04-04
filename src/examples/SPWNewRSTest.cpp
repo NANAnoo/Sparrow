@@ -242,6 +242,13 @@ public:
             auto pbr_shadow_lighting_output = pbr_shadow_lighting_node->addScreenAttachment(SPW::ScreenColorType);
             // ------ create main render graph ----------------
 
+            // ------ create render graph for skybox ----------------
+            auto skyGraph = rendersystem->createRenderGraph();
+            auto skyNode = skyGraph->createRenderNode<SPW::ModelToScreenNode>();
+            skyNode->addScreenAttachment(SPW::ScreenColorType);
+            skyNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
+            // ------ create render graph for skybox ----------------
+
             // ------ create post processing graph --------------
             auto post_processing_pass = rendersystem->createRenderGraph();
             SPW::AttachmentPort screen_color_port = {SPW::SCREEN_PORT, SPW::ScreenColorType};
@@ -267,10 +274,13 @@ public:
 
             auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
             auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow_tiled);
+            
+            auto skybox_desc = SPW::SkyBoxShader_desc();
             rendersystem->addShaderDesciptor(pbr_light_shadow_desc);
             rendersystem->addShaderDesciptor(pbr_light_shadow_tiled_desc);
             rendersystem->addShaderDesciptor(p_shadow_desc);
             rendersystem->addShaderDesciptor(d_shadow_desc);
+            rendersystem->addShaderDesciptor(skybox_desc);
 
             // --------------- create shader ---------------
             auto camera_id = createMaincamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
@@ -302,6 +312,21 @@ public:
 
             cubemodel->bindRenderGraph = pbr_with_PDshadow->graph_id;
             cubemodel->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_tiled_desc.uuid;
+
+            // --------------------------------------------------------------------------------
+            auto skybox = scene->createEntity("skybox");
+            auto skyboxTrans = skybox->emplace<SPW::TransformComponent>();
+            auto skyMesh = skybox->emplace<SPW::MeshComponent>(camera_id);
+            skyMesh->model = SPW::createSkyBoxModel({
+                "./resources/texture/skybox/right.jpg",
+                "./resources/texture/skybox/left.jpg",
+                "./resources/texture/skybox/top.jpg",
+                "./resources/texture/skybox/bottom.jpg",
+                "./resources/texture/skybox/front.jpg",
+                "./resources/texture/skybox/back.jpg"
+            });
+            skyMesh->bindRenderGraph = skyGraph->graph_id;
+            skyMesh->modelSubPassPrograms[skyNode->pass_id] = skybox_desc.uuid;
 
             auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
             auto light2 = createPlight(scene, {-1, 1, 0}, {0, 0.5, 1});
