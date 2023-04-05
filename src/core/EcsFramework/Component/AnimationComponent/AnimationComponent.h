@@ -289,6 +289,7 @@ namespace SPW {
                     verMapBone[vertexID].weight.push_back(value);
                 }
             }
+
             //Get number of vertices
             startIndex.reserve(verMapBone.size());
 
@@ -296,7 +297,6 @@ namespace SPW {
             int startInd = 0;
             for (int i = 0; i < verMapBone.size(); ++i)
             {
-
                 auto temp = verMapBone[i];
                 startIndex.push_back(startInd);
 
@@ -433,7 +433,8 @@ namespace SPW {
         bool bInitialized = false;
     };
 
-
+    //TODO: Animation component 不需要依赖model创建，把逻辑改为 animation system检查component是否已经拿到vertex map，如果不是，
+    // 则拿到该entity的model component 再进行初始化。
     class AnimationComponent : ComponentI
     {
     public:
@@ -502,6 +503,7 @@ namespace SPW {
                 onGoingAnim.lock()->play();
             }
         }
+
         void addAnimation(std::shared_ptr<AnimationClip> clip)
         {
             if (!skeleton.expired() && clip)

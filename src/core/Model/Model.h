@@ -71,6 +71,7 @@ namespace SPW
         explicit Model(std::vector<std::shared_ptr<Mesh>>&& _meshes) { 
             m_Meshes = std::move(_meshes); 
             // reverse the order of the meshes
+            std::reverse(m_Meshes.begin(), m_Meshes.end());
             for (unsigned int i = 0; i < m_Meshes.size(); i++)
             {
                 m_Meshes[i]->offset = i == 0 ? 0 : m_Meshes[i - 1]->offset + m_Meshes[i - 1]->indices.size();

@@ -306,7 +306,6 @@ namespace SPW
 
 		return tmp;
 	}
-
         [[nodiscard]] std::vector<std::shared_ptr<BoneInfo>> ProcessBoneNodes(aiNode* node, const aiScene* scene)
         {
                 std::vector<std::shared_ptr<BoneInfo>> bones;

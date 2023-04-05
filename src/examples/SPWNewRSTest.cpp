@@ -56,12 +56,12 @@
 #include <glm/glm/gtx/euler_angles.hpp>
 
 std::shared_ptr<SPW::Skeleton> createSkeleton() {
-    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/Standing 2H Magic Attack 01.fbx");
+    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/dragon/scene.gltf");
 }
 
 std::shared_ptr<SPW::Model> createModel() {
     //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/Standing 2H Magic Attack 01.fbx");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/dragon/scene.gltf");
 }
 std::shared_ptr<SPW::Model> createCubeModel()
 {
@@ -304,7 +304,7 @@ public:
 
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
-            transform->scale = {0.005, 0.005, 0.005};
+            transform->scale = {0.05, 0.05, 0.05};
             transform->rotation = {0, 90, 0};
             transform->position = {0, -0.3, 0};
 
@@ -319,7 +319,7 @@ public:
             model->model = createModel();
             auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
             animation->skeleton = createSkeleton();
-            animation->swapCurrentAnim("mixamo.com");
+            animation->swapCurrentAnim("Scene");
             //animation->swapCurrentAnim("mantis_anim");
 
             // --------------------------------------------------------------------------------
