@@ -37,9 +37,8 @@ void SPW::AnimationSystem::beforeUpdate()
 
 void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 {
-
+    TICKTOCK;
     double deltaTime = dt.toSecond();
-
     ComponentGroup<SPW::AnimationComponent,SPW::IDComponent,SPW::MeshComponent> animatedGroup;
     locatedScene.lock()->forEachEntityInGroup
     (animatedGroup,
