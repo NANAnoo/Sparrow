@@ -86,7 +86,7 @@ namespace SPW
 		template<>
 		void RenderUIComponent<UIComponentType::Axis>()
 		{
-			// m_InspectorPanel->Render();
+			// m_InspectorPanel->Render()
 		}
 
 	private:
@@ -139,7 +139,7 @@ namespace SPW
 		std::shared_ptr<ImGuiObjectPanel>		m_ObjectPanel;
 		std::shared_ptr<ImGuiTreeNodePanel>		m_HierarchyPanel;
 		std::shared_ptr<ImGuiInspectorPanel>	m_InspectorPanel;
-
+        //std::shared_ptr<>
 		bool show_demo_window = false;
 
 		GLFWwindow* windowHandle;

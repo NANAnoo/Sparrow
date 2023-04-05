@@ -56,6 +56,7 @@ protected:
 		  if (ImGui::MenuItem(item.name.c_str()))
 		  {
 			  item.callback();
+              //std::cout<<"clicked"<<std::endl;
 		  }
 	  }
   }

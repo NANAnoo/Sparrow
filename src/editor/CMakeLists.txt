@@ -23,7 +23,7 @@ set(EditorSourceFiles
         ImGui/UIComponent/ImGuiInspectorPanel.h
         ImGui/ImGuiManager.hpp
         ImGui/ImGuiManager.cpp
-        ImGui/ImGuiManager.hpp)
+        ImGui/ImGuiManager.hpp ImGui/UIComponent/ImGuiWindow.h)
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(ImGui)

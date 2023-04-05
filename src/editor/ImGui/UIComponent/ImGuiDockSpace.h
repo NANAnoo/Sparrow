@@ -5,7 +5,9 @@
  */
 #pragma once
 #include "../ImGuiDefinitions.h"
-
+#include "ApplicationFramework/WindowI/WindowEvent.h"
+#include <ostream>
+#include <iostream>
 namespace SPW {
 
 class ImGuiDockSpace final {
@@ -14,6 +16,9 @@ public:
 
   static void Render(const std::string &name) {
 
+      ImVec2 canvasSize = ImGui::GetWindowSize();
+      ImVec2 windowSize = ImGui::GetWindowSize();
+      std::cout << canvasSize.x << " " << canvasSize.y << std::endl;
     const ImGuiViewport *viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowViewport(viewport->ID);
 
@@ -25,8 +30,26 @@ public:
     ImGui::Begin(name.c_str(), nullptr, window_flags);
     ImGui::PopStyleVar(3);
 
-    const ImGuiID dockspace_id = ImGui::GetID(name.c_str());
-    ImGui::DockSpace(dockspace_id);
+    if(name == "Left Dock Space"){
+        const ImGuiID dock_left_id = ImGui::GetID(name.c_str());
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(canvasSize);
+        ImGui::DockSpace(dock_left_id);
+    }
+    if(name == "Right Dock Space"){
+        const ImGuiID dock_right_id = ImGui::GetID(name.c_str());
+        ImGui::SetNextWindowPos(ImVec2(windowSize.x - canvasSize.x, 0));
+        ImGui::SetNextWindowSize(canvasSize);
+        ImGui::DockSpace(dock_right_id);
+    }
+    if(name == "Bottom Dock Space"){
+        const ImGuiID dock_bottom_id = ImGui::GetID(name.c_str());
+        ImGui::SetNextWindowPos(ImVec2(0, 400));
+        ImGui::SetNextWindowSize(canvasSize);
+        ImGui::DockSpace(dock_bottom_id);
+    }
+
+
 
     ImGui::End();
   }

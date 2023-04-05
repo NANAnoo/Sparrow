@@ -93,10 +93,11 @@ namespace SPW
         SoundState state = Stop;
         bool is3D = false;
         bool isLoop = false;
+        std::string soundPath;
 
     private:
         bool shouldUpdate = true;
-        std::string soundPath;
+
         FMOD::Channel *chan = nullptr; // 控制声音播放暂停，结束, 不需要释放
     };
 

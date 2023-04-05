@@ -149,10 +149,14 @@ public:
             cam->near = 0.01;
             cam->far = 100;
 
-
+            //sound clip
+            std::vector<std::string> soundPaths = {
+                    "./resources/sounds/test.wav","./resources/sounds/EDM.wav"
+            };
             // add a camera entity
             auto camera2 = scene->createEntity("main camera");
             auto cam2_tran = camera2->emplace<SPW::TransformComponent>();
+            auto CamEvent = camera2->emplace<SPW::KeyComponent>();
             cam2_tran->position.y = 0.3;
             cam2_tran->rotation.z = 90;
             auto cam2 = camera2->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
@@ -160,6 +164,9 @@ public:
             cam2->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
             cam2->near = 0.01;
             cam2->far = 100;
+
+            auto soundClip = camera2->emplace<SPW::AudioComponent>(soundPaths);
+
 
             SPW::UUID camera_id = camera->component<SPW::IDComponent>()->getID();
             cam->whetherMainCam = true;
@@ -286,7 +293,7 @@ public:
         m_ImguiManager->RenderUIComponent<SPW::UIComponentType::ObjectPanel>();
         m_ImguiManager->RenderUIComponent<SPW::UIComponentType::HierarchyPanel>();
         m_ImguiManager->RenderUIComponent<SPW::UIComponentType::InspectorPanel>();
-
+        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Axis>();
     	// const auto& activeEntityPanel  = m_ImguiManager->GetEntityPanel();
         // const auto& activeInspector = m_ImguiManager->GetInspectorPanel();
     	scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
@@ -333,6 +340,7 @@ public:
         e->dispatch<SPW::WindowCloseType, SPW::WindowEvent>(
                 [this](SPW::WindowEvent *e){
                     // close application
+
                     app->stop();
                     return true;
                 });
