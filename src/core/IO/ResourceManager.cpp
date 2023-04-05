@@ -231,30 +231,25 @@ namespace SPW
         return tmp;
 	}
 
-	[[nodiscard]] std::vector<std::shared_ptr<Mesh>> ProcessNodes(aiNode* node, const aiScene* scene)
-	{
-		std::vector<std::shared_ptr<Mesh>> meshes;
-        int formerSize = 0;
-		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-		{
-			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-//            if (meshes.size() > 0)
-//            {
-//                formerSize = meshes[i-1]->vertices.size();
-//            }
-			meshes.emplace_back(std::move(ProcessMeshNode(mesh, scene)));
-		}
+	// [[nodiscard]] std::vector<std::shared_ptr<Mesh>> ProcessNodes(aiNode* node, const aiScene* scene)
+	// {
+	// 	std::vector<std::shared_ptr<Mesh>> meshes;
+	// 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	// 	{
+	// 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+	// 		meshes.emplace_back(std::move(ProcessMeshNode(mesh, scene)));
+	// 	}
 
-		for (unsigned int i = 0; i < node->mNumChildren; i++)
-		{
-			auto res = ProcessNodes(node->mChildren[i], scene);
-			meshes.insert(std::end(meshes), std::begin(res), std::end(res));
-		}
+	// 	for (unsigned int i = 0; i < node->mNumChildren; i++)
+	// 	{
+	// 		auto res = ProcessNodes(node->mChildren[i], scene);
+	// 		meshes.insert(std::end(meshes), std::begin(res), std::end(res));
+	// 	}
 
-		return meshes;
-	}
+	// 	return meshes;
+	// }
 
-	[[nodiscard]] std::vector<std::shared_ptr<BoneInfo>> ProcessBoneNode(aiMesh* mesh, const aiScene* scene)
+	[[nodiscard]] std::vector<std::shared_ptr<BoneInfo>> ProcessBoneNode(aiMesh* mesh, unsigned int offset, const aiScene* scene)
 	{
 		std::vector<std::shared_ptr<BoneInfo>> tmp;
 
@@ -266,7 +261,7 @@ namespace SPW
             std::vector<Weight> weights;
 
             for (unsigned int j = 0; j < bone->mNumWeights; j++)
-                 weights.emplace_back(Weight{ bone->mWeights[j].mVertexId, bone->mWeights[j].mWeight });
+                 weights.emplace_back(Weight{ bone->mWeights[j].mVertexId + offset, bone->mWeights[j].mWeight });
 
             tmp.emplace_back(std::make_shared<BoneInfo>(i, bone->mName.C_Str(), bone->mNumWeights, std::move(weights), toMat4(bone->mOffsetMatrix)));
 		}
@@ -307,25 +302,38 @@ namespace SPW
 		return tmp;
 	}
 
-        [[nodiscard]] std::vector<std::shared_ptr<BoneInfo>> ProcessBoneNodes(aiNode* node, const aiScene* scene)
-        {
-                std::vector<std::shared_ptr<BoneInfo>> bones;
-                bones.resize(0);
-                for (unsigned int i = 0; i < node->mNumMeshes; i++)
-                {
-                        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-                        auto res = ProcessBoneNode(mesh, scene);
-                        bones.insert(bones.end(), res.begin(), res.end());
-                }
+	// [[nodiscard]] std::vector<std::shared_ptr<BoneInfo>> ProcessBoneNodes(aiNode* node, const aiScene* scene)
+	// {
+	// 		std::vector<std::shared_ptr<BoneInfo>> bones;
+	// 		bones.resize(0);
+	// 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	// 		{
+	// 				aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+	// 				auto res = ProcessBoneNode(mesh, scene);
+	// 				bones.insert(bones.end(), res.begin(), res.end());
+	// 		}
 
-                for (unsigned int i = 0; i < node->mNumChildren; i++)
-                {
-                        auto res = ProcessBoneNodes(node->mChildren[i], scene);
-                        bones.insert(bones.end(), res.begin(), res.end());
-                }
+	// 		for (unsigned int i = 0; i < node->mNumChildren; i++)
+	// 		{
+	// 				auto res = ProcessBoneNodes(node->mChildren[i], scene);
+	// 				bones.insert(bones.end(), res.begin(), res.end());
+	// 		}
 
-                return bones;
-        }
+	// 		return bones;
+	// }
+
+	void getAllMeshNodes(std::vector<aiMesh*> &meshes, aiNode* node, const aiScene* scene) {
+		for (unsigned int i = 0; i < node->mNumMeshes; i++)
+		{
+			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+			meshes.push_back(mesh);
+		}
+
+		for (unsigned int i = 0; i < node->mNumChildren; i++)
+		{
+			getAllMeshNodes(meshes, node->mChildren[i], scene);
+		}
+	}
 
 	[[nodiscard]] std::shared_ptr<Model> ResourceManager::LoadModel(const std::filesystem::path& _filePath)
 	{
@@ -346,7 +354,19 @@ namespace SPW
 
 		std::cout << "SUCESS::ASSIMP::" << _filePath << std::endl;
 
-		std::shared_ptr<Model> model = std::make_shared<Model>(ProcessNodes(scene->mRootNode, scene));
+		std::vector<aiMesh*> all_meshes;
+		getAllMeshNodes(all_meshes, scene->mRootNode, scene);
+		
+		std::vector<std::shared_ptr<Mesh>> meshes;
+		unsigned int offset = 0;
+		for (auto& mesh : all_meshes)
+		{
+			meshes.emplace_back(ProcessMeshNode(mesh, scene));
+			meshes.back()->offset = offset;
+			offset += mesh->mNumVertices;
+		}
+
+		std::shared_ptr<Model> model = std::make_shared<Model>(std::move(meshes));
 
 		model->SetFilePath(_filePath);
 
@@ -504,7 +524,16 @@ namespace SPW
 
         if (scene->HasAnimations())
         {
-            tmp_skeleton->m_Bones = ProcessBoneNodes(scene->mRootNode, scene);
+			std::vector<aiMesh *> all_meshes;
+			getAllMeshNodes(all_meshes, scene->mRootNode, scene);
+            //tmp_skeleton->m_Bones = ProcessBoneNodes(scene->mRootNode, scene);
+			unsigned int offset = 0;
+			for (auto mesh : all_meshes) {
+				auto res = ProcessBoneNode(mesh, offset, scene);
+				offset += mesh->mNumVertices;
+				tmp_skeleton->m_Bones.insert(tmp_skeleton->m_Bones.end(), res.begin(), res.end());
+			}
+ 
             tmp_skeleton->m_animClips = ProcessAnimationClips(scene->mRootNode, scene,tmp_skeleton->m_Bones);
 
             ReadHierarchyData(m_RootNode,scene->mRootNode);
