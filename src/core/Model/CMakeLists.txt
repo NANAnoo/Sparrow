@@ -1,3 +1,4 @@
+add_subdirectory(Animation)
 CORE_ADD_SOURCE(
     Mesh.h 
     Model.h 

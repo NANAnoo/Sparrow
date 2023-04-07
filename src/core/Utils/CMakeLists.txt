@@ -3,4 +3,5 @@ CORE_ADD_SOURCE(MacroUtils.h
         SingletonBase.h
         MessageDefines.h
         Timer.hpp
-        UUID.hpp)
+        UUID.hpp
+        Debounce.hpp)

@@ -3,7 +3,6 @@
 #include "ApplicationFramework/AppDelegate.h"
 #include "ApplicationFramework/WindowI/WindowI.h"
 
-
 #include <vector>
 #include <memory>
 

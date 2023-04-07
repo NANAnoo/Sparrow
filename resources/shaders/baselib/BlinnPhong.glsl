@@ -31,9 +31,9 @@ vec3 BlinnPhong_P(vec3 normal, vec3 pos, vec3 camPos, PLight light,float ambient
 }
 
 // BlinnPhong for Dlight
-vec3 BlinnPhong_D(vec3 normal, vec3 pos, vec3 camPos, DLight light, float ambient, float diffusion , float shininess, float specularPower) 
+vec3 BlinnPhong_D(vec3 normal, vec3 pos, vec3 camPos, DLight light, float ambient, float diffusion , float shininess, float specularPower, float shadow)
 {
-    vec3 scale = light.ambient * ambient;
+    vec3 amb = light.ambient * ambient;
     
     // calculate distance of light and position
     vec3 lightDir = -normalize(light.direction);
@@ -41,7 +41,7 @@ vec3 BlinnPhong_D(vec3 normal, vec3 pos, vec3 camPos, DLight light, float ambien
     // diffusion color
     float NdotL = dot(normal, lightDir);
     float intensity = max(0, min(1, NdotL));
-    scale += intensity * light.diffuse * diffusion;
+    vec3 dif = intensity * light.diffuse * diffusion;
 
     // half vector between light and view
     vec3 viewDir = camPos - pos;
@@ -50,6 +50,7 @@ vec3 BlinnPhong_D(vec3 normal, vec3 pos, vec3 camPos, DLight light, float ambien
     // specular light
 	float NdotH = dot(normal, halfVec);
     intensity = pow(max(0, min(1, NdotH)), specularPower);
-    scale += intensity * light.specular * shininess;
-    return scale;
+    vec3 spe = intensity * light.specular * shininess;
+
+    return (amb +(1.0 - shadow)*(dif + spe));
 }

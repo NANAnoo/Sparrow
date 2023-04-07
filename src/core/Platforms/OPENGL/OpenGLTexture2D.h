@@ -39,6 +39,7 @@ namespace SPW
                         if (nrComponents == 1)
                         {
                             format1 = GL_RED;
+                            format2 = GL_COMPRESSED_RED;
                         }
                         else if (nrComponents == 3)
                         {
