@@ -74,6 +74,7 @@ namespace SPW
         glRenderbufferStorage(GL_RENDERBUFFER, GL_R32I, width, height);
         //glBindRenderbuffer(GL_RENDERBUFFER, 0);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_RENDERBUFFER, rboId);
+        tetxureSlots.push_back(GL_COLOR_ATTACHMENT0 + slot);
     }
 
     void OpenGLFrameBuffer::AttachDepthRenderBuffer(unsigned int width,unsigned int height)
@@ -87,6 +88,9 @@ namespace SPW
 
     void OpenGLFrameBuffer::CheckFramebufferStatus()
     {
+        if (tetxureSlots.size() > 1) {
+            glDrawBuffers(tetxureSlots.size(), tetxureSlots.data());
+        }
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     }

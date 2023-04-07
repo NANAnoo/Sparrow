@@ -5,6 +5,7 @@
 #ifndef SPARROW_OPENGLFRAMEBUFFER_H
 #define SPARROW_OPENGLFRAMEBUFFER_H
 #include "Render/FrameBuffer.h"
+#include <vector>
 namespace SPW
 {
 
@@ -29,6 +30,7 @@ namespace SPW
     private:
         unsigned int framebufferId;
         unsigned int rboId;
+        std::vector<unsigned int> tetxureSlots;
     public:
         unsigned int textureColorbufferId;
 

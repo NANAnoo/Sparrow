@@ -49,7 +49,6 @@
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
-#include "SimpleRender.h"
 #include "IO/ResourceManager.h"
 #include "Model/Model.h"
 #include <glm/glm/ext.hpp>
@@ -443,7 +442,6 @@ public:
     const char *getName() final {return _name;}
     const char *_name;
     std::shared_ptr<Transformer> transformer;
-    std::shared_ptr<SimpleRender> render;
     std::shared_ptr<SPW::Scene> scene;
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
 };
