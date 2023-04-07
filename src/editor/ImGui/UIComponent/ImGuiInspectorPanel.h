@@ -15,54 +15,21 @@
 #include "EcsFramework/Entity/Entity.hpp"
 #include "stb_image.h"
 
+#include "ImGui/ImGuiIcon.hpp"
+
 namespace SPW {
 
 class ImGuiInspectorPanel : public ImGuiPanel {
 public:
   ImGuiInspectorPanel(std::string title, bool *open = nullptr)
       : ImGuiPanel(std::move(title), open)
-	{}
+  {
+      m_Icon = std::make_unique<ImGuiIcon>("./resources/texture/container.jpg");
+  }
 
   void SetSelectedGameObject(const Entity& e) {m_Entity = &e;}
 
-  //Icon
-  ImTextureID sound_texture_id = generateTextureID("./resources/texture/container.jpg");
-
 protected:
-    //texture properties
-    float image_width = 0.2f;
-    float image_height = 0.2f;
-    int width, height, nrChannels;
-    ImVec2 image_size = ImVec2(20, 20);
-
-    //
-    GLuint sound_id;
-
-    ImTextureID generateTextureID(const char* path){
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
-        if (data)
-        {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
-        else
-        {
-            std::cout << "Failed to load texture" << std::endl;
-        }
-        stbi_image_free(data);
-
-        glGenTextures(1, &sound_id);
-        glBindTexture(GL_TEXTURE_2D, sound_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        ImTextureID my_texture_id = (void*)(intptr_t)sound_id;
-
-        return my_texture_id;
-   };
 
 	void Draw() override
 	{
@@ -105,14 +72,14 @@ private:
     void DrawAxis(SPW::TransformComponent* component)
     {
       //TODO::Draw axis
-  }
+	}
+
     void DrawTransformComponent(SPW::TransformComponent* component) const
     {
         ImGui::PushID("Transform"); 
-        if (ImGui::TreeNode("Transform")) /* TODO: add icon*/
+        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
+    	if (ImGui::TreeNode("Transform")) /* TODO: add icon*/
         {
-            glBindTexture(GL_TEXTURE_2D,sound_id);
-            ImGui::Image(sound_texture_id, image_size); // Icon
             if (ImGui::BeginChild("Transform", ImVec2(0, 90), true)) {
                 // draw component properties
                 ImGui::InputFloat3("Position", glm::value_ptr(component->position));
@@ -129,10 +96,9 @@ private:
     void DrawCameraComponent(SPW::CameraComponent* component) const
     {
         ImGui::PushID("Camera");
+        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Camera")) /* TODO: add icon*/
         {
-            glBindTexture(GL_TEXTURE_2D,sound_id);
-            ImGui::Image(sound_texture_id, image_size); // Icon
             if (ImGui::BeginChild("Camera", ImVec2(0, 120), true))
             {
                 if(component->getType() == CameraType::PerspectiveType)
@@ -161,10 +127,9 @@ private:
     void DrawPointLightComponent(SPW::PointLightComponent* component) const
     {
         ImGui::PushID("Point Light");
+        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Point Light")) /* TODO: add icon*/
         {
-            glBindTexture(GL_TEXTURE_2D,sound_id);
-            ImGui::Image(sound_texture_id, image_size); // Icon
             if (ImGui::BeginChild("Point Light", ImVec2(0, 180), true))
             {
                 // draw component properties
@@ -185,10 +150,9 @@ private:
 	void DrawDirectionalLightComponent(SPW::DirectionalLightComponent* component) const
     {
         ImGui::PushID("Dictional Light");
+        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Dictional Light")) /* TODO: add icon*/
         {
-            glBindTexture(GL_TEXTURE_2D,sound_id);
-            ImGui::Image(sound_texture_id, image_size); // Icon
             if (ImGui::BeginChild("Dictional Light", ImVec2(0, 90), true))
             {
                 // draw component properties
@@ -206,11 +170,10 @@ private:
     void DrawAudioComponent(SPW::AudioComponent* component) const
     {
         ImGui::PushID("Audio Source");
+        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Audio Source")) /* TODO: add icon*/
         {
             int i = 1,j = 1;
-            glBindTexture(GL_TEXTURE_2D,sound_id);
-            ImGui::Image(sound_texture_id, image_size); // Icon
             for(auto &a : component->allSounds){
                 std::string clipNum = "Audio Clip " + std::to_string(i++);
                 std::string AudioSourceNum = "Audio Source " + std::to_string(j++);
@@ -233,10 +196,9 @@ private:
     void DrawAudioListener(SPW::AudioListener* component) const
     {
         ImGui::PushID("Audio");
+        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Audio")) /* TODO: add icon*/
         {
-            glBindTexture(GL_TEXTURE_2D,sound_id);
-            ImGui::Image(sound_texture_id, image_size); // Icon
             if (ImGui::BeginChild("AudioSource", ImVec2(0, 90), true)) {
                 // draw component properties
                 ImGui::InputInt("Listener ID",&component->Listener_id);
@@ -251,10 +213,9 @@ private:
     void DrawKeyComponent(SPW::KeyComponent* component) const
     {
         ImGui::PushID("Event System");
+        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Event System")) /* TODO: add icon*/
         {
-            glBindTexture(GL_TEXTURE_2D,sound_id);
-            ImGui::Image(sound_texture_id, image_size); // Icon
             if (ImGui::BeginChild("Event System", ImVec2(0, 90), true)) {
                 // draw component properties
                 ImGui::Checkbox("Key Enable",&component->keyEnable);
@@ -267,6 +228,7 @@ private:
     }
 
     const SPW::Entity* m_Entity = nullptr;
+    std::unique_ptr<ImGuiIcon> m_Icon; // just a default icon
 };
 
 }
