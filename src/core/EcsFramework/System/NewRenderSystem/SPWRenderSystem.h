@@ -9,6 +9,7 @@
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "ApplicationFramework/WindowI/WindowEvent.h"
+#include "Platforms/OPENGL/OpenGLAttachmentTexture.hpp"
 
 namespace SPW {
 
@@ -43,6 +44,10 @@ namespace SPW {
         }
         // events
         const char *getName() override {return "SPW_RENDER_SYSTEM";}
+
+        GLuint getTextureID(){
+            return std::dynamic_pointer_cast<OpenGLAttachmentTexture>(screenTexture)->m_textureID;
+        }
     private:
         void findAllLights(std::vector<DLight> &dLights, std::vector<PLight> &pLights);
 
