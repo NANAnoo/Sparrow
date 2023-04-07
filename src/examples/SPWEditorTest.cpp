@@ -376,34 +376,52 @@ public:
     void afterAppUpdate() final{
         scene->afterUpdate();
 
+//    	m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Right Dock Space");
+//      m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Bottom Dock Space");
+//      m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Left Dock Space");
+       // m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>();
         m_ImguiManager->Begin();
-    	m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Right Dock Space");
-        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Left Dock Space");
-        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Bottom Dock Space");
-        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::MenuBar>();
-        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::ObjectPanel>();
-        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::HierarchyPanel>();
-        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::InspectorPanel>();
-        m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Axis>();
+        std::vector <std::shared_ptr<SPW::ImGuiPanel>> dockspacePanels;
+        dockspacePanels.emplace_back(m_ImguiManager->m_ObjectPanel);
+        dockspacePanels.emplace_back(m_ImguiManager->m_HierarchyPanel);
+        dockspacePanels.emplace_back(m_ImguiManager->m_MainMenuBar);
+        dockspacePanels.emplace_back(m_ImguiManager->m_HierarchyPanel);
+
+        m_ImguiManager->CreateAndRenderDockspacePanel(dockspacePanels);
+        //m_ImguiManager->RenderDockspacePanel();
+
+        //----------------------------------------------------------------------------------------
+
+        //m_ImguiManager->RenderUIComponent<SPW::UIComponentType::MenuBar>();
+        //m_ImguiManager->RenderUIComponent<SPW::UIComponentType::ObjectPanel>();
+        //m_ImguiManager->RenderUIComponent<SPW::UIComponentType::HierarchyPanel>();
+        //m_ImguiManager->RenderUIComponent<SPW::UIComponentType::InspectorPanel>();
+        //m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Axis>();
+
+        //----------------------------------------------------------------------------------------
     	// const auto& activeEntityPanel  = m_ImguiManager->GetEntityPanel();
         // const auto& activeInspector = m_ImguiManager->GetInspectorPanel();
-        GLuint texture_id = renderSystem->getTextureID();
-        ImTextureID image_id = (void*)(intptr_t)texture_id;
-        ImGui::Image(image_id, ImVec2(480,320), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0), ImVec4(1, 1, 1, 1), ImVec4(0, 1, 0, 1));
 
-    	scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
-        {
-	        const auto component_name= e.component<SPW::NameComponent>()->getName();
-	        const auto component_id  = e.component<SPW::IDComponent>()->getID().toString();
-            m_ImguiManager->GetEntityPanel()->AddMenuItem(component_id, component_name, [&,e]()
-            {
-                m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
-            });
-        });
+        //----------------------------------------------------------------------------------------
+     //   GLuint texture_id = renderSystem->getTextureID();
+     //   ImTextureID image_id = (void*)(intptr_t)texture_id;
+     //   ImGui::Image(image_id, ImVec2(480,320), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0), ImVec4(1, 1, 1, 1), ImVec4(0, 1, 0, 1));
+
+    	//scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
+     //   {
+	    //    const auto component_name= e.component<SPW::NameComponent>()->getName();
+	    //    const auto component_id  = e.component<SPW::IDComponent>()->getID().toString();
+     //       m_ImguiManager->GetEntityPanel()->AddMenuItem(component_id, component_name, [&,e]()
+     //       {
+     //           m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
+     //       });
+     //   });
 
     	m_ImguiManager->End();
         m_ImguiManager->EnableViewport();
 
+
+        //-------------------------------------------------------------------------
     }
     void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
         // for (auto &e : events) {

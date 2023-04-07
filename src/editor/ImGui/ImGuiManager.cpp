@@ -60,4 +60,25 @@ namespace SPW
 		}
 	}
 
+    void CreateAndRenderDockspacePanel(std::vector<std::shared_ptr<SPW::ImGuiPanel>> Panels){
+        auto dockPanel =std::make_unique<ImGuiDockSpace>() ;
+        for(auto p:Panels){
+            dockPanel->AddPanel(p);
+        }
+    }
+
+
+	void ImGuiManager::CreateAndRenderDockspacePanel(std::vector<std::shared_ptr<SPW::ImGuiPanel>> panels)
+	{
+		auto dockPanel = std::make_shared<ImGuiDockSpace>();
+		for(auto p:panels)
+		{
+			dockPanel->AddPanel(p);
+		}
+
+		dockPanel->Render();
+
+	}
+
+
 }

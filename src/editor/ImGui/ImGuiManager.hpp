@@ -53,11 +53,11 @@ namespace SPW
 				ShowDemoWindow(&show_demo_window);
 		}
 
-		template<>
-		void RenderUIComponent<UIComponentType::Dockspace>(std::string&& name)
-		{ 
-			ImGuiDockSpace::Render(std::forward<std::string>(name));
-		}
+		//template<>
+		//void RenderUIComponent<UIComponentType::Dockspace>(std::string&& name)
+		//{ 
+		//	ImGuiDockSpace::Render();
+		//}
 
 		template<>
 		void RenderUIComponent<UIComponentType::MenuBar>()
@@ -88,6 +88,8 @@ namespace SPW
 		{
 			// m_InspectorPanel->Render()
 		}
+
+        void CreateAndRenderDockspacePanel(std::vector<std::shared_ptr<SPW::ImGuiPanel>> panels);
 
 	private:
 
@@ -134,15 +136,20 @@ namespace SPW
 		{
 			m_InspectorPanel = std::make_shared<ImGuiInspectorPanel>("Inspector Panel");
 		}
-	private:
-		std::shared_ptr<ImGuiMenuBar>			m_MainMenuBar;
+
+		//TODO:modify
+	public:
 		std::shared_ptr<ImGuiObjectPanel>		m_ObjectPanel;
+		std::shared_ptr<ImGuiMenuBar>			m_MainMenuBar;
 		std::shared_ptr<ImGuiTreeNodePanel>		m_HierarchyPanel;
 		std::shared_ptr<ImGuiInspectorPanel>	m_InspectorPanel;
         //std::shared_ptr<>
+	private:
 		bool show_demo_window = false;
+		std::shared_ptr<ImGuiDockSpace> m_DockspacePanel;
 
 		GLFWwindow* windowHandle;
-};
+
+    };
 
 }
