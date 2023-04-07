@@ -75,8 +75,12 @@ namespace SPW
                     return;
                 }
                 bool play = false;
+                // update volume
+                chan->setVolume(volume);
+                // check if sound is playing
                 chan->isPlaying(&play);
                 if (!play) {
+                    // sound is not playing
                     state = Stop;
                     shouldUpdate = false;
                 }
@@ -93,7 +97,11 @@ namespace SPW
         SoundState state = Stop;
         bool is3D = false;
         bool isLoop = false;
+
         std::string soundPath;
+
+        float volume = 1.0f;
+
 
     private:
         bool shouldUpdate = true;
@@ -120,6 +128,11 @@ namespace SPW
         void setLoop(const std::string &path, bool enable) {
             if (allSounds.find(path) != allSounds.end())
                 allSounds[path]->isLoop = enable;
+        }
+
+        void setVolume(const std::string &path, float volume) {
+            if (allSounds.find(path) != allSounds.end())
+                allSounds[path]->volume = std::max(0.0f, std::min(1.0f, volume));
         }
         
         SoundState getState(const std::string &path) {
@@ -167,6 +180,12 @@ namespace SPW
                 std::string path = value["value"]["path"];
                 int s = value["value"]["state"];
                 setState(path, (SoundState)s);
+            } else if (key == "setVolume" && value["value"].valid()) {
+                if (!value["value"]["path"].valid() || !value["value"]["volume"].valid())
+                    return;
+                std::string path = value["value"]["path"];
+                float volume = value["value"]["volume"];
+                setVolume(path, volume);
             }
         }
 
@@ -178,7 +197,7 @@ namespace SPW
                     audioFiles[sound.first] = sound.second->state;
                 }
                 return audioFiles;
-            }
+            } 
             return sol::nil;
         }
 

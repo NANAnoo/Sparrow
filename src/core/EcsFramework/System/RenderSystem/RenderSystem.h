@@ -15,6 +15,7 @@
 
 
 namespace SPW {
+
     using RenderCamera = std::tuple<IDComponent *, CameraComponent *, TransformComponent *>;
     class RenderSystem : public SystemI, public WindowEventResponder {
     public:
@@ -31,10 +32,6 @@ namespace SPW {
                 width = w;
                 height = h;
 
-                //depthBuffer = renderBackEnd->creatSenceFrameBuffer();
-                //depthBuffer->genFrameBuffer();
-                //depthBuffer->AttachDepthTexture();
-                //depthBuffer->unbind();
         }
         void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
             renderBackEnd = backEnd;

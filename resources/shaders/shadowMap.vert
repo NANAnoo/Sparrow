@@ -1,10 +1,8 @@
-#version 330 core
+#version 430 core
 layout (location = 0) in vec3 aPos;
 
 uniform mat4 lightSpaceMatrix;
 uniform mat4 M;
-uniform mat4 V;
-uniform mat4 P;
 
 void main()
 {

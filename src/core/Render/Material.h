@@ -7,6 +7,8 @@
 
 #include <string>
 #include <map>
+#include <vector>
+#include <glm/glm.hpp>
 namespace SPW
 {
     struct MetallicProperties
@@ -84,6 +86,7 @@ namespace SPW
     public:
         std::string m_Name;
         std::map<TextureType, std::string> TextureMap;
+        std::vector<std::string> cubeMapTextures;
         MaterialProperties m_Properties;
 
         void updateTexture(TextureType type,std::string texturePath)

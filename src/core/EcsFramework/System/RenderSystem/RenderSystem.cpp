@@ -17,6 +17,7 @@
 
 void SPW::RenderSystem::initial()
 {
+
     renderBackEnd->Init();
     renderBackEnd->loadShaderLib("./resources/shaders/baselib");
 
@@ -32,10 +33,16 @@ void SPW::RenderSystem::initial()
         "resources/texture/skybox/back.jpg"
     };
     renderBackEnd->SetSkyBox(faces);
-    depthBuffer = renderBackEnd->creatShadowFrameBuffer();
-    depthBuffer->genFrameBuffer();
-    depthBuffer->AttachDepthTexture();
-    depthBuffer->unbind();
+    renderBackEnd->creatShadowFrameBuffer(10);
+    renderBackEnd->setUpShadowArray(10);
+    for(int i = 0; i < 10; i++)
+    {
+        renderBackEnd->shadowFrameBuffers[i]->genFrameBuffer();
+        renderBackEnd->shadowFrameBuffers[i]->bind();
+        renderBackEnd->shadowFrameBuffers[i]->AttachDepthTexture3D(renderBackEnd->depthTextureArray,i);
+        renderBackEnd->shadowFrameBuffers[i]->unbind();
+    }
+
 }
 
 void SPW::RenderSystem::beforeUpdate() {
@@ -84,8 +91,10 @@ void SPW::RenderSystem::afterUpdate(){
 }
 
 
-void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::mat4& View,glm::mat4& Pro) {
-    if (std::get<0>(camera) == nullptr) {
+void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::mat4& View,glm::mat4& Pro)
+{
+    if (std::get<0>(camera) == nullptr)
+    {
         return;
     }
     UUID currentID = std::get<0>(camera)->getID();
@@ -93,7 +102,7 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
     auto transformCom = std::get<2>(camera);
     glm::vec3 camPos = transformCom->position;
 
-    using ShaderModelMap = std::unordered_map<ShaderHandle, std::vector<SPW::Entity>, ShaderHash, ShaderEqual>;
+    using ShaderModelMap = std::unordered_map<ShaderHandle, std::vector<SPW::Entity>, ShaderHash>;
 
     // predefine render objects
     ComponentGroup<SPW::IDComponent,
@@ -124,8 +133,9 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                         glm::radians(transformCom->rotation.z));
 
     glm::vec4 eye(0, 0, 0, 1), look_at(0, 0, -1, 1), up(0, 1, 0, 0);
+    glm::vec3 cam_center = cameraTransform *look_at;
     V = glm::lookAt(glm::vec3(cameraTransform * eye),
-                    glm::vec3(cameraTransform *look_at),
+                    cam_center,
                     glm::vec3(cameraTransform * up));
     if (cameraCom->getType() == SPW::PerspectiveType) {
         P = glm::perspective(glm::radians(cameraCom->fov),
@@ -151,9 +161,10 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
 
     // RenderPass 1, shadow
     // sort models with program, build a map with shadow_program -> models[]
-    auto renderPass = [this, &renderModels, &V, &P, &camPos, &pLights, &dLights](bool isShadow){
+    auto renderPass = [this, &renderModels, &V, &P, &camPos, &pLights, &dLights, &cam_center](bool isShadow){
         ShaderModelMap programModelMap;
-        for (auto &en : renderModels) {
+        for (auto &en : renderModels)
+        {
             // get program that used in shadow rendering
             auto program =
                 isShadow ? en.component<SPW::ModelComponent>()->shadowProgram :
@@ -164,77 +175,121 @@ void SPW::RenderSystem::renderModelsWithCamera(const RenderCamera &camera,glm::m
                 programModelMap[program].push_back(en);
             }
         }
-        if(!isShadow)
+        if(isShadow)
+        {
+            for (auto [handle, entities] : programModelMap)
+            {
+                auto shader = renderBackEnd->getShader(handle);
+                shader->Bind();
+                // bind light
+                for (unsigned int i = 0; i < pLights.size(); i++) {
+                    auto pl = pLights[i];
+                    shader->setPLight(i, pl);
+                }
+                for (unsigned int i = 0; i < dLights.size(); i++) {
+                    auto dl = dLights[i];
+                    shader->setDLight(i, dl);
+                }
+
+                for(int i = 0; i < dLights.size(); i++)
+                {
+                    renderBackEnd->shadowFrameBuffers[i]->bind();
+                    glm::vec3 lightPos = cam_center -dLights[i].direction*5.0f;
+                    glm::mat4 lightProjection, lightView;
+                    glm::mat4 lightSpaceMatrix;
+                    float near_plane = 1.0f, far_plane = 10.5f;
+                    lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+                    lightView = glm::lookAt(lightPos, cam_center, glm::vec3(0.0, 1.0, 0.0));
+                    lightSpaceMatrix = lightProjection * lightView;
+                    shader->SetUniformValue<glm::mat4> ("lightSpaceMatrix", lightSpaceMatrix);
+                    renderBackEnd->SetViewport(0,0,FrameBuffer::SHADOW_WIDTH, FrameBuffer::SHADOW_HEIGHT);
+                    renderBackEnd->shadowFrameBuffers[i]->bind();
+                    renderBackEnd->Clear();
+                    // render every model in this shader
+                    for (auto &model : entities)
+                    {
+                        auto modelCom = model.component<ModelComponent>();
+                        auto transformCom = model.component<TransformComponent>();
+
+                        glm::mat4 M = glm::mat4(1.0f);
+                        M = glm::translate(M,transformCom->position);
+                        M = M * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
+                                                   glm::radians(transformCom->rotation.x),
+                                                   glm::radians(transformCom->rotation.z));
+                        M = glm::scale(M, transformCom->scale);
+
+                        shader->SetUniformValue<glm::mat4>("M", M);
+                        modelCom->model->Draw(renderBackEnd, handle);
+                    }
+                    renderBackEnd->shadowFrameBuffers[i]->unbind();
+                    // reset viewport
+                    renderBackEnd->SetViewport(0,0,width, height);
+                    renderBackEnd->Clear();
+                }
+            }
+        }
+        else
         {
             frameBuffer->bind();
             renderBackEnd->DepthTest(true);
             renderBackEnd->SetClearColor(glm::vec4(0.5));
             renderBackEnd->Clear();
-        }
-
-        // for each program, draw every model
-        for (auto [handle, entities] : programModelMap) {
-            auto shader = renderBackEnd->getShader(handle);
-            shader->Bind();
-            shader->SetUniformValue<glm::vec3>("camPos", camPos);
-            shader->SetUniformValue<glm::mat4>("V", V);
-            shader->SetUniformValue<glm::mat4>("P", P);
-            // bind light
-            for (unsigned int i = 0; i < pLights.size(); i++) {
-                auto pl = pLights[i];
-                shader->setPLight(i, pl);
-            }
-            for (unsigned int i = 0; i < dLights.size(); i++) {
-                auto dl = dLights[i];
-                shader->setDLight(i, dl);
-            }
-
-            glm::vec3 lightPos = -dLights[0].direction*3.0f;
-
-            glm::mat4 lightProjection, lightView;
-            glm::mat4 lightSpaceMatrix;
-
-            float near_plane = 1.0f, far_plane = 10.5f;
-            lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-            lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-            lightSpaceMatrix = lightProjection * lightView;
-            shader->SetUniformValue<glm::mat4> ("lightSpaceMatrix", lightSpaceMatrix);
-            if(isShadow)
+            for (auto [handle, entities] : programModelMap)
             {
-                renderBackEnd->SetViewport(0,0,FrameBuffer::SHADOW_WIDTH, FrameBuffer::SHADOW_HEIGHT);
-                depthBuffer->bind();
-                renderBackEnd->Clear();
-            }
-            else
-            {
-                renderBackEnd->BindTexture(5,depthBuffer->depthMapId);
-            }
-            shader->SetUniformValue("PLightCount", int(pLights.size()));
-            shader->SetUniformValue("DLightCount", int(dLights.size()));
-            // render every model in this shader
-            for (auto &model : entities) {
-                auto modelCom = model.component<ModelComponent>();
-                auto transformCom = model.component<TransformComponent>();
+                auto shader = renderBackEnd->getShader(handle);
+                shader->Bind();
+                shader->SetUniformValue<glm::vec3>("camPos", camPos);
+                shader->SetUniformValue<glm::mat4>("V", V);
+                shader->SetUniformValue<glm::mat4>("P", P);
+                float randvalue = float(rand()) / RAND_MAX;
+                shader->SetUniformValue<float>("RandomSeed", randvalue);
+                // bind light
+                for (unsigned int i = 0; i < pLights.size(); i++) {
+                    auto pl = pLights[i];
+                    shader->setPLight(i, pl);
+                }
+                for (unsigned int i = 0; i < dLights.size(); i++) {
+                    auto dl = dLights[i];
+                    shader->setDLight(i, dl);
+                }
 
-                glm::mat4 M = glm::mat4(1.0f);
-                M = glm::translate(M,transformCom->position);
-                M = M * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
-                                      glm::radians(transformCom->rotation.x),
-                                      glm::radians(transformCom->rotation.z));
-                M = glm::scale(M, transformCom->scale);
+                for(int i = 0; i< dLights.size(); i++)
+                {
+                    glm::vec3 lightPos = cam_center-dLights[i].direction*5.0f;
 
-                shader->SetUniformValue<glm::mat4>("M", M);
-                modelCom->model->Draw(renderBackEnd, handle);
-            }
-            if(isShadow)
-            {
-                depthBuffer->unbind();
-                // reset viewport
-                renderBackEnd->SetViewport(0,0,width, height);
-                renderBackEnd->Clear();
+                    glm::mat4 lightProjection, lightView;
+                    glm::mat4 lightSpaceMatrix;
+
+                    float near_plane = 1.0f, far_plane = 10.5f;
+                    lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+                    lightView = glm::lookAt(lightPos, cam_center, glm::vec3(0.0, 1.0, 0.0));
+                    lightSpaceMatrix = lightProjection * lightView;
+                    shader->SetUniformValue<glm::mat4> ("lightSpaceMatrix["+std::to_string(i)+"]", lightSpaceMatrix);
+                    
+
+                }
+                shader->bindTexArray(5,renderBackEnd->depthTextureArray);
+                shader->setInt("shadowMap",5);
+                shader->SetUniformValue("PLightCount", int(pLights.size()));
+                shader->SetUniformValue("DLightCount", int(dLights.size()));
+                // render every model in this shader
+                for (auto &model : entities)
+                {
+                    auto modelCom = model.component<ModelComponent>();
+                    auto transformCom = model.component<TransformComponent>();
+
+                    glm::mat4 M = glm::mat4(1.0f);
+                    M = glm::translate(M,transformCom->position);
+                    M = M * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
+                                               glm::radians(transformCom->rotation.x),
+                                               glm::radians(transformCom->rotation.z));
+                    M = glm::scale(M, transformCom->scale);
+
+                    shader->SetUniformValue<glm::mat4>("M", M);
+                    modelCom->model->Draw(renderBackEnd, handle);
+                }
             }
         }
-
     };
 
     // shadow pass

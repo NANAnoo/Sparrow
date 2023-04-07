@@ -57,8 +57,8 @@
 #include "ImGui/ImGuiManager.hpp"
 
 std::shared_ptr<SPW::Model> createModel() {
-    //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/mantis.obj");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+    //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
 }
 std::shared_ptr<SPW::Model> createCubeModel()
 {
@@ -151,8 +151,9 @@ public:
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
+            camera->emplace<SPW::AudioListener>();
             auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
-            mainCameraTrans->position = glm::vec4(0.0f,0.0f,0.0f,1.0f);
+            mainCameraTrans->position = glm::vec4(0.0f,0.0f,-1.0f,1.0f);
             auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
             cam->fov = 60;
             cam->aspect = float(weak_window.lock()->width()) / float(weak_window.lock()->height());
@@ -166,21 +167,9 @@ public:
                     "./resources/sounds/test.wav"
             };
             clip->emplace<SPW::AudioComponent>(soundPaths);
-            //add a Audio Listener
-            auto listener = scene->createEntity("Listener");
-            listener->emplace<SPW::TransformComponent>();
-            listener->emplace<SPW::AudioListener>();
-            listener->emplace<SPW::MouseComponent>();
-            listener->component<SPW::TransformComponent>()->position.z = -10;
-            listener->component<SPW::MouseComponent>()->cursorMovementCallBack
-                = [](const SPW::Entity &en, double cursor_x, double cursor_y, double cursor_X_bias, double cursor_Y_bias) {
-                en.component<SPW::TransformComponent>()->rotation.y += cursor_X_bias;
-            };
-
             clip->component<SPW::AudioComponent>()->setState(soundPaths[0], SPW::Play);
             clip->component<SPW::AudioComponent>()->setLoop(soundPaths[0], true);
             clip->component<SPW::AudioComponent>()->set3D(soundPaths[0], true);
-
             auto keyCom =  clip->emplace<SPW::KeyComponent>();
             keyCom->onKeyDownCallBack = [soundPaths](const SPW::Entity& e, SPW::KeyCode keycode) {
                 if (keycode == SPW::KeyCode::Space) {
@@ -245,7 +234,7 @@ public:
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.5, 0.5, 0.5};
-            transform->rotation = {-90, 90, 0};
+            transform->rotation = {0, 90, 0};
             transform->position = {0, -0.3, 0};
 
             //add a key component for testing, press R to rotate
@@ -266,7 +255,7 @@ public:
             SPW::ShaderHandle shaderHandle({
                                          "basic",
                                          "./resources/shaders/simpleVs.vert",
-                                         "./resources/shaders/simplefrag.frag"
+                                         "./resources/shaders/pbrShadow.frag"
                                      });
 
             model->modelProgram = shaderHandle;
@@ -280,7 +269,7 @@ public:
             SPW::ShaderHandle CubeshaderHandle({
                                                    "basic",
                                                    "./resources/shaders/simpleVs.vert",
-                                                   "./resources/shaders/simplefrag.frag"
+                                                   "./resources/shaders/pbrShadow.frag"
                                            });
             //model->bindCameras.insert(camera_id_2);
             cubemodel->modelProgram = CubeshaderHandle;
@@ -294,7 +283,7 @@ public:
             lightCom->ambient = {0.2, 0.2, 0.2};
             lightCom->diffuse = {1, 1, 0};
             lightCom->specular = {1, 1, 0};
-            lightTrans->rotation = {0, 60, 0};
+            lightTrans->rotation = {30, 60, 0};
 
             // add light 2
             auto light2 = scene->createEntity("light2");
@@ -304,6 +293,19 @@ public:
             lightCom2->diffuse = {0, 1, 1};
             lightCom2->specular = {0, 1, 1};
             lightTrans2->rotation = {30, 0, 0};
+
+            light2->emplace<SPW::KeyComponent>()->onKeyHeldCallBack =
+            [](const SPW::Entity &en, SPW::KeyCode code) {
+                if (code == SPW::KeyCode::Up) {
+                    en.component<SPW::TransformComponent>()->rotation.x --;
+                } else if (code == SPW::KeyCode::Down) {
+                    en.component<SPW::TransformComponent>()->rotation.x ++;
+                } else if (code == SPW::KeyCode::Left) {
+                    en.component<SPW::TransformComponent>()->rotation.y ++;
+                } else if (code == SPW::KeyCode::Right) {
+                    en.component<SPW::TransformComponent>()->rotation.y --;
+                }
+            };
 
             // init scene
             scene->initial();
@@ -366,17 +368,9 @@ public:
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
 };
 
-#include <PxPhysicsAPI.h>
-using namespace physx;
-PxDefaultAllocator		gAllocator;
-PxDefaultErrorCallback	gErrorCallback;
-
-PxFoundation*			gFoundation = NULL;
 // main entrance
 int main(int argc, char **argv) {
     // app test
-    gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-    PX_RELEASE(gFoundation);
     auto appProxy =
         SPW::Application::create<SPWTestApp>("SPWTestApp");
     return appProxy->app->run(argc, argv);

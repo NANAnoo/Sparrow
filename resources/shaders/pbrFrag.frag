@@ -52,7 +52,7 @@ vec3 PBR(vec3 N){
 
     vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
     float metallic  = texture(metallicMap, TexCoords).r;
-    float roughness = texture(roughnessMap, TexCoords).g;
+    float roughness = texture(roughnessMap, TexCoords).r;
     float ao        = texture(AoMap, TexCoords).r;
     vec3 V = normalize(camPos - position.xyz);
 
@@ -61,7 +61,7 @@ vec3 PBR(vec3 N){
     }
 
     for (int i = 0; i < DLightCount && i < 10; i ++) {
-        BP_scale += PBR_D(albedo,metallic,roughness,ao,N,V,vec3(position),camPos,DLights[i]);
+        BP_scale += PBR_D(albedo,metallic,roughness,ao,N,V,vec3(position),camPos,DLights[i], 0);
     }
 
     return BP_scale;
