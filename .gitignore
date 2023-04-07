@@ -2,5 +2,6 @@
 .idea
 *.DS_Store*
 .cache
+deffer.rdc
 .vscode/
 .vs

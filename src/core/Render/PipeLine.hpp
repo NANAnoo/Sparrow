@@ -96,6 +96,7 @@ namespace SPW {
         ClearColor = 1 << 1,
         ClearDepth = 1 << 2,
         ClearStencil = 1 << 3,
+        ClearAll = ClearColor | ClearDepth,
     };
 
     // input frame buffer type, get from previous pipeline output

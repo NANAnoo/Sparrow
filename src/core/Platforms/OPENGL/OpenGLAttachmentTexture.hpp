@@ -4,22 +4,25 @@
 #include "glad/glad.h"
 
 namespace SPW {
-    inline void getTypeFromAttachmentFormat(ColorAttachmentFormat format, unsigned int &formatType, unsigned int &dataType) {
+    inline void getTypeFromAttachmentFormat(ColorAttachmentFormat format, unsigned int &innerFormat, unsigned int &formatType, unsigned int &dataType) {
         switch (format) {
             case RGBA8:
                 formatType = GL_RGBA8;
                 dataType = GL_UNSIGNED_BYTE;
                 break;
             case RGBA16:
-                formatType = GL_RGBA16F;
+                innerFormat = GL_RGBA16F;
+                formatType = GL_RGBA;
                 dataType = GL_HALF_FLOAT;
                 break;
             case RGBA32:
-                formatType = GL_RGBA32F;
-                dataType = GL_FLOAT;
+                formatType = GL_RGBA;
+                innerFormat = GL_RGBA;
+                dataType = GL_UNSIGNED_BYTE;
                 break;
             case Depth:
-                formatType = GL_DEPTH_COMPONENT24;
+                innerFormat = GL_DEPTH_COMPONENT24;
+                formatType = GL_DEPTH_COMPONENT;
                 dataType = GL_FLOAT;
                 break;
             case R8:
@@ -43,8 +46,9 @@ namespace SPW {
                 dataType = GL_HALF_FLOAT;
                 break;
             case RGB16:
-                formatType = GL_RGB16F;
-                dataType = GL_HALF_FLOAT;
+                formatType = GL_RGB;
+                innerFormat = GL_RGB16F;
+                dataType = GL_FLOAT;
                 break;
             case R32:
                 formatType = GL_R;
@@ -55,6 +59,7 @@ namespace SPW {
                 dataType = GL_UNSIGNED_BYTE;
                 break;
             case RGB32:
+                innerFormat = GL_RGB;
                 formatType = GL_RGB;
                 dataType = GL_UNSIGNED_BYTE;
                 break;
@@ -71,17 +76,17 @@ namespace SPW {
                             ColorAttachmentFormat format) override
             {
                 // use switch trasnlate ColorAttachmentFormat::format to opengl format
-                getTypeFromAttachmentFormat(format, formatType, dataType);
+                getTypeFromAttachmentFormat(format, innerFormat, formatType, dataType);
                 glGenTextures(1, &m_textureID);
                 glBindTexture(GL_TEXTURE_2D, m_textureID);
                 //glTexStorage2D(GL_TEXTURE_2D, 1, formatType, width, height);
-                glTexImage2D(GL_TEXTURE_2D, 0, formatType, width, height, 0, formatType == GL_DEPTH_COMPONENT24 ? GL_DEPTH_COMPONENT: formatType, dataType, nullptr);
+                glTexImage2D(GL_TEXTURE_2D, 0, innerFormat, width, height, 0, formatType, dataType, nullptr);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 // set border as [1, 1, 1, 1] when format is depth
-                if (formatType == GL_DEPTH_COMPONENT24) {
+                if (formatType == GL_DEPTH_COMPONENT) {
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
                     GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -93,7 +98,7 @@ namespace SPW {
             // atach to framebuffer on index
             void attach(unsigned int index) override
             {   
-                if (formatType == GL_DEPTH_COMPONENT24) {
+                if (formatType == GL_DEPTH_COMPONENT) {
                     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_textureID, 0);
                 } else {
                     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, m_textureID, 0);
@@ -117,6 +122,7 @@ namespace SPW {
             }
         private:
             unsigned int m_textureID = 0;
+            unsigned int innerFormat = 0;
             unsigned int formatType = 0;
             unsigned int dataType = 0;
     };
@@ -133,18 +139,18 @@ namespace SPW {
                             unsigned int count,
                             ColorAttachmentFormat format) override
             {
-                getTypeFromAttachmentFormat(format, formatType, dataType);
+                getTypeFromAttachmentFormat(format, innerFormat, formatType, dataType);
                 glGenTextures(1, &m_textureID);
                 glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureID);
                 //glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, formatType, width, height, count);
-                glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, formatType, width, height, count, 0, formatType == GL_DEPTH_COMPONENT24 ? GL_DEPTH_COMPONENT: formatType, dataType, nullptr);
+                glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, innerFormat, width, height, count, 0, formatType, dataType, nullptr);
                 glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
                 // set border as [1, 1, 1, 1] when format is depth
-                if (formatType == GL_DEPTH_COMPONENT24) {
+                if (formatType == GL_DEPTH_COMPONENT) {
                     GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
                     glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
                 }
@@ -152,7 +158,7 @@ namespace SPW {
             }
 
             void attach(unsigned int index, unsigned int layer) override {
-                if (formatType == GL_DEPTH_COMPONENT24) {
+                if (formatType == GL_DEPTH_COMPONENT) {
                     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_textureID, 0, layer);
                 } else {
                     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, m_textureID, 0, layer);
@@ -180,6 +186,7 @@ namespace SPW {
         private:
             unsigned int m_textureID = 0;
             unsigned int m_count = 0;
+            unsigned int innerFormat = 0;
             unsigned int formatType = 0;
             unsigned int dataType = 0;
     };
@@ -191,11 +198,11 @@ namespace SPW {
                             unsigned int height, 
                             ColorAttachmentFormat format) override
             {
-                getTypeFromAttachmentFormat(format, formatType, dataType);
+                getTypeFromAttachmentFormat(format, innerFormat, formatType, dataType);
                 glGenTextures(1, &m_textureID);
                 glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
                 for (unsigned int i = 0; i < 6; i++) {
-                    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, formatType, width, height, 0, formatType == GL_DEPTH_COMPONENT24 ? GL_DEPTH_COMPONENT: formatType, dataType, nullptr);
+                    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, innerFormat, width, height, 0, formatType, dataType, nullptr);
                 }
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -203,7 +210,7 @@ namespace SPW {
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
                 // set border as [1, 1, 1, 1] when format is depth
-                if (formatType == GL_DEPTH_COMPONENT24) {
+                if (formatType == GL_DEPTH_COMPONENT) {
                     GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
                     glTexParameterfv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BORDER_COLOR, borderColor);
                 }
@@ -212,7 +219,7 @@ namespace SPW {
             }
 
             void attach(unsigned int index, unsigned int face) override {
-                if (formatType == GL_DEPTH_COMPONENT24) {
+                if (formatType == GL_DEPTH_COMPONENT) {
                     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, m_textureID, 0);
                 } else {
                     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, m_textureID, 0);
@@ -237,6 +244,7 @@ namespace SPW {
             }
         private:
             unsigned int m_textureID = 0;
+            unsigned int innerFormat = 0;
             unsigned int formatType = 0;
             unsigned int dataType = 0;
     };
@@ -249,18 +257,18 @@ namespace SPW {
                             unsigned int count,
                             ColorAttachmentFormat format) override
             {
-                getTypeFromAttachmentFormat(format, formatType, dataType);
+                getTypeFromAttachmentFormat(format, innerFormat, formatType, dataType);
                 glGenTextures(1, &m_textureID);
                 glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_textureID);
                 //glTexStorage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 1, formatType, width, height, count * 6);
-                glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, formatType, width, height, count * 6,  0, formatType == GL_DEPTH_COMPONENT24 ? GL_DEPTH_COMPONENT: formatType, dataType, nullptr);
+                glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, innerFormat, width, height, count * 6,  0, formatType, dataType, nullptr);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
                 // set border as [1, 1, 1, 1] when format is depth
-                if (formatType == GL_DEPTH_COMPONENT24) {
+                if (formatType == GL_DEPTH_COMPONENT) {
                     GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
                     glTexParameterfv(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
                 }
@@ -270,7 +278,7 @@ namespace SPW {
 
             void attach(unsigned int index, unsigned int layer, unsigned int face) override {
                 GLint layerFaceIndex = layer * 6 + face;
-                if (formatType == GL_DEPTH_COMPONENT24) {
+                if (formatType == GL_DEPTH_COMPONENT) {
                     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_textureID, 0, layerFaceIndex);
                 } else {
                     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, m_textureID, 0, layerFaceIndex);
@@ -295,6 +303,7 @@ namespace SPW {
             }
 
         private:
+            unsigned int innerFormat = 0;
             unsigned int m_textureID = 0;
             unsigned int formatType = 0;
             unsigned int dataType = 0;

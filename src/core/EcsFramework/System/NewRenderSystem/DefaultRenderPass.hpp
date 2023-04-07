@@ -31,6 +31,42 @@ namespace SPW {
         return res;
     }
 
+    static ShaderDesc defferPBR(const AttachmentPort &p_shaodw, const AttachmentPort &d_shaodw,
+                                const AttachmentPort &gPosition,
+                                const AttachmentPort &gNormal,
+                                const AttachmentPort &gAlbedo,
+                                const AttachmentPort &gMetalRognessAO,
+                                const AttachmentPort &gDepth,
+                                const ShaderHandle &shader)
+    {
+        ShaderDesc res{};
+
+        res.context_inputs[ContextType::CameraPosition] = "camPos";
+
+        res.light_inputs[LightType::PointLight] = "PLights";
+        res.light_inputs[LightType::DirectionalLight] = "DLights";
+        res.light_inputs[LightType::DLightArraySize] = "DLightCount";
+        res.light_inputs[LightType::PLightArraySize] = "PLightCount";
+        res.light_inputs[LightType::DLightTransform] = "lightSpaceMatrix";
+
+        res.dependency_inputs[p_shaodw] = "P_shadowMap";
+        res.dependency_inputs[d_shaodw] = "shadowMap";
+        res.dependency_inputs[gPosition] = "gPosition";
+        res.dependency_inputs[gNormal] = "gNormal";
+        res.dependency_inputs[gAlbedo] = "gAlbedo";
+        res.dependency_inputs[gMetalRognessAO] = "gMetalRognessAO";
+        res.dependency_inputs[gDepth] = "gDepth";
+
+
+        res.transform_inputs[TransformType::M] = "M";
+        res.transform_inputs[TransformType::V] = "V";
+        res.transform_inputs[TransformType::P] = "P";
+
+        res.shader = shader;
+
+        return res;
+    }
+
     static ShaderDesc D_shadowmap_desc() {
         ShaderDesc res{};
 
@@ -78,6 +114,25 @@ namespace SPW {
 
         return res;
     }
+
+    static ShaderDesc GBuffer_desc(const ShaderHandle &shader) {
+        ShaderDesc res{};
+
+        res.mat_inputs[MaterialType::AlbedoType] = "albedoMap";
+        res.mat_inputs[MaterialType::NormalType] = "normalMap";
+        res.mat_inputs[MaterialType::MetallicType] = "metallicMap";
+        res.mat_inputs[MaterialType::RoughnessType] = "roughnessMap";
+        res.mat_inputs[MaterialType::AOType] = "AoMap";
+
+        res.transform_inputs[TransformType::M] = "M";
+        res.transform_inputs[TransformType::V] = "V";
+        res.transform_inputs[TransformType::P] = "P";
+
+        res.shader = shader;
+
+        return res;
+    }
+
 
     static ShaderDesc PBR_light_with_shadow_desc(const AttachmentPort &p_shaodw, const AttachmentPort &d_shaodw, const ShaderHandle &shader) {
         ShaderDesc res{};

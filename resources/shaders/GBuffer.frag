@@ -14,6 +14,7 @@ layout (location = 3) out vec4 gMetalRognessAO;
 in vec2 TexCoords;
 in vec3 FragPos;
 in vec3 Normal;
+in vec4 pixelPosition;
 
 uniform sampler2D albedoMap;
 uniform sampler2D metallicMap;
@@ -50,4 +51,5 @@ void main()
     gMetalRognessAO.r = texture(metallicMap, TexCoords).r;
     gMetalRognessAO.g = texture(roughnessMap, TexCoords).g;
     gMetalRognessAO.b = texture(AoMap, TexCoords).b;
+    gl_FragDepth = pixelPosition.z/pixelPosition.w;
 }

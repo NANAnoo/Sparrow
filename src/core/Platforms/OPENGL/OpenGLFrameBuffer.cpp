@@ -69,11 +69,12 @@ namespace SPW
 
     void OpenGLFrameBuffer::AttachColorRenderBuffer(unsigned int width,unsigned int height,unsigned int slot)
     {
-        glGenRenderbuffers(1, &rboId);
-        glBindRenderbuffer(GL_RENDERBUFFER, rboId);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_R32I, width, height);
-        //glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_RENDERBUFFER, rboId);
+//        glGenRenderbuffers(1, &rboId);
+//        glBindRenderbuffer(GL_RENDERBUFFER, rboId);
+//        glRenderbufferStorage(GL_RENDERBUFFER, GL_R32I, width, height);
+//        //glBindRenderbuffer(GL_RENDERBUFFER, 0);
+//        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_RENDERBUFFER, rboId);
+        Buffers.push_back(GL_COLOR_ATTACHMENT0 + slot);
     }
 
     void OpenGLFrameBuffer::AttachDepthRenderBuffer(unsigned int width,unsigned int height)
@@ -87,6 +88,10 @@ namespace SPW
 
     void OpenGLFrameBuffer::CheckFramebufferStatus()
     {
+        if(Buffers.size()>1)
+        {
+            glDrawBuffers(Buffers.size(),Buffers.data());
+        }
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     }

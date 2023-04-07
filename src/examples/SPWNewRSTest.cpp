@@ -233,29 +233,72 @@ public:
             scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
 
             // ------ create main render graph ----------------
-            auto pbr_with_PDshadow = rendersystem->createRenderGraph();
+//            auto pbr_with_PDshadow = rendersystem->createRenderGraph();
+//
+//            auto p_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::CubeMapType, SPW::RepeatForPLights, 10);
+//            p_shadowmap_node->width = 256;
+//            p_shadowmap_node->height = 256;
+//            p_shadowmap_node->clearType = SPW::ClearDepth;
+//
+//
+//            auto d_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
+//            d_shadowmap_node->width = 4096;
+//            d_shadowmap_node->height = 4096;
+//            d_shadowmap_node->clearType = SPW::ClearDepth;
+//
+//            auto pbr_shadow_lighting_node = pbr_with_PDshadow->createRenderNode<SPW::ModelToScreenNode>();
+//
+//            auto p_shadowmap_output = p_shadowmap_node->addAttachment(SPW::Depth);
+//            auto d_shadowmap_output = d_shadowmap_node->addAttachment(SPW::Depth);
+//
+//            pbr_shadow_lighting_node->bindInputPort(p_shadowmap_output);
+//            pbr_shadow_lighting_node->bindInputPort(d_shadowmap_output);
+//
+//            auto pbr_shadow_lighting_output = pbr_shadow_lighting_node->addScreenAttachment(SPW::ScreenColorType);
+            // ------ create main render graph ----------------
 
-            auto p_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::CubeMapType, SPW::RepeatForPLights, 10);
+            auto defferShadering = rendersystem->createRenderGraph();
+            auto defferNode = defferShadering->createRenderNode<SPW::ModelPassNode>(SPW::ColorType);
+
+            auto p_shadowmap_node = defferShadering->createRenderNode<SPW::ModelRepeatPassNode>(SPW::CubeMapType, SPW::RepeatForPLights, 10);
             p_shadowmap_node->width = 256;
             p_shadowmap_node->height = 256;
             p_shadowmap_node->clearType = SPW::ClearDepth;
 
-
-            auto d_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
+            auto d_shadowmap_node = defferShadering->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
             d_shadowmap_node->width = 4096;
             d_shadowmap_node->height = 4096;
             d_shadowmap_node->clearType = SPW::ClearDepth;
 
-            auto pbr_shadow_lighting_node = pbr_with_PDshadow->createRenderNode<SPW::ModelToScreenNode>();
-
             auto p_shadowmap_output = p_shadowmap_node->addAttachment(SPW::Depth);
             auto d_shadowmap_output = d_shadowmap_node->addAttachment(SPW::Depth);
 
-            pbr_shadow_lighting_node->bindInputPort(p_shadowmap_output);
-            pbr_shadow_lighting_node->bindInputPort(d_shadowmap_output);
-            
-            auto pbr_shadow_lighting_output = pbr_shadow_lighting_node->addScreenAttachment(SPW::ScreenColorType);
-            // ------ create main render graph ----------------
+            defferNode->width = weak_window.lock()->frameWidth();
+            defferNode->height = weak_window.lock()->frameHeight();
+            defferNode->clearType = SPW::ClearType::ClearAll;
+            defferNode->depthTest = true;
+            defferNode->depthCompType = SPW::DepthCompType::LESS_Type;
+            auto gPosition = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGB16);
+            auto gNormal = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGB16);
+            auto gAlbedo = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
+            auto gMetalRognessAO = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
+            auto gDepth = defferNode->addAttachment(SPW::ColorAttachmentFormat::Depth);
+
+            auto pbr_depfer_shading_desc = SPW::defferPBR(p_shadowmap_output, d_shadowmap_output, gPosition, gNormal, gAlbedo, gMetalRognessAO, gDepth, {
+                "defferPBR",
+                "./resources/shaders/pbr_defer_shading.vert",
+                "./resources/shaders/pbr_defer_shading.frag"
+            });
+
+            auto GBufferShading = defferShadering->createRenderNode<SPW::ScreenPassNode>(pbr_depfer_shading_desc);
+            GBufferShading->bindInputPort(gPosition);
+            GBufferShading->bindInputPort(gNormal);
+            GBufferShading->bindInputPort(gAlbedo);
+            GBufferShading->bindInputPort(gMetalRognessAO);
+            GBufferShading->bindInputPort(p_shadowmap_output);
+            GBufferShading->bindInputPort(d_shadowmap_output);
+            GBufferShading->bindInputPort(gDepth);
+            GBufferShading->depthCompType = SPW::DepthCompType::LESS_Type;
 
             // ------ create render graph for skybox ----------------
             auto skyGraph = rendersystem->createRenderGraph();
@@ -288,6 +331,11 @@ public:
                                             "./resources/shaders/simpleVs.vert",
                                             "./resources/shaders/pbrShadowTiled.frag"
                                     });
+            SPW::ShaderHandle DrawGBuffer({
+                                                  "drawGBuffer",
+                                                  "./resources/shaders/GBuffer.vert",
+                                                  "./resources/shaders/GBuffer.frag"
+                                          });
             auto p_shadow_desc = SPW::P_shadowmap_desc();
             auto d_shadow_desc = SPW::D_shadowmap_desc();
             auto p_ani_shadow_desc = SPW::P_ani_shadowmap_desc();
@@ -296,7 +344,8 @@ public:
             auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_ani_light_shadow);
             auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
             auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow_tiled);
-            
+            auto GBuffer_desc = SPW::GBuffer_desc(DrawGBuffer);
+
             auto skybox_desc = SPW::SkyBoxShader_desc();
             rendersystem->addShaderDesciptor(pbr_light_shadow_desc);
             rendersystem->addShaderDesciptor(pbr_light_shadow_tiled_desc);
@@ -306,6 +355,8 @@ public:
             rendersystem->addShaderDesciptor(p_ani_shadow_desc);
             rendersystem->addShaderDesciptor(d_ani_shadow_desc);
             rendersystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
+            rendersystem->addShaderDesciptor(GBuffer_desc);
+            rendersystem->addShaderDesciptor(pbr_depfer_shading_desc);
 
             // --------------- create shader ---------------
             auto camera_id = createMaincamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
@@ -320,10 +371,10 @@ public:
             // add a model to show
             auto model = obj->emplace<SPW::MeshComponent>(camera_id);
 
-            model->bindRenderGraph = pbr_with_PDshadow->graph_id;
+            model->bindRenderGraph = defferShadering->graph_id;
             model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
             model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
-            model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_ani_light_shadow_desc.uuid;
+            model->modelSubPassPrograms[defferNode->pass_id] = GBuffer_desc.uuid;
 
             model->model = createModel();
             auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
@@ -338,8 +389,8 @@ public:
             auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
             cubemodel->model = createCubeModel();
 
-            cubemodel->bindRenderGraph = pbr_with_PDshadow->graph_id;
-            cubemodel->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_tiled_desc.uuid;
+            cubemodel->bindRenderGraph = defferShadering->graph_id;
+            cubemodel->modelSubPassPrograms[defferNode->pass_id] = GBuffer_desc.uuid;
 
             // --------------------------------------------------------------------------------
             auto skybox = scene->createEntity("skybox");

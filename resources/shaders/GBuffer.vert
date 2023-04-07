@@ -6,6 +6,7 @@ layout (location = 2) in vec2 texCoords;
 out vec3 FragPos;
 out vec2 TexCoords;
 out vec3 Normal;
+out vec4 pixelPosition;
 
 uniform mat4 M;
 uniform mat4 V;
@@ -20,4 +21,6 @@ void main()
 
     mat3 normalMatrix = transpose(inverse(mat3(M)));
     Normal = normalMatrix * normal;
+
+    pixelPosition = gl_Position;
 }

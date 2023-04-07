@@ -605,7 +605,7 @@ namespace SPW {
                 if (format != ColorAttachmentFormat::Depth) {
                     fb->AttachColorRenderBuffer(node->width, node->height, index++);
                 } else {
-                    fb->AttachDepthRenderBuffer(node->width, node->height);
+                    //fb->AttachDepthRenderBuffer(node->width, node->height);
                 }
                 tex->unbind();
                 all_attachments.insert({{node->pass_id, resources_id}, tex});
