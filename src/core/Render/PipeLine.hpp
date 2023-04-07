@@ -72,6 +72,8 @@ namespace SPW {
         CameraPosition = 1 << 3,
         // random uniform float
         RandomNumber = 1 << 4,
+        // mesh offset
+        MeshOffset = 1 << 5,
     };
 
     // light uniforms, should be uniform array object
@@ -118,12 +120,6 @@ namespace SPW {
 
         // screen depth buffer
         ScreenDepthType = 1 << 2,
-
-        // screen all types
-        ScreenAllType = ScreenColorType | ScreenDepthType,
-
-        // present to screen
-        PresentType = 1 << 3,
     };
 
     // color attachment format

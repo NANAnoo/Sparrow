@@ -13,6 +13,8 @@ CORE_ADD_SOURCE(
         OpenGLFrameBuffer.h
         OpenGLFrameBuffer.cpp
         OpenGLCubeMap.h
+        OpenGLShaderStorageBuffer.cpp
+        OpenGLShaderStorageBuffer.h
         OpenGLAttachmentTexture.hpp
         OpenGLRenderGraph.cpp
         OpenGLRenderGraph.h

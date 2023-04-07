@@ -9,10 +9,10 @@
 #include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
+#include "Model/Animation/Skeleton.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Control/KeyEvent.hpp"
 #include "Control/MouseEvent.hpp"
@@ -31,11 +31,14 @@
 #include "EcsFramework/Component/Audio/AudioListener.h"
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
+#include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
 
 
 #include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
+#include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
+#include "Render/StorageBuffer.h"
 
 #include "Model/Model.h"
 
@@ -51,12 +54,28 @@
 #include "SimpleRender.h"
 #include "IO/ResourceManager.h"
 #include "Model/Model.h"
+#include "Render/StorageBuffer.h"
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
+
 std::shared_ptr<SPW::Model> createModel() {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-    //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
+  /*
+     * Animation Test:
+     * 1. Bones
+     * 2. Animation Clips
+     * TODO: Pointial Problems:
+     * 1. fbx 读不出权重和父子关系，gltf都可以。 建议尽量使用gltf模型，如果是一定要用的模型，建议在导入工程之前增加一步blender操作。
+     * 2. 骨骼父子关系按照aibone in assimp 的方式读， aibone在一个mesh里面，导致读出来的骨骼根节点，是当前mesh的根节点。
+     * 3. weight关系（已在沙盒实现vertex[BoneSlot<4>, weight<4>]映射关系）。
+     * */
+  auto animInstance = SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/Standing 2H Magic Attack 01.fbx");
+
+  return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/Standing 2H Magic Attack 01.fbx");
+}
+
+std::shared_ptr<SPW::Skeleton> createSkeleton() {
+    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/Standing 2H Magic Attack 01.fbx");
 }
 std::shared_ptr<SPW::Model> createCubeModel()
 {
@@ -110,6 +129,9 @@ public:
     std::weak_ptr<SPW::Scene> scene;
 };
 
+static std::vector<glm::vec4> sColors = {{1, 0, 0, 1}, {0, 1, 0, 1}, {0, 0, 1, 1}};
+static std::shared_ptr<SPW::StorageBuffer> testColor = std::make_shared<SPW::StorageBuffer>("TestColor", sizeof(glm::vec4) * sColors.size(), 8);
+
 class TestDelegate : public SPW::AppDelegateI {
 public:
     explicit TestDelegate(std::shared_ptr<SPW::EventResponderI> &app, const char *name) :
@@ -118,7 +140,7 @@ public:
     void onAppInit() final {
         auto window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
-        app->window->setSize(1280, 720);
+        app->window->setSize(800, 600);
         app->window->setTitle("SPWTestApp");
 
         transformer = std::make_shared<Transformer>(app->delegate.lock());
@@ -146,6 +168,7 @@ public:
             scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight()));
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
 
             // add a camera entity
             auto camera = scene->createEntity("main camera");
@@ -201,17 +224,17 @@ public:
                 glm::vec3 up = {0, 1, 0};
                 glm::vec3 right = glm::normalize(glm::cross(forward, up));
                 if(keycode == SPW::Key::W)
-                    mainCameraTrans->position +=0.01f * forward;
+                    mainCameraTrans->position +=0.1f * forward;
                 if(keycode == SPW::Key::S)
-                    mainCameraTrans->position -=0.01f * forward;
+                    mainCameraTrans->position -=0.1f * forward;
                 if(keycode == SPW::Key::A)
-                    mainCameraTrans->position -=0.01f * right;
+                    mainCameraTrans->position -=0.1f * right;
                 if(keycode == SPW::Key::D)
-                    mainCameraTrans->position +=0.01f * right;
+                    mainCameraTrans->position +=0.1f * right;
                 if(keycode == SPW::Key::Q)
-                    mainCameraTrans->position -=0.01f * up;
+                    mainCameraTrans->position -=0.1f * up;
                 if(keycode == SPW::Key::E)
-                    mainCameraTrans->position +=0.01f * up;
+                    mainCameraTrans->position +=0.1f * up;
             };
             auto mouse = camera->emplace<SPW::MouseComponent>();
             mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
@@ -231,7 +254,7 @@ public:
 
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
-            transform->scale = {0.5, 0.5, 0.5};
+            transform->scale = {0.01, 0.01, 0.01};
             transform->rotation = {0, 90, 0};
             transform->position = {0, -0.3, 0};
 
@@ -259,6 +282,14 @@ public:
             model->modelProgram = shaderHandle;
             model->shadowProgram = ShadowShaderHandle;
             model->model = createModel();
+            auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
+            animation->skeleton = createSkeleton();
+            animation->swapCurrentAnim("mixamo.com");
+            //animation->incomingAnimName = "mantis_anim";
+            //animation->currentAnimation = animation->skeleton->m_animClips[0];
+
+            testColor->updateSubData(sColors.data(), 0, sColors.size() * sizeof(glm::vec4));
+            model->preRenderCommands.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::initStorageBuffer, testColor));
             auto cubeObj = scene->createEntity("floor");
             auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
             cubeTrans->scale = {5.0, 0.05, 5.0};
@@ -312,11 +343,12 @@ public:
     }
     void beforeAppUpdate() final{
         scene->beforeUpdate();
+        scene->forEachEntity<SPW::ModelComponent>([](const SPW::Entity &en){
+            en.component<SPW::ModelComponent>()->pipeLineCommands.pushCommand(SPW::RenderCommand(&SPW::Shader::setStorageBuffer, testColor));
+        });
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
-
         // physics, computation
-
         scene->onUpdate(du);
     }
 
@@ -344,7 +376,7 @@ public:
         } catch (sol::error &e) {
             std::cout << e.what() << std::endl;
         }
-        std::cout << "app stopped" << std::endl;
+        std::cout << "app Stopped" << std::endl;
         scene->onStop();
     }
 

@@ -205,9 +205,12 @@ namespace SPW {
                 shader->setVec3(name, camPos);
                 break;
             }
-            case RandomNumber:
+            case RandomNumber: {
                 shader->setFloat(name, float(rand()) / float(RAND_MAX));
-                    break;
+                break;
+            }
+            default:
+                break;
             }
         }
     }
@@ -220,7 +223,7 @@ namespace SPW {
         glm::mat4 lightSpaceMatrix;
 
         float near_plane = 1.0f, far_plane = 10.5f;
-        lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
+        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
         lightView = glm::lookAt(lightPos, cam_center, glm::vec3(0.0, 1.0, 0.0));
         lightSpaceMatrix = lightProjection * lightView;
 
@@ -436,9 +439,17 @@ namespace SPW {
                     }
                 }
                 
+                if (mesh->onDraw) {
+                    RenderCommandsQueue<Shader> queue;
+                    mesh->onDraw(queue);
+                    queue.executeWithAPI(shader);
+                }
+
                 // draw submeshes
                 for (auto &submesh : mesh->model->GetMeshes()) {
                     bindMaterial(shader, shader_desc.mat_inputs, input.backend, submesh->GetMaterial(), slot);
+                    if (shader_desc.context_inputs.find(MeshOffset) != shader_desc.context_inputs.end())
+                        shader->setInt(shader_desc.context_inputs.at(MeshOffset), submesh->offset);
                     submesh->PureDraw(input.backend);
                 }
             }

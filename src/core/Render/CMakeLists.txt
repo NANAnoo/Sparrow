@@ -13,6 +13,7 @@ CORE_ADD_SOURCE(
         Material.h
         FrameBuffer.h
         Light.h
+        StorageBuffer.h
         Pipeline.hpp
         AttachmentTexture.h
         RenderGraph.hpp

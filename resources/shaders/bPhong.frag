@@ -26,7 +26,6 @@ uniform int DLightCount;
 uniform PLight PLights[10];
 uniform int PLightCount;
 
-
 in vec2 TexCoords;
 in vec3 normal;
 in vec4 position;

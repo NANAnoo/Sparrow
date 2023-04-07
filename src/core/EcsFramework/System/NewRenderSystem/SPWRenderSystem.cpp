@@ -47,15 +47,23 @@ namespace SPW {
     {
         locatedScene.lock()->forEach(
         [this](MeshComponent *mesh){
-                if (!mesh->ready) {
-                    mesh->model->setUpModel(renderBackEnd);
-                    mesh->ready = true;
-                }
+            if (!mesh->ready) {
+                mesh->model->setUpModel(renderBackEnd);
+                mesh->ready = true;
+            }
+            
+            if (mesh->beforeDraw) {
+                RenderCommandsQueue<RenderBackEndI> queue;
+                mesh->beforeDraw(queue);
+                queue.executeWithAPI(renderBackEnd);
+            }
+            mesh->beforeDraw = nullptr;
         }, MeshComponent);
     }
 
     void SPWRenderSystem::afterUpdate()
     {
+        TICKTOCK;
         // clear screen and clear screen buffer
         screenBuffer->bind();
         renderBackEnd->Clear();
@@ -151,6 +159,11 @@ namespace SPW {
                 graphs[graph_id]->render(input);
             }
         }
+
+        locatedScene.lock()->forEach(
+        [this](MeshComponent *mesh){
+            mesh->onDraw = nullptr;
+        }, MeshComponent);
     }
 
     void SPWRenderSystem::onStop()
