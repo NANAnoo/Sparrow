@@ -212,7 +212,9 @@ public:
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(renderSystem);
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+
+            //TODO
+            //scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 
             // ------ create main render graph ----------------
             auto pbr_with_PDshadow = renderSystem->createRenderGraph();
@@ -385,9 +387,18 @@ public:
         dockspacePanels.emplace_back(m_ImguiManager->m_ObjectPanel);
         dockspacePanels.emplace_back(m_ImguiManager->m_HierarchyPanel);
         dockspacePanels.emplace_back(m_ImguiManager->m_MainMenuBar);
-        dockspacePanels.emplace_back(m_ImguiManager->m_HierarchyPanel);
+
+        //render image
+        GLuint texture_id = renderSystem->getTextureID();
+        if(texture_id)
+        {
+            m_ImguiManager->CreateImagePanel(texture_id);
+            dockspacePanels.emplace_back(m_ImguiManager->m_ImagePanel);
+		}
 
         m_ImguiManager->CreateAndRenderDockspacePanel(dockspacePanels);
+
+        
         //m_ImguiManager->RenderDockspacePanel();
 
         //----------------------------------------------------------------------------------------
@@ -401,11 +412,6 @@ public:
         //----------------------------------------------------------------------------------------
     	// const auto& activeEntityPanel  = m_ImguiManager->GetEntityPanel();
         // const auto& activeInspector = m_ImguiManager->GetInspectorPanel();
-
-        //----------------------------------------------------------------------------------------
-     //   GLuint texture_id = renderSystem->getTextureID();
-     //   ImTextureID image_id = (void*)(intptr_t)texture_id;
-     //   ImGui::Image(image_id, ImVec2(480,320), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0), ImVec4(1, 1, 1, 1), ImVec4(0, 1, 0, 1));
 
     	//scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
      //   {

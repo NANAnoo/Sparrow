@@ -11,9 +11,11 @@
 #include "UIComponent/ImGuiObjectPanel.h"
 #include "UIComponent/ImGuiInspectorPanel.h"
 #include "UIComponent/ImGuiTreeNodePanel.h"
+#include "UIComponent/ImGuiImagePanel.h"
 
 namespace SPW
 {
+	class ImGuiImagePanel;
 
 	class ImGuiManager
 	{
@@ -53,12 +55,6 @@ namespace SPW
 				ShowDemoWindow(&show_demo_window);
 		}
 
-		//template<>
-		//void RenderUIComponent<UIComponentType::Dockspace>(std::string&& name)
-		//{ 
-		//	ImGuiDockSpace::Render();
-		//}
-
 		template<>
 		void RenderUIComponent<UIComponentType::MenuBar>()
 		{
@@ -86,10 +82,21 @@ namespace SPW
 		template<>
 		void RenderUIComponent<UIComponentType::Axis>()
 		{
-			// m_InspectorPanel->Render()
+			m_InspectorPanel->Render();
+		}
+
+		template<>
+		void RenderUIComponent<UIComponentType::Image>()
+		{
+			m_ImagePanel->Render();
 		}
 
         void CreateAndRenderDockspacePanel(std::vector<std::shared_ptr<SPW::ImGuiPanel>> panels);
+
+		void CreateImagePanel(GLuint tid)
+		{
+			m_ImagePanel = std::make_shared<ImGuiImagePanel>(tid);
+		}
 
 	private:
 
@@ -137,12 +144,15 @@ namespace SPW
 			m_InspectorPanel = std::make_shared<ImGuiInspectorPanel>("Inspector Panel");
 		}
 
+
 		//TODO:modify
 	public:
 		std::shared_ptr<ImGuiObjectPanel>		m_ObjectPanel;
 		std::shared_ptr<ImGuiMenuBar>			m_MainMenuBar;
 		std::shared_ptr<ImGuiTreeNodePanel>		m_HierarchyPanel;
 		std::shared_ptr<ImGuiInspectorPanel>	m_InspectorPanel;
+		std::shared_ptr<ImGuiImagePanel>	    m_ImagePanel;
+
         //std::shared_ptr<>
 	private:
 		bool show_demo_window = false;
