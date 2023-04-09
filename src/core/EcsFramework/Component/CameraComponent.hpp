@@ -16,7 +16,7 @@ enum CameraType {
 };
 class CameraComponent : public ComponentI {
 public:
-  CameraComponent() = delete;
+  CameraComponent() = default;
   explicit CameraComponent(CameraType type) : cameraType(type) {}
   // PerspectiveType
   float fov = 1.0;
@@ -30,6 +30,28 @@ public:
   float bottom = 1;
   float top = 1;
   [[nodiscard]] CameraType getType() const { return cameraType;}
+
+  template<class Archive>
+  void serialize(Archive& ar)
+  {
+    ar(cereal::make_nvp("cameraType", cameraType));
+    switch (cameraType)
+    {
+    case CameraType::PerspectiveType:
+      ar(cereal::make_nvp("fov", fov),
+         cereal::make_nvp("aspect", aspect),
+         cereal::make_nvp("near", near),
+         cereal::make_nvp("far", far));
+      break;
+    case CameraType::OrthoType:
+    case CameraType::UIOrthoType:
+      ar(cereal::make_nvp("left", left),
+         cereal::make_nvp("right", right),
+         cereal::make_nvp("bottom", bottom),
+         cereal::make_nvp("top", top));
+      break;
+    }
+  }
 
   // init from lua
   void initFromLua(const sol::table &value) final {

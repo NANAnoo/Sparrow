@@ -7,16 +7,15 @@
 #include "glm/glm.hpp"
 #include "vector"
 
-#include "memory"
+#include "Asset/AssetData/Vertex.h"
 #include "Render/IndexBuffer.h"
-#include "Render/VertexBuffer.h"
+#include "Render/Material.h"
 #include "Render/RenderBackEndI.h"
 #include "Render/RenderPass.hpp"
+#include "Render/VertexBuffer.h"
 #include "Render/shader.h"
-#include "Render/Material.h"
-#include "Vertex.h"
-#include "Render/Material.h"
 #include "iostream"
+#include "memory"
 
 namespace SPW
 {

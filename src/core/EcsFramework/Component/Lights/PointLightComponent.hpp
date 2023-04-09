@@ -15,6 +15,17 @@ namespace SPW {
         glm::vec3 diffuse;
         glm::vec3 specular;
 
+        template<class Archive>
+        void serialize(Archive& ar)
+        {
+          ar(cereal::make_nvp("constant", constant),
+             cereal::make_nvp("linear", linear),
+             cereal::make_nvp("quadratic", quadratic),
+             cereal::make_nvp("ambient", ambient),
+             cereal::make_nvp("diffuse", diffuse),
+             cereal::make_nvp("specular", specular));
+        }
+
         // lua binding
         void update(const std::string &key, const sol::table &value) final {
             if (key == "constant" && value["value"].valid()) {

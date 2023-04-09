@@ -11,7 +11,14 @@ macro(CORE_ADD_SOURCE)
     set(CoreSourceFiles ${CoreSourceFiles} ${SOURCE_FILES} PARENT_SCOPE)
 endmacro(CORE_ADD_SOURCE)
 
-set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h")
+set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h"
+        Asset/Asset.hpp
+        Asset/AssetDataSupport.inl
+        Asset/AssetData/ModelData.h
+        Asset/AssetData/MeshData.h
+        Asset/AssetData/MaterialData.h
+        Asset/ModelLoader/ModelLoader.cpp
+        Asset/ModelLoader/ModelLoader.h Asset/Serializer/EntitySerializer.cpp Asset/Serializer/EntitySerializer.h)
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(Utils)
@@ -24,6 +31,7 @@ add_subdirectory(Render)
 add_subdirectory(Model)
 add_subdirectory(IO)
 add_subdirectory(LuaBinding)
+add_subdirectory(Asset)
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Core Sources:" ${CoreSourceFiles})

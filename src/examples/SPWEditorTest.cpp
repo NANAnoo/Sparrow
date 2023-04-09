@@ -37,10 +37,17 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
-#include "ImGui/ImGuiManager.hpp"
-#include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "EcsFramework/Component/MeshComponent.hpp"
+#include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
+#include "IO/FileSystem.h"
+#include "ImGui/ImGuiManager.hpp"
 
+#include "Asset/Asset.hpp"
+#include "Asset/AssetData/MeshData.h"
+#include "Asset/AssetData/ModelData.h"
+#include "Asset/AssetData/MaterialData.h"
+#include "Asset/Serializer/EntitySerializer.h"
+#include "Asset/ModelLoader/ModelLoader.h"
 
 std::shared_ptr<SPW::Model> createModel() {
     //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
@@ -172,6 +179,8 @@ public:
 
 };
 
+// #define SAVE_SCENE
+// #define LOAD_SCENE
 class SPWTestApp : public SPW::AppDelegateI
 {
 public:
@@ -181,6 +190,127 @@ public:
 
     void onAppInit() final
     {
+
+        // -------------------------------OFFLINE TEST-------------------------------------------
+
+        // 1. Simulate a process of an engine boost
+        // 1.1. ConfigManager receive the path of root, and construct the file paths
+
+        // new a project file directory anywhere, assume my desktop...
+        const std::string root { "C:/Users/dudu/Desktop/UserProject" };
+
+        // FileSystem construct the different pathes
+        const SPW::FileRoot projectRoots
+        {
+            root + "/engine",
+            root + "/resource",
+            root + "/asset"
+        };
+
+        // create the basic direcotories /engine and /resource /asset
+        // TODO check the slash status
+
+        // copy engine files into /engine
+        SPW::FileSystem::CreateDirectory(projectRoots.engine);
+        // copy project asset resource, including textures ... meshes
+        SPW::FileSystem::CreateDirectory(root + "/resource");
+        //
+        SPW::FileSystem::CreateDirectory(root + "/asset");
+
+        // 2. Simulate a process of loading some resources into a scene
+#if defined(SAVE_SCENE)
+        // assume load two models into the scene
+        std::unique_ptr<SPW::ModelDataRet> model_0 = SPW::ModelLoader::LoadModel("C:/Users/dudu/Downloads/mosquito_in_amber/scene.gltf");
+        std::unique_ptr<SPW::ModelDataRet> model_1 = SPW::ModelLoader::LoadModel("C:/Dev/Sparrow Renderer/res/Models/mantis/model.fbx");
+
+        // construct model vector
+        std::vector<SPW::ModelData> models = { model_0->model, model_1->model };
+
+        // construct material vector
+        std::vector<SPW::MaterialData> materials = model_0->materials;
+        materials.insert(materials.end(), model_1->materials.begin(), model_1->materials.end());
+
+        // construct texture vector
+        std::unordered_map<std::string, std::string> textures = model_0->textures;
+        textures.insert(model_1->textures.begin(), model_1->textures.end());
+
+        std::ofstream of_file(projectRoots.asset + "/scene.json");
+        cereal::JSONOutputArchive ar(of_file);
+
+        // Copy
+        SPW::FileSystem::CreateDirectory(projectRoots.resource + "/textures");
+
+        for (auto& [k, v] : textures)
+        {
+            std::cout << k << ": " << v << std::endl;
+
+            std::string destinationFilePath(projectRoots.resource + "/textures/" + SPW::FileSystem::ToFsPath(v).filename().string());
+            SPW::FileSystem::CopyFile(v, destinationFilePath);
+
+            // Update Texture Path
+            v = destinationFilePath;
+        }
+
+        ar(
+            cereal::make_nvp("models", models),
+            cereal::make_nvp("materials", materials),
+            cereal::make_nvp("textures", textures)
+        );
+
+    	ar(
+            cereal::make_nvp("Entities", models),
+            cereal::make_nvp("CameraComponemnts", materials),
+            cereal::make_nvp("...Componemnts", textures)
+        );
+
+        SPW::FileSystem::CreateDirectory(projectRoots.resource + "/mesh");
+        {
+            // serialize mesh
+            {
+              std::ofstream mesh_bin(std::string(projectRoots.resource + "/mesh/" + model_0->model.meshURI + ".mesh"), std::ios::binary);
+              cereal::BinaryOutputArchive archive(mesh_bin);
+              archive(cereal::make_nvp(model_0->model.meshURI, model_0->meshes));
+            }
+
+            // serialize mesh
+            {
+              std::ofstream mesh_bin(std::string(projectRoots.resource + "/mesh/" + model_1->model.meshURI + ".mesh"), std::ios::binary);
+              cereal::BinaryOutputArchive archive(mesh_bin);
+              archive(cereal::make_nvp(model_1->model.meshURI, model_1->meshes));
+            }
+        }
+#elif defined(LOAD_SCENE)
+        // Load a scene from the disk
+        std::vector<SPW::ModelData> models;
+        std::vector<SPW::MaterialData> materials;
+        std::vector<SPW::MeshData> meshes;
+        std::unordered_map<std::string, std::string>	textures;
+
+        std::ifstream is_Scene(root + "/asset" + "/scene.json");
+        cereal::JSONInputArchive ar(is_Scene);
+        ar(
+            cereal::make_nvp("models", models),
+            cereal::make_nvp("materials", materials),
+            cereal::make_nvp("textures", textures)
+        );
+
+        for(auto& model : models)
+        {
+          // load models from asset
+          std::vector<SPW::MeshData> t_meshes;
+          std::ifstream mesh_bin(std::string(projectRoots.resource + "/mesh/" + model.meshURI + ".mesh"), std::ios::binary);
+          cereal::BinaryInputArchive ar(mesh_bin);
+          ar(cereal::make_nvp(model.meshURI, t_meshes));
+
+          meshes.insert(meshes.end(), t_meshes.begin(), t_meshes.end());
+        }
+
+        std::cin.get();
+#endif
+        // -------------------------------OFFLINE TEST-------------------------------------------
+
+
+
         std::shared_ptr<SPW::GlfwWindow> window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
         app->window->setSize(1280, 720);
@@ -362,6 +492,8 @@ public:
             // init scene
             scene->initial();
             transformer->scene = scene;
+
+            // SPW::EntitySerializer::SaveScene(scene);
         });
     }
     void beforeAppUpdate() final
