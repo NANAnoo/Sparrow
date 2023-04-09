@@ -493,7 +493,7 @@ public:
             scene->initial();
             transformer->scene = scene;
 
-            // SPW::EntitySerializer::SaveScene(scene);
+             SPW::EntitySerializer::SaveScene(scene, "C:/Users/10355/Desktop/");
         });
     }
     void beforeAppUpdate() final
@@ -519,6 +519,7 @@ public:
         dockspacePanels.emplace_back(m_ImguiManager->m_ObjectPanel);
         dockspacePanels.emplace_back(m_ImguiManager->m_HierarchyPanel);
         dockspacePanels.emplace_back(m_ImguiManager->m_MainMenuBar);
+        dockspacePanels.emplace_back(m_ImguiManager->m_FileExplorer);
 
         //render image
         GLuint texture_id = renderSystem->getTextureID();

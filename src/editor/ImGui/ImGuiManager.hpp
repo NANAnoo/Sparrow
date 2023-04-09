@@ -12,6 +12,8 @@
 #include "UIComponent/ImGuiInspectorPanel.h"
 #include "UIComponent/ImGuiTreeNodePanel.h"
 #include "UIComponent/ImGuiImagePanel.h"
+#include "UIComponent/ImGuiFileExplorer.h"
+
 
 namespace SPW
 {
@@ -91,6 +93,12 @@ namespace SPW
 			m_ImagePanel->Render();
 		}
 
+		template<>
+		void RenderUIComponent<UIComponentType::FileExplorer>()
+		{
+			m_FileExplorer->Render();
+		}
+
         void CreateAndRenderDockspacePanel(std::vector<std::shared_ptr<SPW::ImGuiPanel>> panels);
 
 		void CreateImagePanel(GLuint tid)
@@ -106,6 +114,7 @@ namespace SPW
 			InitProfilingPanel();
 			InitSceneHierarchy();
 			InitInspectorPanel();
+			InitFileExplorer();
 		}
 
 		void InitMenuBar()
@@ -144,6 +153,12 @@ namespace SPW
 			m_InspectorPanel = std::make_shared<ImGuiInspectorPanel>("Inspector Panel");
 		}
 
+		void InitFileExplorer()
+		{
+			m_FileExplorer = std::make_shared<ImGuiFileExplorer>();
+		}
+
+
 
 		//TODO:modify
 	public:
@@ -152,6 +167,7 @@ namespace SPW
 		std::shared_ptr<ImGuiTreeNodePanel>		m_HierarchyPanel;
 		std::shared_ptr<ImGuiInspectorPanel>	m_InspectorPanel;
 		std::shared_ptr<ImGuiImagePanel>	    m_ImagePanel;
+		std::shared_ptr<ImGuiFileExplorer>      m_FileExplorer;
 
         //std::shared_ptr<>
 	private:

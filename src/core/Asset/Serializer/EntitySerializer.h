@@ -41,7 +41,7 @@ namespace SPW
         //     m_ComponentRecords.emplace(name, componentTable);
         // }
 
-        static void SaveScene(const std::shared_ptr<Scene>& scene, const std::string& filePath = " ")
+        static void SaveScene(const std::shared_ptr<Scene>& scene, const std::string& filePath)
         {
             std::unordered_map<std::string, CameraComponent> cameraComponents;
             std::unordered_map<std::string, PointLightComponent> pointLightComponents;
@@ -78,7 +78,7 @@ namespace SPW
 
             });
 
-            std::ofstream of_file("C:/Users/dudu/Desktop/test.json");
+            std::ofstream of_file(filePath + "test.json");
             cereal::JSONOutputArchive ar(of_file);
             ar(cereal::make_nvp("entityMetas", entityMetas));
             ar(cereal::make_nvp("cameraComponents", cameraComponents));

@@ -7,4 +7,6 @@ EDITOR_ADD_SOURCE(
         UIComponent/ImGuiObjectPanel.h
         UIComponent/ImGuiTreeNodePanel.h
         UIComponent/ImGuiWindow.h
+        UIComponent/ImGuiImagePanel.h
+        UIComponent/ImGuiFileExplorer.h
         )

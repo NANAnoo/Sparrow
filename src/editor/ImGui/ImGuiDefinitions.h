@@ -36,6 +36,7 @@ namespace SPW
 		HierarchyPanel,
 		InspectorPanel,
 		Axis,
-		Image
+		Image,
+		FileExplorer
 	};
 }
