@@ -55,15 +55,15 @@ glm::mat4 toMat4(const aiMatrix4x4& mat) {
 
 namespace SPW
 {
-void LoadMaterial(ModelDataRet* modelData, aiMaterial* material, const std::string& id_str)
+void LoadMaterial(ModelData* modelData, aiMaterial* material, const std::string& id_str)
 {
   MaterialData tmpMaterial{};
 
   // tmpMaterial->ID = 0; TODO ID Setting
   tmpMaterial.ID   = id_str;
-  tmpMaterial.type = AssetType::Material;
-  tmpMaterial.name = material->GetName().C_Str();
-  tmpMaterial.path = modelData->model.path;
+  // tmpMaterial.type = AssetType::Material;
+  // tmpMaterial.name = material->GetName().C_Str();
+  // tmpMaterial.path = modelData->path;
   // tmpMaterial.
 
   // material->Get(AI_MATKEY_NAME, tmpMaterial.name);
@@ -110,7 +110,7 @@ void LoadMaterial(ModelDataRet* modelData, aiMaterial* material, const std::stri
   material->Get(AI_MATKEY_REFRACTI, tmpProp.refractionIntensity);
 
 
-  const auto& basepath = FileSystem::ToFsPath(tmpMaterial.path).parent_path();
+  const auto& basepath = FileSystem::ToFsPath(modelData->path).parent_path();
   aiString texturePath;
 
   {
@@ -330,14 +330,14 @@ void LoadMaterial(ModelDataRet* modelData, aiMaterial* material, const std::stri
 //}
 
 
-void ProcessMeshNode(ModelDataRet* modelData, aiMesh* mesh, const aiScene* scene)
+void ProcessMeshNode(ModelData* modelData, aiMesh* mesh, const aiScene* scene)
 {
-  modelData->model.m_MeshIDs.emplace_back(FileSystem::GenerateRandomUUID());
-  MeshData tmpMesh{};
-  tmpMesh.ID   = modelData->model.m_MeshIDs.back();
-  tmpMesh.type = AssetType::Mesh;
-  tmpMesh.name = mesh->mName.C_Str();
-  tmpMesh.path = modelData->model.path;
+  // modelData->model.m_MeshIDs.emplace_back(FileSystem::GenerateRandomUUID());
+  Mesh tmpMesh{};
+  tmpMesh.materialID = FileSystem::GenerateRandomUUID();
+  // tmpMesh.type = AssetType::Mesh;
+  // tmpMesh.name = mesh->mName.C_Str();
+  // tmpMesh.path = modelData->model.path;
 
   // Vertices
   for (uint32_t i = 0; i < mesh->mNumVertices; i++)
@@ -379,14 +379,14 @@ void ProcessMeshNode(ModelDataRet* modelData, aiMesh* mesh, const aiScene* scene
 
   if (!(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
   {
-    tmpMesh.m_MateialID = tmpMesh.ID;
-    LoadMaterial(modelData, scene->mMaterials[mesh->mMaterialIndex], tmpMesh.m_MateialID);
+    // tmpMesh.materialID = tmpMesh.ID;
+    LoadMaterial(modelData, scene->mMaterials[mesh->mMaterialIndex], tmpMesh.materialID);
   }
 
   modelData->meshes.emplace_back(std::move(tmpMesh));
 }
 
-void ProcessNodes(ModelDataRet* modelData, aiNode* node, const aiScene* scene)
+void ProcessNodes(ModelData* modelData, aiNode* node, const aiScene* scene)
 {
   for (uint32_t i = 0; i < node->mNumMeshes; i++)
   {
@@ -400,9 +400,9 @@ void ProcessNodes(ModelDataRet* modelData, aiNode* node, const aiScene* scene)
   }
 }
 
-std::unique_ptr<ModelDataRet> ModelLoader::LoadModel(const std::string& filename)
+std::unique_ptr<ModelData> ModelLoader::LoadModel(const std::string& filename)
 {
-  std::unique_ptr<ModelDataRet> ret = std::make_unique<ModelDataRet>();
+  std::unique_ptr<ModelData> ret = std::make_unique<ModelData>();
 
   // Create an instance of the Assimp importer
   const FilePath filepath = filename.c_str();
@@ -425,12 +425,12 @@ std::unique_ptr<ModelDataRet> ModelLoader::LoadModel(const std::string& filename
   const bool hasAnimations = scene->HasAnimations();
 
   // Fill the meta information
-  ret->model.ID   = FileSystem::GenerateRandomUUID();
-  ret->model.type = hasAnimations ? AssetType::AnimatedModel : AssetType::StaticModel;
-  ret->model.name = filepath.filename().string();
-  ret->model.path = filepath.string();
-
-  ret->model.meshURI = FileSystem::GenerateRandomUUID(); /* trace directory for storing related resources*/
+  // ret->model.ID   = FileSystem::GenerateRandomUUID();
+  // ret->type = hasAnimations ? AssetType::AnimatedModel : AssetType::StaticModel;
+  ret->name = FileSystem::GetCleanFilename(filepath.string());
+  ret->path = filepath.string();
+  ret->meshURI     = FileSystem::GenerateRandomUUID(); /* trace directory for storing related resources*/
+  ret->assetID     = FileSystem::GenerateRandomUUID(); /* trace directory for storing related resources*/
 
   if (hasAnimations)
   {

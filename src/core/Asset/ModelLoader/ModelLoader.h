@@ -9,14 +9,20 @@
 #include "Asset/AssetData/MaterialData.h"
 #include "Asset/AssetData/MeshData.h"
 #include "Asset/AssetData/ModelData.h"
-
+#include "Model/Mesh.h"
 namespace SPW
 {
 
-  struct ModelDataRet
+  struct ModelData
   {
-    ModelData model;
-    std::vector<MeshData> meshes;
+    // ModelData model;
+    // AssetType type;
+    std::string assetID;
+    std::string name;
+    std::string meshURI;
+    std::string path; // Not ser this, but use to pass parameters
+
+  	std::vector<Mesh> meshes;
     std::vector<MaterialData> materials;
     std::unordered_map<std::string, std::string> textures;
   };
@@ -24,6 +30,6 @@ namespace SPW
   class ModelLoader
   {
   public:
-    static std::unique_ptr<ModelDataRet> LoadModel(const std::string& filename);
+    static std::unique_ptr<ModelData> LoadModel(const std::string& filename);
   };
 }

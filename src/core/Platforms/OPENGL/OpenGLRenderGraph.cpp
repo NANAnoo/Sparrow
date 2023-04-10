@@ -438,8 +438,8 @@ namespace SPW {
                 
                 // draw submeshes
                 for (auto &submesh : mesh->model->GetMeshes()) {
-                    bindMaterial(shader, shader_desc.mat_inputs, input.backend, submesh->GetMaterial(), slot);
-                    submesh->PureDraw(input.backend);
+                    bindMaterial(shader, shader_desc.mat_inputs, input.backend, submesh.GetMaterial(), slot);
+                    submesh.PureDraw(input.backend);
                 }
             }
         }

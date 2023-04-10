@@ -10,7 +10,10 @@
 #include "Asset/Asset.hpp"
 #include <cereal/types/memory.hpp>
 
+#include "Asset/AssetData/MaterialData.h"
+
 namespace SPW {
+    // MESH RENDERER
     class MeshComponent : public ComponentI {
     public:
         MeshComponent() = default;
@@ -27,12 +30,14 @@ namespace SPW {
     	template<class Archive>
         void serialize(Archive& ar)
         {
-            ar(cereal::make_nvp("bindCamera", bindCamera.toString()),
+            ar(
+                cereal::make_nvp("bindCamera", bindCamera.toString()),
                 cereal::make_nvp("bindRenderPass", bindRenderPass),
                 cereal::make_nvp("bindRenderGraph", bindRenderGraph),
                 cereal::make_nvp("ready", ready),
-                cereal::make_nvp("model_ptr", model)
-                );
+                cereal::make_nvp("model", model),
+                cereal::make_nvp("assetID", assetID)
+            );
         }
 
     	void initFromLua(const sol::table &value) {
@@ -54,5 +59,21 @@ namespace SPW {
 
         bool ready = false;
         std::shared_ptr<Model> model;
+
+        // ---------------------- NEW DATA ---------------------------------
+
+		/*
+		 * 1. Load Asset, Raise Data from .asset file, to complish meshes/materials, pair meshes and materials with UUID
+		 * 2. Save Asset, Rewrite the .asset file, save changes(just new file into .bin and .asset)
+		 */
+        bool 					    b_Asset = false;
+        std::string                 assetPath{};
+        std::string 			    assetID{};
+    	std::string                 meshURI; // just use this component UUID
+
+    	std::vector<Mesh>           meshes;
+        std::vector<MaterialData>   materials;  /* which is the brand new material! */
+        std::unordered_map<std::string, std::string> textures;
+
     };
 }

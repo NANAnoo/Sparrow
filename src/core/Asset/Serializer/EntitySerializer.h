@@ -12,10 +12,11 @@
 #include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
+#include "IO/FileSystem.h"
 
 namespace SPW
 {
-    struct EntityMeta
+    struct EntityNode
     {
         std::string uuid;
         std::string name;
@@ -26,7 +27,6 @@ namespace SPW
             ar( cereal::make_nvp("uuid", uuid), cereal::make_nvp("name", name) );
         }
     };
-
 
     class EntitySerializer
     {
@@ -49,7 +49,7 @@ namespace SPW
             std::unordered_map<std::string, DirectionalLightComponent> directionalLightComponents;
             std::unordered_map<std::string, TransformComponent> transformComponents;
             std::unordered_map<std::string, MeshComponent> meshComponents;
-            std::vector<EntityMeta> entityMetas;
+            std::vector<EntityNode> entityNodes;
 
         	scene->forEachEntity<IDComponent>([&](const SPW::Entity& e)
             {
@@ -59,7 +59,7 @@ namespace SPW
                 // Get name and uuid from each entity.
                 // std::string entity_name = e.component<SPW::NameComponent>()->getName();
 
-                entityMetas.emplace_back( EntityMeta{uuid_str, e.component<NameComponent>()->getName()} );
+                entityNodes.emplace_back( EntityNode{uuid_str, e.component<NameComponent>()->getName()} );
 
         		if (e.has<CameraComponent>())
                 {
@@ -84,15 +84,62 @@ namespace SPW
 
             });
 
-            std::ofstream of_file(filePath + "test.json");
+            std::cout << FileRoots::k_Scenes + "/test__save__scene.json\n";
+            std::ofstream of_file(FileRoots::k_Scenes + "/test__save__scene.json");
             cereal::JSONOutputArchive ar(of_file);
-            ar(cereal::make_nvp("entityMetas", entityMetas));
+            ar(cereal::make_nvp("entityNodes", entityNodes));
             ar(cereal::make_nvp("cameraComponents", cameraComponents));
             ar(cereal::make_nvp("pointLightComponents", pointLightComponents));
             ar(cereal::make_nvp("directionalComponents", directionalLightComponents));
             ar(cereal::make_nvp("transformComponents", transformComponents));
             ar(cereal::make_nvp("meshComponents", meshComponents));
+
+            for(auto&[k, v] : meshComponents)
+        	{
+                // v.meshURI = k;
+                if(v.b_Asset)
+                {
+                    std::ofstream of_file2(v.assetPath);
+                    cereal::JSONOutputArchive ar2(of_file2);
+                    ar2(
+                        // cereal::make_nvp("assetType", model_0->type),
+                        cereal::make_nvp("assetID", v.assetID),
+                        cereal::make_nvp("assetPath", v.assetPath),
+                        // cereal::make_nvp("assetName", model_0->name),
+                        cereal::make_nvp("meshURI", v.meshURI),
+                        cereal::make_nvp("materials", v.materials),
+                        cereal::make_nvp("textures", v.textures)
+                    );
+
+                    {
+                        std::string dir = FileSystem::ToFsPath(v.assetPath).parent_path().string();
+                    	std::ofstream mesh_bin(std::string(dir + v.meshURI + ".mesh"), std::ios::binary);
+                        cereal::BinaryOutputArchive archive(mesh_bin);
+                        archive(cereal::make_nvp(v.meshURI, v.meshes));
+                    }
+                }
+     //            else TODO
+     //            {
+					// // 重新调用一遍SaveAsset的逻辑， 存一份.asset.
+     //                std::ofstream of_file2(filePath + k + ".asset");
+     //                cereal::JSONOutputArchive ar2(of_file2);
+     //                ar2(
+     //                    // cereal::make_nvp("meshURI", k),
+     //                    cereal::make_nvp("materials", v.materials),
+     //                    cereal::make_nvp("textures", v.textures)
+     //                );
+     //
+     //                {
+     //                    std::ofstream mesh_bin(std::string(filePath + k + ".mesh"), std::ios::binary);
+     //                    cereal::BinaryOutputArchive archive(mesh_bin);
+     //                    archive(cereal::make_nvp(k, v.meshes));
+     //                }
+     //            }
+
+
+            }
         }
+
 
         // // TODO: should directly return a scene tree.
         // std::vector<std::shared_ptr<SPW::Entity>> LoadScene(std::shared_ptr<Scene> scene, const std::string& filePath)

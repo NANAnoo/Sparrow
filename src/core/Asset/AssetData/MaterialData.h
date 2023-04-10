@@ -64,15 +64,16 @@ namespace SPW
 		Unknown = 18,
 	};
 
-	struct MaterialData : public Asset
+	struct MaterialData
 	{
+		std::string ID;
 		std::map<TextureMapType, std::string> m_TextureIDMap;
 		MaterialAttributes m_Properties;
 
 		template <class Archive> void serialize(Archive &ar)
 		{
 			ar(
-				cereal::make_nvp("meta", cereal::base_class<Asset>(this)),
+				cereal::make_nvp("id", ID),
 				cereal::make_nvp("textureMap", m_TextureIDMap),
 				cereal::make_nvp("property", m_Properties)
 			);

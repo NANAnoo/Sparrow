@@ -179,8 +179,24 @@ public:
 
 };
 
-// #define SAVE_SCENE
-// #define LOAD_SCENE
+std::string SPW::FileRoots::k_Root   = "C:/Users/dudu/Desktop/UserProject/"; // TODO : change this to your own path
+std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
+std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
+std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
+
+
+// #define IMPORT_MODEL
+#define LOAD_ASSET
+/*
+ * TODO HACK TEMOPORY DATA
+ */
+std::vector<SPW::MaterialData> g_newMaterials;
+std::vector<SPW::Mesh> g_newMeshes;
+std::string g_assetID;
+std::string g_path;
+std::string g_meshURI;
+std::unordered_map<std::string, std::string> g_textures;
+
 class SPWTestApp : public SPW::AppDelegateI
 {
 public:
@@ -191,123 +207,79 @@ public:
     void onAppInit() final
     {
 
-        // -------------------------------OFFLINE TEST-------------------------------------------
+// -------------------------------OFFLINE TEST-------------------------------------------
 
         // 1. Simulate a process of an engine boost
-        // 1.1. ConfigManager receive the path of root, and construct the file paths
-
-        // new a project file directory anywhere, assume my desktop...
-        const std::string root { "C:/Users/dudu/Desktop/UserProject" };
-
-        // FileSystem construct the different pathes
-        const SPW::FileRoot projectRoots
-        {
-            root + "/engine",
-            root + "/resource",
-            root + "/asset"
-        };
-
-        // create the basic direcotories /engine and /resource /asset
-        // TODO check the slash status
-
-        // copy engine files into /engine
-        SPW::FileSystem::CreateDirectory(projectRoots.engine);
-        // copy project asset resource, including textures ... meshes
-        SPW::FileSystem::CreateDirectory(root + "/resource");
-        //
-        SPW::FileSystem::CreateDirectory(root + "/asset");
-
+        SPW::FileSystem::Boost();
         // 2. Simulate a process of loading some resources into a scene
-#if defined(SAVE_SCENE)
+#if defined(IMPORT_MODEL)
         // assume load two models into the scene
-        std::unique_ptr<SPW::ModelDataRet> model_0 = SPW::ModelLoader::LoadModel("C:/Users/dudu/Downloads/mosquito_in_amber/scene.gltf");
-        std::unique_ptr<SPW::ModelDataRet> model_1 = SPW::ModelLoader::LoadModel("C:/Dev/Sparrow Renderer/res/Models/mantis/model.fbx");
+        std::unique_ptr<SPW::ModelData> model_0 = SPW::ModelLoader::LoadModel("C:/Users/dudu/Downloads/mosquito_in_amber/scene.gltf");
 
-        // construct model vector
-        std::vector<SPW::ModelData> models = { model_0->model, model_1->model };
+        std::string absolute_modelDir = SPW::FileSystem::JoinPaths(SPW::FileRoots::k_Assets, model_0->name);
+    	SPW::FileSystem::CreateDirectory(absolute_modelDir);
 
-        // construct material vector
-        std::vector<SPW::MaterialData> materials = model_0->materials;
-        materials.insert(materials.end(), model_1->materials.begin(), model_1->materials.end());
+        // Update Model Path
+        model_0->path = SPW::FileSystem::JoinPaths(absolute_modelDir, model_0->name) + ".json";
 
-        // construct texture vector
-        std::unordered_map<std::string, std::string> textures = model_0->textures;
-        textures.insert(model_1->textures.begin(), model_1->textures.end());
-
-        std::ofstream of_file(projectRoots.asset + "/scene.json");
+        // write file with absolute file path
+    	std::ofstream of_file(model_0->path); // TODO .asset, use json to view the file currently
         cereal::JSONOutputArchive ar(of_file);
 
-        // Copy
-        SPW::FileSystem::CreateDirectory(projectRoots.resource + "/textures");
-
-        for (auto& [k, v] : textures)
+    	// copy texture files into /Assets/Textures...
+        // 1. Create Texture Directory
+        std::string model_texture_dir = SPW::FileSystem::JoinPaths(absolute_modelDir , "Textures/");
+        SPW::FileSystem::CreateDirectory(model_texture_dir);
+        // 2. Loop Textures and Copy Files into Texture Directory
+    	for (auto& [k, v] : model_0->textures)
         {
-            std::cout << k << ": " << v << std::endl;
-
-            std::string destinationFilePath(projectRoots.resource + "/textures/" + SPW::FileSystem::ToFsPath(v).filename().string());
+            std::string destinationFilePath(model_texture_dir + SPW::FileSystem::ToFsPath(v).filename().string());
             SPW::FileSystem::CopyFile(v, destinationFilePath);
 
-            // Update Texture Path
-            v = destinationFilePath;
+            // 3. Update Texture Path To Relative
+            v = SPW::FileSystem::ToRelativePath(destinationFilePath, SPW::FileRoots::k_Root);
         }
 
         ar(
-            cereal::make_nvp("models", models),
-            cereal::make_nvp("materials", materials),
-            cereal::make_nvp("textures", textures)
+            // cereal::make_nvp("assetType", model_0->type),
+            cereal::make_nvp("assetID", model_0->assetID), 
+            cereal::make_nvp("assetPath", SPW::FileSystem::ToRelativePath(model_0->path, SPW::FileRoots::k_Root)),
+
+            // cereal::make_nvp("assetName", model_0->name),
+            cereal::make_nvp("meshURI", model_0->meshURI),
+            cereal::make_nvp("materials", model_0->materials),
+            cereal::make_nvp("textures", model_0->textures)
         );
 
-    	ar(
-            cereal::make_nvp("Entities", models),
-            cereal::make_nvp("CameraComponemnts", materials),
-            cereal::make_nvp("...Componemnts", textures)
-        );
-
-        SPW::FileSystem::CreateDirectory(projectRoots.resource + "/mesh");
         {
-            // serialize mesh
-            {
-              std::ofstream mesh_bin(std::string(projectRoots.resource + "/mesh/" + model_0->model.meshURI + ".mesh"), std::ios::binary);
+              std::ofstream mesh_bin(SPW::FileSystem::JoinPaths(absolute_modelDir, model_0->meshURI) + ".mesh", std::ios::binary);
               cereal::BinaryOutputArchive archive(mesh_bin);
-              archive(cereal::make_nvp(model_0->model.meshURI, model_0->meshes));
-            }
-
-            // serialize mesh
-            {
-              std::ofstream mesh_bin(std::string(projectRoots.resource + "/mesh/" + model_1->model.meshURI + ".mesh"), std::ios::binary);
-              cereal::BinaryOutputArchive archive(mesh_bin);
-              archive(cereal::make_nvp(model_1->model.meshURI, model_1->meshes));
-            }
+              archive(cereal::make_nvp(model_0->meshURI, model_0->meshes));
         }
-#elif defined(LOAD_SCENE)
-        // Load a scene from the disk
-        std::vector<SPW::ModelData> models;
-        std::vector<SPW::MaterialData> materials;
-        std::vector<SPW::MeshData> meshes;
-        std::unordered_map<std::string, std::string>	textures;
+#elif defined(LOAD_ASSET)
 
-        std::ifstream is_Scene(root + "/asset" + "/scene.json");
+        std::ifstream is_Scene(SPW::k_Assets + "/scene/scene.json"); // TODO: Select the asset file to Load by GUI operations
         cereal::JSONInputArchive ar(is_Scene);
+
         ar(
-            cereal::make_nvp("models", models),
-            cereal::make_nvp("materials", materials),
-            cereal::make_nvp("textures", textures)
+            cereal::make_nvp("assetID", g_assetID),
+            cereal::make_nvp("assetPath", g_path),
+            cereal::make_nvp("meshURI", g_meshURI),
+            cereal::make_nvp("materials", g_newMaterials),
+            cereal::make_nvp("textures", g_textures)
         );
 
-        for(auto& model : models)
         {
-          // load models from asset
-          std::vector<SPW::MeshData> t_meshes;
-          std::ifstream mesh_bin(std::string(projectRoots.resource + "/mesh/" + model.meshURI + ".mesh"), std::ios::binary);
-          cereal::BinaryInputArchive ar(mesh_bin);
-          ar(cereal::make_nvp(model.meshURI, t_meshes));
+            const auto& path = SPW::FilePath(SPW::FileSystem::ToAbsolutePath(g_path)).parent_path().string();
 
-          meshes.insert(meshes.end(), t_meshes.begin(), t_meshes.end());
+        	std::ifstream mesh_bin(path + "/" + g_meshURI + ".mesh", std::ios::binary);
+            cereal::BinaryInputArchive ar(mesh_bin);
+            ar(cereal::make_nvp(g_meshURI, g_newMeshes));
         }
 
-        std::cin.get();
+    	// __debugbreak();
 #endif
-        // -------------------------------OFFLINE TEST-------------------------------------------
+// -------------------------------OFFLINE TEST-------------------------------------------
 
 
 
@@ -420,6 +392,17 @@ public:
             model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
 
             model->model = createModel();
+/*
+ * TODO HACK FOR SER TEST
+ */
+model->b_Asset   = true;
+model->assetID   = g_assetID;
+model->assetPath = g_path;
+model->meshes    = g_newMeshes;
+model->materials = g_newMaterials;
+model->meshURI   = g_meshURI;
+model->textures  = g_textures;
+__debugbreak();
 
             // --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
@@ -493,7 +476,7 @@ public:
             scene->initial();
             transformer->scene = scene;
 
-             SPW::EntitySerializer::SaveScene(scene, "C:/Users/dudu/Desktop/");
+             // SPW::EntitySerializer::SaveScene(scene, "C:/Users/dudu/Desktop/");
         });
     }
     void beforeAppUpdate() final

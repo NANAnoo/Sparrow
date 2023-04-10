@@ -8,6 +8,8 @@
 #include "vector"
 
 #include "Asset/AssetData/Vertex.h"
+#include "Asset/Asset.hpp"
+
 #include "Render/IndexBuffer.h"
 #include "Render/Material.h"
 #include "Render/RenderBackEndI.h"
@@ -25,6 +27,7 @@ namespace SPW
         // mesh Data
         std::vector<Vertex>         vertices;
         std::vector<unsigned int>   indices;
+        std::string                 materialID;
 
         Mesh() = default;
 
@@ -64,6 +67,16 @@ namespace SPW
     	void SetMaterial(std::shared_ptr<Material> material) { this->mMaterial = std::move(material); }
 
     	std::shared_ptr<Material> GetMaterial() const { return this->mMaterial; }
+
+        template <class Archive>
+        void serialize(Archive& ar)
+        {
+            ar(
+                cereal::make_nvp("vertices", vertices),
+                cereal::make_nvp("indices", indices),
+                cereal::make_nvp("materialID", materialID)
+			);
+        }
 
     public:
         std::shared_ptr<IndexBuffer> EBO = nullptr;

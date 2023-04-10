@@ -148,9 +148,9 @@ namespace SPW
 	}
 
 
-	[[nodiscard]] std::shared_ptr<Mesh> ProcessMeshNode(aiMesh* mesh, const aiScene* scene)
+	Mesh ProcessMeshNode(aiMesh* mesh, const aiScene* scene)
 	{
-		std::shared_ptr<Mesh> tmp = std::make_shared<Mesh>();
+		Mesh tmp{};
 		
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		{
@@ -178,7 +178,7 @@ namespace SPW
 				? glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z)
 				: glm::vec3();
 
-			tmp->vertices.emplace_back(Vertex{position, normal, uv, tangent, bitangent});
+			tmp.vertices.emplace_back(position, normal, uv, tangent, bitangent);
 		}
 
 	    // Indices
@@ -186,7 +186,7 @@ namespace SPW
 	    {
 			const auto& face = mesh->mFaces[i];
 			for (unsigned int j = 0; j < face.mNumIndices; j++)
-				tmp->indices.emplace_back(face.mIndices[j]);
+				tmp.indices.emplace_back(face.mIndices[j]);
 	    }
 
 	    // Bones
@@ -240,14 +240,14 @@ namespace SPW
         }
 
     	// TODO Deal with Materials
-		tmp->SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
+		tmp.SetMaterial(LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]));
 
 		return tmp;
 	}
 
-	std::vector<std::shared_ptr<Mesh>> ProcessNodes(aiNode* node, const aiScene* scene)
+	std::vector<Mesh> ProcessNodes(aiNode* node, const aiScene* scene)
 	{
-		std::vector<std::shared_ptr<Mesh>> meshes;
+		std::vector<Mesh> meshes;
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -289,7 +289,7 @@ namespace SPW
 
 		for(auto& mesh: model->GetMeshes())
 		{
-			for(auto&[k, v] : mesh->GetMaterial()->TextureMap)
+			for(auto&[k, v] : mesh.GetMaterial()->TextureMap)
 				v = FileSystem::JoinFileRoute(_filePath.parent_path(), v);
 		}
 

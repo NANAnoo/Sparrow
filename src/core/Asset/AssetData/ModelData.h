@@ -9,23 +9,23 @@
 
 namespace SPW
 {
-	struct ModelData : public Asset
-	{
-		std::vector<std::string>    m_MeshIDs;
-		std::string                 meshURI;
-		uint32_t                    animationID;
-
-		template <class Archive>
-		void serialize(Archive& ar)
-		{
-			ar(
-				cereal::make_nvp("meta", cereal::base_class<Asset>(this)),
-				cereal::make_nvp("mesh_id", m_MeshIDs),
-				cereal::make_nvp("mesh_uri", meshURI),
-				cereal::make_nvp("anim_id", animationID)
-			);
-		}
-
-	};
+	// struct ModelData : public Asset
+	// {
+	// 	std::vector<std::string>    m_MeshIDs;
+	// 	std::string                 meshURI;
+	// 	uint32_t                    animationID;
+	//
+	// 	template <class Archive>
+	// 	void serialize(Archive& ar)
+	// 	{
+	// 		ar(
+	// 			cereal::make_nvp("meta", cereal::base_class<Asset>(this)),
+	// 			cereal::make_nvp("mesh_id", m_MeshIDs),
+	// 			cereal::make_nvp("mesh_uri", meshURI),
+	// 			cereal::make_nvp("anim_id", animationID)
+	// 		);
+	// 	}
+	//
+	// };
 
 }

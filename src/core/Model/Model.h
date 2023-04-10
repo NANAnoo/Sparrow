@@ -68,26 +68,27 @@ namespace SPW
     {
     public:
         Model() = default;
-        explicit Model(std::vector<std::shared_ptr<Mesh>>&& _meshes) { m_Meshes = std::move(_meshes); }
+        explicit Model(std::vector<Mesh>&& _meshes) { m_Meshes = std::move(_meshes); }
     	~Model() {}
 
-        [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return m_Meshes; }
-        void AddMesh(std::shared_ptr<Mesh> _mesh) { m_Meshes.emplace_back(std::move(_mesh)); }
+        std::vector<Mesh> GetMeshes() const { return m_Meshes; }
+
+        void AddMesh(Mesh _mesh) { m_Meshes.emplace_back(std::move(_mesh)); }
 
         // draws the model, and thus all its meshes
         void Draw(std::shared_ptr<RenderBackEndI> &renderBackEnd,  const ShaderHandle& handle)
         {
             for (auto & mesh : m_Meshes)
             {
-                mesh->setShader(renderBackEnd, handle);
-                mesh->Draw(renderBackEnd);
+                mesh.setShader(renderBackEnd, handle);
+                mesh.Draw(renderBackEnd);
             }
         }
 
 
         void setUpModel(std::shared_ptr<RenderBackEndI> &renderBackEnd) {
             for (auto& mesh : m_Meshes)
-                mesh->setupMesh(renderBackEnd);
+                mesh.setupMesh(renderBackEnd);
         }
 
         void SetFilePath(const std::filesystem::path filePath)
@@ -104,14 +105,23 @@ namespace SPW
         template<class Archive>
         void serialize(Archive& ar)
         {
-            ar(cereal::make_nvp("x", x));
+            ar(cereal::make_nvp("asset", assetPath));
         }
 
-    private:
-        int x = 0;
+    public:
+        // int x = 0;
         std::filesystem::path m_FilePath;
         std::filesystem::path m_Directory;
-        std::vector<std::shared_ptr<Mesh>>  m_Meshes;
+        std::vector<Mesh>     m_Meshes;
+
+    	// --------------------- NEW DATA --------------------------
+    	std::string             assetPath;
     };
 }
 #endif //SPARROW_MODEL_H
+
+/*
+ *  Model
+ *  vector<mesh>
+ *
+ */
