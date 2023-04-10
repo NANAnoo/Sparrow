@@ -7,11 +7,13 @@
 #include <unordered_set>
 #include "Render/RenderGraph.hpp"
 #include "Utils/UUID.hpp"
+#include "Asset/Asset.hpp"
+#include <cereal/types/memory.hpp>
 
 namespace SPW {
     class MeshComponent : public ComponentI {
     public:
-        MeshComponent() = delete;
+        MeshComponent() = default;
 
         explicit MeshComponent(const UUID &id) {
             bindCamera = id;
@@ -21,7 +23,19 @@ namespace SPW {
 
         }
 
-        void initFromLua(const sol::table &value) {
+
+    	template<class Archive>
+        void serialize(Archive& ar)
+        {
+            ar(cereal::make_nvp("bindCamera", bindCamera.toString()),
+                cereal::make_nvp("bindRenderPass", bindRenderPass),
+                cereal::make_nvp("bindRenderGraph", bindRenderGraph),
+                cereal::make_nvp("ready", ready),
+                cereal::make_nvp("model_ptr", model)
+                );
+        }
+
+    	void initFromLua(const sol::table &value) {
 
         }
 

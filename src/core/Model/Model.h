@@ -69,7 +69,7 @@ namespace SPW
     public:
         Model() = default;
         explicit Model(std::vector<std::shared_ptr<Mesh>>&& _meshes) { m_Meshes = std::move(_meshes); }
-    	  ~Model() {}
+    	~Model() {}
 
         [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return m_Meshes; }
         void AddMesh(std::shared_ptr<Mesh> _mesh) { m_Meshes.emplace_back(std::move(_mesh)); }
@@ -101,7 +101,14 @@ namespace SPW
             return m_FilePath.string();
         }
 
+        template<class Archive>
+        void serialize(Archive& ar)
+        {
+            ar(cereal::make_nvp("x", x));
+        }
+
     private:
+        int x = 0;
         std::filesystem::path m_FilePath;
         std::filesystem::path m_Directory;
         std::vector<std::shared_ptr<Mesh>>  m_Meshes;

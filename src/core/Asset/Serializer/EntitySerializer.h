@@ -9,6 +9,7 @@
 #include "Asset/Asset.hpp"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 
@@ -47,6 +48,7 @@ namespace SPW
             std::unordered_map<std::string, PointLightComponent> pointLightComponents;
             std::unordered_map<std::string, DirectionalLightComponent> directionalLightComponents;
             std::unordered_map<std::string, TransformComponent> transformComponents;
+            std::unordered_map<std::string, MeshComponent> meshComponents;
             std::vector<EntityMeta> entityMetas;
 
         	scene->forEachEntity<IDComponent>([&](const SPW::Entity& e)
@@ -75,6 +77,10 @@ namespace SPW
                 {
                     transformComponents[uuid_str] = *e.component<TransformComponent>();
                 }
+                if (e.has<MeshComponent>())
+                {
+                    meshComponents[uuid_str] = *e.component<MeshComponent>();
+                }
 
             });
 
@@ -85,7 +91,7 @@ namespace SPW
             ar(cereal::make_nvp("pointLightComponents", pointLightComponents));
             ar(cereal::make_nvp("directionalComponents", directionalLightComponents));
             ar(cereal::make_nvp("transformComponents", transformComponents));
-
+            ar(cereal::make_nvp("meshComponents", meshComponents));
         }
 
         // // TODO: should directly return a scene tree.
