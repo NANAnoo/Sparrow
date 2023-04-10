@@ -76,7 +76,7 @@ function CreateMainCamera(scene, width, height)
     local MainCamera = scene:addEntity("MainCamera")
     MainCamera:addComponent(Transform)
     MainCamera:addComponent(PerspectiveCamera, 60, width / height, 0.1, 100, true)
-    bindFPSController(scene, MainCamera, 0.01)
+    bindFPSController(scene, MainCamera, 0.005)
 
     MainCamera:addComponent(AudioListener, 0)
 

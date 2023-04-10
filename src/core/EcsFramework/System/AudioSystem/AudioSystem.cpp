@@ -16,6 +16,7 @@ namespace SPW {
     void AudioSystem::initial() {
         FMOD::System_Create(&mFmodSystem);
         mFmodSystem->init(32, FMOD_INIT_NORMAL, nullptr);
+        mFmodSystem->set3DNumListeners(1);
     }
 
     void AudioSystem::beforeUpdate() {
@@ -104,8 +105,8 @@ namespace SPW {
                                     break;
                             }
                         }
-                        sound->update();
                         sound->setPos(tc->position.x, tc->position.y, tc->position.z);
+                        sound->update();
                     }
                 });
     }

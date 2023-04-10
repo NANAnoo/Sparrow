@@ -1,0 +1,1 @@
+CORE_ADD_SOURCE(AnimationComponent.h)

@@ -14,9 +14,11 @@ AudioComponent = class("AudioComponent", Component)
 function AudioComponent:init(audioFiles)
     self.audioFiles = audioFiles or {}
     self.audioStates = {}
+    self.audioVolumes = {}
     -- set up state for each audio file
     for _, path in pairs(self.audioFiles) do
         self.audioStates[path] = AudioState.Stop
+        self.audioVolumes[path] = 1.0
     end
 end
 
@@ -52,6 +54,22 @@ function AudioComponent:setLoop(file, enabled)
             self:update("disableLoop", file)
         end
     end
+end
+
+-- set volume
+function AudioComponent:setVolume(file, volume)
+    if (self.audioStates[file] ~= nil) then
+        self.audioVolumes[file] = volume
+        self:update("setVolume", {path = file, volume = volume})
+    end
+end
+
+-- get volume
+function AudioComponent:getVolume(file)
+    if (self.audioStates[file] ~= nil) then
+        return self.audioVolumes[file]
+    end
+    return 0
 end
 
 -- set state of a audio file

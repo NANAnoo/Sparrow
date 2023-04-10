@@ -30,11 +30,20 @@ namespace SPW
         }
         std::shared_ptr<OpenGLCubeMap> getOpenGLCubeMap(std::vector<std::string>& faces)
         {
-            return std::make_shared<OpenGLCubeMap>(faces);
+            // connect all faces to a string   
+            std::string cubeMapName;
+            for (auto& face : faces)
+                cubeMapName += face;
+            if(OpenGLTextureCubeMap.find(cubeMapName)!=OpenGLTextureCubeMap.end()) {
+                return OpenGLTextureCubeMap[cubeMapName];
+            }
+            OpenGLTextureCubeMap[cubeMapName] = std::make_shared<OpenGLCubeMap>(faces);
+            return OpenGLTextureCubeMap[cubeMapName];
         }
 
     private:
         std::map<std::string,std::shared_ptr<OpenGLtexture2D>> OpenGLTextureMap;
+        std::map<std::string,std::shared_ptr<OpenGLCubeMap>> OpenGLTextureCubeMap;
     };
 
 

@@ -18,61 +18,71 @@
 
 namespace SPW
 {
-  struct KeyFrame;
-  struct AnimationClip;
-  struct AnimNode;
-  struct BoneInfo;
-  struct Weight;
-
-  struct Weight
-  {
-    uint32_t vertexID;
-    float value;
-  };
-
-  struct BoneInfo
-  {
-    std::string name;
-    uint32_t mNumWeights;
-    std::vector<Weight> weights;
-    glm::mat4 offsetMatrix;
-
-    BoneInfo(std::string&& _name, uint32_t _mNumWeights, std::vector<Weight>&& _weights, glm::mat4 _offsetMatrix)
-        :name(_name), mNumWeights(_mNumWeights), weights(_weights),offsetMatrix(_offsetMatrix)
-    {	}
-  };
-
-  struct AnimationClip
-  {
-    std::string name;
-    double duration;
-    uint32_t FPS;
-    std::vector<AnimNode> nodeAnimations;
-  };
-
-  struct AnimNode
-  {
-    std::string nodeName;
-    std::vector<KeyFrame> positionKeys;
-    std::vector<KeyFrame> rotationKeys;
-    std::vector<KeyFrame> scalingKeys;
-  };
-
-  struct KeyFrame
-  {
-    float time;
-    glm::vec3 value;
-  };
+//  struct KeyFrame;
+//  struct AnimationClip;
+//  struct AnimNode;
+//  struct BoneInfo;
+//  struct Weight;
+//
+//  struct Weight
+//  {
+//    uint32_t vertexID;
+//    float value;
+//  };
+//
+//  struct BoneInfo
+//  {
+//    std::string name;
+//    uint32_t mNumWeights;
+//    std::vector<Weight> weights;
+//    glm::mat4 offsetMatrix;
+//
+//    BoneInfo(std::string&& _name, uint32_t _mNumWeights, std::vector<Weight>&& _weights, glm::mat4 _offsetMatrix)
+//        :name(_name), mNumWeights(_mNumWeights), weights(_weights),offsetMatrix(_offsetMatrix)
+//    {	}
+//  };
+//
+//  struct AnimationClip
+//  {
+//    std::string name;
+//    double duration;
+//    uint32_t FPS;
+//    std::vector<AnimNode> nodeAnimations;
+//  };
+//
+//  struct AnimNode
+//  {
+//    std::string nodeName;
+//    std::vector<KeyFrame> positionKeys;
+//    std::vector<KeyFrame> rotationKeys;
+//    std::vector<KeyFrame> scalingKeys;
+//  };
+//
+//  struct KeyFrame
+//  {
+//    float time;
+//    glm::vec3 value;
+//  };
 
     class Model
     {
     public:
         Model() = default;
-        explicit Model(std::vector<std::shared_ptr<Mesh>>&& _meshes) { m_Meshes = std::move(_meshes); }
+        explicit Model(std::vector<std::shared_ptr<Mesh>>&& _meshes) { 
+            m_Meshes = std::move(_meshes); 
+            // // reverse the order of the meshes
+            // for (unsigned int i = 0; i < m_Meshes.size(); i++)
+            // {
+            //     m_Meshes[i]->offset = i == 0 ? 0 : m_Meshes[i - 1]->offset + m_Meshes[i - 1]->indices.size();
+            // }
+        }
     	  ~Model() {}
 
         [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return m_Meshes; }
-        void AddMesh(std::shared_ptr<Mesh> _mesh) { m_Meshes.emplace_back(std::move(_mesh)); }
+        void AddMesh(std::shared_ptr<Mesh> _mesh) { 
+            //_mesh->offset = m_Meshes.size() == 0 ? 0 : m_Meshes.back()->offset + m_Meshes.back()->indices.size();
+            m_Meshes.emplace_back(std::move(_mesh)); 
+        }
 
         // draws the model, and thus all its meshes
         void Draw(std::shared_ptr<RenderBackEndI> &renderBackEnd,  const ShaderHandle& handle)
