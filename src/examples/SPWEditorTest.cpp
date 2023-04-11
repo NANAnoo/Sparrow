@@ -496,6 +496,31 @@ model->textures  = g_textures;
 
         //----------------------------------------------------------------------------------------
         m_ImguiManager->Begin();
+        ImGui::Begin("Test Button Panel");
+        if(ImGui::Button("Import Model"))
+        {
+            // TODO: jcx
+            std::cout << " Clicked!\n";
+        }
+        if(ImGui::Button("Save Asset"))
+        {
+            // TODO: dudu
+            std::cout << " Clicked!\n";
+        }
+        if(ImGui::Button("Load Asset"))
+        {
+            std::cout << " Clicked!\n";
+        }
+        if(ImGui::Button("Save Scene"))
+        {
+            // TODO: dudu
+            std::cout << " Clicked!\n";
+        }
+        if(ImGui::Button("Load Scene"))
+        {
+            std::cout << " Clicked!\n";
+        }
+    	ImGui::End();
         //----------------------------------------------------------------------------------------
         m_ImguiManager->CreateImagePanel(renderSystem->getTextureID());
         m_ImguiManager->RenderAllPanels();

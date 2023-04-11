@@ -46,7 +46,7 @@ namespace SPW
 			}
 		}
 	}
-	
+
 	void SPW::ImGuiFileExplorer::DisplaySelectedFolder(const std::string& folderPath)
 	{
 		// set row numbers and row width
