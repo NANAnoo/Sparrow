@@ -69,16 +69,16 @@ protected:
 
 private:
 
-    void DrawAxis(SPW::TransformComponent* component)
+    void DrawAxis(TransformComponent* component)
     {
       //TODO::Draw axis
 	}
 
-    void DrawTransformComponent(SPW::TransformComponent* component) const
+    void DrawTransformComponent(TransformComponent* component) const
     {
         ImGui::PushID("Transform"); 
-        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
-    	if (ImGui::TreeNode("Transform")) /* TODO: add icon*/
+        ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize); ImGui::SameLine();
+        if (ImGui::TreeNode("Transform")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("Transform", ImVec2(0, 90), true)) {
                 // draw component properties
@@ -93,10 +93,10 @@ private:
         ImGui::PopID();
     }
     
-    void DrawCameraComponent(SPW::CameraComponent* component) const
+    void DrawCameraComponent(CameraComponent* component) const
     {
         ImGui::PushID("Camera");
-        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Camera")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("Camera", ImVec2(0, 120), true))
@@ -124,10 +124,10 @@ private:
         ImGui::PopID();
     }
     
-    void DrawPointLightComponent(SPW::PointLightComponent* component) const
+    void DrawPointLightComponent(PointLightComponent* component) const
     {
         ImGui::PushID("Point Light");
-        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Point Light")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("Point Light", ImVec2(0, 180), true))
@@ -147,10 +147,10 @@ private:
         ImGui::PopID();
     }
 
-	void DrawDirectionalLightComponent(SPW::DirectionalLightComponent* component) const
+	void DrawDirectionalLightComponent(DirectionalLightComponent* component) const
     {
         ImGui::PushID("Dictional Light");
-        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Dictional Light")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("Dictional Light", ImVec2(0, 90), true))
@@ -167,10 +167,10 @@ private:
         ImGui::PopID();
     }
 
-    void DrawAudioComponent(SPW::AudioComponent* component) const
+    void DrawAudioComponent(AudioComponent* component) const
     {
         ImGui::PushID("Audio Source");
-        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Audio Source")) /* TODO: add icon*/
         {
             int i = 1,j = 1;
@@ -193,10 +193,10 @@ private:
         ImGui::PopID();
     }
 
-    void DrawAudioListener(SPW::AudioListener* component) const
+    void DrawAudioListener(AudioListener* component) const
     {
         ImGui::PushID("Audio");
-        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Audio")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("AudioSource", ImVec2(0, 90), true)) {
@@ -210,10 +210,10 @@ private:
         ImGui::PopID();
     }
 
-    void DrawKeyComponent(SPW::KeyComponent* component) const
+    void DrawKeyComponent(KeyComponent* component) const
     {
         ImGui::PushID("Event System");
-        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Event System")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("Event System", ImVec2(0, 90), true)) {

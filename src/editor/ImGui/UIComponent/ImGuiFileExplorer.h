@@ -17,12 +17,7 @@ namespace SPW
     public:
 		ImGuiFileExplorer(ImGuiIconManager* iconManager)
 			: ImGuiPanel("File Explorer Panel"), m_IconManager(iconManager)
-		{
-			// doc_textureID = std::make_unique<ImGuiIconManager>("./resources/icons/doc.png");
-			// file_textureID = std::make_unique<ImGuiIconManager>("./resources/icons/file.png");
-			// obj_textureID = std::make_unique<ImGuiIconManager>("./resources/icons/obj.png");
-			// music_textureID = std::make_unique<ImGuiIconManager>("./resources/icons/music.png");
-		}
+		{ }
 
     protected:
 		void DisplayImGuiFileSystem(const std::string& path)
@@ -68,7 +63,7 @@ namespace SPW
 
 				if (fs::is_directory(entryPath))
 				{
-					icon_id = ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/file.png");
+					icon_id = m_IconManager->GetLibIcon("folder");
 					if (ImGui::ImageButton(reinterpret_cast<void*>(icon_id), m_DefalutImageSize))
 					{
 						// selected_dir = entryPath.string();
@@ -84,13 +79,13 @@ namespace SPW
 				{
 
 					if (entryPath.extension() == ".obj")
-						icon_id = ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/obj.png");
+						icon_id = m_IconManager->GetLibIcon("obj");
 					else if (entryPath.extension() == ".wav")
-						icon_id = ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/music.png");
+						icon_id = m_IconManager->GetLibIcon("music");
 					else if (entryPath.extension() == ".png" || entryPath.extension() == ".jpg" || entryPath.extension() == ".jpeg")
-						icon_id = ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, entryPath.string());
+						icon_id = m_IconManager->GenerateTextureID(entryPath.string());
 					else 
-						icon_id = ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png");
+						icon_id = m_IconManager->GetLibIcon("file");
 
 					if (ImGui::ImageButton(reinterpret_cast<void*>(icon_id), m_DefalutImageSize))
 					{

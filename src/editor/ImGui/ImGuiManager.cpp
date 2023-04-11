@@ -81,7 +81,7 @@ namespace SPW
 
 		m_DockspacePanel = std::make_shared<ImGuiDockSpace>();
 		m_DockspacePanel->AddPanel(m_MainMenuBar);
-		m_DockspacePanel->AddPanel(m_ObjectPanel);
+		m_DockspacePanel->AddPanel(m_EntityPanel);
 		m_DockspacePanel->AddPanel(m_HierarchyPanel);
 		m_DockspacePanel->AddPanel(m_InspectorPanel);
 		m_DockspacePanel->AddPanel(m_FileExplorer);
@@ -108,7 +108,7 @@ namespace SPW
 
 	void ImGuiManager::InitProfilingPanel()
 	{
-		m_ObjectPanel = std::make_shared<ImGuiEntityPanel>("Entity Panel");
+		m_EntityPanel = std::make_shared<ImGuiEntityPanel>("Entity Panel");
 	}
 
 	void ImGuiManager::InitSceneHierarchy()

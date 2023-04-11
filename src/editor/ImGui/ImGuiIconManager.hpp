@@ -7,52 +7,69 @@
 #include "ImGui/ImGuiDefinitions.h"
 #include <stb_image.h>
 
-namespace SPW {
-
-class ImGuiIconManager
+namespace SPW
 {
-public:
-    ImGuiIconManager() = default;
 
-public:
-    static int64_t GenerateTextureID(std::unordered_map<std::string, int64_t> m_IconIDMap, const std::string& filename)
-    {
-        if(m_IconIDMap.contains(filename)) { return m_IconIDMap[filename]; }
+	inline const std::unordered_map<std::string, std::string> k_IconLib
+	{
+		{"file", "./resources/icons/doc.png"},
+		{"folder", "./resources/icons/file.png"},
+		{"obj", "./resources/icons/obj.png"},
+		{"music", "./resources/icons/music.png"}
+	};
 
-        int width, height, numChannels;
-        unsigned char* data = stbi_load(filename.c_str(), &width, &height, &numChannels, 0);
+	class ImGuiIconManager
+	{
+	public:
+		ImGuiIconManager()
+		{
+			for(const auto&[k, v] : k_IconLib)
+			{
+				GenerateTextureID(v);
+			}
+		}
 
-        if (!data)
-        {
-            std::cerr << "Failed to load texture from file: " << filename << std::endl;
-            return 0;
-        }
+		int64_t GetLibIcon(const char* name)
+		{
+			return GenerateTextureID(k_IconLib.find(name)->second);
+		}
 
-        GLuint textureId;
-        glGenTextures(1, &textureId);
-        glBindTexture(GL_TEXTURE_2D, textureId);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		int64_t GenerateTextureID(const std::string& filename)
+	    {
+	        if(m_IconIDMap.contains(filename)) { return m_IconIDMap[filename]; }
 
-        if (numChannels == 3)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        else if (numChannels == 4)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	        int width, height, numChannels;
+	        unsigned char* data = stbi_load(filename.c_str(), &width, &height, &numChannels, 0);
 
-        // glGenerateMipmap(GL_TEXTURE_2D);
+	        if (!data)
+	        {
+	            std::cerr << "Failed to load texture from file: " << filename << std::endl;
+	            return 0;
+	        }
 
-        stbi_image_free(data);
+	        GLuint textureId;
+	        glGenTextures(1, &textureId);
+	        glBindTexture(GL_TEXTURE_2D, textureId);
+	        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        m_IconIDMap[filename] = textureId;
+	        if (numChannels == 3)
+	            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	        else if (numChannels == 4)
+	            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-    	return textureId;
-    }
+	        // glGenerateMipmap(GL_TEXTURE_2D);
 
-public:
-    std::unordered_map<std::string, int64_t> m_IconIDMap;
+	        stbi_image_free(data);
 
-	// int64_t m_IconID;
-    ImVec2 imageSize = ImVec2(40, 40);
-};
+	        m_IconIDMap[filename] = textureId;
+
+    		return textureId;
+	    }
+
+
+		std::unordered_map<std::string, int64_t> m_IconIDMap;
+		ImVec2 imageSize = ImVec2(40, 40);
+	};
 
 }

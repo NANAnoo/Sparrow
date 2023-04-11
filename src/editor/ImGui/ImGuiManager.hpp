@@ -34,45 +34,21 @@ namespace SPW
 
 		void RenderAllPanels() const { m_DockspacePanel->Render(); }
 		void CreateImagePanel(uint64_t renderID);
-		std::shared_ptr<ImGuiEntityPanel>     GetEntityPanel() { return m_ObjectPanel; }
+		std::shared_ptr<ImGuiEntityPanel>     GetEntityPanel() { return m_EntityPanel; }
 		std::shared_ptr<ImGuiInspectorPanel>  GetInspectorPanel() { return m_InspectorPanel; }
 
 	private:
-		void InitLayout()
-		{
-			InitIconManager();
-			InitMenuBar();
-			InitProfilingPanel();
-			InitSceneHierarchy();
-			InitInspectorPanel();
-			InitFileExplorer();
-
-			m_DockspacePanel = std::make_shared<ImGuiDockSpace>();
-			m_DockspacePanel->AddPanel(m_MainMenuBar);
-			m_DockspacePanel->AddPanel(m_ObjectPanel);
-			m_DockspacePanel->AddPanel(m_HierarchyPanel);
-			m_DockspacePanel->AddPanel(m_InspectorPanel);
-			m_DockspacePanel->AddPanel(m_FileExplorer);
-		}
-
+		void InitLayout();
 		void InitIconManager();
-
 		void InitMenuBar();
-
 		void InitProfilingPanel();
-
 		void InitSceneHierarchy();
-
 		void InitInspectorPanel();
-
-		void InitFileExplorer()
-		{
-			m_FileExplorer = std::make_shared<ImGuiFileExplorer>(m_ImguiIconManager.get());
-		}
+		void InitFileExplorer();
 
 	private:
 		std::shared_ptr<ImGuiDockSpace>			m_DockspacePanel;
-		std::shared_ptr<ImGuiEntityPanel>		m_ObjectPanel;
+		std::shared_ptr<ImGuiEntityPanel>		m_EntityPanel;
 		std::shared_ptr<ImGuiMenuBar>			m_MainMenuBar;
 		std::shared_ptr<ImGuiTreeNodePanel>		m_HierarchyPanel;
 		std::shared_ptr<ImGuiInspectorPanel>	m_InspectorPanel;
