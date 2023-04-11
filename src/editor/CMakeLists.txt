@@ -13,21 +13,7 @@ endmacro(EDITOR_ADD_SOURCE)
 
 set(EditorSourceFiles
         "${SparrowEditorDir}/SparrowEditor.h"
-        SparrowEditor.h
-        ImGui/ImGuiDefinitions.h
-        ImGui/UIComponent/ImGuiPanel.h
-        ImGui/UIComponent/ImGuiDockSpace.h
-        ImGui/UIComponent/ImGuiTreeNodePanel.h
-        ImGui/UIComponent/ImGuiMenuBar.h
-        ImGui/UIComponent/ImGuiObjectPanel.h
-        ImGui/UIComponent/ImGuiInspectorPanel.h
-        ImGui/UIComponent/ImGuiImagePanel.h
-        ImGui/ImGuiIcon.hpp
-        ImGui/ImGuiManager.hpp
-        ImGui/ImGuiManager.cpp
-        ImGui/ImGuiManager.hpp 
-        ImGui/UIComponent/ImGuiWindow.h
-        ImGui/UIComponent/ImGuiFileEXPLORER.h)
+        ImGui/UIComponent/ImGuiFileExplorer.cpp)
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(ImGui)

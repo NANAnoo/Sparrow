@@ -9,7 +9,6 @@
 
 namespace SPW
 {
-
 	inline const std::unordered_map<std::string, std::string> k_IconLib
 	{
 		{"file", "./resources/icons/doc.png"},
