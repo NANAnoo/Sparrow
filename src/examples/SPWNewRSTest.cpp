@@ -83,6 +83,7 @@ const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, floa
     cam->whetherMainCam = true;
     //add a key component for testing, press R to rotate
     auto cameraKey = camera->emplace<SPW::KeyComponent>();
+    static float speed = 0.02f;
     auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode){
         auto mainCameraTrans = e.component<SPW::TransformComponent>();
         auto rotMat = glm::eulerAngleYXZ(glm::radians(mainCameraTrans->rotation.y),
@@ -95,26 +96,34 @@ const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, floa
         glm::vec3 up = {0, 1, 0};
         glm::vec3 right = glm::normalize(glm::cross(forward, up));
         if(keycode == SPW::Key::W)
-            mainCameraTrans->position +=0.01f * forward;
+            mainCameraTrans->position +=speed * forward;
         if(keycode == SPW::Key::S)
-            mainCameraTrans->position -=0.01f * forward;
+            mainCameraTrans->position -=speed * forward;
         if(keycode == SPW::Key::A)
-            mainCameraTrans->position -=0.01f * right;
+            mainCameraTrans->position -=speed * right;
         if(keycode == SPW::Key::D)
-            mainCameraTrans->position +=0.01f * right;
+            mainCameraTrans->position +=speed * right;
         if(keycode == SPW::Key::Q)
-            mainCameraTrans->position -=0.01f * up;
+            mainCameraTrans->position -=speed * up;
         if(keycode == SPW::Key::E)
-            mainCameraTrans->position +=0.01f * up;
+            mainCameraTrans->position +=speed * up;
+        if (keycode == SPW::Key::LeftShift) {
+            speed = 0.1f;
+        }
     };
     auto mouse = camera->emplace<SPW::MouseComponent>();
     mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
         auto transform = e.component<SPW::TransformComponent>();
-        transform->rotation.x -= y_pos_bias * 0.02;
+        transform->rotation.x -= y_pos_bias * 0.1;
         transform->rotation.y -= x_pos_bias * 0.1 ;
     };
     cameraKey->onKeyHeldCallBack = cb;
     cameraKey->onKeyDownCallBack = cb;
+    cameraKey->onKeyReleasedCallBack = [](const SPW::Entity& e, SPW::KeyCode keycode) {
+        if (keycode == SPW::Key::LeftShift) {
+            speed = 0.02f;
+        }
+    };
     return camera->component<SPW::IDComponent>()->getID();
 }
 
@@ -233,8 +242,8 @@ public:
 
 
             auto d_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
-            d_shadowmap_node->width = 2048;
-            d_shadowmap_node->height = 2048;
+            d_shadowmap_node->width = 4096;
+            d_shadowmap_node->height = 4096;
             d_shadowmap_node->clearType = SPW::ClearDepth;
 
             auto pbr_shadow_lighting_node = pbr_with_PDshadow->createRenderNode<SPW::ModelToScreenNode>();
@@ -318,9 +327,8 @@ public:
 
             model->model = createModel();
             auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
-            animation->skeleton = createSkeleton();
+            //animation->swapCurrentAnim("mixamo.com");
             animation->swapCurrentAnim("Scene");
-            //animation->swapCurrentAnim("mantis_anim");
 
             // --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
@@ -371,9 +379,9 @@ public:
                             } else if (code == SPW::KeyCode::Down) {
                                 en.component<SPW::TransformComponent>()->position.z += 0.1;
                             } else if (code == SPW::KeyCode::Left) {
-                                en.component<SPW::TransformComponent>()->position.x += 0.1;
-                            } else if (code == SPW::KeyCode::Right) {
                                 en.component<SPW::TransformComponent>()->position.x -= 0.1;
+                            } else if (code == SPW::KeyCode::Right) {
+                                en.component<SPW::TransformComponent>()->position.x += 0.1;
                             }
                         } else {
                             if (code == SPW::KeyCode::Up) {

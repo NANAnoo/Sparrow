@@ -14,6 +14,7 @@ uniform mat4 P;
 uniform mat4 lightSpaceMatrix[10];
 
 uniform int offset;
+uniform int DLightCount;
 
 out vec2 TexCoords;
 out vec3 normal;
@@ -28,7 +29,7 @@ void main()
     
     TexCoords = aCoords;
     normal = transpose(inverse(mat3(M))) * aNormal;
-    for(int i = 0; i<10; i++)
+    for(int i = 0; i < 10 && i < DLightCount; i++)
     {
         FragPosLightSpace[i] = lightSpaceMatrix[i] * position;
     }

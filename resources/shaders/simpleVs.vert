@@ -4,6 +4,8 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aCoords;
 layout(early_fragment_tests) in;
 
+uniform int DLightCount;
+
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
@@ -21,7 +23,7 @@ void main()
     
     TexCoords = aCoords;
     normal = transpose(inverse(mat3(M))) * aNormal;
-    for(int i = 0; i<10; i++)
+    for(int i = 0; i < 10 && i < DLightCount; i++)
     {
         FragPosLightSpace[i] = lightSpaceMatrix[i] * position;
     }
