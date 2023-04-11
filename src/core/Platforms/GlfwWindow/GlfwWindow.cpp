@@ -97,7 +97,7 @@ namespace SPW {
 
         glfwSetMouseButtonCallback(window, [](GLFWwindow* win, int button, int action, int mods){
 
-            ImGui_ImplGlfw_MouseButtonCallback(win, button, action, mods);
+            // ImGui_ImplGlfw_MouseButtonCallback(win, button, action, mods);
 
             ImGuiIO& io = ImGui::GetIO();
             if (action == GLFW_PRESS)

@@ -8,7 +8,7 @@
 
 namespace SPW {
 
-class ImGuiObjectPanel : public ImGuiPanel
+class ImGuiEntityPanel : public ImGuiPanel
 {
 public:
 	using MenuItemCallback = std::function<void()>;
@@ -20,7 +20,7 @@ public:
 		MenuItemCallback callback;
 	};
 
-	ImGuiObjectPanel(const std::string& title, bool* open = nullptr)
+	ImGuiEntityPanel(const std::string& title, bool* open = nullptr)
 		: ImGuiPanel(title, open)
 	{ }
 

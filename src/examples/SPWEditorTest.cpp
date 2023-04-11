@@ -499,21 +499,21 @@ model->textures  = g_textures;
 //      m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>("Left Dock Space");
        // m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Dockspace>();
         m_ImguiManager->Begin();
-        std::vector <std::shared_ptr<SPW::ImGuiPanel>> dockspacePanels;
-        dockspacePanels.emplace_back(m_ImguiManager->m_ObjectPanel);
-        dockspacePanels.emplace_back(m_ImguiManager->m_HierarchyPanel);
-        dockspacePanels.emplace_back(m_ImguiManager->m_MainMenuBar);
-        dockspacePanels.emplace_back(m_ImguiManager->m_FileExplorer);
+        // std::vector<std::shared_ptr<SPW::ImGuiPanel>> dockspacePanels;
+        // dockspacePanels.emplace_back(m_ImguiManager->m_ObjectPanel);
+        // dockspacePanels.emplace_back(m_ImguiManager->m_HierarchyPanel);
+        // dockspacePanels.emplace_back(m_ImguiManager->m_MainMenuBar);
+        // dockspacePanels.emplace_back(m_ImguiManager->m_FileExplorer);
 
         //render image
-        GLuint texture_id = renderSystem->getTextureID();
-        if(texture_id)
-        {
-            m_ImguiManager->CreateImagePanel(texture_id);
-            dockspacePanels.emplace_back(m_ImguiManager->m_ImagePanel);
-		}
+        // uint64_t texture_id = renderSystem->getTextureID();
+        // if(texture_id)
+        // {
+        m_ImguiManager->CreateImagePanel(renderSystem->getTextureID());
+            // m_ImguiManager->RenderGamePanel();
+		// }
 
-        m_ImguiManager->CreateAndRenderDockspacePanel(dockspacePanels);
+        m_ImguiManager->RenderAllPanels();
 
         
         //m_ImguiManager->RenderDockspacePanel();
@@ -527,18 +527,18 @@ model->textures  = g_textures;
         //m_ImguiManager->RenderUIComponent<SPW::UIComponentType::Axis>();
 
         //----------------------------------------------------------------------------------------
-    	// const auto& activeEntityPanel  = m_ImguiManager->GetEntityPanel();
-        // const auto& activeInspector = m_ImguiManager->GetInspectorPanel();
+    	const auto& activeEntityPanel  = m_ImguiManager->GetEntityPanel();
+        const auto& activeInspector = m_ImguiManager->GetInspectorPanel();
 
-    	//scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
-     //   {
-	    //    const auto component_name= e.component<SPW::NameComponent>()->getName();
-	    //    const auto component_id  = e.component<SPW::IDComponent>()->getID().toString();
-     //       m_ImguiManager->GetEntityPanel()->AddMenuItem(component_id, component_name, [&,e]()
-     //       {
-     //           m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
-     //       });
-     //   });
+    	scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
+        {
+	        const auto component_name= e.component<SPW::NameComponent>()->getName();
+	        const auto component_id  = e.component<SPW::IDComponent>()->getID().toString();
+            m_ImguiManager->GetEntityPanel()->AddMenuItem(component_id, component_name, [&,e]()
+            {
+                m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
+            });
+        });
 
     	m_ImguiManager->End();
         m_ImguiManager->EnableViewport();

@@ -227,11 +227,9 @@ private:
         ImGui::PopID();
     }
 
-    const SPW::Entity* m_Entity = nullptr;
+    const Entity* m_Entity = nullptr;
     ImGuiIconManager* m_IconManager;
-    const std::string& k_stringPath = "./resources/texture/container.jpg";
-    ImVec2 k_DefalutImageSize = ImVec2(40, 40);
-    // std::unique_ptr<ImGuiIconManager> m_Icon; // just a default icon
+    ImVec2 k_DefalutImageSize = ImVec2(20, 20);
 };
 
 }
