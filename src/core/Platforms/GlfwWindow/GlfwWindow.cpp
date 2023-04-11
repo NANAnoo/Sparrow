@@ -9,6 +9,7 @@
 
 #include "imgui.h"
 #include "ApplicationFramework/WindowI/WindowEvent.h"
+#include "backends/imgui_impl_glfw.h"
 #include "Control/KeyEvent.hpp"
 #include "Control/MouseCodes.h"
 #include "Control/MouseEvent.hpp"
@@ -95,6 +96,8 @@ namespace SPW {
 
 
         glfwSetMouseButtonCallback(window, [](GLFWwindow* win, int button, int action, int mods){
+
+            ImGui_ImplGlfw_MouseButtonCallback(win, button, action, mods);
 
             ImGuiIO& io = ImGui::GetIO();
             if (action == GLFW_PRESS)

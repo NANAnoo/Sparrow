@@ -110,11 +110,17 @@ namespace SPW
 
 		void InitLayout()
 		{
+			InitIconManager();
 			InitMenuBar();
 			InitProfilingPanel();
 			InitSceneHierarchy();
 			InitInspectorPanel();
 			InitFileExplorer();
+		}
+
+		void InitIconManager()
+		{
+			m_ImguiIconManager = std::make_unique<ImGuiIconManager>();
 		}
 
 		void InitMenuBar()
@@ -150,14 +156,13 @@ namespace SPW
 
 		void InitInspectorPanel()
 		{
-			m_InspectorPanel = std::make_shared<ImGuiInspectorPanel>("Inspector Panel");
+			m_InspectorPanel = std::make_shared<ImGuiInspectorPanel>("Inspector Panel", m_ImguiIconManager.get());
 		}
 
 		void InitFileExplorer()
 		{
-			m_FileExplorer = std::make_shared<ImGuiFileExplorer>();
+			m_FileExplorer = std::make_shared<ImGuiFileExplorer>(m_ImguiIconManager.get());
 		}
-
 
 
 		//TODO:modify
@@ -173,6 +178,7 @@ namespace SPW
 	private:
 		bool show_demo_window = false;
 		std::shared_ptr<ImGuiDockSpace> m_DockspacePanel;
+		std::unique_ptr<ImGuiIconManager> m_ImguiIconManager;
 
 		GLFWwindow* windowHandle;
 

@@ -15,16 +15,16 @@
 #include "EcsFramework/Entity/Entity.hpp"
 #include "stb_image.h"
 
-#include "ImGui/ImGuiIcon.hpp"
+#include "ImGui/ImGuiIconManager.hpp"
 
 namespace SPW {
 
 class ImGuiInspectorPanel : public ImGuiPanel {
 public:
-  ImGuiInspectorPanel(std::string title, bool *open = nullptr)
-      : ImGuiPanel(std::move(title), open)
+  ImGuiInspectorPanel(std::string title, ImGuiIconManager* iconManager, bool *open = nullptr)
+      : ImGuiPanel(std::move(title), open), m_IconManager(iconManager)
   {
-      m_Icon = std::make_unique<ImGuiIcon>("./resources/texture/container.jpg");
+      // m_Icon = std::make_unique<ImGuiIconManager>("./resources/texture/container.jpg");
   }
 
   void SetSelectedGameObject(const Entity& e) {m_Entity = &e;}
@@ -77,7 +77,7 @@ private:
     void DrawTransformComponent(SPW::TransformComponent* component) const
     {
         ImGui::PushID("Transform"); 
-        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
     	if (ImGui::TreeNode("Transform")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("Transform", ImVec2(0, 90), true)) {
@@ -96,7 +96,7 @@ private:
     void DrawCameraComponent(SPW::CameraComponent* component) const
     {
         ImGui::PushID("Camera");
-        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Camera")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("Camera", ImVec2(0, 120), true))
@@ -127,7 +127,7 @@ private:
     void DrawPointLightComponent(SPW::PointLightComponent* component) const
     {
         ImGui::PushID("Point Light");
-        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Point Light")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("Point Light", ImVec2(0, 180), true))
@@ -150,7 +150,7 @@ private:
 	void DrawDirectionalLightComponent(SPW::DirectionalLightComponent* component) const
     {
         ImGui::PushID("Dictional Light");
-        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Dictional Light")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("Dictional Light", ImVec2(0, 90), true))
@@ -170,7 +170,7 @@ private:
     void DrawAudioComponent(SPW::AudioComponent* component) const
     {
         ImGui::PushID("Audio Source");
-        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Audio Source")) /* TODO: add icon*/
         {
             int i = 1,j = 1;
@@ -196,7 +196,7 @@ private:
     void DrawAudioListener(SPW::AudioListener* component) const
     {
         ImGui::PushID("Audio");
-        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Audio")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("AudioSource", ImVec2(0, 90), true)) {
@@ -213,7 +213,7 @@ private:
     void DrawKeyComponent(SPW::KeyComponent* component) const
     {
         ImGui::PushID("Event System");
-        ImGui::Image((ImTextureID)(intptr_t)m_Icon->m_IconID, m_Icon->imageSize); ImGui::SameLine();
+        ImGui::Image(reinterpret_cast<void*>(ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png")), k_DefalutImageSize); ImGui::SameLine();
         if (ImGui::TreeNode("Event System")) /* TODO: add icon*/
         {
             if (ImGui::BeginChild("Event System", ImVec2(0, 90), true)) {
@@ -228,7 +228,10 @@ private:
     }
 
     const SPW::Entity* m_Entity = nullptr;
-    std::unique_ptr<ImGuiIcon> m_Icon; // just a default icon
+    ImGuiIconManager* m_IconManager;
+    const std::string& k_stringPath = "./resources/texture/container.jpg";
+    ImVec2 k_DefalutImageSize = ImVec2(40, 40);
+    // std::unique_ptr<ImGuiIconManager> m_Icon; // just a default icon
 };
 
 }

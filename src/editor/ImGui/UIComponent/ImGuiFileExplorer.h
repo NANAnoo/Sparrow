@@ -1,53 +1,30 @@
+/*
+ * @date   2023-04-09
+ * @author dudu
+ * @brief  ${FILE_DESCRIPTION}
+ */
 #pragma once
 #include "ImGuiPanel.h"
+#include "imgui_internal.h"
+#include "ImGui/ImGuiIconManager.hpp"
 #include "ImGui/UIComponent/ImGuiPanel.h"
 #include "IO/FileSystem.h"
 
-namespace SPW {
-
-    class ImGuiFileExplorer : public ImGuiPanel
+namespace SPW
+{
+	class ImGuiFileExplorer : public ImGuiPanel
     {
     public:
-        ImGuiFileExplorer():ImGuiPanel("File Explorer Panel")
-        {
-			image_size = ImVec2(64, 64);
-
-			doc_textureID = generateTextureID("./resources/icons/doc.png");
-			file_textureID = generateTextureID("./resources/icons/file.png");
-			obj_textureID = generateTextureID("./resources/icons/obj.png");
-			music_textureID = generateTextureID("./resources/icons/music.png");
-
-        }
-
-    protected:
-		inline uint32_t generateTextureID(const std::string& filename)
+		ImGuiFileExplorer(ImGuiIconManager* iconManager)
+			: ImGuiPanel("File Explorer Panel"), m_IconManager(iconManager)
 		{
-			int width, height, numChannels;
-			unsigned char* data = stbi_load(filename.c_str(), &width, &height, &numChannels, 0);
-
-			if (!data)
-			{
-				std::cerr << "Failed to load texture from file: " << filename << std::endl;
-				return 0;
-			}
-
-			GLuint textureId;
-			glGenTextures(1, &textureId);
-			glBindTexture(GL_TEXTURE_2D, textureId);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-			if (numChannels == 3)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			else if (numChannels == 4)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-			//glGenerateMipmap(GL_TEXTURE_2D);
-
-			stbi_image_free(data);
-			return textureId;
+			// doc_textureID = std::make_unique<ImGuiIconManager>("./resources/icons/doc.png");
+			// file_textureID = std::make_unique<ImGuiIconManager>("./resources/icons/file.png");
+			// obj_textureID = std::make_unique<ImGuiIconManager>("./resources/icons/obj.png");
+			// music_textureID = std::make_unique<ImGuiIconManager>("./resources/icons/music.png");
 		}
 
+    protected:
 		void DisplayImGuiFileSystem(const std::string& path)
 		{
 			for (const auto& entry : fs::directory_iterator(FilePath(path)))
@@ -76,9 +53,9 @@ namespace SPW {
 			}
 		}
 
-		inline void DisplaySelectedFolder(const std::string& folderPath)
+		void DisplaySelectedFolder(const std::string& folderPath)
 		{
-			// 设置列数和列宽度
+			// set row numbers and row width
 			int numColumns = 4;
 			ImGui::Columns(numColumns);
 
@@ -87,56 +64,51 @@ namespace SPW {
 				auto& entryPath = entry.path();
 				std::string fileName = entryPath.filename().string();
 
+				int64_t icon_id;
+
 				if (fs::is_directory(entryPath))
 				{
-					// glBindTexture(GL_TEXTURE_2D, dir_textureID);
-					// ImGui::Image((ImTextureID)(intptr_t)dir_textureID, image_size); ImGui::SameLine();
-
-					if (ImGui::ImageButton((ImTextureID)(intptr_t)file_textureID, image_size))
-						// if(ImGui::Button(fileName.c_str()))
+					icon_id = ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/file.png");
+					if (ImGui::ImageButton(reinterpret_cast<void*>(icon_id), m_DefalutImageSize))
 					{
+						// selected_dir = entryPath.string();
+						// std::cout << "CLiked" << std::endl;
+					}
+					if (ImGui::IsItemClicked())
+					{
+						// std::cout << "CLiked" << std::endl;
 						selected_dir = entryPath.string();
 					}
-					ImGui::Text("%s", fileName.c_str());
-
-					ImGui::Spacing();
 				}
 				else
 				{
-					uint32_t icon_id;
 
-					if (entryPath.extension() == ".obj") icon_id = obj_textureID;
-					else if (entryPath.extension() == ".wav") icon_id = music_textureID;
-					else if (entryPath.extension() == ".png" || entryPath.extension() == ".jpg")
-					{
-						//TODO:材质的压缩或提前加载
-						icon_id = generateTextureID(entryPath.string());
-					}
-					else icon_id = doc_textureID;
+					if (entryPath.extension() == ".obj")
+						icon_id = ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/obj.png");
+					else if (entryPath.extension() == ".wav")
+						icon_id = ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/music.png");
+					else if (entryPath.extension() == ".png" || entryPath.extension() == ".jpg" || entryPath.extension() == ".jpeg")
+						icon_id = ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, entryPath.string());
+					else 
+						icon_id = ImGuiIconManager::GenerateTextureID(m_IconManager->m_IconIDMap, "./resources/icons/doc.png");
 
-					if (ImGui::ImageButton((ImTextureID)(intptr_t)icon_id, image_size))
+					if (ImGui::ImageButton(reinterpret_cast<void*>(icon_id), m_DefalutImageSize))
 					{
 						// selected_dir = entryPath.string();
 					}
-
-					ImGui::Text("%s", fileName.c_str());
-
-					ImGui::Spacing();
 				}
 
-				// 添加下一列
+				ImGui::Text("%s", fileName.c_str()); ImGui::Spacing();
+
+
 				ImGui::NextColumn();
 			}
 
-			// 重置列
 			ImGui::Columns(1);
-
 		}
 
         void Draw() override
         {
-            DisplayImGuiFileSystem("resources/");
-
 			ImGui::Begin("Selected Folder");
 			if (!selected_dir.empty())
 			{
@@ -144,18 +116,22 @@ namespace SPW {
 			}
 			ImGui::End();
 
+			ImGui::Begin("Button Test");
+			if(ImGui::Button(" Test"))
+			{
+				std::cout << "Test \n";
+			}
+			ImGui::End();
+
+			DisplayImGuiFileSystem("resources/");
         }
 
     private:
-    	std::string selected_dir;
+		std::string selected_dir;
 
-		uint32_t doc_textureID;
-		uint32_t file_textureID;
-		uint32_t obj_textureID;
-		uint32_t music_textureID;
+		ImGuiIconManager* m_IconManager;
 
-    	ImVec2 image_size ;
-
+		ImVec2 m_DefalutImageSize  = ImVec2(40, 40);
     };
 
 }

@@ -402,7 +402,7 @@ model->meshes    = g_newMeshes;
 model->materials = g_newMaterials;
 model->meshURI   = g_meshURI;
 model->textures  = g_textures;
-__debugbreak();
+// __debugbreak();
 
             // --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
@@ -463,6 +463,7 @@ __debugbreak();
 
             m_ImguiManager = std::make_shared<SPW::ImGuiManager>();
             m_ImguiManager->Init(handle);
+
 
   std::cout << "ImGui" << IMGUI_VERSION << std::endl;
 #ifdef IMGUI_HAS_VIEWPORT
