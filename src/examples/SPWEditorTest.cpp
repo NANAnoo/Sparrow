@@ -49,6 +49,7 @@
 #include "Asset/AssetData/MaterialData.h"
 #include "Asset/Serializer/EntitySerializer.h"
 #include "Asset/ModelLoader/ModelLoader.h"
+#include "ImGui/ImGuiFileDialog.h"
 
 std::shared_ptr<SPW::Model> createModel() {
     //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
@@ -180,7 +181,7 @@ public:
 
 };
 
-std::string SPW::FileRoots::k_Root   = "C:/Users/dudu/Desktop/UserProject/"; // TODO : change this to your own path
+std::string SPW::FileRoots::k_Root   = "E:/Dev/"; // TODO : change this to your own path
 std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
 std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
 std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
@@ -495,17 +496,17 @@ model->textures  = g_textures;
 
     void afterAppUpdate() final{
         scene->afterUpdate();
-
         //----------------------------------------------------------------------------------------
         m_ImguiManager->Begin();
 
         ImGui::Begin("Test Button Panel");
-
-        if(ImGui::Button("Import Model"))
-        {
-            // TODO: jcx
-            std::cout << " Clicked!\n";
-        }
+        //if(ImGui::Button("Import Model"))
+        //{
+        //    // TODO: jcx
+        //    std::cout << " Clicked!\n";
+        //        file_dialog.OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", ".");
+        //    
+        //}
         if(ImGui::Button("Save Asset"))
         {
             // TODO: dudu
@@ -577,6 +578,9 @@ model->textures  = g_textures;
                 m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
             });
         });
+
+
+
         //----------------------------------------------------------------------------------------
     	m_ImguiManager->End();
         m_ImguiManager->EnableViewport();

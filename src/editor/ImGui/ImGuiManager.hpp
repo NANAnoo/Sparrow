@@ -9,6 +9,7 @@
 #include "UIComponent/ImGuiPanel.h"
 #include "UIComponent/ImGuiMenuBar.h"
 #include "UIComponent/ImGuiEntityPanel.h"
+#include "UIComponent/ImGuiFileDialogPanel.h"
 #include "UIComponent/ImGuiInspectorPanel.h"
 #include "UIComponent/ImGuiTreeNodePanel.h"
 #include "UIComponent/ImGuiImagePanel.h"
@@ -46,6 +47,8 @@ namespace SPW
 		void InitSceneHierarchy();
 		void InitInspectorPanel();
 		void InitFileExplorer();
+		void InitFileDialogPanel();
+
 
 	private:
 		std::shared_ptr<ImGuiDockSpace>			m_DockspacePanel;
@@ -55,7 +58,9 @@ namespace SPW
 		std::shared_ptr<ImGuiInspectorPanel>	m_InspectorPanel;
 		std::shared_ptr<ImGuiImagePanel>	    m_ImagePanel;
 		std::shared_ptr<ImGuiFileExplorer>      m_FileExplorer;
-		// std::shared_ptr<ImGuiMessageBox>		m_TestWindow;
+		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
+
+		
 
 		bool show_demo_window = false;
 		GLFWwindow* windowHandle;

@@ -6,12 +6,21 @@ EDITOR_ADD_SOURCE(
 
         ImGuiIconManager.hpp
 
+        ImGuiFileDialog.h
+        ImGuiFileDialog.cpp
+
+        ImGuiFileDialogConfig.h
+ 
+        dirent/dirent.h
+    
+
         UIComponent/ImGuiPanel.h
         UIComponent/ImGuiDockSpace.h
         UIComponent/ImGuiMenuBar.h
         UIComponent/ImGuiEntityPanel.h
         UIComponent/ImGuiTreeNodePanel.h
         UIComponent/ImGuiImagePanel.h
+        UIComponent/ImGuiFileDialogPanel.h
 
         UIComponent/ImGuiInspectorPanel.h
         UIComponent/ImGuiInspectorPanel.cpp

@@ -78,6 +78,7 @@ namespace SPW
 		InitSceneHierarchy();
 		InitInspectorPanel();
 		InitFileExplorer();
+		InitFileDialogPanel();
 
 		// m_TestWindow = std::make_shared<ImGuiMessageBox>("My Window", ImVec2(200, 100), ImVec2(100, 100));
 
@@ -87,8 +88,8 @@ namespace SPW
 		m_DockspacePanel->AddPanel(m_HierarchyPanel);
 		m_DockspacePanel->AddPanel(m_InspectorPanel);
 		m_DockspacePanel->AddPanel(m_FileExplorer);
+		m_DockspacePanel->AddPanel(m_FileDialogPanel);
 
-		// m_DockspacePanel->AddPanel(m_TestWindow);
 	}
 
 	void ImGuiManager::InitIconManager()
@@ -106,8 +107,8 @@ namespace SPW
 		m_MainMenuBar->AddSubMenu("Tool");
 		m_MainMenuBar->AddSubMenu("Help");
 		m_MainMenuBar->AddSubMenu("About");
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import", [&]() { /* Ìí¼ÓÎÄ¼þ²Ëµ¥µÄÄÚÈÝ... */ });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Export", [&]() { /* Ìí¼Ó±à¼­²Ëµ¥µÄÄÚÈÝ... */ });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import", [&]() { /* ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½... */ });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Export", [&]() { /* ï¿½ï¿½ï¿½Ó±à¼­ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½... */ });
 	}
 
 	void ImGuiManager::InitProfilingPanel()
@@ -135,5 +136,10 @@ namespace SPW
 	void ImGuiManager::InitFileExplorer()
 	{
 		m_FileExplorer = std::make_shared<ImGuiFileExplorer>(m_ImguiIconManager.get());
+	}
+
+	void ImGuiManager::InitFileDialogPanel()
+	{
+		m_FileDialogPanel = std::make_shared<ImGuiFileDialogPanel>();
 	}
 }
