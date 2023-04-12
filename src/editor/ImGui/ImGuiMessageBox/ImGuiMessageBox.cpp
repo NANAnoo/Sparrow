@@ -1,7 +1,7 @@
 /*
  * @date   2023-04-11
  * @author dudu
- * @brief  ImGui Window Alert Class, used to deal with window message, and show it on the screen, including file dialog, window alert...
+ * @brief  https://github.com/leiradel/ImGuiAl/
  */
 #include "ImGuiMessageBox.h"
 namespace SPW

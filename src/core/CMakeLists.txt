@@ -18,7 +18,11 @@ set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h"
         Asset/AssetData/MeshData.h
         Asset/AssetData/MaterialData.h
         Asset/ModelLoader/ModelLoader.cpp
-        Asset/ModelLoader/ModelLoader.h Asset/Serializer/EntitySerializer.cpp Asset/Serializer/EntitySerializer.h)
+        Asset/ModelLoader/ModelLoader.h
+        Asset/Serializer/EntitySerializer.cpp
+        Asset/Serializer/EntitySerializer.h
+        Asset/AssetManager/AssetManager.cpp
+        Asset/AssetManager/AssetManager.h)
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(Utils)

@@ -1,7 +1,7 @@
 /*
  * @date   2023-04-11
  * @author dudu
- * @brief  ImGui Window Alert Class, used to deal with window message, and show it on the screen, including file dialog, window alert...
+ * @brief  https://github.com/leiradel/ImGuiAl/
  */
 #pragma once
 
@@ -22,14 +22,11 @@ namespace SPW {
     		, m_Selected(0)
         {   }
 
-        // ~ImGuiMessageBox()
+        ~ImGuiMessageBox() = default;
 
         void Trigger() const { ImGui::OpenPopup(m_Title); }
-
-        int Exec();
-
+        int  Exec();
     	void AskAgain();
-
 
     protected:
         const char* m_Title;

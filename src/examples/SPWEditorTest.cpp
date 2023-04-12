@@ -181,23 +181,18 @@ public:
 
 };
 
-std::string SPW::FileRoots::k_Root   = "E:/Dev/"; // TODO : change this to your own path
+// std::string SPW::FileRoots::k_Root   = "E:/Dev/"; // TODO : change this to your own path
+std::string SPW::FileRoots::k_Root   = "C:/Users/dudu/Desktop/UserProject/"; // TODO : change this to your own path
 std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
 std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
 std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
 
 
-// #define IMPORT_MODEL
 #define LOAD_ASSET
 /*
  * TODO HACK TEMOPORY DATA
  */
-std::vector<SPW::MaterialData> g_newMaterials;
-std::vector<SPW::Mesh> g_newMeshes;
-std::string g_assetID;
-std::string g_path;
-std::string g_meshURI;
-std::unordered_map<std::string, std::string> g_textures;
+SPW::AssetData g_AssetData;
 
 class SPWTestApp : public SPW::AppDelegateI
 {
@@ -210,76 +205,27 @@ public:
     {
 
 // -------------------------------OFFLINE TEST-------------------------------------------
-
         // 1. Simulate a process of an engine boost
         SPW::FileSystem::Boost();
         // 2. Simulate a process of loading some resources into a scene
-#if defined(IMPORT_MODEL)
-        // assume load two models into the scene
-        std::unique_ptr<SPW::ModelData> model_0 = SPW::ModelLoader::LoadModel("C:/Users/dudu/Downloads/mosquito_in_amber/scene.gltf");
-
-        std::string absolute_modelDir = SPW::FileSystem::JoinPaths(SPW::FileRoots::k_Assets, model_0->name);
-    	SPW::FileSystem::CreateDirectory(absolute_modelDir);
-
-        // Update Model Path
-        model_0->path = SPW::FileSystem::JoinPaths(absolute_modelDir, model_0->name) + ".json";
-
-        // write file with absolute file path
-    	std::ofstream of_file(model_0->path); // TODO .asset, use json to view the file currently
-        cereal::JSONOutputArchive ar(of_file);
-
-    	// copy texture files into /Assets/Textures...
-        // 1. Create Texture Directory
-        std::string model_texture_dir = SPW::FileSystem::JoinPaths(absolute_modelDir , "Textures/");
-        SPW::FileSystem::CreateDirectory(model_texture_dir);
-        // 2. Loop Textures and Copy Files into Texture Directory
-    	for (auto& [k, v] : model_0->textures)
+#if defined(LOAD_ASSET)
+        if (SPW::AssetManager::LoadAsset(SPW::k_Assets + "scene/scene.json", g_AssetData)) // TODO: Select the asset file to Load by GUI operations
         {
-            std::string destinationFilePath(model_texture_dir + SPW::FileSystem::ToFsPath(v).filename().string());
-            SPW::FileSystem::CopyFile(v, destinationFilePath);
-
-            // 3. Update Texture Path To Relative
-            v = SPW::FileSystem::ToRelativePath(destinationFilePath, SPW::FileRoots::k_Root);
+            // ImGui::OpenPopup("Load Scuess"); //TODO move in runtime
         }
 
-        ar(
-            // cereal::make_nvp("assetType", model_0->type),
-            cereal::make_nvp("assetID", model_0->assetID), 
-            cereal::make_nvp("assetPath", SPW::FileSystem::ToRelativePath(model_0->path, SPW::FileRoots::k_Root)),
-
-            // cereal::make_nvp("assetName", model_0->name),
-            cereal::make_nvp("meshURI", model_0->meshURI),
-            cereal::make_nvp("materials", model_0->materials),
-            cereal::make_nvp("textures", model_0->textures)
-        );
-
-        {
-              std::ofstream mesh_bin(SPW::FileSystem::JoinPaths(absolute_modelDir, model_0->meshURI) + ".mesh", std::ios::binary);
-              cereal::BinaryOutputArchive archive(mesh_bin);
-              archive(cereal::make_nvp(model_0->meshURI, model_0->meshes));
-        }
-#elif defined(LOAD_ASSET)
-
-        std::ifstream is_Scene(SPW::k_Assets + "/scene/scene.json"); // TODO: Select the asset file to Load by GUI operations
-        cereal::JSONInputArchive ar(is_Scene);
-
-        ar(
-            cereal::make_nvp("assetID", g_assetID),
-            cereal::make_nvp("assetPath", g_path),
-            cereal::make_nvp("meshURI", g_meshURI),
-            cereal::make_nvp("materials", g_newMaterials),
-            cereal::make_nvp("textures", g_textures)
-        );
-
-        {
-            const auto& path = SPW::FilePath(SPW::FileSystem::ToAbsolutePath(g_path)).parent_path().string();
-
-        	std::ifstream mesh_bin(path + "/" + g_meshURI + ".mesh", std::ios::binary);
-            cereal::BinaryInputArchive ar(mesh_bin);
-            ar(cereal::make_nvp(g_meshURI, g_newMeshes));
-        }
-
-    	// __debugbreak();
+		//TODO move in runtime
+		// if (ImGui::BeginPopupModal("Load Scuess", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		//    {
+		//        ImGui::Text("Hello from the popup!");
+		//
+		//        if (ImGui::Button("Close"))
+		//        {
+		//            ImGui::CloseCurrentPopup();
+		//        }
+		//
+		//        ImGui::EndPopup();
+		//    }
 #endif
 // -------------------------------OFFLINE TEST-------------------------------------------
 
@@ -398,12 +344,12 @@ public:
  * TODO HACK FOR SER TEST
  */
 model->b_Asset   = true;
-model->assetID   = g_assetID;
-model->assetPath = g_path;
-model->meshes    = g_newMeshes;
-model->materials = g_newMaterials;
-model->meshURI   = g_meshURI;
-model->textures  = g_textures;
+model->assetID   = g_AssetData.assetID;
+model->assetPath = g_AssetData.path;
+model->meshes = g_AssetData.meshes;
+model->materials = g_AssetData.materials;
+model->meshURI = g_AssetData.meshURI;
+model->textures = g_AssetData.textures;
 // __debugbreak();
 
             // --------------------------------------------------------------------------------
@@ -500,16 +446,10 @@ model->textures  = g_textures;
         m_ImguiManager->Begin();
 
         ImGui::Begin("Test Button Panel");
-        //if(ImGui::Button("Import Model"))
-        //{
-        //    // TODO: jcx
-        //    std::cout << " Clicked!\n";
-        //        file_dialog.OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", ".");
-        //    
-        //}
+
+        // TODO: dudu
         if(ImGui::Button("Save Asset"))
         {
-            // TODO: dudu
             ImGui::OpenPopup("Example Popup");
             std::cout << " Clicked!\n";
         }
@@ -520,12 +460,10 @@ model->textures  = g_textures;
             std::cout << " Clicked!\n";
         }
 
-        // �������ڵ�����
-        if (ImGui::BeginPopupModal("Example Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        if (ImGui::BeginPopupModal("Example Popup", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGui::Text("Hello from the popup!");
 
-            // �رյ������ڵİ�ť
             if (ImGui::Button("Close"))
             {
                 ImGui::CloseCurrentPopup();
@@ -539,7 +477,7 @@ model->textures  = g_textures;
         {
             // TODO: dudu
             ImGui::OpenPopup("Save Scene");
-            SPW::EntitySerializer::SaveScene(scene, "C:/Users/dudu/Desktop/");
+            SPW::EntitySerializer::SaveScene(scene);
         }
         if (ImGui::BeginPopupModal("Save Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         {
@@ -550,17 +488,7 @@ model->textures  = g_textures;
 
         if(ImGui::Button("Load Scene"))
         {
-            messageBox.Trigger();
             std::cout << " Clicked!\n";
-        }
-        int ret = messageBox.Exec();
-        if(ret == 1)
-        {
-            std::cout << " Clicked on OK!\n";
-        }
-        if(ret == 2)
-        {
-            std::cout << " Clicked on Canel!\n";
         }
 
 
@@ -631,10 +559,6 @@ model->textures  = g_textures;
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
     std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
     std::shared_ptr<SPW::SPWRenderSystem> renderSystem;
-
-	inline static const char* buttonCaptions[] = { "OK", "Cancel", nullptr }; // nullptr ��������
-    inline static SPW::ImGuiMessageBox messageBox{ "My Message Box", nullptr, "This is a message.", buttonCaptions, false };
-
 };
 
 // main entrance

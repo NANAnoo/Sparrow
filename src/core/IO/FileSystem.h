@@ -32,7 +32,60 @@ namespace SPW
 			// copy project asset/ resource,
 			CreateDirectory(k_Assets);
 			CreateDirectory(k_Scenes);
+            MountEngine();
 		}
+
+        static void MountEngine()
+		{
+            try
+            {
+                for (const auto& entry : std::filesystem::directory_iterator("./resources/"))
+                {
+                    const auto& path = entry.path();
+                    auto new_destination = k_Engine / path.filename();
+
+                    if (fs::is_directory(path))
+                    {
+                        copy_directory(path, new_destination);
+                    }
+                    else
+                    {
+                        fs::copy(path, new_destination);
+                    }
+                }
+            }
+            catch (std::exception& e)
+            {
+                std::cerr << "Error: " << e.what() << std::endl;
+            }
+		}
+
+        static void copy_directory(const std::filesystem::path& source, const std::filesystem::path& destination)
+        {
+            try
+            {
+                std::filesystem::create_directories(destination);
+
+                for (const auto& entry : std::filesystem::directory_iterator(source))
+                {
+                    const auto& path = entry.path();
+                    auto new_destination = destination / path.filename();
+
+                    if (std::filesystem::is_directory(path))
+                    {
+                        copy_directory(path, new_destination);
+                    }
+                    else
+                    {
+                        std::filesystem::copy(path, new_destination);
+                    }
+                }
+            }
+            catch (std::exception& e)
+            {
+                std::cerr << "Error: " << e.what() << std::endl;
+            }
+        }
 
 		static std::string GetProjectName()
 		{
@@ -76,7 +129,7 @@ namespace SPW
 
         static std::string GetCleanFilename(const std::string& filename)
         {
-                return fs::path(filename).filename().replace_extension().string();
+            return fs::path(filename).filename().replace_extension().string();
         }
 
         static void ResolveSlash(std::string& str)
@@ -118,12 +171,7 @@ namespace SPW
 
         static bool PathExists(const std::string& filename)
         {
-            if (fs::exists(filename))
-                return true;    // the folder probably already existed
-            else
-                std::cout << " File Not Exist \n";
-
-            return false;
+            return fs::exists(filename) ? true : false;
         }
 
         static bool CreateDirectory(const std::string& dir_name)
@@ -133,8 +181,8 @@ namespace SPW
             {
                 if (fs::exists(dir_name))
                 {
-                        std::cout << " the folder probably already existed\n ";
-                        return true;    // the folder probably already existed
+                    std::cout << " the folder probably already existed\n ";
+                    return true;    // the folder probably already existed
                 }
 
                 std::cout << "CreateDirectoryRecursive: FAILED to create" <<

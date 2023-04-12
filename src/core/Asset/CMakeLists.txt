@@ -2,6 +2,10 @@ CORE_ADD_SOURCE(
         Asset.hpp
         AssetDataSupport.inl
 
+        AssetManager/AssetManager.h
+        AssetManager/AssetManager.cpp
+
+        AssetData/AssetData.h
         AssetData/Vertex.h
         AssetData/ModelData.h
         AssetData/MeshData.h

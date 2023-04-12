@@ -36,28 +36,28 @@ namespace SPW
         EntitySerializer(const EntitySerializer& ts) = delete;
         EntitySerializer(EntitySerializer&& ts) = delete;
 
-
-        // void AddComponment(std::string name, toml::table componentTable)
-        // {
-        //     m_ComponentRecords.emplace(name, componentTable);
-        // }
-
-        static void SaveScene(const std::shared_ptr<Scene>& scene, const std::string& filePath)
+        static bool SaveScene(const std::shared_ptr<Scene>& scene, const std::string& filePath = "")
         {
-            std::unordered_map<std::string, CameraComponent> cameraComponents;
+            fs::path savePath;
+        	if( filePath.length() > 0 )
+            {
+                savePath = filePath;
+            }
+			else
+			{
+                savePath = FileRoots::k_Scenes + "/scene.json";
+			}
+
+        	std::unordered_map<std::string, CameraComponent> cameraComponents;
             std::unordered_map<std::string, PointLightComponent> pointLightComponents;
             std::unordered_map<std::string, DirectionalLightComponent> directionalLightComponents;
             std::unordered_map<std::string, TransformComponent> transformComponents;
             std::unordered_map<std::string, MeshComponent> meshComponents;
             std::vector<EntityNode> entityNodes;
 
-        	scene->forEachEntity<IDComponent>([&](const SPW::Entity& e)
+        	scene->forEachEntity<IDComponent>([&](const Entity& e)
             {
-                // EntitySerializer entitySerialer;
-
-                const std::string uuid_str = e.component<SPW::IDComponent>()->getID().toString();
-                // Get name and uuid from each entity.
-                // std::string entity_name = e.component<SPW::NameComponent>()->getName();
+                const std::string uuid_str = e.component<IDComponent>()->getID().toString();
 
                 entityNodes.emplace_back( EntityNode{uuid_str, e.component<NameComponent>()->getName()} );
 
@@ -84,8 +84,7 @@ namespace SPW
 
             });
 
-            // std::cout << FileRoots::k_Scenes + "/scene.json\n";
-            std::ofstream of_file(FileRoots::k_Scenes + "/scene.json");
+            std::ofstream of_file(savePath);
             cereal::JSONOutputArchive ar(of_file);
             ar(cereal::make_nvp("entityNodes", entityNodes));
             ar(cereal::make_nvp("cameraComponents", cameraComponents));
@@ -102,10 +101,8 @@ namespace SPW
                         std::ofstream file(FileSystem::ToAbsolutePath(v.assetPath));
                         cereal::JSONOutputArchive ar(file);
                         ar(
-                            // cereal::make_nvp("assetType", model_0->type),
                             cereal::make_nvp("assetID", v.assetID),
                             cereal::make_nvp("assetPath", v.assetPath),
-                            // cereal::make_nvp("assetName", model_0->name),
                             cereal::make_nvp("meshURI", v.meshURI),
                             cereal::make_nvp("materials", v.materials),
                             cereal::make_nvp("textures", v.textures)
@@ -122,98 +119,9 @@ namespace SPW
                 }
                 else {} // TODO: Call Save Asset 's logic to save a .asset file.
             }
+
+            return true;
         }
-
-
-        // // TODO: should directly return a scene tree.
-        // std::vector<std::shared_ptr<SPW::Entity>> LoadScene(std::shared_ptr<Scene> scene, const std::string& filePath)
-        // {
-        //     toml::table tbl{};
-        //     try
-        //     {
-        //         tbl = toml::parse_file(filePath);
-        //         std::cout << tbl << "\n";
-        //     }
-        //     catch (const toml::parse_error& err)
-        //     {
-        //         std::cerr << "Parsing failed:\n" << err << "\n";
-        //     }
-        //
-        //     std::vector<std::shared_ptr<SPW::Entity>> scene_entities;
-        //     for (const auto& [k, v] : tbl)
-        //     {
-        //         // Create an entity:
-        //         const char* uuid_str = k.data();
-        //         auto ent = scene->createEntityByID(UUID{ uuid_str });
-        //
-        //         std::cout << "entity:" << k << std::endl;
-        //
-        //         for (const auto& [ik, iv] : *v.as<toml::table>())
-        //         {
-        //             const auto& ik_name = std::string(ik);
-        //
-        //             if (ik_name == "name")
-        //             {
-        //                 auto ent_name = std::string(*iv.as<std::string>());
-        //                 std::cout << "name:" << ent_name << std::endl;
-        //                 ent->emplace<SPW::NameComponent>(ent_name);
-        //             }
-        //
-        //             if (ik_name == "components")
-        //             {
-        //                 // std::cout << "components:" << *iv.as<std::string>() << std::endl;
-        //                 for (const auto& [ck, cv] : *iv.as<toml::table>())
-        //                 {
-        //                     // std::cout << "component name:" << ck << std::endl;
-        //
-        //                     if (ck == "light")
-        //                     {
-        //                         // std::cout << "Init Light Component" << std::endl;
-        //                         auto component_table = *cv.as<toml::table>();
-        //
-        //                         LightComponent tmp_light_component{ LightType::PointLightType };
-        //                         tmp_light_component.load(std::move(component_table));
-        //
-        //                         ent->emplace<SPW::LightComponent>(tmp_light_component);
-        //                     }
-        //                     if (ck == "camera")
-        //                     {
-        //                         auto component_table = *cv.as<toml::table>();
-        //
-        //                         CameraComponent tmp_camera_component{ CameraType::PerspectiveType };
-        //                         tmp_camera_component.load(std::move(component_table));
-        //
-        //                         ent->emplace<SPW::CameraComponent>(tmp_camera_component);
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //
-        //         scene_entities.emplace_back(ent);
-        //     }
-        //
-        //     return scene_entities;
-        // }
-        //
-        // void SaveEntity(std::string com_name, std::string& UUID)
-        // {
-        //     toml::table componet_table;
-        //     for (const auto& [key, value] : m_ComponentRecords)
-        //         componet_table.insert_or_assign(key, value);
-        //
-        //     auto tbl = toml::table
-        //     {
-        //         {UUID, toml::table
-        //             {
-        //                 {"name", com_name},
-        //                 {"components",componet_table},
-        //             }},
-        //     };
-        //
-        //     return tbl;
-        // }
-        //
-        // std::unordered_map<std::string, SaveTable> m_ComponentRecords;
     };
 
 } // namespace SPW

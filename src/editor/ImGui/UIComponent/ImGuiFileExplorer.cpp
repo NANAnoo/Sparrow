@@ -4,6 +4,7 @@
  * @brief  ${FILE_DESCRIPTION}
  */
 #include "ImGuiFileExplorer.h"
+#include "IO/FileSystem.h"
 
 namespace SPW
 {
@@ -16,7 +17,7 @@ namespace SPW
 		}
 		ImGui::End();
 
-		DisplayImGuiFileSystem("resources/");
+		DisplayImGuiFileSystem(FileRoots::k_Root);
 	}
 
 	void SPW::ImGuiFileExplorer::DisplayImGuiFileSystem(const std::string& path)
@@ -89,6 +90,14 @@ namespace SPW
 				if (ImGui::ImageButton(reinterpret_cast<void*>(icon_id), m_DefalutImageSize))
 				{
 					// selected_dir = entryPath.string();
+				}
+
+				if (ImGui::IsItemClicked() && entryPath.extension() == ".json")
+				{
+					std::string command = "code " + entryPath.string();
+
+					if(std::system(command.c_str()))
+						std::cerr << "Error: Failed to open the file in Visual Studio Code" << std::endl;
 				}
 			}
 
