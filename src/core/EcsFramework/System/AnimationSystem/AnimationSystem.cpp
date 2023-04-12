@@ -23,6 +23,12 @@ void SPW::AnimationSystem::beforeUpdate()
                  auto animationComp = entity.component<SPW::AnimationComponent>();
                  auto modelComp = entity.component<SPW::MeshComponent>();
 
+
+                 if (!animationComp->mapInitialize)
+                 {
+                     animationComp->initializeMapping(modelComp->model);
+                 }
+
                  //Binding buffer
                  if (animationComp->SPW_AnimSSBO)
                  {

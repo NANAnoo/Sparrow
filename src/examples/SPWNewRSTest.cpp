@@ -326,7 +326,7 @@ public:
             model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_ani_light_shadow_desc.uuid;
 
             model->model = createModel();
-            auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
+            auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton());
             //animation->swapCurrentAnim("mixamo.com");
             animation->swapCurrentAnim("Scene");
 

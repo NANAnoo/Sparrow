@@ -15,25 +15,27 @@
 #include "Model/Mesh.h"
 #include <vector>
 #include <map>
+#include <thread>
+#include <mutex>
 #include "glm/glm.hpp"
 #include "Render/StorageBuffer.h"
-
+#include "Utils/ThreadPool.h"
+#include <future>
+#include <glm/gtx/matrix_decompose.hpp>
 //#include "Animation.h"
 namespace SPW {
 
     //Start: Start an animation from 'Stopped' state or 'Paused' state
-        //Reset the current time and change to OnPlaying
+    //Reset the current time and change to OnPlaying
     //Stopped: Animation is stopped at time: 0
-        //OnPlaying -> stop: bUpdate = false; (AnimComponent to                           animation)
+    //OnPlaying -> stop: bUpdate = false; (AnimComponent to                           animation)
     //Paused: Animation is stopped during playing
     //Onplaying: Animation is playing and keeps updating
 
     //Begin a new Animation
-        //1:
-
+    //1:
     enum class AnimationState {Start,Stopped,Paused,OnPlaying};
     enum class AnimationAction {Reset,Swap,Pause,Resume};
-    using FlattenTransform = std::vector<glm::mat4>;
 
     struct VerMapBone
     {
@@ -43,22 +45,18 @@ namespace SPW {
         std::vector<float> weight;
     };
 
-    struct AnimationClipSSBO {
-        std::shared_ptr<StorageBuffer> starts;
-        std::shared_ptr<StorageBuffer> sizes;
-        std::shared_ptr<StorageBuffer> boneIndices;
-        std::shared_ptr<StorageBuffer> weights;
-        std::shared_ptr<StorageBuffer> mats;
-    };
-
-    //For all vertices
-    struct AnimBufferInfo
+    struct MatrixPerFrame
     {
-        //Start index 只负责记录weights数组
-        std::vector<uint32_t> startIndex;
-        std::vector<uint32_t> size;
-        std::vector<float> weights;
-        std::vector<uint32_t> boneID;
+        MatrixPerFrame(int boneSize,float timeStamp)
+        {
+            transformMatrix.resize(boneSize,glm::mat4(1.0f));
+            this->timeStamp = timeStamp;
+        }
+
+        MatrixPerFrame() = default;
+
+        std::vector<glm::mat4> transformMatrix;
+        float timeStamp;
     };
 
 
@@ -85,9 +83,47 @@ namespace SPW {
             state = AnimationState::Stopped;
             isLoop = false;
             bUpdate = false;
+            isPreLoaded = false;
             m_assimpRootNode = skeleton->m_assimpRootNode;
-            finalBoneMatrices.resize(skeleton->m_Bones.size(),glm::mat4(1.0f));
             NameMappingBones(skeleton->m_Bones);
+            finalBoneMatrices.resize(m_BoneMap.size(),glm::mat4(1.0f));
+            preload();
+        }
+
+        void preload() {
+            // totol frames Get total frames
+            // 多线程计算总关键帧的所有finalBoneMatrices
+            // calculate用于在某两帧之间进行mix // 60帧
+            //Initialize matrices
+            preload_finalBoneMatrices.resize(120);
+            for(int i = 0 ; i < 120; ++i)
+            {
+                float index = i * 1.0f;
+                float timeStamp = (duration / 119.0f) * index;
+                preload_finalBoneMatrices[i].timeStamp = timeStamp;
+                preload_finalBoneMatrices[i].transformMatrix.resize(m_BoneMap.size(),glm::mat4(1.0f));
+            }
+
+            ThreadPool threadPool(3,16);
+            std::vector<std::future<void>> futures;
+            for (int i = 0; i < 120; ++i)
+            {
+                auto promise = std::make_shared<std::promise<void>>();
+                futures.push_back(promise->get_future());
+
+                threadPool.add([this,i,promise]()
+                               {
+                                   PrecalculateBoneTransform(this->m_assimpRootNode,glm::mat4(1.0f),i);
+                                   //testPrintf(to_string(i));
+
+                                   promise->set_value();
+                               });
+            }
+
+            // Wait for all tasks to complete
+            for (auto& future : futures) {
+                future.wait();
+            }
         }
 
         void play()
@@ -158,17 +194,67 @@ namespace SPW {
         {
             if (bUpdate)
             {
-                currentTime += tickPerSecond * dt;
+                currentTime += tickPerSecond * dt * 0.5f;
                 currentTime = fmod(currentTime,duration);
-                calculateBoneTransform(m_assimpRootNode,glm::mat4(1.0f));
+
+                int preIndex;
+                int index;
+                for (int i = 0; i < preload_finalBoneMatrices.size() - 1; ++i)
+                {
+                    if (preload_finalBoneMatrices[i+1].timeStamp > currentTime)
+                    {
+                        index = i+1 ;
+                        preIndex = i;
+                        break;
+                    }
+                }
+
+                float preTime = preload_finalBoneMatrices[preIndex].timeStamp;
+                float nextTime = preload_finalBoneMatrices[index].timeStamp;
+                float midTime = currentTime;
+
+                float left = midTime - preTime;
+                float frameDua = nextTime - preTime;
+                float factor = left / frameDua;
+
+                for (int i = 0; i < finalBoneMatrices.size(); ++i)
+                {
+                    glm::mat4 preTransform = preload_finalBoneMatrices[preIndex].transformMatrix[i];
+                    glm::mat4 lastTransform = preload_finalBoneMatrices[index].transformMatrix[i];
+
+                    glm::vec3 translation, scaling;
+                    glm::quat rotation;
+                    glm::vec3 skew;
+                    glm::vec4 perspective;
+                    glm::decompose(preTransform, scaling, rotation, translation, skew, perspective);
+
+                    glm::vec3 translation1, scaling1;
+                    glm::quat rotation1;
+                    glm::vec3 skew1;
+                    glm::vec4 perspective1;
+                    glm::decompose(lastTransform, scaling1, rotation1, translation1, skew1, perspective1);
+
+                    glm::vec3 finalPosition = glm::mix(translation, translation1
+                            , factor);
+
+                    glm::quat finalRotation = glm::slerp(rotation, rotation1
+                            , factor);
+
+                    glm::vec3 finalScale = glm::mix(scaling, scaling1
+                            , factor);
+
+                    finalBoneMatrices[i] = glm::translate(glm::mat4(1.0f),finalPosition) * glm::toMat4(finalRotation) * glm::scale(glm::mat4(1.0f), finalScale);
+                }
             }
         }
 
         bool isLoop;
         bool bUpdate;
+        bool isPreLoaded;
         float currentTime;
         AnimationState state;
         std::vector<glm::mat4> finalBoneMatrices;
+        std::vector<MatrixPerFrame> preload_finalBoneMatrices;
     public:
         const std::string &getAnimationName() const
         {
@@ -178,11 +264,20 @@ namespace SPW {
     private:
         void NameMappingBones(std::vector<std::shared_ptr<BoneInfo>> m_Bones)
         {
+            int count = 0;
             for(std::weak_ptr<BoneInfo> boneInfo : m_Bones)
             {
                 std::string name = boneInfo.lock()->name;
-                m_BoneMap[name] = boneInfo.lock();
+
+                if (m_BoneMap.find(name) != m_BoneMap.end())
+                {
+                    count++;
+                }else
+                {
+                    m_BoneMap[name] = boneInfo.lock();
+                }
             }
+            printf("Number of repeated bones: %d",count);
         }
         void calculateBoneTransform(const AssimpNodeData& node,glm::mat4 parrentTransform)
         {
@@ -201,12 +296,45 @@ namespace SPW {
             {
                 uint32_t boneId = temp->boneID;
                 auto boneOffset = temp->offsetMatrix;
+
+                std::unique_lock<std::mutex>lock(mtx);
                 finalBoneMatrices[boneId] = localTransform * boneOffset;
+                lock.unlock();
             }
 
             for (int i = 0; i < node.childrenCount; ++i)
                 calculateBoneTransform(node.children[i],localTransform);
         }
+
+        void PrecalculateBoneTransform(const AssimpNodeData& node,glm::mat4 parrentTransform,int frame)
+        {
+            std::string assimpName = node.name; //get name from assimp Node
+            glm::mat4 localTransform = node.transformation; // get localTransform from assimpNode
+
+            AnimationNode* currentNode = findAnimationNode(assimpName);
+            if (currentNode)
+            {
+                float time = preload_finalBoneMatrices[frame].timeStamp;
+                localTransform = getUpdatedTransform(currentNode,time);
+            }
+            localTransform = parrentTransform * localTransform;
+
+            auto temp = findBoneInSkeleton(assimpName);
+            if (temp)
+            {
+                uint32_t boneId = temp->boneID;
+                auto boneOffset = temp->offsetMatrix;
+
+                std::unique_lock<std::mutex>lock(mtx);
+                preload_finalBoneMatrices[frame].transformMatrix[boneId] = localTransform * boneOffset;
+                lock.unlock();
+            }
+
+            for (int i = 0; i < node.childrenCount; ++i)
+                PrecalculateBoneTransform(node.children[i],localTransform,frame);
+        }
+
+
         glm::mat4 getUpdatedTransform(AnimationNode* node,float currentTime)
         {
 
@@ -224,9 +352,9 @@ namespace SPW {
             auto iter = std::find_if
                     (animationClip->nodeAnimations.begin(),
                      animationClip->nodeAnimations.end(),[&]
-                     (const SPW::AnimationNode node)
+                             (const SPW::AnimationNode node)
                      {
-                        return node.nodeName == name;
+                         return node.nodeName == name;
                      });
             if (iter == animationClip->nodeAnimations.end())
                 return nullptr;
@@ -243,6 +371,10 @@ namespace SPW {
                 return iter->second;
         }
 
+        void testPrintf(std::string test)
+        {
+            printf(test.c_str());
+        }
 
     private:
         std::map<std::string,std::shared_ptr<BoneInfo>> m_BoneMap;
@@ -251,6 +383,8 @@ namespace SPW {
         std::string animationName;
         float duration;
         int tickPerSecond;
+
+        std::mutex mtx;
     };
 
 
@@ -382,11 +516,14 @@ namespace SPW {
         {
             if (!onGoingAnim.expired())
             {
-                mats->updateSubData(
-                        onGoingAnim.lock()->finalBoneMatrices.data(),
-                        0,
-                        onGoingAnim.lock()->finalBoneMatrices.size() * sizeof(glm::mat4)
-                );
+                if (bInitialized)
+                {
+                    mats->updateSubData(
+                            onGoingAnim.lock()->finalBoneMatrices.data(),
+                            0,
+                            onGoingAnim.lock()->finalBoneMatrices.size() * sizeof(glm::mat4)
+                    );
+                }
             }
         }
 
@@ -395,21 +532,20 @@ namespace SPW {
             mesh->beforeDraw = [this](RenderCommandsQueue<RenderBackEndI>& queue) {
                 queue.pushCommand(
                         RenderCommand(&RenderBackEndI::initStorageBuffer,
-                                    starts));
+                                      starts));
                 queue.pushCommand(
                         RenderCommand(&RenderBackEndI::initStorageBuffer,
-                                    sizes));
+                                      sizes));
                 queue.pushCommand(
                         RenderCommand(&RenderBackEndI::initStorageBuffer,
-                                    boneIndices));
+                                      boneIndices));
                 queue.pushCommand(
                         RenderCommand(&RenderBackEndI::initStorageBuffer,
-                                    weights));
+                                      weights));
                 queue.pushCommand(
                         RenderCommand(&RenderBackEndI::initStorageBuffer,
-                                    mats));
+                                      mats));
             };
-
             bBinding = true;
         }
 
@@ -433,25 +569,20 @@ namespace SPW {
         bool bInitialized = false;
     };
 
-    //TODO: Animation component 不需要依赖model创建，把逻辑改为 animation system检查component是否已经拿到vertex map，如果不是，
-    // 则拿到该entity的model component 再进行初始化。
+
     class AnimationComponent : ComponentI
     {
     public:
         //Constructor
         AnimationComponent() = default;
 
-        explicit AnimationComponent(const std::shared_ptr<SPW::Skeleton> data,std::weak_ptr<Model> model)
+        explicit AnimationComponent(const std::shared_ptr<SPW::Skeleton> data)
         {
             for(int i = 0 ; i < data->m_animClips.size();i++)
             {
                 auto animationClip = std::make_shared<SPWAnimation>(data->m_animClips[i],data);
                 allAnimations.insert({animationClip->getAnimationName(),animationClip});
             }
-            SPW_VertexMap = std::make_shared<SPW::SPWVertexBoneMap>(data->m_Bones, model);
-
-            if (SPW_VertexMap)
-                SPW_AnimSSBO = std::make_shared<SPW::SPWAnimSSBO>(SPW_VertexMap);
 
             skeleton = data;
             isLoaded = true;
@@ -479,7 +610,21 @@ namespace SPW {
                     break;
             }
         }
+
+        void initializeMapping(std::weak_ptr<Model> model)
+        {
+            if (skeleton)
+                SPW_VertexMap = std::make_shared<SPW::SPWVertexBoneMap>(skeleton->m_Bones,model);
+
+            if (SPW_VertexMap)
+                SPW_AnimSSBO = std::make_shared<SPW::SPWAnimSSBO>(SPW_VertexMap);
+
+            mapInitialize = true;
+        }
+
+
         bool isLoaded = false;
+        bool mapInitialize = false;
 
         //swap animation
         void swapCurrentAnim(const std::string &name)
@@ -493,8 +638,8 @@ namespace SPW {
                     onGoingAnim.lock()->stop();
                     onGoingAnim.reset();
                 }
-                //Release reference and assign a new one
 
+                //Release reference and assign a new one
                 if (onGoingAnim.expired())
                 {
                     onGoingAnim = result->second;
@@ -506,9 +651,9 @@ namespace SPW {
 
         void addAnimation(std::shared_ptr<AnimationClip> clip)
         {
-            if (!skeleton.expired() && clip)
+            if (!skeleton && clip)
             {
-                std::shared_ptr<SPW::SPWAnimation> newClip = std::make_shared<SPW::SPWAnimation>(clip,skeleton.lock());
+                std::shared_ptr<SPW::SPWAnimation> newClip = std::make_shared<SPW::SPWAnimation>(clip,skeleton);
                 allAnimations.insert({newClip->getAnimationName(),newClip});
             }
         }
@@ -524,7 +669,7 @@ namespace SPW {
         std::weak_ptr<SPW::SPWAnimation> onGoingAnim;
 
         //Original data
-        std::weak_ptr<Skeleton> skeleton;
+        std::shared_ptr<Skeleton> skeleton;
     };
 }
 
