@@ -74,11 +74,11 @@ namespace SPW {
 
         glfwSetKeyCallback(window, [](GLFWwindow *win, int key, int scancode, int action, int mods) {
 
-            ImGuiIO& io = ImGui::GetIO();
-            if (action == GLFW_PRESS)
-                io.KeysDown[key] = true;
-            else if (action == GLFW_RELEASE)
-                io.KeysDown[key] = false;
+            // ImGuiIO& io = ImGui::GetIO();
+            // if (action == GLFW_PRESS)
+            //     io.KeysDown[key] = true;
+            // else if (action == GLFW_RELEASE)
+            //     io.KeysDown[key] = false;
 
         	auto realWindow = all_windows[win];
             auto keyCode = static_cast<KeyCode>(key);

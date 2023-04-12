@@ -11,7 +11,6 @@ EDITOR_ADD_SOURCE(
         UIComponent/ImGuiMenuBar.h
         UIComponent/ImGuiEntityPanel.h
         UIComponent/ImGuiTreeNodePanel.h
-        UIComponent/ImGuiWindow.h
         UIComponent/ImGuiImagePanel.h
 
         UIComponent/ImGuiInspectorPanel.h
@@ -19,4 +18,7 @@ EDITOR_ADD_SOURCE(
 
         UIComponent/ImGuiFileExplorer.h
         UIComponent/ImGuiFileExplorer.cpp
+
+        ImGuiMessageBox/ImGuiMessageBox.h
+        ImGuiMessageBox/ImGuiMessageBox.cpp
         )

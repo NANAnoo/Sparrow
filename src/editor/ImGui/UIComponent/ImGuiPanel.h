@@ -14,7 +14,7 @@ class ImGuiPanel
 public:
   ImGuiPanel(std::string title, bool* open = nullptr)
       : m_title(std::move(title))
-        , m_open(open)
+		, m_open(open)
   { }
 
   virtual ~ImGuiPanel() = default;
@@ -39,7 +39,7 @@ protected:
     ImGui::End();
   }
 
-private:
+protected:
   std::string m_title;
   bool* m_open;
 };

@@ -79,12 +79,16 @@ namespace SPW
 		InitInspectorPanel();
 		InitFileExplorer();
 
+		// m_TestWindow = std::make_shared<ImGuiMessageBox>("My Window", ImVec2(200, 100), ImVec2(100, 100));
+
 		m_DockspacePanel = std::make_shared<ImGuiDockSpace>();
 		m_DockspacePanel->AddPanel(m_MainMenuBar);
 		m_DockspacePanel->AddPanel(m_EntityPanel);
 		m_DockspacePanel->AddPanel(m_HierarchyPanel);
 		m_DockspacePanel->AddPanel(m_InspectorPanel);
 		m_DockspacePanel->AddPanel(m_FileExplorer);
+
+		// m_DockspacePanel->AddPanel(m_TestWindow);
 	}
 
 	void ImGuiManager::InitIconManager()

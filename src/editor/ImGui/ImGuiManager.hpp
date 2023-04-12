@@ -13,6 +13,7 @@
 #include "UIComponent/ImGuiTreeNodePanel.h"
 #include "UIComponent/ImGuiImagePanel.h"
 #include "UIComponent/ImGuiFileExplorer.h"
+#include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
 
 
 namespace SPW
@@ -54,6 +55,7 @@ namespace SPW
 		std::shared_ptr<ImGuiInspectorPanel>	m_InspectorPanel;
 		std::shared_ptr<ImGuiImagePanel>	    m_ImagePanel;
 		std::shared_ptr<ImGuiFileExplorer>      m_FileExplorer;
+		// std::shared_ptr<ImGuiMessageBox>		m_TestWindow;
 
 		bool show_demo_window = false;
 		GLFWwindow* windowHandle;

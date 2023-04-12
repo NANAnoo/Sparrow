@@ -41,6 +41,7 @@
 #include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "IO/FileSystem.h"
 #include "ImGui/ImGuiManager.hpp"
+#include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
 
 #include "Asset/Asset.hpp"
 #include "Asset/AssetData/MeshData.h"
@@ -465,6 +466,7 @@ model->textures  = g_textures;
             m_ImguiManager->Init(handle);
 
 
+
   std::cout << "ImGui" << IMGUI_VERSION << std::endl;
 #ifdef IMGUI_HAS_VIEWPORT
   std::cout << " +viewport";
@@ -496,7 +498,9 @@ model->textures  = g_textures;
 
         //----------------------------------------------------------------------------------------
         m_ImguiManager->Begin();
+
         ImGui::Begin("Test Button Panel");
+
         if(ImGui::Button("Import Model"))
         {
             // TODO: jcx
@@ -505,21 +509,60 @@ model->textures  = g_textures;
         if(ImGui::Button("Save Asset"))
         {
             // TODO: dudu
+            ImGui::OpenPopup("Example Popup");
             std::cout << " Clicked!\n";
         }
-        if(ImGui::Button("Load Asset"))
+
+    	if(ImGui::Button("Load Asset"))
         {
+            ImGui::OpenPopup("Example Popup");
             std::cout << " Clicked!\n";
         }
+
+        // �������ڵ�����
+        if (ImGui::BeginPopupModal("Example Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Hello from the popup!");
+
+            // �رյ������ڵİ�ť
+            if (ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        //------------------ SAVE SCENE -----------------------
         if(ImGui::Button("Save Scene"))
         {
             // TODO: dudu
-            std::cout << " Clicked!\n";
+            ImGui::OpenPopup("Save Scene");
+            SPW::EntitySerializer::SaveScene(scene, "C:/Users/dudu/Desktop/");
         }
+        if (ImGui::BeginPopupModal("Save Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Save Scene Sucessed!");
+            if (ImGui::Button("x")) { ImGui::CloseCurrentPopup(); }
+            ImGui::EndPopup();
+        }
+
         if(ImGui::Button("Load Scene"))
         {
+            messageBox.Trigger();
             std::cout << " Clicked!\n";
         }
+        int ret = messageBox.Exec();
+        if(ret == 1)
+        {
+            std::cout << " Clicked on OK!\n";
+        }
+        if(ret == 2)
+        {
+            std::cout << " Clicked on Canel!\n";
+        }
+
+
     	ImGui::End();
         //----------------------------------------------------------------------------------------
         m_ImguiManager->CreateImagePanel(renderSystem->getTextureID());
@@ -584,6 +627,10 @@ model->textures  = g_textures;
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
     std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
     std::shared_ptr<SPW::SPWRenderSystem> renderSystem;
+
+	inline static const char* buttonCaptions[] = { "OK", "Cancel", nullptr }; // nullptr ��������
+    inline static SPW::ImGuiMessageBox messageBox{ "My Message Box", nullptr, "This is a message.", buttonCaptions, false };
+
 };
 
 // main entrance

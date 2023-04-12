@@ -84,8 +84,8 @@ namespace SPW
 
             });
 
-            std::cout << FileRoots::k_Scenes + "/test__save__scene.json\n";
-            std::ofstream of_file(FileRoots::k_Scenes + "/test__save__scene.json");
+            // std::cout << FileRoots::k_Scenes + "/scene.json\n";
+            std::ofstream of_file(FileRoots::k_Scenes + "/scene.json");
             cereal::JSONOutputArchive ar(of_file);
             ar(cereal::make_nvp("entityNodes", entityNodes));
             ar(cereal::make_nvp("cameraComponents", cameraComponents));
@@ -96,47 +96,31 @@ namespace SPW
 
             for(auto&[k, v] : meshComponents)
         	{
-                // v.meshURI = k;
                 if(v.b_Asset)
                 {
-                    std::ofstream of_file2(v.assetPath);
-                    cereal::JSONOutputArchive ar2(of_file2);
-                    ar2(
-                        // cereal::make_nvp("assetType", model_0->type),
-                        cereal::make_nvp("assetID", v.assetID),
-                        cereal::make_nvp("assetPath", v.assetPath),
-                        // cereal::make_nvp("assetName", model_0->name),
-                        cereal::make_nvp("meshURI", v.meshURI),
-                        cereal::make_nvp("materials", v.materials),
-                        cereal::make_nvp("textures", v.textures)
-                    );
+                    { /* Save Asset Json */
+                        std::ofstream file(FileSystem::ToAbsolutePath(v.assetPath));
+                        cereal::JSONOutputArchive ar(file);
+                        ar(
+                            // cereal::make_nvp("assetType", model_0->type),
+                            cereal::make_nvp("assetID", v.assetID),
+                            cereal::make_nvp("assetPath", v.assetPath),
+                            // cereal::make_nvp("assetName", model_0->name),
+                            cereal::make_nvp("meshURI", v.meshURI),
+                            cereal::make_nvp("materials", v.materials),
+                            cereal::make_nvp("textures", v.textures)
+                        );
 
-                    {
+                    }
+
+                    { /* Save Mesh Bin */
                         std::string dir = FileSystem::ToFsPath(v.assetPath).parent_path().string();
-                    	std::ofstream mesh_bin(std::string(dir + v.meshURI + ".mesh"), std::ios::binary);
+                    	std::ofstream mesh_bin(FileSystem::ToAbsolutePath(FileSystem::JoinPaths(dir, v.meshURI) + ".mesh"), std::ios::binary);
                         cereal::BinaryOutputArchive archive(mesh_bin);
                         archive(cereal::make_nvp(v.meshURI, v.meshes));
                     }
                 }
-     //            else TODO
-     //            {
-					// // 重新调用一遍SaveAsset的逻辑， 存一份.asset.
-     //                std::ofstream of_file2(filePath + k + ".asset");
-     //                cereal::JSONOutputArchive ar2(of_file2);
-     //                ar2(
-     //                    // cereal::make_nvp("meshURI", k),
-     //                    cereal::make_nvp("materials", v.materials),
-     //                    cereal::make_nvp("textures", v.textures)
-     //                );
-     //
-     //                {
-     //                    std::ofstream mesh_bin(std::string(filePath + k + ".mesh"), std::ios::binary);
-     //                    cereal::BinaryOutputArchive archive(mesh_bin);
-     //                    archive(cereal::make_nvp(k, v.meshes));
-     //                }
-     //            }
-
-
+                else {} // TODO: Call Save Asset 's logic to save a .asset file.
             }
         }
 
