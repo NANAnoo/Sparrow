@@ -23,7 +23,7 @@ namespace SPW
     protected:
 		void Draw() override;
 	private:
-		void DisplayImGuiFileSystem(const std::string& path);
+		void DisplayImGuiFileExplorer(const std::string& path);
 		void DisplaySelectedFolder(const std::string& folderPath);
 
     private:

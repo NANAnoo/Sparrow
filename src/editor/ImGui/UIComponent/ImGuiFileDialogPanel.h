@@ -8,6 +8,8 @@
 #include "Asset/ModelLoader/ModelLoader.h"
 #include "Asset/AssetManager/AssetManager.h"
 #include "ImGui/ImGuiFileDialog.h"
+#include "ImGuiMessageBox/ImGuiMessageBox.h"
+#include "ImGui/ImGuiIconManager.hpp"
 
 namespace SPW
 {
@@ -19,55 +21,87 @@ namespace SPW
             : ImGuiPanel("File Dialog Panel")
         {
 	        file_dialog = std::make_shared<ImGuiFileDialog>();
+
+        	importModel_MessageBox = std::make_unique<ImGuiMessageBox>("Import Model", "file", "Import Model Sucessed!", std::vector{ "OK" }, false);
+            textureCompression_MessageBox = std::make_unique<ImGuiMessageBox>("textureCompression_MessageBox Model", "file", "textureCompression_MessageBox Model Sucessed!", std::vector{ "OK" }, false);
         }
 
-        void Draw() override{
-            if (ImGui::Button("Open File Dialog")) {
-                file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
-            }
+        void Draw() override
+    	{
+            // importModel_MessageBox->SetTrigger();
+            // if (ImGui::Button("Open File Dialog")) 
+            // {
+            //     file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
+            // }
+            //
+            // if (file_dialog->Display("ChooseFileDlgKey"))
+            // {
+            // 	if (file_dialog->IsOk())
+            //     {
+            //
+            // 		std::string file_path = file_dialog->GetFilePathName();
+            //         // Do something with the file_path
+            //         std::string filePathName = file_dialog->GetFilePathName();
+            //         std::string fileName = file_dialog->GetCurrentFileName();
+            //
+            //         std::string extension = FileSystem::ToFsPath(fileName).extension().string();
+            //
+            //         std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+            //         if (extension == ".gltf" || extension == ".fbx" || extension == ".obj")
+            //         {
+            //             if (AssetManager::ImportModel(filePathName))
+            //             {
+            //                 importModel_MessageBox->trigger_flag = true;
+            //             }
+            //         }
+            //
+            //     }
+            //     file_dialog->Close();
+            // }
+            // if (importModel_MessageBox->trigger_flag) { importModel_MessageBox->Exec(); }
 
-            if (file_dialog->Display("ChooseFileDlgKey")) {
-                if (file_dialog->IsOk()) {
+
+            textureCompression_MessageBox->SetTrigger();
+            // --------------------- TRIGGER------------------
+            
+            if (ImGui::Button("Image Compression"))
+            {
+                file_dialog->OpenDialog("ChooseFileDlgKey2", "Choose File", "*.*", ".");
+            }
+            if (file_dialog->Display("ChooseFileDlgKey2"))
+            {
+                if (file_dialog->IsOk())
+                {
+            
                     std::string file_path = file_dialog->GetFilePathName();
                     // Do something with the file_path
                     std::string filePathName = file_dialog->GetFilePathName();
                     std::string fileName = file_dialog->GetCurrentFileName();
-
-                	std::string extension = FileSystem::ToFsPath(fileName).extension().string();
+            
+                    std::string extension = FileSystem::ToFsPath(fileName).extension().string();
+            
                     std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-                    if (extension == ".gltf" || extension == ".fbx" || extension == ".obj")
+                    if (extension == ".png" || extension == ".jpg" || extension == ".jepg")
                     {
-                        if (AssetManager::ImportModel(filePathName))
+                        auto data = ImGuiIconManager::LoadTextureData(filePathName);
+                        if (ImGuiIconManager::ImageCompression(std::move(data), filePathName))
                         {
-                            ImGui::OpenPopup("Import Model");
+                            textureCompression_MessageBox->trigger_flag = true;
                         }
                     }
-                    else
-                    {
-                        ImGui::OpenPopup("Import Model");
-                    }
-
-                    if (ImGui::BeginPopupModal("Import Model", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-                    {
-                        if (extension == ".gltf" || extension == ".fbx" || extension == ".obj")
-                        {
-                            ImGui::Text("Import Model Sucessed!");
-                        }
-                        else
-                        {
-                            ImGui::Text("Dude, not supported this format!");
-                        }
-                        if (ImGui::Button("x")) { ImGui::CloseCurrentPopup(); }
-                        ImGui::EndPopup();
-                    }
-
                 }
                 file_dialog->Close();
             }
+            if (textureCompression_MessageBox->trigger_flag) { textureCompression_MessageBox->Exec(); }
+
+
         }
 
     private:
         SharedPtr<ImGuiFileDialog> file_dialog;
+        std::unique_ptr<ImGuiMessageBox> importModel_MessageBox;
+        std::unique_ptr<ImGuiMessageBox> textureCompression_MessageBox;
+        // uint32_t trigger_flag = 0;
     };
 
 }

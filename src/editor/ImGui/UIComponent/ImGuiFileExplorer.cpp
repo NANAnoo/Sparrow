@@ -5,7 +5,6 @@
  */
 #include "ImGuiFileExplorer.h"
 #include "IO/FileSystem.h"
-
 namespace SPW
 {
 	void SPW::ImGuiFileExplorer::Draw()
@@ -17,10 +16,10 @@ namespace SPW
 		}
 		ImGui::End();
 
-		DisplayImGuiFileSystem(FileRoots::k_Root);
+		DisplayImGuiFileExplorer(FileRoots::k_Root);
 	}
 
-	void SPW::ImGuiFileExplorer::DisplayImGuiFileSystem(const std::string& path)
+	void SPW::ImGuiFileExplorer::DisplayImGuiFileExplorer(const std::string& path)
 	{
 		for (const auto& entry: fs::directory_iterator(FilePath(path)))
 		{
@@ -31,7 +30,7 @@ namespace SPW
 
 				if (ImGui::TreeNode(folderName.c_str()))
 				{
-					DisplayImGuiFileSystem(entryPath.string());
+					DisplayImGuiFileExplorer(entryPath.string());
 					ImGui::TreePop();
 				}
 
@@ -82,7 +81,7 @@ namespace SPW
 				else if (entryPath.extension() == ".wav")
 					icon_id = m_IconManager->GetLibIcon("music");
 				else if (entryPath.extension() == ".png" || entryPath.extension() == ".jpg"
-					|| entryPath.extension() == ".jpeg")
+					|| entryPath.extension() == ".jpeg" || entryPath.extension() == ".dds")
 					icon_id = m_IconManager->GenerateTextureID(entryPath.string());
 				else
 					icon_id = m_IconManager->GetLibIcon("file");
@@ -92,7 +91,7 @@ namespace SPW
 					// selected_dir = entryPath.string();
 				}
 
-				if (ImGui::IsItemClicked() && entryPath.extension() == ".json")
+				if (ImGui::IsItemClicked() && (entryPath.extension() == ".json" || entryPath.extension() == ".lua" ))
 				{
 					std::string command = "code " + entryPath.string();
 
@@ -103,7 +102,6 @@ namespace SPW
 
 			ImGui::Text("%s", fileName.c_str());
 			ImGui::Spacing();
-
 
 			ImGui::NextColumn();
 		}

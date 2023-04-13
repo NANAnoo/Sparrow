@@ -454,6 +454,12 @@ model->textures = g_AssetData.textures;
             std::cout << " Clicked!\n";
         }
 
+    	if(ImGui::Button(" Convert To DDS "))
+        {
+            ImGui::OpenPopup("Example Popup");
+            std::cout << " Clicked!\n";
+        }
+
     	if(ImGui::Button("Load Asset"))
         {
             ImGui::OpenPopup("Example Popup");

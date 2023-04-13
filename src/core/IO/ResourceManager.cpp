@@ -14,8 +14,10 @@
 #include "IO/ResourceManager.h"
 #include "Render/Material.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/include/stb_image.h>
+// #define STB_IMAGE_IMPLEMENTATION
+// #define STB_DXT_IMPLEMENTATION
+#include <stb/stb_image.h>
+#include <stb/stb_dxt.h>
 
 namespace SPW
 {

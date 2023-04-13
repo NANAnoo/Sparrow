@@ -17,6 +17,7 @@ set(EditorSourceFiles
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(ImGui)
+add_subdirectory(SOIL2)
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Editor Sources:" ${EditorSourceFiles})

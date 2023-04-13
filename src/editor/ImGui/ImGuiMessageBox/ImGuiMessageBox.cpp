@@ -8,14 +8,14 @@ namespace SPW
 {
 	int ImGuiMessageBox::Exec()
 	{
-		int index = 0;
+		uint32_t selected_option = 0;
 
 		if (ImGui::BeginPopupModal(m_Title, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			if (m_DontAskAgain && m_Selected != 0)
 			{
 				ImGui::CloseCurrentPopup();
-				index = m_Selected;
+				selected_option = m_Selected;
 			}
 			else
 			{
@@ -48,33 +48,45 @@ namespace SPW
 				}
 
 				ImVec2 size = ImVec2(50.0f, 0.0f);
-				int count;
 
-				for (count = 0; m_Captions[count] != nullptr; count++)
+				uint32_t idx = 0;
+				for(const char* option : m_Captions)
 				{
-					if (ImGui::Button(m_Captions[count], size))
+					ImGui::SameLine();
+
+					idx++;
+					if (ImGui::Button(option, size)) 
 					{
-						index = count + 1;
+						std::cout << "ciliked on option: " << option << std::endl;
+						trigger_flag = false;
+						selected_option = idx;
 						ImGui::CloseCurrentPopup();
 						break;
 					}
-
-					ImGui::SameLine();
 				}
 
-				size = ImVec2((4 - count) * 50.0f, 1.0f);
-				ImGui::Dummy(size);
+				size = ImVec2((4 - idx) * 50.0f, 1.0f);
+				if(size.x < min_width)
+				{
+					size.x = min_width;
+				}
+				if(size.y < min_height)
+				{
+					size.y = min_height;
+				}
+
+				ImGui::Dummy(ImVec2(size));
 
 				if (m_DontAskAgain)
 				{
-					m_Selected = index;
+					m_Selected = selected_option;
 				}
 			}
 
 			ImGui::EndPopup();
 		}
 
-		return index;
+		return selected_option;
 	}
 
 

@@ -6,6 +6,7 @@ if(NOT TARGET Glad)
     set_target_properties(Glad PROPERTIES FOLDER ${ExternalFolder}/Glad)
 endif()
 
+
 # GLFW with the same name of project GLFW, so named "glfw"
 if(NOT TARGET glfw)
     set(GLFW_BUILD_EXAMPLES OFF)
@@ -55,6 +56,7 @@ if (NOT TARGET sol2)
     set_target_properties(sol2 PROPERTIES FOLDER ${ExternalFolder}/sol2)
 endif()
 
+
 if (NOT TARGET lua)
     add_subdirectory(lua)
     set_target_properties(lua PROPERTIES FOLDER ${ExternalFolder}/lua)
@@ -66,6 +68,7 @@ if (NOT TARGET luasocket)
     target_link_libraries(luasocket PRIVATE wsock32 ws2_32 lua_static )
     set_target_properties(luasocket PROPERTIES FOLDER ${ExternalFolder}/luasocket)
 endif()
+
 
 if (NOT TARGET stduuid)
     add_subdirectory(stduuid)
@@ -86,7 +89,7 @@ if(NOT TARGET headers)
     target_include_directories(headers INTERFACE "${ExternalDir}/entt/include")
     target_include_directories(headers INTERFACE "${ExternalDir}/sol2/include")
     target_include_directories(headers INTERFACE "${ExternalDir}/stduuid/include")
-    target_include_directories(headers INTERFACE "${ExternalDir}/stb/include")
+    target_include_directories(headers INTERFACE "${ExternalDir}/stb/")
     target_include_directories(headers INTERFACE "${ExternalDir}/lua/lua-5.4.3/include")
     target_include_directories(headers INTERFACE "${ExternalDir}/assimp/include")
     target_include_directories(headers INTERFACE "${ExternalDir}/cereal/include")
