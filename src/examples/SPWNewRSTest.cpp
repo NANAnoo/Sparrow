@@ -226,11 +226,22 @@ public:
             // create render system
             auto rendersystem = std::make_shared<SPW::SPWRenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight());
             // add system
+            scene->m_renderSystem = rendersystem;
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(rendersystem);
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
+
+            // create ui camera
+            scene->uiCamera = scene->createEntity("ui_camera");
+            auto ui_trans = scene->uiCamera->emplace<SPW::TransformComponent>();
+            ui_trans->position = glm::vec3(0, 0, -1);
+            auto ui_camera = scene->uiCamera->emplace<SPW::CameraComponent>(SPW::UIOrthoType);
+            ui_camera->left = 0;
+            ui_camera->right = weak_window.lock()->frameWidth();
+            ui_camera->bottom = 0;
+            ui_camera->top = weak_window.lock()->frameHeight();
 
             // ------ create main render graph ----------------
             auto pbr_with_PDshadow = rendersystem->createRenderGraph();

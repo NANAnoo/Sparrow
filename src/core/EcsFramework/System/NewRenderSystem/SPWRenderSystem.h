@@ -9,6 +9,7 @@
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "ApplicationFramework/WindowI/WindowEvent.h"
+#include "DefaultRenderPass.hpp"
 
 namespace SPW {
 
@@ -25,6 +26,14 @@ namespace SPW {
                 skyBoxNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
 
                 postProcessGraph = renderBackEnd->createRenderGraph();
+
+                uiGraph = renderBackEnd->createRenderGraph();
+                uiNode = uiGraph->createRenderNode<SPW::ModelToScreenNode>();
+                uiNode->addScreenAttachment(SPW::ScreenColorType);
+                uiNode->clearType = SPW::ClearType::ClearDepth;
+
+                UIProgram = UIShader();
+                addShaderDesciptor(*UIProgram);
             }
         void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
             renderBackEnd = backEnd;
@@ -55,6 +64,10 @@ namespace SPW {
 
         std::shared_ptr<RenderGraph> postProcessGraph;
         std::shared_ptr<PresentNode> presentNode;
+
+        std::shared_ptr<RenderGraph> uiGraph;
+        std::shared_ptr<ModelToScreenNode> uiNode;
+        std::shared_ptr<ShaderDesc> UIProgram;
     private:
         void findAllLights(std::vector<DLight> &dLights, std::vector<PLight> &pLights);
 

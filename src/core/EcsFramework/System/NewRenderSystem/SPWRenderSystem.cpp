@@ -75,7 +75,6 @@ namespace SPW {
         // find all cameras
         ComponentGroup<IDComponent, CameraComponent, TransformComponent> cameraGroup;
         std::vector<Entity> cameras;
-        std::vector<Entity> uiMeshes;
         Entity uiCamera = Entity::nullEntity();
         locatedScene.lock()->forEachEntityInGroup(cameraGroup, 
             [&cameraGroup, &cameras, &uiCamera](const Entity &en){
@@ -85,6 +84,11 @@ namespace SPW {
                 uiCamera = en;
             }
         });
+
+        if (!uiCamera.isNull()) {
+            // make sure ui camera is the last one
+            cameras.push_back(uiCamera);
+        }
 
         // find all meshes that belong to each camera
         std::vector<std::vector<Entity>> models_by_camera(cameras.size());
@@ -161,9 +165,15 @@ namespace SPW {
                 graphs[graph_id]->render(input);
             }
             
-            if (model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
+            if (i == 0 && model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
                 input.render_models = model_by_pass.at(skyBoxGraph->graph_id);
                 skyBoxGraph->render(input);
+            }
+
+            if (cameraCom->getType() == SPW::UIOrthoType && model_by_pass.find(uiGraph->graph_id) != model_by_pass.end()) {
+                // draw ui
+                input.render_models = model_by_pass.at(uiGraph->graph_id);
+                uiGraph->render(input);
             }
         }
 
