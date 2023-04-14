@@ -133,6 +133,26 @@ namespace SPW {
         return res;
     }
 
+    static ShaderDesc ani_GBuffer_desc(const ShaderHandle &shader) {
+        ShaderDesc res{};
+
+        res.mat_inputs[MaterialType::AlbedoType] = "albedoMap";
+        res.mat_inputs[MaterialType::NormalType] = "normalMap";
+        res.mat_inputs[MaterialType::MetallicType] = "metallicMap";
+        res.mat_inputs[MaterialType::RoughnessType] = "roughnessMap";
+        res.mat_inputs[MaterialType::AOType] = "AoMap";
+
+        res.transform_inputs[TransformType::M] = "M";
+        res.transform_inputs[TransformType::V] = "V";
+        res.transform_inputs[TransformType::P] = "P";
+
+        res.context_inputs[ContextType::MeshOffset] = "offset";
+
+        res.shader = shader;
+
+        return res;
+    }
+
 
     static ShaderDesc PBR_light_with_shadow_desc(const AttachmentPort &p_shaodw, const AttachmentPort &d_shaodw, const ShaderHandle &shader) {
         ShaderDesc res{};
