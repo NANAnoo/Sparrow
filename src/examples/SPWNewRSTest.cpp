@@ -257,19 +257,11 @@ public:
             auto pbr_shadow_lighting_output = pbr_shadow_lighting_node->addScreenAttachment(SPW::ScreenColorType);
             // ------ create main render graph ----------------
 
-            // ------ create render graph for skybox ----------------
-            auto skyGraph = rendersystem->createRenderGraph();
-            auto skyNode = skyGraph->createRenderNode<SPW::ModelToScreenNode>();
-            skyNode->addScreenAttachment(SPW::ScreenColorType);
-            skyNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
-            // ------ create render graph for skybox ----------------
-
             // ------ create post processing graph --------------
-            auto post_processing_pass = rendersystem->createRenderGraph();
             SPW::AttachmentPort screen_color_port = {SPW::SCREEN_PORT, SPW::ScreenColorType};
-            auto fxaa_node = post_processing_pass->createRenderNode<SPW::PresentNode>(FXAA_desc(screen_color_port));
-            fxaa_node->bindInputPort(screen_color_port);
-            fxaa_node->depthTest = false;
+            rendersystem->presentNode = rendersystem->postProcessGraph->createRenderNode<SPW::PresentNode>(FXAA_desc(screen_color_port));
+            rendersystem->presentNode->bindInputPort(screen_color_port);
+            rendersystem->presentNode->depthTest = false;
             // ------ create post processing graph --------------
 
             // --------------- create shader ---------------
@@ -353,8 +345,8 @@ public:
                 "./resources/texture/skybox/front.jpg",
                 "./resources/texture/skybox/back.jpg"
             });
-            skyMesh->bindRenderGraph = skyGraph->graph_id;
-            skyMesh->modelSubPassPrograms[skyNode->pass_id] = skybox_desc.uuid;
+            skyMesh->bindRenderGraph = rendersystem->skyBoxGraph->graph_id;
+            skyMesh->modelSubPassPrograms[rendersystem->skyBoxNode->pass_id] = skybox_desc.uuid;
 
             auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
             auto light2 = createPlight(scene, {-1, 1, 0}, {0, 0.5, 1});

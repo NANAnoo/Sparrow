@@ -9,7 +9,7 @@
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
-#include "EcsFramework/Component/ModelComponent.h"
+#include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
 
@@ -20,10 +20,9 @@
 #include "Platforms/OPENGL/OpenGLBackEnd.h"
 
 
-#include "EcsFramework/System/RenderSystem/RenderSystem.h"
+#include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
-#include "EcsFramework/System/RenderSystem/RenderSystem.h"
 #include "EcsFramework/System/AudioSystem/AudioSystem.h"
 
 #include "Render/shader.h"
@@ -31,6 +30,7 @@
 #include "LuaBinding/SceneWrapper.hpp"
 #include "LuaBinding/ComponentWrapper.hpp"
 #include "LuaBinding/EntityWrapper.hpp"
+#include "LuaBinding/RenderWrapper.hpp"
 
 #include "LuaAppContext.hpp"
 
@@ -68,6 +68,7 @@ namespace SPW {
             
             // load lua script
             context.init(8818);
+            // TODO : load entry file
             context.loadEntryScript("./resources/scripts/lua/TestGame.lua");
 
             window->setSize(context.app_width, context.app_height);
@@ -80,6 +81,10 @@ namespace SPW {
             SPW::SceneWrapper::bindLuaTable(cpp_table);
             SPW::EntityWrapper::bindLuaTable(cpp_table);
             SPW::ComponentWrapper::bindLuaTable(cpp_table);
+            SPW::ShaderDescWrapper::bindShaderDescWrapper(cpp_table);
+            SPW::RenderNodeWrapper::bindLuaTable(cpp_table);
+            SPW::RenderGraphWrapper::bindLuaTable(cpp_table);
+            SPW::bindAttachmentPort(cpp_table);
 
             // bind shaderhandle
             cpp_table.new_usertype<SPW::ShaderHandle>("ShaderHandle",
@@ -97,7 +102,9 @@ namespace SPW {
                 scene.m_scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene.m_scene));
                 scene.m_scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene.m_scene));
                 scene.m_scene->addSystem(std::make_shared<SPW::AudioSystem>(scene.m_scene));
-                scene.m_scene->addSystem(std::make_shared<SPW::RenderSystem>(scene.m_scene, renderBackEnd, width, height));
+                auto renderSystem = std::make_shared<SPW::SPWRenderSystem>(scene.m_scene, renderBackEnd, width, height);
+                scene.setUpDefaultRenderGraph(renderSystem);
+                scene.m_scene->addSystem(renderSystem);
                 return scene;
             };
         }

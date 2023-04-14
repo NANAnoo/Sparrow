@@ -90,7 +90,7 @@ AttachmentType = {
     CubeMapType = 1 << 2,
 }
 
-ScreenAttachmentType {
+ScreenAttachmentType = {
     -- unknown type
     UnknownScreenAttachmentType = 0,
     -- screen buffer
@@ -98,4 +98,57 @@ ScreenAttachmentType {
 
     -- screen depth buffer
     ScreenDepthType = 1 << 2,
+}
+
+-- color attachment format
+ColorAttachmentFormat = {
+    -- 8 bit
+    R8 = 1 << 1,
+    RG8 = 1 << 2,
+    RGB8 = 1 << 3,
+    RGBA8 = 1 << 4,
+
+    -- 16 bit
+    R16 = 1 << 5,
+    RG16 = 1 << 6,
+    RGB16 = 1 << 7,
+    RGBA16 = 1 << 8,
+
+    -- 32 bit
+    R32 = 1 << 9,
+    RG32 = 1 << 10,
+    RGB32 = 1 << 11,
+    RGBA32 = 1 << 12,
+
+    -- depth
+    Depth = 1 << 13,
+};
+
+-- repeat info
+RepeatType = {
+    NoRepeat = 0,
+    RepeatForDLights = 1 << 1,
+    RepeatForPLights = 1 << 2,
+    -- todo : add light probe repeat type
+};
+
+DefaultGraph = {
+    PBRShadowGraph = "PBRShadowGraph",
+    SkyBoxGraph = "SkyBoxGraph",
+};
+
+DefaultNode = {
+    PointShadowNode = "PointShadowNode",
+    DirectionalShadowNode = "DirectionalShadowNode",
+    PBRShadowLightingNode = "PBRShadowLightingNode",
+    SkyBoxNode = "SkyBoxNode",
+};
+
+DefaultShader = {
+    PBRShadowShader = "PBRShadowShader",
+    PBRShadowAniShader = "PBRShadowAniShader",
+    PointShadowShader = "PointShadowShader",
+    DirectionalShadowShader = "DirectionalShadowShader",
+    PointShadowAniShader = "PointShadowAniShader",
+    DirectionalShadowAniShader = "DirectionalShadowAniShader",
 };

@@ -7,6 +7,7 @@
 #include "RenderBackEndI.h"
 #include "Model/Model.h"
 #include "Utils/UUID.hpp"
+#include <sol/sol.hpp>
 
 namespace SPW {
     const unsigned int SCREEN_PORT = -1;
@@ -121,6 +122,16 @@ namespace SPW {
             return *this;
         }
 
+        virtual void updateFromLua(const std::string &key, const sol::table &table) {
+            if (key == "clear_type") {
+                clearType = ClearType(table.as<int>());
+            } else if (key == "depth_comp") {
+                depthCompType = DepthCompType(table.as<int>());
+            } else if (key == "depth_test") {
+                depthTest = table.as<bool>();
+            }
+        };
+
         virtual void bindInputPort(const AttachmentPort &port) {
             input_ports.push_back(port);
         }
@@ -161,6 +172,18 @@ namespace SPW {
             height = other.height;
             return *this;
         }
+        
+        void updateFromLua(const std::string &key, const sol::table &table) override {
+            if (key == "width") {
+                width = table.as<unsigned int>();
+            } else if (key == "height") {
+                height = table.as<unsigned int>();
+            } else if (key == "attachment_type") {
+                output_type = AttachmentType(table.as<int>());
+            } else {
+                RenderPassNodeI::updateFromLua(key, table);
+            }
+        }
 
         // inner attachments size
         unsigned int width = 0;
@@ -198,6 +221,16 @@ namespace SPW {
             repeat_type = other.repeat_type;
             repeat_count = other.repeat_count;
             return *this;
+        }
+
+        void updateFromLua(const std::string &key, const sol::table &table) override {
+            if ("repeat_type") {
+                repeat_type = RepeatType(table.as<int>());
+            } else if ("repeat_count") {
+                repeat_count = table.as<unsigned int>();
+            } else {
+                ModelPassNode::updateFromLua(key, table);
+            }
         }
 
         virtual ~ModelRepeatPassNode() = default;

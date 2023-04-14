@@ -41,6 +41,8 @@ namespace SPW {
         for (auto &graph : graphs) {
             graph->init();
         }
+        skyBoxGraph->init();
+        postProcessGraph->init();
     }
 
     void SPWRenderSystem::beforeUpdate() 
@@ -63,7 +65,7 @@ namespace SPW {
 
     void SPWRenderSystem::afterUpdate()
     {
-        TICKTOCK;
+        //TICKTOCK;
         // clear screen and clear screen buffer
         screenBuffer->bind();
         renderBackEnd->Clear();
@@ -158,7 +160,14 @@ namespace SPW {
                     input.render_models = model_by_pass.at(graph_id);
                 graphs[graph_id]->render(input);
             }
+            
+            if (model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
+                input.render_models = model_by_pass.at(skyBoxGraph->graph_id);
+                skyBoxGraph->render(input);
+            }
         }
+
+        postProcessGraph->render(input);
 
         locatedScene.lock()->forEach(
         [this](MeshComponent *mesh){

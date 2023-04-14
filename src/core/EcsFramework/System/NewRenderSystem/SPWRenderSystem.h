@@ -19,6 +19,12 @@ namespace SPW {
             WindowEventResponder(std::dynamic_pointer_cast<EventResponderI>(scene)) {
                 width = w;
                 height = h;
+                skyBoxGraph = renderBackEnd->createRenderGraph();
+                skyBoxNode = skyBoxGraph->createRenderNode<SPW::ModelToScreenNode>();
+                skyBoxNode->addScreenAttachment(SPW::ScreenColorType);
+                skyBoxNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
+
+                postProcessGraph = renderBackEnd->createRenderGraph();
             }
         void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
             renderBackEnd = backEnd;
@@ -43,6 +49,12 @@ namespace SPW {
         }
         // events
         const char *getName() override {return "SPW_RENDER_SYSTEM";}
+
+        std::shared_ptr<RenderGraph> skyBoxGraph;
+        std::shared_ptr<ModelToScreenNode> skyBoxNode;
+
+        std::shared_ptr<RenderGraph> postProcessGraph;
+        std::shared_ptr<PresentNode> presentNode;
     private:
         void findAllLights(std::vector<DLight> &dLights, std::vector<PLight> &pLights);
 
