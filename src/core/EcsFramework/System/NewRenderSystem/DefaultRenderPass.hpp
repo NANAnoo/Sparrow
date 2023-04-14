@@ -175,6 +175,21 @@ namespace SPW {
         return model;
     }
 
+    static std::shared_ptr<ShaderDesc> UIShader() {
+        auto res = std::make_shared<ShaderDesc>();
+
+        res->transform_inputs[TransformType::MVP] = "MVP";
+
+        res->mat_inputs[MaterialType::AlbedoType] = "background";
+
+        res->shader = {
+            "UI",
+            "./resources/shaders/ui.vert",
+            "./resources/shaders/ui.frag"
+        };
+        return res;
+    }
+
 }
 
 
