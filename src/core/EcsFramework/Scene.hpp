@@ -73,6 +73,14 @@ namespace SPW {
             }
         }
 
+        void onEvent(const std::shared_ptr<EventI> &e) override{
+            if (isUIMode) {
+                // uiroot.onEvent(e);
+            } else {
+                EventResponderI::onEvent(e);
+            }
+        }
+
         // for each
         // iterate components of every entity that has required components
         //
@@ -158,6 +166,8 @@ namespace SPW {
         std::weak_ptr<SPWRenderSystem> m_renderSystem;
 
         std::shared_ptr<Entity> uiCamera;
+
+        bool isUIMode = false;
 
     private:
         // get entity with components
