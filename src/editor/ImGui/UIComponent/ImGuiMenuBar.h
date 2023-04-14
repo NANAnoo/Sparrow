@@ -49,6 +49,7 @@ protected:
         for (const auto &menuItem : subMenu.items) {
           if (ImGui::MenuItem(menuItem.label.c_str())) {
             menuItem.callback();
+            ImGui::NewLine();
           }
         }
         ImGui::EndMenu();

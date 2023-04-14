@@ -11,6 +11,7 @@
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <ImGuizmo/GraphEditor.h>
 #include <iostream>
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
