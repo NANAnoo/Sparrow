@@ -56,6 +56,12 @@
 
 #include "ImGui/ImGuiManager.hpp"
 
+std::string SPW::FileRoots::k_Root = "C:/Users/dudu/Desktop/UserProject/"; // TODO : change this to your own path
+std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
+std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
+std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
+
+
 std::shared_ptr<SPW::Model> createModel() {
     return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
     //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
@@ -369,8 +375,11 @@ public:
 };
 
 // main entrance
-int main(int argc, char **argv) {
-    // app test
+int main(int argc, char **argv)
+{
+    SPW::FileSystem::Boost();
+
+	// app test
     auto appProxy =
         SPW::Application::create<SPWTestApp>("SPWTestApp");
     return appProxy->app->run(argc, argv);

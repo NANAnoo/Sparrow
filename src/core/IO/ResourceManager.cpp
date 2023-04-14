@@ -14,10 +14,14 @@
 #include "IO/ResourceManager.h"
 #include "Render/Material.h"
 
-// #define STB_IMAGE_IMPLEMENTATION
+// #define 
+// _IMPLEMENTATION
 // #define STB_DXT_IMPLEMENTATION
-#include <stb/stb_image.h>
-#include <stb/stb_dxt.h>
+// #include <stb/stb_image.h>
+// #include <stb/stb_dxt.h>
+
+#include "IO/SOIL2/stb_image.h"
+#include "IO/SOIL2/SOIL2.h"
 
 namespace SPW
 {

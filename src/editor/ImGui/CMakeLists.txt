@@ -21,6 +21,7 @@ EDITOR_ADD_SOURCE(
         UIComponent/ImGuiTreeNodePanel.h
         UIComponent/ImGuiImagePanel.h
         UIComponent/ImGuiFileDialogPanel.h
+        UIComponent/ImGuiAssetInspectorPanel.h
 
         UIComponent/ImGuiInspectorPanel.h
         UIComponent/ImGuiInspectorPanel.cpp

@@ -78,7 +78,7 @@ namespace SPW
 		InitSceneHierarchy();
 		InitInspectorPanel();
 		InitFileExplorer();
-		InitFileDialogPanel();
+		InitFileDialogPanel(m_ResourceManager);
 
 		// m_TestWindow = std::make_shared<ImGuiMessageBox>("My Window", ImVec2(200, 100), ImVec2(100, 100));
 
@@ -107,8 +107,8 @@ namespace SPW
 		m_MainMenuBar->AddSubMenu("Tool");
 		m_MainMenuBar->AddSubMenu("Help");
 		m_MainMenuBar->AddSubMenu("About");
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import", [&]() { /* �����ļ��˵�������... */ });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Export", [&]() { /* ���ӱ༭�˵�������... */ });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() { std::cout << "Clikecd on Import Model"; });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Export Asset", [&]() {std::cout << "Clikecd on Export Asset"; });
 	}
 
 	void ImGuiManager::InitProfilingPanel()
@@ -130,7 +130,7 @@ namespace SPW
 
 	void ImGuiManager::InitInspectorPanel()
 	{
-		m_InspectorPanel = std::make_shared<ImGuiInspectorPanel>("Inspector Panel", m_ImguiIconManager.get());
+		m_InspectorPanel = std::make_shared<ImGuiInspectorPanel>("Inspector Panel", m_ImguiIconManager.get(), m_ResourceManager);
 	}
 
 	void ImGuiManager::InitFileExplorer()
@@ -138,8 +138,8 @@ namespace SPW
 		m_FileExplorer = std::make_shared<ImGuiFileExplorer>(m_ImguiIconManager.get());
 	}
 
-	void ImGuiManager::InitFileDialogPanel()
+	void ImGuiManager::InitFileDialogPanel(UniResourceManager* rm)
 	{
-		m_FileDialogPanel = std::make_shared<ImGuiFileDialogPanel>();
+		m_FileDialogPanel = std::make_shared<ImGuiFileDialogPanel>(rm);
 	}
 }

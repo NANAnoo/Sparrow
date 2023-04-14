@@ -11,11 +11,13 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 #include <string>
+#include "IO/FileSystem.h"
 
 namespace SPW {
     void SPWRenderSystem::initial() {
         renderBackEnd->Init();
-        renderBackEnd->loadShaderLib("./resources/shaders/baselib");
+        
+        renderBackEnd->loadShaderLib(k_Engine + "shaders/baselib/");
 
         screenBuffer = renderBackEnd->createFrameBuffer();
 

@@ -181,6 +181,7 @@ public:
 
 };
 
+
 // std::string SPW::FileRoots::k_Root   = "E:/Dev/"; // TODO : change this to your own path
 std::string SPW::FileRoots::k_Root   = "C:/Users/dudu/Desktop/UserProject/"; // TODO : change this to your own path
 std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
@@ -189,10 +190,6 @@ std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
 
 
 #define LOAD_ASSET
-/*
- * TODO HACK TEMOPORY DATA
- */
-SPW::AssetData g_AssetData;
 
 class SPWTestApp : public SPW::AppDelegateI
 {
@@ -205,27 +202,27 @@ public:
     {
 
 // -------------------------------OFFLINE TEST-------------------------------------------
-        // 1. Simulate a process of an engine boost
+
+    	// 1. Simulate a process of an engine boost
         SPW::FileSystem::Boost();
         // 2. Simulate a process of loading some resources into a scene
-#if defined(LOAD_ASSET)
-        if (SPW::AssetManager::LoadAsset(SPW::k_Assets + "scene/scene.json", g_AssetData)) // TODO: Select the asset file to Load by GUI operations
-        {
-            // ImGui::OpenPopup("Load Scuess"); //TODO move in runtime
+        rm = std::make_unique<SPW::UniResourceManager>();
+#ifdef LOAD_ASSET
+    	{
+            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "mantis/mantis.json");
+            rm->m_AssetDataMap.emplace(data.assetName, data);
+        	// [data.assetID] = std::move(data);
         }
 
-		//TODO move in runtime
-		// if (ImGui::BeginPopupModal("Load Scuess", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-		//    {
-		//        ImGui::Text("Hello from the popup!");
-		//
-		//        if (ImGui::Button("Close"))
-		//        {
-		//            ImGui::CloseCurrentPopup();
-		//        }
-		//
-		//        ImGui::EndPopup();
-		//    }
+    	{
+            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "companion_cube/companion_cube.json");
+            rm->m_AssetDataMap.emplace(data.assetName, data);
+        }
+
+    	{
+            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "scifi_cube/scifi_cube.json");
+            rm->m_AssetDataMap.emplace(data.assetName, data);
+        }
 #endif
 // -------------------------------OFFLINE TEST-------------------------------------------
 
@@ -311,7 +308,8 @@ public:
                                                              "./resources/shaders/simpleVs.vert",
                                                              "./resources/shaders/pbrShadowTiled.frag"
                                                      });
-            auto p_shadow_desc = SPW::P_shadowmap_desc();
+
+        	auto p_shadow_desc = SPW::P_shadowmap_desc();
             auto d_shadow_desc = SPW::D_shadowmap_desc();
 
             auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
@@ -343,14 +341,15 @@ public:
 /*
  * TODO HACK FOR SER TEST
  */
-model->b_Asset   = true;
-model->assetID   = g_AssetData.assetID;
-model->assetPath = g_AssetData.path;
-model->meshes = g_AssetData.meshes;
-model->materials = g_AssetData.materials;
-model->meshURI = g_AssetData.meshURI;
-model->textures = g_AssetData.textures;
-// __debugbreak();
+
+// model->b_Asset    = true;
+model->assetID    = rm->m_AssetDataMap["mantis"].assetID;
+model->assetName  = rm->m_AssetDataMap["mantis"].assetName;
+model->assetPath  = rm->m_AssetDataMap["mantis"].path;
+// model->meshes     = rm->m_AssetDataMap["mantis"].meshes;
+// model->materials  = rm->m_AssetDataMap["mantis"].materials;
+// model->meshURI    = rm->m_AssetDataMap["mantis"].meshURI;
+// model->textures   = rm->m_AssetDataMap["mantis"].textures;
 
             // --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
@@ -409,7 +408,7 @@ model->textures = g_AssetData.textures;
             light3->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(2);
             light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
-            m_ImguiManager = std::make_shared<SPW::ImGuiManager>();
+            m_ImguiManager = std::make_shared<SPW::ImGuiManager>(rm.get());
             m_ImguiManager->Init(handle);
 
 
@@ -447,6 +446,18 @@ model->textures = g_AssetData.textures;
 
         ImGui::Begin("Test Button Panel");
 
+
+        ImGui::Text("Loaded Assets");
+        for(const auto& [k,v] : rm->m_AssetDataMap)
+        {
+            if (ImGui::Button(k.c_str()))
+            {
+	            
+            }
+
+        }
+
+
         // TODO: dudu
         if(ImGui::Button("Save Asset"))
         {
@@ -483,7 +494,7 @@ model->textures = g_AssetData.textures;
         {
             // TODO: dudu
             ImGui::OpenPopup("Save Scene");
-            SPW::EntitySerializer::SaveScene(scene);
+            SPW::EntitySerializer::SaveScene(scene, rm.get());
         }
         if (ImGui::BeginPopupModal("Save Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         {
@@ -565,6 +576,7 @@ model->textures = g_AssetData.textures;
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
     std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
     std::shared_ptr<SPW::SPWRenderSystem> renderSystem;
+    std::unique_ptr<SPW::UniResourceManager> rm;
 };
 
 // main entrance

@@ -27,7 +27,9 @@ namespace SPW
     public:
 		static void Boost()
 		{
-			// copy engine files into engine
+            // create engine root
+            CreateDirectory(k_Root);
+            // copy engine files into engine
 			CreateDirectory(k_Engine);
 			// copy project asset/ resource,
 			CreateDirectory(k_Assets);

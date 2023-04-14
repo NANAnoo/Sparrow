@@ -16,23 +16,11 @@ namespace SPW
 	struct AssetData
 	{
         std::string                                     assetID;
+        std::string                                     assetName;
         std::string                                     path;
         std::string                                     meshURI;
         std::vector<Mesh>                               meshes;
         std::vector<MaterialData>                       materials;
         std::unordered_map<std::string, std::string>    textures;
-
-		// template <class Archive>
-		// void serialize(Archive& ar)
-		// {
-		// 	ar(
-  //               cereal::make_nvp("assetID", assetID),
-  //               cereal::make_nvp("assetPath", path),
-  //               cereal::make_nvp("meshURI", meshURI),
-  //               cereal::make_nvp("materials", materials),
-  //               cereal::make_nvp("textures", textures)
-  //           );
-		// }
-
 	};
 }

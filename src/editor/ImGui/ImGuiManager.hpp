@@ -15,6 +15,7 @@
 #include "UIComponent/ImGuiImagePanel.h"
 #include "UIComponent/ImGuiFileExplorer.h"
 #include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
+#include "IO/ResourceManager.h"
 
 
 namespace SPW
@@ -25,6 +26,10 @@ namespace SPW
 	{
 	public:
 		ImGuiManager() = default;
+		ImGuiManager(UniResourceManager* rm)
+		{
+			m_ResourceManager = rm;
+		}
 
 		void Init(GLFWwindow* window);
 		void Begin();
@@ -47,7 +52,7 @@ namespace SPW
 		void InitSceneHierarchy();
 		void InitInspectorPanel();
 		void InitFileExplorer();
-		void InitFileDialogPanel();
+		void InitFileDialogPanel(UniResourceManager* rm);
 
 
 	private:
@@ -65,6 +70,10 @@ namespace SPW
 		bool show_demo_window = false;
 		GLFWwindow* windowHandle;
 		std::unique_ptr<ImGuiIconManager>		m_ImguiIconManager;
+
+
+
+		UniResourceManager* m_ResourceManager;
     };
 
 }
