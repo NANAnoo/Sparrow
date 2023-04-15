@@ -399,6 +399,8 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube
             m_ImguiManager = std::make_shared<SPW::ImGuiManager>();
             m_ImguiManager->Init(handle);
 
+
+
   std::cout << "ImGui" << IMGUI_VERSION << std::endl;
 #ifdef IMGUI_HAS_VIEWPORT
   std::cout << " +viewport";
@@ -406,9 +408,12 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube
 #ifdef IMGUI_HAS_DOCK
   std::cout << " +docking"<< std::endl;
 #endif
+
             // init scene
             scene->initial();
             transformer->scene = scene;
+
+             // SPW::EntitySerializer::SaveScene(scene, "C:/Users/dudu/Desktop/");
         });
     }
     void beforeAppUpdate() final
