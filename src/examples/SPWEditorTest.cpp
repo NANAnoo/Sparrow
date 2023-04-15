@@ -168,13 +168,11 @@ public:
 
 
 // std::string SPW::FileRoots::k_Root   = "E:/Dev/"; // TODO : change this to your own path
-std::string SPW::FileRoots::k_Root   = "./UserProject/"; // TODO : change this to your own path
+std::string SPW::FileRoots::k_Root   = "./UserProject/bin"; // TODO : change this to your own path
 std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
 std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
 std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
 
-
-#define LOAD_ASSET
 
 class SPWTestApp : public SPW::AppDelegateI
 {
