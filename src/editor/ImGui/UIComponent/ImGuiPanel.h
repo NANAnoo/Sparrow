@@ -42,6 +42,7 @@ protected:
 protected:
   std::string m_title;
   bool* m_open;
+
 };
 
 }
