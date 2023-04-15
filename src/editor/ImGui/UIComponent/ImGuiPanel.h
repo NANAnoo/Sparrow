@@ -7,42 +7,43 @@
 
 #include "../ImGuiDefinitions.h"
 
-namespace SPW {
-
-class ImGuiPanel
+namespace SPW
 {
-public:
-  ImGuiPanel(std::string title, bool* open = nullptr)
-      : m_title(std::move(title))
-		, m_open(open)
-  { }
 
-  virtual ~ImGuiPanel() = default;
+	class ImGuiPanel
+	{
+	public:
+		ImGuiPanel(std::string title, bool* open = nullptr)
+			: m_title(std::move(title)), m_open(open)
+		{
+		}
 
-  void Render()
-  {
-    Begin();
-    Draw();
-    End();
-  }
+		virtual ~ImGuiPanel() = default;
 
-protected:
-  virtual void Begin()
-  {
-    ImGui::Begin(m_title.c_str(), m_open);
-  }
+		void Render()
+		{
+			Begin();
+			Draw();
+			End();
+		}
 
-  virtual void Draw() = 0;
+	protected:
+		virtual void Begin()
+		{
+			ImGui::Begin(m_title.c_str(), m_open);
+		}
 
-  virtual void End()
-  {
-    ImGui::End();
-  }
+		virtual void Draw() = 0;
 
-protected:
-  std::string m_title;
-  bool* m_open;
+		virtual void End()
+		{
+			ImGui::End();
+		}
 
-};
+	protected:
+		std::string m_title;
+		bool* m_open;
+
+	};
 
 }
