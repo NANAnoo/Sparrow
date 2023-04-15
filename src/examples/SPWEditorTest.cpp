@@ -183,13 +183,13 @@ public:
 };
 
 // std::string SPW::FileRoots::k_Root   = "E:/Dev/"; // TODO : change this to your own path
-std::string SPW::FileRoots::k_Root   = "C:/Users/dudu/Desktop/UserProject/"; // TODO : change this to your own path
+std::string SPW::FileRoots::k_Root   = "D:/Sparrow/bin"; // TODO : change this to your own path
 std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
 std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
 std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
 
 
-#define LOAD_ASSET
+//#define LOAD_ASSET
 /*
  * TODO HACK TEMOPORY DATA
  */
