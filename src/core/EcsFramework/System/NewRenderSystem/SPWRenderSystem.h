@@ -10,7 +10,7 @@
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Platforms/OPENGL/OpenGLAttachmentTexture.hpp"
-#include "IO/ResourceManager.h"
+#include "Asset/ResourceManager/ResourceManager.h"
 
 namespace SPW {
 

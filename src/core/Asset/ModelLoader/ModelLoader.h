@@ -10,7 +10,7 @@
 #include "Asset/AssetData/MaterialData.h"
 #include "Asset/AssetData/MeshData.h"
 #include "Asset/AssetData/ModelData.h"
-#include "Model/Mesh.h"
+#include "Asset/AssetData/Mesh.h"
 
 namespace SPW
 {

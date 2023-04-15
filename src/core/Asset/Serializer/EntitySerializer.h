@@ -13,7 +13,7 @@
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "IO/FileSystem.h"
-#include "IO/ResourceManager.h"
+#include "Asset/ResourceManager/ResourceManager.h"
 
 namespace SPW
 {

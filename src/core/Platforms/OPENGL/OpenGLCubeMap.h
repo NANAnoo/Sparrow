@@ -10,7 +10,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "IO/ResourceManager.h"
+#include "Asset/ResourceManager/ResourceManager.h"
 #include "Asset/AssetManager/AssetManager.h"
 
 namespace SPW

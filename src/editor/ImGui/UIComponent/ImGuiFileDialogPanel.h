@@ -10,7 +10,7 @@
 #include "ImGui/ImGuiFileDialog.h"
 #include "ImGuiMessageBox/ImGuiMessageBox.h"
 #include "ImGui/ImGuiIconManager.hpp"
-#include "IO/ResourceManager.h"
+#include "Asset/ResourceManager/ResourceManager.h"
 
 namespace SPW
 {
@@ -22,7 +22,7 @@ namespace SPW
             : ImGuiPanel("File Dialog Panel")
         {
 
-	        file_dialog = std::make_shared<ImGuiFileDialog>();
+	        file_dialog  = std::make_shared<ImGuiFileDialog>();
 	        file_dialog2 = std::make_shared<ImGuiFileDialog>();
 	        file_dialog3 = std::make_shared<ImGuiFileDialog>();
 

@@ -74,11 +74,12 @@ namespace SPW
 	{
 		InitIconManager();
 		InitMenuBar();
-		InitProfilingPanel();
+		InitEntityPanel();
 		InitSceneHierarchy();
 		InitInspectorPanel();
 		InitFileExplorer();
 		InitFileDialogPanel();
+		m_ProfilingPanel = std::make_shared<ImGuiProfilingPanel>();
 
 		// m_TestWindow = std::make_shared<ImGuiMessageBox>("My Window", ImVec2(200, 100), ImVec2(100, 100));
 
@@ -89,7 +90,7 @@ namespace SPW
 		m_DockspacePanel->AddPanel(m_InspectorPanel);
 		m_DockspacePanel->AddPanel(m_FileExplorer);
 		m_DockspacePanel->AddPanel(m_FileDialogPanel);
-
+		m_DockspacePanel->AddPanel(m_ProfilingPanel);
 	}
 
 	void ImGuiManager::InitIconManager()
@@ -111,7 +112,7 @@ namespace SPW
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Export Asset", [&]() {std::cout << "Clikecd on Export Asset"; });
 	}
 
-	void ImGuiManager::InitProfilingPanel()
+	void ImGuiManager::InitEntityPanel()
 	{
 		m_EntityPanel = std::make_shared<ImGuiEntityPanel>("Entity Panel");
 	}

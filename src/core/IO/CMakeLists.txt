@@ -1,8 +1,6 @@
 CORE_ADD_SOURCE(
-	ResourceManager.h
-	ResourceManager.cpp
-	
-	FileSystem.h
+		FileSystem.h
+		FileSystem.cpp
 
 		SOIL2/common.cpp
 		SOIL2/common.hpp

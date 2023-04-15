@@ -28,7 +28,7 @@ namespace SPW {
 
         // insert a component
         template<Component C, typename ...Args>
-        C *emplace(Args&& ...args) {
+        C *emplace(Args&& ...args) const {
             // check validation of weak_scene
             assert(!registry.expired());
             // add component to the registry
@@ -63,7 +63,7 @@ namespace SPW {
 
         // remove the component with type C
         template<Component C>
-        void remove() {
+        void remove() const {
             // check validation of weak_scene
             if (!registry.expired())
                 registry.lock()->remove<C>(entity);

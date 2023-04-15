@@ -5,7 +5,7 @@
 
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
-#include "Model/Mesh.h"
+#include "Asset/AssetData/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include <glad/glad.h>
@@ -24,7 +24,6 @@
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 #include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
-#include "Model/Model.h"
 
 #include "Utils/UUID.hpp"
 
@@ -34,7 +33,7 @@
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
-#include "IO/ResourceManager.h"
+#include "Asset/ResourceManager/ResourceManager.h"
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
@@ -42,23 +41,12 @@
 #include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "IO/FileSystem.h"
 #include "ImGui/ImGuiManager.hpp"
-#include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
-
-#include "Asset/Asset.hpp"
-#include "Asset/AssetData/MeshData.h"
-#include "Asset/AssetData/ModelData.h"
-#include "Asset/AssetData/MaterialData.h"
 #include "Asset/Serializer/EntitySerializer.h"
-#include "Asset/ModelLoader/ModelLoader.h"
-#include "ImGui/ImGuiFileDialog.h"
 
-std::shared_ptr<SPW::Model> createModel() {
-    //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
-}
-std::shared_ptr<SPW::Model> createCubeModel()
+
+auto CreateEmptyNode(const std::shared_ptr<SPW::Scene>& scene) -> std::shared_ptr<SPW::Entity>
 {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sand_cube/cube.obj");
+	return scene->createEntity("emptyNode");
 }
 
 const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, float width, float height) {
@@ -113,7 +101,7 @@ const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, floa
 
 std::shared_ptr<SPW::Entity> createPlight(const std::shared_ptr<SPW::Scene> &scene, glm::vec3 position, glm::vec3 color) {
     auto light = scene->createEntity("light");
-    auto lightTrans =light->emplace<SPW::TransformComponent>();
+    auto lightTrans = light->emplace<SPW::TransformComponent>();
     auto lightCom = light->emplace<SPW::PointLightComponent>();
     lightCom->ambient = color;
     lightTrans->position = position;
@@ -184,7 +172,7 @@ public:
 
 
 // std::string SPW::FileRoots::k_Root   = "E:/Dev/"; // TODO : change this to your own path
-std::string SPW::FileRoots::k_Root   = "C:/Users/dudu/Desktop/UserProject/"; // TODO : change this to your own path
+std::string SPW::FileRoots::k_Root   = "./UserProject/"; // TODO : change this to your own path
 std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
 std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
 std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
@@ -268,6 +256,8 @@ public:
 
             //TODO
             //scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+
+auto empty_node= CreateEmptyNode(scene);
 
             // ------ create main render graph ----------------
             auto pbr_with_PDshadow = renderSystem->createRenderGraph();
@@ -443,18 +433,8 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube
 
         ImGui::Begin("Test Button Panel");
 
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-        // ImGui::Text("Loaded Assets");
-        // for(const auto& [k,v] : rm->m_AssetDataMap)
-        // {
-        //     if (ImGui::Button(k.c_str()))
-        //     {
-	       //      
-        //     }
-        //
-        // }
-
-        // TODO: dudu
         if(ImGui::Button("Save Asset"))
         {
             ImGui::OpenPopup("Example Popup");
@@ -510,7 +490,9 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube
         m_ImguiManager->CreateImagePanel(renderSystem->getTextureID());
         m_ImguiManager->RenderAllPanels();
         //----------------------------------------------------------------------------------------
-    	scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
+		m_ImguiManager->GetInspectorPanel()->SetBindedScene(scene);
+
+		scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
         {
 	        const auto component_name= e.component<SPW::NameComponent>()->getName();
 	        const auto component_id  = e.component<SPW::IDComponent>()->getID().toString();

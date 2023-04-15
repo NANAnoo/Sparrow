@@ -5,6 +5,8 @@
  */
 #pragma once
 #include "ImGuiPanel.h"
+#include "EcsFramework/Scene.hpp"
+#include "EcsFramework/Component/ComponentTypes.h"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
@@ -13,12 +15,13 @@
 #include "EcsFramework/Component/Audio/AudioComponent.h"
 #include "EcsFramework/Component/Audio/AudioListener.h"
 #include "EcsFramework/Component/KeyComponent.hpp"
+#include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
 #include "stb_image.h"
 
 #include "ImGui/ImGuiIconManager.hpp"
 #include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
-#include "IO/ResourceManager.h"
+#include "Asset/ResourceManager/ResourceManager.h"
 #include "IO/FileSystem.h"
 
 namespace SPW
@@ -26,13 +29,28 @@ namespace SPW
 	class ImGuiInspectorPanel : public ImGuiPanel
 	{
 	public:
-		ImGuiInspectorPanel(std::string title, ImGuiIconManager* iconManager, bool *open = nullptr)
+		ImGuiInspectorPanel(std::string title, ImGuiIconManager* iconManager, bool* open = nullptr)
 			: ImGuiPanel(std::move(title), open)
 			, m_IconManager(iconManager)
 		{
 		}
 
-	  	void SetSelectedGameObject(const Entity& e) {m_Entity = &e;}
+		void SetBindedScene(std::shared_ptr<Scene> scene)
+		{
+			scene_ptr = scene;
+		}
+
+		void SetSelectedGameObject(const Entity& e)
+		{
+			m_Entity = &e;
+
+			for (int i = static_cast<int>(ComponentType::IDComponent);
+				 i <= static_cast<int>(ComponentType::AudioListener); ++i)
+			{
+				auto componentType = static_cast<ComponentType>(i);
+				componentStatus[componentType] = false;
+			}
+		}
 
 	protected:
 		void Draw() override;
@@ -43,17 +61,31 @@ namespace SPW
 		void DrawCameraComponent(CameraComponent* component) const;
 		void DrawPointLightComponent(PointLightComponent* component) const;
 		void DrawDirectionalLightComponent(DirectionalLightComponent* component) const;
+		void DrawLightComponent() const;
 		void DrawAudioComponent(AudioComponent* component) const;
 		void DrawAudioListener(AudioListener* component) const;
 		void DrawKeyComponent(KeyComponent* component) const;
 
 	private:
 		const Entity* m_Entity = nullptr;
+		std::weak_ptr<Scene> scene_ptr ;
+		std::unordered_map<ComponentType, bool> componentStatus;
+
 		ImGuiIconManager* m_IconManager;
 		ImVec2 k_DefalutImageSize = ImVec2(20, 20);
 		std::unique_ptr<ImGuiMessageBox> msgBox_Inspector;
 
 		bool show_panel = false;
+		bool show_naming = false;
+		bool show_addcomponent = false;
+		char m_PendingName[256] = "";
+
+		std::string convertToString(char* array)
+		{
+			std::stringstream ss;
+			ss << array;
+			return ss.str();
+		}
 	};
 
 }

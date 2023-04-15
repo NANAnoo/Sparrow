@@ -14,8 +14,9 @@
 #include "UIComponent/ImGuiTreeNodePanel.h"
 #include "UIComponent/ImGuiImagePanel.h"
 #include "UIComponent/ImGuiFileExplorer.h"
+#include "UIComponent/ImGuiProfilingPanel.h"
 #include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
-#include "IO/ResourceManager.h"
+#include "Asset/ResourceManager/ResourceManager.h"
 
 
 namespace SPW
@@ -44,7 +45,7 @@ namespace SPW
 		void InitLayout();
 		void InitIconManager();
 		void InitMenuBar();
-		void InitProfilingPanel();
+		void InitEntityPanel();
 		void InitSceneHierarchy();
 		void InitInspectorPanel();
 		void InitFileExplorer();
@@ -59,6 +60,7 @@ namespace SPW
 		std::shared_ptr<ImGuiImagePanel>	    m_ImagePanel;
 		std::shared_ptr<ImGuiFileExplorer>      m_FileExplorer;
 		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
+		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel;
 
 
 		bool show_demo_window = false;

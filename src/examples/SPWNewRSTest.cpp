@@ -7,7 +7,7 @@
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
-#include "Model/Mesh.h"
+#include "Asset/AssetData/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include <glad/glad.h>
@@ -49,7 +49,7 @@
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
-#include "IO/ResourceManager.h"
+#include "Asset/ResourceManager/ResourceManager.h"
 #include "Model/Model.h"
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>

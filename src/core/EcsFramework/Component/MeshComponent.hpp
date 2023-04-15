@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ComponentI.h"
-#include "Model/Model.h"
 #include "Render/PipeLine.hpp"
 #include <string>
 #include <unordered_set>

@@ -9,7 +9,11 @@ CORE_ADD_SOURCE(
         AssetData/Vertex.h
         AssetData/ModelData.h
         AssetData/MeshData.h
+        AssetData/Mesh.h
         AssetData/MaterialData.h
+
+        ResourceManager/ResourceManager.h
+        ResourceManager/ResourceManager.cpp
 
         ModelLoader/ModelLoader.h
         ModelLoader/ModelLoader.cpp

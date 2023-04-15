@@ -5,7 +5,6 @@
 #include "FrameBuffer.h"
 #include "Light.h"
 #include "RenderBackEndI.h"
-#include "Model/Model.h"
 #include "Utils/UUID.hpp"
 
 namespace SPW {
