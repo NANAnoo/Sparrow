@@ -8,7 +8,7 @@ namespace SPW
 {
 	int ImGuiMessageBox::Exec()
 	{
-		uint32_t selected_option = 0;
+		uint32_t selected_option = -1;
 
 		if (ImGui::BeginPopupModal(m_Title, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
@@ -85,6 +85,8 @@ namespace SPW
 
 			ImGui::EndPopup();
 		}
+
+		// trigger_flag = false;
 
 		return selected_option;
 	}

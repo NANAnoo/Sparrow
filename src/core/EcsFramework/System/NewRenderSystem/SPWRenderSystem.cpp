@@ -11,11 +11,13 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 #include <string>
+#include "IO/FileSystem.h"
 
 namespace SPW {
     void SPWRenderSystem::initial() {
         renderBackEnd->Init();
-        renderBackEnd->loadShaderLib("./resources/shaders/baselib");
+        
+        renderBackEnd->loadShaderLib(k_Engine + "shaders/baselib/");
 
         screenBuffer = renderBackEnd->createFrameBuffer();
 
@@ -46,10 +48,16 @@ namespace SPW {
     void SPWRenderSystem::beforeUpdate() 
     {
         locatedScene.lock()->forEach(
-        [this](MeshComponent *mesh){
-                if (!mesh->ready) {
-                    mesh->model->setUpModel(renderBackEnd);
-                    mesh->ready = true;
+        [this](MeshComponent *meshComponent)
+		{
+                if (!meshComponent->ready)
+				{
+					auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[meshComponent->assetName].meshes;
+                    for (auto& mesh : meshes)
+                        mesh.setupMesh(renderBackEnd);
+
+//                    meshComponent->model->setUpModel(renderBackEnd);
+					meshComponent->ready = true;
                 }
         }, MeshComponent);
     }

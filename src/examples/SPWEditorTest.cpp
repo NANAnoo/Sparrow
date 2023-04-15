@@ -5,7 +5,7 @@
 
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
-#include "Model/Mesh.h"
+#include "Asset/AssetData/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include <glad/glad.h>
@@ -24,7 +24,6 @@
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 #include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
-#include "Model/Model.h"
 
 #include "Utils/UUID.hpp"
 
@@ -34,7 +33,7 @@
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
-#include "IO/ResourceManager.h"
+#include "Asset/ResourceManager/ResourceManager.h"
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
@@ -42,23 +41,12 @@
 #include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "IO/FileSystem.h"
 #include "ImGui/ImGuiManager.hpp"
-#include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
-
-#include "Asset/Asset.hpp"
-#include "Asset/AssetData/MeshData.h"
-#include "Asset/AssetData/ModelData.h"
-#include "Asset/AssetData/MaterialData.h"
 #include "Asset/Serializer/EntitySerializer.h"
-#include "Asset/ModelLoader/ModelLoader.h"
-#include "ImGui/ImGuiFileDialog.h"
 
-std::shared_ptr<SPW::Model> createModel() {
-    //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
-}
-std::shared_ptr<SPW::Model> createCubeModel()
+
+auto CreateEmptyNode(const std::shared_ptr<SPW::Scene>& scene) -> std::shared_ptr<SPW::Entity>
 {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sand_cube/cube.obj");
+	return scene->createEntity("emptyNode");
 }
 
 const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, float width, float height) {
@@ -113,7 +101,7 @@ const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, floa
 
 std::shared_ptr<SPW::Entity> createPlight(const std::shared_ptr<SPW::Scene> &scene, glm::vec3 position, glm::vec3 color) {
     auto light = scene->createEntity("light");
-    auto lightTrans =light->emplace<SPW::TransformComponent>();
+    auto lightTrans = light->emplace<SPW::TransformComponent>();
     auto lightCom = light->emplace<SPW::PointLightComponent>();
     lightCom->ambient = color;
     lightTrans->position = position;
@@ -182,18 +170,15 @@ public:
 
 };
 
+
 // std::string SPW::FileRoots::k_Root   = "E:/Dev/"; // TODO : change this to your own path
-std::string SPW::FileRoots::k_Root   = "D:/Sparrow/bin"; // TODO : change this to your own path
+std::string SPW::FileRoots::k_Root   = "./UserProject/"; // TODO : change this to your own path
 std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
 std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
 std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
 
 
-//#define LOAD_ASSET
-/*
- * TODO HACK TEMOPORY DATA
- */
-SPW::AssetData g_AssetData;
+#define LOAD_ASSET
 
 class SPWTestApp : public SPW::AppDelegateI
 {
@@ -206,27 +191,31 @@ public:
     {
 
 // -------------------------------OFFLINE TEST-------------------------------------------
-        // 1. Simulate a process of an engine boost
+
+    	// 1. Simulate a process of an engine boost
         SPW::FileSystem::Boost();
         // 2. Simulate a process of loading some resources into a scene
-#if defined(LOAD_ASSET)
-        if (SPW::AssetManager::LoadAsset(SPW::k_Assets + "scene/scene.json", g_AssetData)) // TODO: Select the asset file to Load by GUI operations
-        {
-            // ImGui::OpenPopup("Load Scuess"); //TODO move in runtime
+#ifdef LOAD_ASSET
+    	{
+            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "mantis/mantis.json");
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+        	// [data.assetID] = std::move(data);
         }
 
-		//TODO move in runtime
-		// if (ImGui::BeginPopupModal("Load Scuess", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-		//    {
-		//        ImGui::Text("Hello from the popup!");
-		//
-		//        if (ImGui::Button("Close"))
-		//        {
-		//            ImGui::CloseCurrentPopup();
-		//        }
-		//
-		//        ImGui::EndPopup();
-		//    }
+    	{
+            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "companion_cube/companion_cube.json");
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+        }
+
+    	{
+            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "scifi_cube/scifi_cube.json");
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+        }
+
+    	{
+            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "cube/cube.json");
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+        }
 #endif
 // -------------------------------OFFLINE TEST-------------------------------------------
 
@@ -259,13 +248,16 @@ public:
 
             // create render system
             renderSystem = std::make_shared<SPW::SPWRenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight());
-            // add system
+
+			// add system
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(renderSystem);
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
 
             //TODO
             //scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+
+auto empty_node= CreateEmptyNode(scene);
 
             // ------ create main render graph ----------------
             auto pbr_with_PDshadow = renderSystem->createRenderGraph();
@@ -312,7 +304,8 @@ public:
                                                              "./resources/shaders/simpleVs.vert",
                                                              "./resources/shaders/pbrShadowTiled.frag"
                                                      });
-            auto p_shadow_desc = SPW::P_shadowmap_desc();
+
+        	auto p_shadow_desc = SPW::P_shadowmap_desc();
             auto d_shadow_desc = SPW::D_shadowmap_desc();
 
             auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
@@ -339,27 +332,24 @@ public:
             model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
             model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
             model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
-
-            model->model = createModel();
+            // model->model = createModel();
 /*
  * TODO HACK FOR SER TEST
  */
-model->b_Asset   = true;
-model->assetID   = g_AssetData.assetID;
-model->assetPath = g_AssetData.path;
-model->meshes = g_AssetData.meshes;
-model->materials = g_AssetData.materials;
-model->meshURI = g_AssetData.meshURI;
-model->textures = g_AssetData.textures;
-// __debugbreak();
 
-            // --------------------------------------------------------------------------------
+model->assetID    = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
+model->assetName  = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName;
+model->assetPath  = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].path;
+
+//            --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
             auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
             cubeTrans->scale = {5.0, 0.05, 5.0};
             cubeTrans->position.y-=0.35f;
             auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
-            cubemodel->model = createCubeModel();
+cubemodel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetID;
+cubemodel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetName;
+cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].path;
 
             cubemodel->bindRenderGraph = pbr_with_PDshadow->graph_id;
             cubemodel->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_tiled_desc.uuid;
@@ -448,7 +438,8 @@ model->textures = g_AssetData.textures;
 
         ImGui::Begin("Test Button Panel");
 
-        // TODO: dudu
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
         if(ImGui::Button("Save Asset"))
         {
             ImGui::OpenPopup("Example Popup");
@@ -504,7 +495,9 @@ model->textures = g_AssetData.textures;
         m_ImguiManager->CreateImagePanel(renderSystem->getTextureID());
         m_ImguiManager->RenderAllPanels();
         //----------------------------------------------------------------------------------------
-    	scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
+		m_ImguiManager->GetInspectorPanel()->SetBindedScene(scene);
+
+		scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
         {
 	        const auto component_name= e.component<SPW::NameComponent>()->getName();
 	        const auto component_id  = e.component<SPW::IDComponent>()->getID().toString();
@@ -513,8 +506,6 @@ model->textures = g_AssetData.textures;
                 m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
             });
         });
-
-
 
         //----------------------------------------------------------------------------------------
     	m_ImguiManager->End();
@@ -566,6 +557,7 @@ model->textures = g_AssetData.textures;
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
     std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
     std::shared_ptr<SPW::SPWRenderSystem> renderSystem;
+    // std::unique_ptr<SPW::UniResourceManager> rm;
 };
 
 // main entrance

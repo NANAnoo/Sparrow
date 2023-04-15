@@ -82,7 +82,7 @@ namespace SPW
 					icon_id = m_IconManager->GetLibIcon("music");
 				else if (entryPath.extension() == ".png" || entryPath.extension() == ".jpg"
 					|| entryPath.extension() == ".jpeg" || entryPath.extension() == ".dds")
-					icon_id = m_IconManager->GenerateTextureID(entryPath.string());
+					icon_id = m_IconManager->GenerateIconID(entryPath.string());
 				else
 					icon_id = m_IconManager->GetLibIcon("file");
 

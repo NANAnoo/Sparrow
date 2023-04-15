@@ -6,7 +6,7 @@
 
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
-#include "Model/Mesh.h"
+#include "Asset/AssetData/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include <glad/glad.h>
@@ -50,12 +50,18 @@
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
-#include "IO/ResourceManager.h"
+#include "Asset/ResourceManager/ResourceManager.h"
 #include "Model/Model.h"
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
 #include "ImGui/ImGuiManager.hpp"
+
+std::string SPW::FileRoots::k_Root = "C:/Users/dudu/Desktop/UserProject/"; // TODO : change this to your own path
+std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
+std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
+std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
+
 
 std::shared_ptr<SPW::Model> createModel() {
     return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
@@ -370,8 +376,11 @@ public:
 };
 
 // main entrance
-int main(int argc, char **argv) {
-    // app test
+int main(int argc, char **argv)
+{
+    SPW::FileSystem::Boost();
+
+	// app test
     auto appProxy =
         SPW::Application::create<SPWTestApp>("SPWTestApp");
     return appProxy->app->run(argc, argv);

@@ -69,9 +69,9 @@
 #if defined( __WIN32__ ) || defined( _WIN32 ) || defined( WIN32 )
 	#define SOIL_PLATFORM_WIN32
 	#define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
+	#include <Windows.h>
 	#include <wingdi.h>
-	#include <GL/gl.h>
+	#include <gl/GL.h>
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 	/*	I can't test this Apple stuff!	*/
 	#include <OpenGL/gl.h>

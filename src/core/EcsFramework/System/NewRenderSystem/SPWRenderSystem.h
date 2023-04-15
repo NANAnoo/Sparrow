@@ -10,14 +10,17 @@
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Platforms/OPENGL/OpenGLAttachmentTexture.hpp"
+#include "Asset/ResourceManager/ResourceManager.h"
 
 namespace SPW {
 
     class SPWRenderSystem : public SystemI, public WindowEventResponder {
     public:
-        explicit SPWRenderSystem(std::shared_ptr<Scene> &scene, std::shared_ptr<RenderBackEndI> backEnd, int w, int h) :
-            SystemI(scene), renderBackEnd(std::move(backEnd)),
-            WindowEventResponder(std::dynamic_pointer_cast<EventResponderI>(scene)) {
+        explicit SPWRenderSystem(std::shared_ptr<Scene> &scene, std::shared_ptr<RenderBackEndI> backEnd, int w, int h)
+			: SystemI(scene)
+			, renderBackEnd(std::move(backEnd))
+			, WindowEventResponder(std::dynamic_pointer_cast<EventResponderI>(scene))
+			{
                 width = w;
                 height = h;
             }
