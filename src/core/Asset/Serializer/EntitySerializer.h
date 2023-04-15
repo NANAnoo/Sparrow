@@ -37,7 +37,7 @@ namespace SPW
 		EntitySerializer(const EntitySerializer& ts) = delete;
 		EntitySerializer(EntitySerializer&& ts) = delete;
 
-		static bool SaveScene(const std::shared_ptr<Scene>& scene, UniResourceManager* rm, const std::string& filePath = "")
+		static bool SaveScene(const std::shared_ptr<Scene>& scene, const std::string& filePath = "")
 		{
 			fs::path savePath;
 			if (filePath.length() > 0)
@@ -96,8 +96,7 @@ namespace SPW
 			// extra operation for resource and asset data 
 			for (auto& [k, v] : meshComponents)
 			{
-				const auto& asset_data = rm->m_AssetDataMap[v.assetName];
-
+				const auto& asset_data = ResourceManager::getInstance()->m_AssetDataMap[v.assetName];
 				{
 					/* Save Asset Json */
 					std::ofstream file(FileSystem::ToAbsolutePath(v.assetPath));

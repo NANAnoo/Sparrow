@@ -5,7 +5,7 @@
 #include "EcsFramework/Entity/Entity.hpp"
 #include "glm/gtx/euler_angles.hpp"
 #include "glm/ext/matrix_transform.hpp"
-
+#include "IO/FileSystem.h"
 
 
 namespace SPW {
@@ -43,109 +43,162 @@ namespace SPW {
             const std::shared_ptr<Shader> &shader,
              const std::unordered_map<MaterialType, std::string> &mat_inputs,
             const std::shared_ptr<RenderBackEndI> &backend,
-            const std::shared_ptr<Material> &material,
+            const MaterialData& material,
+			const std::unordered_map<std::string, std::string>& textures,
             unsigned int slot) 
     {
-        for (auto &[type, name] : mat_inputs) {
-            switch (type) {
-            case AlbedoType: {
-                auto path = material->TextureMap[TextureType::Albedo];
+
+
+        std::string albedo_path = FileRoots::k_Root;
+        auto albedo_it = material.m_TextureIDMap.find(TextureMapType::Albedo);
+        if (albedo_it != material.m_TextureIDMap.end()) {
+            albedo_path += textures.at(albedo_it->second);
+        }
+
+        std::string normal_path = FileRoots::k_Root;
+        auto normal_it = material.m_TextureIDMap.find(TextureMapType::Normal);
+        if (normal_it != material.m_TextureIDMap.end()) {
+            normal_path += textures.at(normal_it->second);
+        }
+
+        std::string metalness_path = FileRoots::k_Root;
+        auto metalness_it = material.m_TextureIDMap.find(TextureMapType::Metalness);
+        if (metalness_it != material.m_TextureIDMap.end()) {
+            metalness_path += textures.at(metalness_it->second);
+        }
+
+        std::string roughness_path = FileRoots::k_Root;
+        auto roughness_it = material.m_TextureIDMap.find(TextureMapType::Roughness);
+        if (roughness_it != material.m_TextureIDMap.end()) {
+            roughness_path += textures.at(roughness_it->second);
+        }
+
+        std::string ao_path = FileRoots::k_Root;
+        auto ao_it = material.m_TextureIDMap.find(TextureMapType::AmbientOcclusion);
+        if (ao_it != material.m_TextureIDMap.end()) {
+            ao_path += textures.at(ao_it->second);
+        }
+        for (auto &[type, name] : mat_inputs) 
+        {
+            switch (type)
+        	{
+            case AlbedoType: 
+            {
+                // auto path = material->TextureMap[TextureType::Albedo];
                 shader->setInt(name, slot);
-                backend->BindImageTex(path, slot);
+                backend->BindImageTex(albedo_path, slot);
                 slot++;
                 break;
             }
-            case NormalType: {
-                auto path = material->TextureMap[TextureType::Normal];
+            case NormalType: 
+            {
+                // auto path = material->TextureMap[TextureType::Normal];
                 shader->setInt(name, slot);
-                backend->BindImageTex(path, slot);
+                backend->BindImageTex(normal_path, slot);
                 slot++;
                 break;
             }
-            case MetallicType: {
-                auto path = material->TextureMap[TextureType::Metalness];
+            case MetallicType: 
+            {
+                // auto path = material->TextureMap[TextureType::Metalness];
                 shader->setInt(name, slot);
-                backend->BindImageTex(path, slot);
+                backend->BindImageTex(metalness_path, slot);
                 slot++;
                 break;
             }
-            case RoughnessType: {
-                auto path = material->TextureMap[TextureType::Roughness];
+            case RoughnessType: 
+            {
+                // auto path = material->TextureMap[TextureType::Roughness];
                 shader->setInt(name, slot);
-                backend->BindImageTex(path, slot);
+                backend->BindImageTex(roughness_path, slot);
                 slot++;
                 break;
             }
-            case AOType: {
-                auto path = material->TextureMap[TextureType::AmbientOcclusion];
+            case AOType: 
+            {
+                // auto path = material->TextureMap[TextureType::AmbientOcclusion];
                 shader->setInt(name, slot);
-                backend->BindImageTex(path, slot);
+                backend->BindImageTex(ao_path, slot);
                 slot++;
                 break;
             }
             // TODO, temperary from these properties
-            case AlbedoConstantType: {
-                shader->setVec3(name, material->m_Properties.ambientColor);
+            case AlbedoConstantType: 
+            {
+                shader->setVec3(name, material.m_Properties.ambient);
                 break;
             }
             case MetallicConstantType: {
-                shader->setFloat(name, material->m_Properties.metallicProperties.metallicFactor);
+                shader->setFloat(name, material.m_Properties.metallicConstant);
                 break;
             }
             case RoughnessConstantType: {
-                shader->setFloat(name, material->m_Properties.metallicProperties.roughnessFactor);
+                shader->setFloat(name, material.m_Properties.roughnessConstant);
                 break;
             }
             case AOConstantType: {
-                shader->setFloat(name, material->m_Properties.metallicProperties.anisotropyFactor);
+                shader->setFloat(name, material.m_Properties.AOConstant);
                 break;
             }
             case DiffuseType: {
-                shader->setVec3(name, material->m_Properties.diffuseColor);
+                shader->setVec3(name, material.m_Properties.diffuse);
                 break;
             }
             case SpecularType: {
-                shader->setVec3(name, material->m_Properties.specularColor);
+                shader->setVec3(name, material.m_Properties.specular);
                 break;
             }
             case AmbientType: {
-                shader->setVec3(name, material->m_Properties.ambientColor);
+                shader->setVec3(name, material.m_Properties.ambient);
                 break;
             }
             case EmissiveType: {
-                shader->setVec3(name, material->m_Properties.emissiveColor);
+                shader->setVec3(name, material.m_Properties.emissive);
                 break;
             }
             case EmissiveIntensityType: {
-                shader->setFloat(name, material->m_Properties.emissiveIntensity);
+                shader->setFloat(name, material.m_Properties.emissiveIntensity);
                 break;
             }
             case SpecularPowerType: {
-                shader->setFloat(name, material->m_Properties.shininessStrength);
+                shader->setFloat(name, material.m_Properties.specularPower);
                 break;
             }
-            case CubeTextureType: {
-                if (material->cubeMapTextures.size() == 6) {
-                    backend->BindCubeMap(material->cubeMapTextures, slot);
+            case CubeTextureType: 
+            {
+                std::vector<std::string> cubeMapPaths =
+                {
+                    k_Engine + "texture/skybox/top.jpg",
+                    k_Engine + "texture/skybox/top.jpg",
+                    k_Engine + "texture/skybox/top.jpg",
+
+                    k_Engine + "texture/skybox/top.jpg",
+                    k_Engine + "texture/skybox/top.jpg",
+                    k_Engine + "texture/skybox/top.jpg",
+                };
+
+                // if (material->cubeMapTextures.size() == 6) 
+                {
+                    backend->BindCubeMap(cubeMapPaths, slot);
                     shader->setInt(name, slot);
                     slot ++;
                 }
                 break;
             }
             case TransparentType: {
-                shader->setVec3(name, material->m_Properties.transportColor);
+                shader->setVec3(name, material.m_Properties.transparent);
                 break;
             }
             case RefractionType: {
-                shader->setVec3(name, material->m_Properties.refectiveColor);
+                shader->setVec3(name, material.m_Properties.refection);
                 break;
             }
             case TransparentIntensityType: {
-                shader->setFloat(name, material->m_Properties.transparentFactor);
+                shader->setFloat(name, material.m_Properties.transparentIntensity);
                 break;
             }
             case RefractionIntensityType: {
-                shader->setFloat(name, material->m_Properties.refracti);
+                shader->setFloat(name, material.m_Properties.refractionIntensity);
                 break;
             }
             break;
@@ -418,7 +471,7 @@ namespace SPW {
             // bind attachments
             unsigned int slot = bindAttachments(shader, shader_desc, input.screen_texture, input.screen_texture, 0);
             for (auto &model : models) {
-                auto mesh = model.component<MeshComponent>();
+                auto mesh_component = model.component<MeshComponent>();
                 auto transform = model.component<TransformComponent>();
                 glm::mat4 MM = glm::mat4(1.0f);
                 MM = glm::translate(MM,transform->position);
@@ -437,9 +490,14 @@ namespace SPW {
                 }
                 
                 // draw submeshes
-                for (auto &submesh : mesh->model->GetMeshes()) {
-                    bindMaterial(shader, shader_desc.mat_inputs, input.backend, submesh.GetMaterial(), slot);
-                    submesh.PureDraw(input.backend);
+                auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[mesh_component->assetName].meshes;
+                auto& materials = ResourceManager::getInstance()->m_AssetDataMap[mesh_component->assetName].materials;
+                auto& textures = ResourceManager::getInstance()->m_AssetDataMap[mesh_component->assetName].textures;
+                
+                for (int idx = 0; idx < meshes.size() ; ++idx)
+                {
+                    bindMaterial(shader, shader_desc.mat_inputs, input.backend, materials[idx], textures, slot);
+                    meshes[idx].PureDraw(input.backend);
                 }
             }
         }

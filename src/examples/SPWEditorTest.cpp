@@ -206,22 +206,26 @@ public:
     	// 1. Simulate a process of an engine boost
         SPW::FileSystem::Boost();
         // 2. Simulate a process of loading some resources into a scene
-        rm = std::make_unique<SPW::UniResourceManager>();
 #ifdef LOAD_ASSET
     	{
             auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "mantis/mantis.json");
-            rm->m_AssetDataMap.emplace(data.assetName, data);
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
         	// [data.assetID] = std::move(data);
         }
 
     	{
             auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "companion_cube/companion_cube.json");
-            rm->m_AssetDataMap.emplace(data.assetName, data);
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
         }
 
     	{
             auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "scifi_cube/scifi_cube.json");
-            rm->m_AssetDataMap.emplace(data.assetName, data);
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+        }
+
+    	{
+            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "cube/cube.json");
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
         }
 #endif
 // -------------------------------OFFLINE TEST-------------------------------------------
@@ -255,7 +259,8 @@ public:
 
             // create render system
             renderSystem = std::make_shared<SPW::SPWRenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight());
-            // add system
+
+			// add system
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(renderSystem);
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
@@ -336,28 +341,24 @@ public:
             model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
             model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
             model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
-
-            model->model = createModel();
+            // model->model = createModel();
 /*
  * TODO HACK FOR SER TEST
  */
 
-// model->b_Asset    = true;
-model->assetID    = rm->m_AssetDataMap["mantis"].assetID;
-model->assetName  = rm->m_AssetDataMap["mantis"].assetName;
-model->assetPath  = rm->m_AssetDataMap["mantis"].path;
-// model->meshes     = rm->m_AssetDataMap["mantis"].meshes;
-// model->materials  = rm->m_AssetDataMap["mantis"].materials;
-// model->meshURI    = rm->m_AssetDataMap["mantis"].meshURI;
-// model->textures   = rm->m_AssetDataMap["mantis"].textures;
+model->assetID    = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
+model->assetName  = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName;
+model->assetPath  = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].path;
 
-            // --------------------------------------------------------------------------------
+//            --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
             auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
             cubeTrans->scale = {5.0, 0.05, 5.0};
             cubeTrans->position.y-=0.35f;
             auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
-            cubemodel->model = createCubeModel();
+cubemodel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetID;
+cubemodel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetName;
+cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].path;
 
             cubemodel->bindRenderGraph = pbr_with_PDshadow->graph_id;
             cubemodel->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_tiled_desc.uuid;
@@ -408,10 +409,8 @@ model->assetPath  = rm->m_AssetDataMap["mantis"].path;
             light3->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(2);
             light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
-            m_ImguiManager = std::make_shared<SPW::ImGuiManager>(rm.get());
+            m_ImguiManager = std::make_shared<SPW::ImGuiManager>();
             m_ImguiManager->Init(handle);
-
-
 
   std::cout << "ImGui" << IMGUI_VERSION << std::endl;
 #ifdef IMGUI_HAS_VIEWPORT
@@ -420,12 +419,9 @@ model->assetPath  = rm->m_AssetDataMap["mantis"].path;
 #ifdef IMGUI_HAS_DOCK
   std::cout << " +docking"<< std::endl;
 #endif
-
             // init scene
             scene->initial();
             transformer->scene = scene;
-
-             // SPW::EntitySerializer::SaveScene(scene, "C:/Users/dudu/Desktop/");
         });
     }
     void beforeAppUpdate() final
@@ -447,16 +443,15 @@ model->assetPath  = rm->m_AssetDataMap["mantis"].path;
         ImGui::Begin("Test Button Panel");
 
 
-        ImGui::Text("Loaded Assets");
-        for(const auto& [k,v] : rm->m_AssetDataMap)
-        {
-            if (ImGui::Button(k.c_str()))
-            {
-	            
-            }
-
-        }
-
+        // ImGui::Text("Loaded Assets");
+        // for(const auto& [k,v] : rm->m_AssetDataMap)
+        // {
+        //     if (ImGui::Button(k.c_str()))
+        //     {
+	       //      
+        //     }
+        //
+        // }
 
         // TODO: dudu
         if(ImGui::Button("Save Asset"))
@@ -494,7 +489,7 @@ model->assetPath  = rm->m_AssetDataMap["mantis"].path;
         {
             // TODO: dudu
             ImGui::OpenPopup("Save Scene");
-            SPW::EntitySerializer::SaveScene(scene, rm.get());
+            SPW::EntitySerializer::SaveScene(scene);
         }
         if (ImGui::BeginPopupModal("Save Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         {
@@ -523,8 +518,6 @@ model->assetPath  = rm->m_AssetDataMap["mantis"].path;
                 m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
             });
         });
-
-
 
         //----------------------------------------------------------------------------------------
     	m_ImguiManager->End();
@@ -576,7 +569,7 @@ model->assetPath  = rm->m_AssetDataMap["mantis"].path;
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
     std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
     std::shared_ptr<SPW::SPWRenderSystem> renderSystem;
-    std::unique_ptr<SPW::UniResourceManager> rm;
+    // std::unique_ptr<SPW::UniResourceManager> rm;
 };
 
 // main entrance

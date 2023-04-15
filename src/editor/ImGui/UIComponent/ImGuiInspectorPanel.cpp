@@ -80,7 +80,7 @@ namespace SPW
 			ImGui::Text("Panel Content");
 			ImGui::Separator();
 
-			for (const auto& [k, v] : m_ResourceManager->m_AssetDataMap)
+			for (const auto& [k, v] : ResourceManager::getInstance()->m_AssetDataMap)
 			{
 				if (ImGui::Button(k.c_str()))
 				{
@@ -98,7 +98,7 @@ namespace SPW
 		// ------------------------- DISPLAY LOGIC -------------------------
 		if (!component->assetName.empty())
 		{
-			auto& active_asset_data = m_ResourceManager->m_AssetDataMap[component->assetName];
+			auto& active_asset_data = ResourceManager::getInstance()->m_AssetDataMap[component->assetName];
 
 			ImGui::PushID("Asset Meta");
 			ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);

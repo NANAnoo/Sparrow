@@ -20,13 +20,13 @@ namespace SPW
 		std::unordered_map<std::string, AssetData> m_AssetDataMap;
 	};
 
-	class UniResourceManager
-	{
-	public:
-		UniResourceManager()  = default;
-		~UniResourceManager() = default;
-
-		// name - AssetData
-		std::unordered_map<std::string, AssetData> m_AssetDataMap;
-	};
+	// class UniResourceManager
+	// {
+	// public:
+	// 	UniResourceManager()  = default;
+	// 	~UniResourceManager() = default;
+	//
+	// 	// name - AssetData
+	// 	std::unordered_map<std::string, AssetData> m_AssetDataMap;
+	// };
 }

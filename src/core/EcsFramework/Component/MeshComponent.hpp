@@ -62,24 +62,12 @@ namespace SPW
 		std::unordered_map<unsigned int, UUID> modelSubPassPrograms;
 
 		bool ready = false;
-		std::shared_ptr<Model> model;
+//		std::shared_ptr<Model> model;
 
 		// ---------------------- NEW DATA ---------------------------------
 
-		/*
-		 * 1. Load Asset, Raise Data from .asset file, to complish meshes/materials, pair meshes and materials with UUID
-		 * 2. Save Asset, Rewrite the .asset file, save changes(just new file into .bin and .asset)
-		 */
-		// bool b_Asset = false;
 		std::string assetPath{};
 		std::string assetID{};
 		std::string assetName{};
-		// std::string meshURI; // just use this component UUID
-
-		// std::vector<Mesh> meshes;
-		// std::vector<MaterialData> materials; /* which is the brand new material! */
-		// std::unordered_map<std::string, std::string> textures;
-
-		// AssetData assetData;
 	};
 }

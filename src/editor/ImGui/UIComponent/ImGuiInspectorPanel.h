@@ -26,10 +26,9 @@ namespace SPW
 	class ImGuiInspectorPanel : public ImGuiPanel
 	{
 	public:
-		ImGuiInspectorPanel(std::string title, ImGuiIconManager* iconManager, UniResourceManager* rm, bool *open = nullptr)
+		ImGuiInspectorPanel(std::string title, ImGuiIconManager* iconManager, bool *open = nullptr)
 			: ImGuiPanel(std::move(title), open)
 			, m_IconManager(iconManager)
-			, m_ResourceManager(rm)
 		{
 		}
 
@@ -52,7 +51,6 @@ namespace SPW
 		const Entity* m_Entity = nullptr;
 		ImGuiIconManager* m_IconManager;
 		ImVec2 k_DefalutImageSize = ImVec2(20, 20);
-		UniResourceManager* m_ResourceManager;
 		std::unique_ptr<ImGuiMessageBox> msgBox_Inspector;
 
 		bool show_panel = false;

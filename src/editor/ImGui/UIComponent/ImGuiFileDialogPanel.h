@@ -18,10 +18,9 @@ namespace SPW
     class ImGuiFileDialogPanel : public ImGuiPanel
     {
     public:
-        ImGuiFileDialogPanel(UniResourceManager* rm)
+        ImGuiFileDialogPanel()
             : ImGuiPanel("File Dialog Panel")
         {
-            m_ResourceManager = rm;
 
 	        file_dialog = std::make_shared<ImGuiFileDialog>();
 	        file_dialog2 = std::make_shared<ImGuiFileDialog>();
@@ -62,7 +61,7 @@ namespace SPW
                     if (extension == ".json" || extension == ".asset")
                     {
                         auto asset_data = AssetManager::LoadAsset(filePathName);
-                        m_ResourceManager->m_AssetDataMap[asset_data.assetName] = asset_data;
+                        ResourceManager::getInstance()->m_AssetDataMap[asset_data.assetName] = asset_data;
                     }
                 }
                 file_dialog->Close();
@@ -139,9 +138,6 @@ namespace SPW
         SharedPtr<ImGuiFileDialog> file_dialog3;
         std::unique_ptr<ImGuiMessageBox> importModel_MessageBox;
         std::unique_ptr<ImGuiMessageBox> textureCompression_MessageBox;
-        // uint32_t trigger_flag = 0;
-
-        UniResourceManager* m_ResourceManager;
     };
 
 }

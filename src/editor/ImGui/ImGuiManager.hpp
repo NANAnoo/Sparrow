@@ -26,10 +26,6 @@ namespace SPW
 	{
 	public:
 		ImGuiManager() = default;
-		ImGuiManager(UniResourceManager* rm)
-		{
-			m_ResourceManager = rm;
-		}
 
 		void Init(GLFWwindow* window);
 		void Begin();
@@ -52,8 +48,7 @@ namespace SPW
 		void InitSceneHierarchy();
 		void InitInspectorPanel();
 		void InitFileExplorer();
-		void InitFileDialogPanel(UniResourceManager* rm);
-
+		void InitFileDialogPanel();
 
 	private:
 		std::shared_ptr<ImGuiDockSpace>			m_DockspacePanel;
@@ -65,15 +60,10 @@ namespace SPW
 		std::shared_ptr<ImGuiFileExplorer>      m_FileExplorer;
 		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
 
-		
 
 		bool show_demo_window = false;
 		GLFWwindow* windowHandle;
 		std::unique_ptr<ImGuiIconManager>		m_ImguiIconManager;
-
-
-
-		UniResourceManager* m_ResourceManager;
     };
 
 }

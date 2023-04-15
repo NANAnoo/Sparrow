@@ -78,7 +78,7 @@ namespace SPW
 		InitSceneHierarchy();
 		InitInspectorPanel();
 		InitFileExplorer();
-		InitFileDialogPanel(m_ResourceManager);
+		InitFileDialogPanel();
 
 		// m_TestWindow = std::make_shared<ImGuiMessageBox>("My Window", ImVec2(200, 100), ImVec2(100, 100));
 
@@ -130,7 +130,7 @@ namespace SPW
 
 	void ImGuiManager::InitInspectorPanel()
 	{
-		m_InspectorPanel = std::make_shared<ImGuiInspectorPanel>("Inspector Panel", m_ImguiIconManager.get(), m_ResourceManager);
+		m_InspectorPanel = std::make_shared<ImGuiInspectorPanel>("Inspector Panel", m_ImguiIconManager.get());
 	}
 
 	void ImGuiManager::InitFileExplorer()
@@ -138,8 +138,8 @@ namespace SPW
 		m_FileExplorer = std::make_shared<ImGuiFileExplorer>(m_ImguiIconManager.get());
 	}
 
-	void ImGuiManager::InitFileDialogPanel(UniResourceManager* rm)
+	void ImGuiManager::InitFileDialogPanel()
 	{
-		m_FileDialogPanel = std::make_shared<ImGuiFileDialogPanel>(rm);
+		m_FileDialogPanel = std::make_shared<ImGuiFileDialogPanel>();
 	}
 }
