@@ -17,14 +17,14 @@ EDITOR_ADD_SOURCE(
         UIComponent/ImGuiPanel.h
         UIComponent/ImGuiDockSpace.h
         UIComponent/ImGuiMenuBar.h
-        UIComponent/ImGuiEntityPanel.h
         UIComponent/ImGuiTreeNodePanel.h
         UIComponent/ImGuiImagePanel.h
         UIComponent/ImGuiFileDialogPanel.h
         UIComponent/ImGuiAssetInspectorPanel.h
         UIComponent/ImGuiProfilingPanel.h
 
-
+        UIComponent/ImGuiEntityPanel.h
+        UIComponent/ImGuiEntityPanel.cpp
         UIComponent/ImGuiInspectorPanel.h
         UIComponent/ImGuiInspectorPanel.cpp
 

@@ -57,6 +57,11 @@ namespace SPW {
             all_entities.erase(entity->getUUID().toString());
         }
 
+        void deleteEntity(const Entity* entity) {
+            registry->destroy(entity->entity);
+            all_entities.erase(entity->getUUID().toString());
+        }
+
         // get entity by id
         std::shared_ptr<Entity> getEntityByID(const std::string &uuid) {
             if (all_entities.find(uuid) != all_entities.end()) {

@@ -61,9 +61,6 @@ namespace SPW
 		std::unordered_map<unsigned int, UUID> modelSubPassPrograms;
 
 		bool ready = false;
-//		std::shared_ptr<Model> model;
-
-		// ---------------------- NEW DATA ---------------------------------
 
 		std::string assetPath{};
 		std::string assetID{};

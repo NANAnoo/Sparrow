@@ -9,7 +9,7 @@
 namespace SPW {
 //  camera type, used for building ProjectionMatrix
 // default direction is (0, 0, -1)
-enum CameraType {
+enum CameraType : int {
   PerspectiveType, // Perspective camera
   OrthoType, // Orthographic camera
   UIOrthoType // only used for UI, still an ortho camera
@@ -25,11 +25,17 @@ public:
   float far = 10;
 
   // ortho type
-  float left = 0;
-  float right = 0;
-  float bottom = 1;
-  float top = 1;
+  float left 	=  3.f;
+  float right 	= -3.f;
+  float bottom 	= -3.f;
+  float top 	=  3.f;
+
   [[nodiscard]] CameraType getType() const { return cameraType;}
+
+  void SetCameraType(CameraType type)
+  {
+	  cameraType = type;
+  }
 
   template<class Archive>
   void serialize(Archive& ar)
@@ -84,7 +90,7 @@ public:
     }
   }
 
-  // udpate from lua
+  // update from lua
   void update(const std::string &key, const sol::table &value) final {
     if (key == "fov" && value["value"].valid()) {
       fov = value["value"];

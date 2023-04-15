@@ -27,17 +27,21 @@ namespace SPW
 			uint64_t texture_count  = 0;
 			for(const auto&[k, v]: ResourceManager::getInstance()->m_AssetDataMap)
 			{
-				if(ImGui::CollapsingHeader(k.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+				if(!k.empty())
 				{
-					ImGui::Text("id:   %s", v.assetID.c_str());
-					ImGui::Text("path: %s", v.path.c_str());
+					if (ImGui::CollapsingHeader(k.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+					{
+						ImGui::Text("id:   %s", v.assetID.c_str());
+						ImGui::Text("path: %s", v.path.c_str());
+					}
+					for (const auto& mesh : v.meshes)
+					{
+						drawCall_count += mesh.vertices.size();
+					}
+					drawCall_count /= 3;
+					texture_count += v.textures.size();
+
 				}
-				for(const auto& mesh : v.meshes)
-				{
-					drawCall_count += mesh.vertices.size();
-				}
-				drawCall_count /= 3;
-				texture_count += v.textures.size();
 			}
 
 			ImGui::Separator();

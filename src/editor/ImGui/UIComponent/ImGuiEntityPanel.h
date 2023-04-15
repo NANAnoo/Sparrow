@@ -22,27 +22,10 @@ namespace SPW
 
 		ImGuiEntityPanel(const std::string& title, bool* open = nullptr)
 			: ImGuiPanel(title, open)
-		{
-		}
+		{	}
 
-		void UpdateMenuItemLabel(const std::string& id, const std::string& label)
-		{
-			auto it = m_Items.find(id);
-			if (it != m_Items.end())
-			{
-				it->second.name = label; // 更新标签值
-			}
-		}
-
-
-		void AddMenuItem(const std::string& id, const std::string& label, MenuItemCallback callback)
-		{
-			UpdateMenuItemLabel(id, label);
-			if (m_Items.find(id) == m_Items.end())
-			{
-				m_Items[id] = {id, label, std::move(callback)};
-			}
-		}
+		void UpdateMenuItemLabel(const std::string& id, const std::string& label);
+		void AddMenuItem(const std::string& id, const std::string& label, MenuItemCallback callback);
 
 		void ClearItems()
 		{
@@ -51,12 +34,17 @@ namespace SPW
 
 		void RemoveMenuItem(const std::string& ID)
 		{
-			auto it = m_Items.find(ID);
+			const auto it = m_Items.find(ID);
 
 			if (it != m_Items.end())
 			{
 				m_Items.erase(it);
 			}
+		}
+
+		void SetActiveScene(const std::shared_ptr<Scene>& scene)
+		{
+			scene_ptr = scene.get();
 		}
 
 	protected:
@@ -68,12 +56,18 @@ namespace SPW
 				if (ImGui::MenuItem(item.name.c_str()))
 				{
 					item.callback();
-					//std::cout<<"clicked"<<std::endl;
 				}
+			}
+
+			if( ImGui::Button( "Add Entity" ) )
+			{
+				auto new_gameObject = scene_ptr->createEntity("GameObject");
+				new_gameObject->emplace<TransformComponent>();
 			}
 		}
 
 	private:
 		std::unordered_map<std::string, MenuItem> m_Items;
+		Scene* scene_ptr;
 	};
 }

@@ -39,6 +39,8 @@ namespace SPW
 			return "NameComponent";
 		case static_cast<int>(ComponentType::TransformComponent):
 			return "TransformComponent";
+		case static_cast<int>(ComponentType::CameraComponent):
+			return "CameraComponent";
 		case static_cast<int>(ComponentType::MeshComponent):
 			return "MeshComponent";
 		case static_cast<int>(ComponentType::KeyComponent):

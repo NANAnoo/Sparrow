@@ -1,5 +1,6 @@
 #include "ImGuiInspectorPanel.h"
 #include "EcsFramework/Component/ComponentTypes.h"
+
 namespace SPW
 {
 	void ImGuiInspectorPanel::Draw()
@@ -10,13 +11,12 @@ namespace SPW
 			std::string name = m_Entity->component<SPW::NameComponent>()->getName();
 			ImGui::Text("Name: %s", name.c_str());
 			// bool show_naming = false;
-			if (ImGui::Button("Upate Name"))
+			if (ImGui::Button("Update Name"))
 			{
 				show_naming = true;
 			}
 			if (show_naming)
 			{
-				// strcpy(m_PendingName, name.c_str());
 				ImGui::Begin("Update Name", &show_naming);
 				ImGui::Text("Enter your new name: ");
 				ImGui::SameLine();
@@ -41,9 +41,9 @@ namespace SPW
 				componentStatus.at(ComponentType::MeshComponent) = true;
 			if (m_Entity->has<CameraComponent>())
 				componentStatus.at(ComponentType::CameraComponent) = true;
-			if (m_Entity->has<PointLightComponent>())
-				componentStatus.at(ComponentType::PointLightComponent) = true;
-			if (m_Entity->has<DirectionalLightComponent>())
+			//			if (m_Entity->has<PointLightComponent>())
+			//				componentStatus.at(ComponentType::PointLightComponent) = true;
+			if (m_Entity->has<DirectionalLightComponent>() || m_Entity->has<PointLightComponent>())
 				componentStatus.at(ComponentType::DirectionalLightComponent) = true;
 			if (m_Entity->has<AudioComponent>())
 				componentStatus.at(ComponentType::AudioComponent) = true;
@@ -62,17 +62,17 @@ namespace SPW
 				DrawMeshComponent(m_Entity->component<MeshComponent>());
 			if (m_Entity->has<CameraComponent>())
 				DrawCameraComponent(m_Entity->component<CameraComponent>());
-//			if (m_Entity->has<PointLightComponent>())
-//				DrawPointLightComponent(m_Entity->component<PointLightComponent>());
-//			if (m_Entity->has<DirectionalLightComponent>())
-//				DrawDirectionalLightComponent(m_Entity->component<DirectionalLightComponent>());
+			//			if (m_Entity->has<PointLightComponent>())
+			//				DrawPointLightComponent(m_Entity->component<PointLightComponent>());
+			//			if (m_Entity->has<DirectionalLightComponent>())
+			//				DrawDirectionalLightComponent(m_Entity->component<DirectionalLightComponent>());
 			if (m_Entity->has<PointLightComponent>() || m_Entity->has<DirectionalLightComponent>())
 				DrawLightComponent();
 			if (m_Entity->has<AudioComponent>())
 				DrawAudioComponent(m_Entity->component<AudioComponent>());
 			if (m_Entity->has<AudioListener>())
 				DrawAudioListener(m_Entity->component<AudioListener>());
-			if (m_Entity->has<KeyComponent>())
+			if (m_Entity->has<KeyComponent>() || m_Entity->has<MouseComponent>())
 				DrawKeyComponent(m_Entity->component<KeyComponent>());
 			// ------------- RENDER COMPONENTS -------------
 
@@ -85,57 +85,57 @@ namespace SPW
 			if (show_addcomponent)
 			{
 				ImGui::Begin("Add Component");
-				for (const auto& [componentType, status]: componentStatus)
+				for (const auto& [componentType, status] : componentStatus)
 				{
 					if (!status)
 					{
 						std::string label = ComponentTypeToString(componentType);
-						if(label == "Unknown") continue;
+						if (label == "Unknown") continue;
 
-						if( ImGui::Button( label.c_str() ) )
+						if (ImGui::Button(label.c_str()))
 						{
-							if(componentType == ComponentType::TransformComponent)
+							if (componentType == ComponentType::TransformComponent)
 							{
 								std::cout << "Add TransformComponent\n";
 								m_Entity->emplace<TransformComponent>();
 							}
-							else if(componentType == ComponentType::MeshComponent /*&& componentStatus[ComponentType::CameraComponent]*/)
+							else if (componentType == ComponentType::MeshComponent
+								/*&& componentStatus[ComponentType::CameraComponent]*/)
 							{
 								std::cout << "Add MeshComponent\n";
 								m_Entity->emplace<MeshComponent>();
 							}
-							else if(componentType == ComponentType::CameraComponent)
+							else if (componentType == ComponentType::CameraComponent)
 							{
 								std::cout << "Add CameraComponent\n";
 								m_Entity->emplace<CameraComponent>();
 							}
-							else if(componentType == ComponentType::PointLightComponent)
+							else if (componentType == ComponentType::PointLightComponent)
 							{
 								std::cout << "Add Point Light Component\n";
 								m_Entity->emplace<PointLightComponent>();
 							}
-							else if(componentType == ComponentType::DirectionalLightComponent)
+							else if (componentType == ComponentType::DirectionalLightComponent)
 							{
 								std::cout << "Add DirectionalLight Component\n";
 								m_Entity->emplace<DirectionalLightComponent>();
 							}
-							else if(componentType == ComponentType::KeyComponent)
+							else if (componentType == ComponentType::KeyComponent)
 							{
 								std::cout << "Add KeyComponent Component\n";
-								// TODO
 								m_Entity->emplace<SPW::KeyComponent>();
 							}
-							else if(componentType == ComponentType::MouseComponent)
+							else if (componentType == ComponentType::MouseComponent)
 							{
 								std::cout << "Add MouseComponent Component\n";
 								m_Entity->emplace<SPW::MouseComponent>();
 							}
-							else if(componentType == ComponentType::AudioComponent)
+							else if (componentType == ComponentType::AudioComponent)
 							{
 								std::cout << "Add AudioComponent Component\n";
 								m_Entity->emplace<SPW::AudioComponent>();
 							}
-							else if(componentType == ComponentType::AudioListener)
+							else if (componentType == ComponentType::AudioListener)
 							{
 								m_Entity->emplace<AudioListener>();
 								std::cout << "Add AudioListener Component\n";
@@ -145,7 +145,7 @@ namespace SPW
 						}
 					}
 				}
-				if( ImGui::Button( "Cancel" ) ) { show_addcomponent = false; }
+				if (ImGui::Button("Cancel")) { show_addcomponent = false; }
 
 				ImGui::End();
 			}
@@ -153,19 +153,33 @@ namespace SPW
 		}
 	}
 
-	void ImGuiInspectorPanel::DrawTransformComponent(TransformComponent* component) const
+	void ImGuiInspectorPanel::DrawTransformComponent(TransformComponent* component)
 	{
 		ImGui::PushID("Transform");
 		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
 		ImGui::SameLine();
 		if (ImGui::TreeNode("Transform")) /* TODO: add icon*/
 		{
+			if (ImGui::Button("delete"))
+			{
+
+				//TODO To delete the entity
+//				m_Entity->remove<TransformComponent>();
+//				scene_ptr->deleteEntity(m_Entity);
+
+//				m_Entity = nullptr;
+				ImGui::TreePop();
+				ImGui::PopID();
+				return;
+			}
+
+
 			if (ImGui::BeginChild("Transform", ImVec2(0, 90), true))
 			{
 				// draw component properties
-				ImGui::InputFloat3("Position", glm::value_ptr(component->position));
-				ImGui::InputFloat3("Rotation", glm::value_ptr(component->rotation));
-				ImGui::InputFloat3("Scale", glm::value_ptr(component->scale));
+				ImGui::DragFloat3("Position", glm::value_ptr(component->position));
+				ImGui::DragFloat3("Rotation", glm::value_ptr(component->rotation));
+				ImGui::DragFloat3("Scale", glm::value_ptr(component->scale));
 
 				ImGui::EndChild();
 			}
@@ -181,32 +195,42 @@ namespace SPW
 
 		if (ImGui::Button("Select Mesh!"))
 		{
-			show_panel = true;
+			show_selectingMesh = true;
 		}
 
-		// if (msgBox_Inspector->trigger_flag)
-		if (show_panel)
+		if (show_selectingMesh)
 		{
-			ImGui::Begin("Select Your Mesh", &show_panel, ImGuiWindowFlags_AlwaysAutoResize);
+			ImGui::Begin("Select Your Mesh", &show_selectingMesh, ImGuiWindowFlags_AlwaysAutoResize);
 			ImGui::Separator();
 			if (!component->assetName.empty())
 			{
-				for (const auto& [k, v]: ResourceManager::getInstance()->m_AssetDataMap)
+				for (const auto& [k, v] : ResourceManager::getInstance()->m_AssetDataMap)
 				{
-					if (ImGui::Button(k.c_str()))
+					if (!k.empty())
 					{
-						component->assetID = v.assetID;
-						component->assetName = v.assetName;
-						component->assetPath = v.path;
+						if (ImGui::Button(k.c_str()))
+						{
+							component->assetID = v.assetID;
+							component->assetName = v.assetName;
+							component->assetPath = v.path;
 
-						show_panel = false;
+							show_selectingMesh = false;
+						}
 					}
 				}
 			}
-			ImGui::Text("dude, It is not a valid mesh Component");
+			else
+				ImGui::Text("dude, It is not a valid mesh Component");
 
 			ImGui::End();
 		}
+
+		if (ImGui::Button("delete"))
+		{
+			m_Entity->remove<MeshComponent>();
+			return;
+		}
+
 
 		// ------------------------- DISPLAY LOGIC -------------------------
 		if (!component->assetName.empty())
@@ -237,16 +261,16 @@ namespace SPW
 			{
 				// Add a child window with scrolling capabilities
 				ImGui::BeginChild("MeshFilterNoScrolling", ImVec2(0, 100), false,
-					ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize);
+				                  ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize);
 
 				// draw component properties
 				for (uint32_t i = 0; i < active_asset_data.meshes.size(); ++i)
 				{
-					std::string label = std::string("SubMesh") + std::to_string(i + 1);
+					const std::string label = std::string("SubMesh") + std::to_string(i + 1);
 					if (ImGui::CollapsingHeader(label.c_str()/*, ImGuiTreeNodeFlags_DefaultOpen*/))
 					{
-						ImGui::Text("Vertice Size: %d", active_asset_data.meshes[i].vertices.size());
-						ImGui::Text("Indices Size: %d", active_asset_data.meshes[i].indices.size());
+						ImGui::Text("Vertices Size: %zu", active_asset_data.meshes[i].vertices.size());
+						ImGui::Text("Indices Size: %zu", active_asset_data.meshes[i].indices.size());
 					}
 				}
 
@@ -273,12 +297,12 @@ namespace SPW
 							// if (ImGui::BeginChild("Material", ImVec2(0, 240), true))
 							{
 								ImGui::Text("ID %s", active_asset_data.materials[i].ID.c_str());
-								for (const auto& [k, v]: active_asset_data.materials[i].m_TextureIDMap)
+								for (const auto& [k, v] : active_asset_data.materials[i].m_TextureIDMap)
 								{
 									const int64_t icon_id = m_IconManager
 										->GenerateIconID(FileSystem::JoinPaths(FileRoots::k_Root,
-											active_asset_data.textures.find(v)->
-												second));
+										                                       active_asset_data.textures.find(v)->
+										                                       second));
 									if (k == TextureMapType::Albedo)
 									{
 										ImGui::Text("Albedo");
@@ -312,20 +336,20 @@ namespace SPW
 								}
 
 								auto& curr_props = active_asset_data.materials[i].m_Properties;
-								ImGui::InputFloat3("AlbedoConstant", glm::value_ptr(curr_props.albedoConstant));
-								ImGui::InputFloat3("Diffuse", glm::value_ptr(curr_props.diffuse));
-								ImGui::InputFloat3("Specular", glm::value_ptr(curr_props.specular));
-								ImGui::InputFloat("SpecularPower", &curr_props.specularPower);
-								ImGui::InputFloat3("Ambient", glm::value_ptr(curr_props.ambient));
-								ImGui::InputFloat3("Emissive", glm::value_ptr(curr_props.emissive));
-								ImGui::InputFloat("EmissiveIntensity", &curr_props.emissiveIntensity);
+								ImGui::DragFloat3("AlbedoConstant", glm::value_ptr(curr_props.albedoConstant));
+								ImGui::DragFloat3("Diffuse", glm::value_ptr(curr_props.diffuse));
+								ImGui::DragFloat3("Specular", glm::value_ptr(curr_props.specular));
+								ImGui::DragFloat("SpecularPower", &curr_props.specularPower);
+								ImGui::DragFloat3("Ambient", glm::value_ptr(curr_props.ambient));
+								ImGui::DragFloat3("Emissive", glm::value_ptr(curr_props.emissive));
+								ImGui::DragFloat("EmissiveIntensity", &curr_props.emissiveIntensity);
 
-								ImGui::InputFloat("RoughnessConstant", &curr_props.roughnessConstant);
-								ImGui::InputFloat("MetallicConstant", &curr_props.metallicConstant);
-								ImGui::InputFloat("AOConstant", &curr_props.AOConstant);
+								ImGui::DragFloat("RoughnessConstant", &curr_props.roughnessConstant);
+								ImGui::DragFloat("MetallicConstant", &curr_props.metallicConstant);
+								ImGui::DragFloat("AOConstant", &curr_props.AOConstant);
 
-								ImGui::InputFloat("RefractionIntensity", &curr_props.refractionIntensity);
-								ImGui::InputFloat("TransparentIntensity", &curr_props.transparentIntensity);
+								ImGui::DragFloat("RefractionIntensity", &curr_props.refractionIntensity);
+								ImGui::DragFloat("TransparentIntensity", &curr_props.transparentIntensity);
 
 								// ImGui::EndChild();
 							}
@@ -344,77 +368,67 @@ namespace SPW
 		ImGui::PushID("Camera");
 		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
 		ImGui::SameLine();
+
+		const char* items[] = {"Perspective", "Ortho", "UIOrtho"};
+
 		if (ImGui::TreeNode("Camera")) /* TODO: add icon*/
 		{
+			if (ImGui::Button("delete"))
+			{
+				m_Entity->remove<CameraComponent>();
+
+				ImGui::TreePop();
+				ImGui::PopID();
+				return;
+			}
+
+			int curr_cameraType = static_cast<int>(component->getType());
+
+			if (ImGui::BeginCombo(" ", items[curr_cameraType]))
+			{
+				for (int i = 0; i < IM_ARRAYSIZE(items); i++)
+				{
+					bool isSelected = (curr_cameraType == i);
+					if (ImGui::Selectable(items[i], isSelected))
+					{
+						curr_cameraType = i;
+						component->SetCameraType(static_cast<CameraType>(curr_cameraType));
+					}
+					if (isSelected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+
 			if (ImGui::BeginChild("Camera", ImVec2(0, 120), true))
 			{
 				if (component->getType() == CameraType::PerspectiveType)
 				{
 					// draw component properties
-					ImGui::InputFloat("FOV", &component->fov);
-					ImGui::InputFloat("Aspect", &component->aspect);
-					ImGui::InputFloat("Near", &component->near);
-					ImGui::InputFloat("Far", &component->far);
+					ImGui::DragFloat("FOV", &component->fov);
+					ImGui::DragFloat("Aspect", &component->aspect);
+					ImGui::DragFloat("Near", &component->near);
+					ImGui::DragFloat("Far", &component->far);
 				}
 				else if (component->getType() == CameraType::OrthoType)
 				{
 					// draw component properties
-					ImGui::InputFloat("Left", &component->left);
-					ImGui::InputFloat("Right", &component->right);
-					ImGui::InputFloat("Bottom", &component->bottom);
-					ImGui::InputFloat("Top", &component->top);
+					ImGui::DragFloat("Left", &component->left);
+					ImGui::DragFloat("Right", &component->right);
+					ImGui::DragFloat("Bottom", &component->bottom);
+					ImGui::DragFloat("Top", &component->top);
 				}
 				ImGui::EndChild();
+
+				ImGui::Checkbox("active", &component->whetherMainCam);
 			}
 			ImGui::TreePop();
 		}
 		ImGui::PopID();
 	}
-
-//	void ImGuiInspectorPanel::DrawPointLightComponent(PointLightComponent* component) const
-//	{
-//		ImGui::PushID("Point Light");
-//		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-//		ImGui::SameLine();
-//		if (ImGui::TreeNode("Point Light")) /* TODO: add icon*/
-//		{
-//			if (ImGui::BeginChild("Point Light", ImVec2(0, 180), true))
-//			{
-//				// draw component properties
-//				ImGui::InputFloat("Constant", &component->constant);
-//				ImGui::InputFloat("Linear", &component->linear);
-//				ImGui::InputFloat("Quadratic", &component->quadratic);
-//				ImGui::InputFloat3("Ambient", glm::value_ptr(component->ambient));
-//				ImGui::InputFloat3("Diffuse", glm::value_ptr(component->diffuse));
-//				ImGui::InputFloat3("Specular", glm::value_ptr(component->specular));
-//
-//				ImGui::EndChild();
-//			}
-//			ImGui::TreePop();
-//		}
-//		ImGui::PopID();
-//	}
-
-//	void ImGuiInspectorPanel::DrawDirectionalLightComponent(DirectionalLightComponent* component) const
-//	{
-//		ImGui::PushID("Dictional Light");
-//		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-//		ImGui::SameLine();
-//		if (ImGui::TreeNode("Dictional Light")) /* TODO: add icon*/
-//		{
-//			if (ImGui::BeginChild("Dictional Light", ImVec2(0, 90), true))
-//			{
-//				// draw component properties
-//				ImGui::InputFloat3("Ambient", glm::value_ptr(component->ambient));
-//				ImGui::InputFloat3("Diffuse", glm::value_ptr(component->diffuse));
-//				ImGui::InputFloat3("Specular", glm::value_ptr(component->specular));
-//
-//				ImGui::EndChild();
-//			}
-//			ImGui::TreePop();
-//		}
-//		ImGui::PopID();
-//	}
 
 	void ImGuiInspectorPanel::DrawLightComponent() const
 	{
@@ -427,16 +441,13 @@ namespace SPW
 		if (ImGui::TreeNode("Light Source"))
 		{
 			int orignal_lightType = m_Entity->has<PointLightComponent>() ? 0 : 1;
-			ImGui::SameLine(); if(ImGui::Button("x"))
+
+			if (ImGui::Button("delete"))
 			{
-				if(orignal_lightType == 0)
-				{
+				if (orignal_lightType == 0)
 					m_Entity->remove<PointLightComponent>();
-				}
 				else
-				{
 					m_Entity->remove<DirectionalLightComponent>();
-				}
 
 				ImGui::TreePop();
 				ImGui::PopID();
@@ -444,7 +455,8 @@ namespace SPW
 			}
 
 			int current_lightType = orignal_lightType;
-			ImGui::Text("Light Type: "); ImGui::SameLine();
+			ImGui::Text("Light Type: ");
+			ImGui::SameLine();
 
 			if (ImGui::BeginCombo(" ", items[current_lightType]))
 			{
@@ -463,7 +475,7 @@ namespace SPW
 				ImGui::EndCombo();
 			}
 
-			if( current_lightType != orignal_lightType )
+			if (current_lightType != orignal_lightType)
 			{
 				if (current_lightType == 0) // PointLight
 				{
@@ -477,33 +489,33 @@ namespace SPW
 				}
 			}
 
-			if( m_Entity->has<PointLightComponent>() )
+			if (m_Entity->has<PointLightComponent>())
 			{
 				auto&& pointlight_component = m_Entity->component<PointLightComponent>();
 				if (ImGui::BeginChild("Point Light", ImVec2(0, 180), true))
 				{
 					// draw component properties
-					ImGui::InputFloat("Constant", &pointlight_component->constant);
-					ImGui::InputFloat("Linear", &pointlight_component->linear);
-					ImGui::InputFloat("Quadratic", &pointlight_component->quadratic);
-					ImGui::InputFloat3("Ambient", glm::value_ptr(pointlight_component->ambient));
-					ImGui::InputFloat3("Diffuse", glm::value_ptr(pointlight_component->diffuse));
-					ImGui::InputFloat3("Specular", glm::value_ptr(pointlight_component->specular));
+					ImGui::DragFloat("Constant", &pointlight_component->constant);
+					ImGui::DragFloat("Linear", &pointlight_component->linear);
+					ImGui::DragFloat("Quadratic", &pointlight_component->quadratic);
+					ImGui::DragFloat3("Ambient", glm::value_ptr(pointlight_component->ambient));
+					ImGui::DragFloat3("Diffuse", glm::value_ptr(pointlight_component->diffuse));
+					ImGui::DragFloat3("Specular", glm::value_ptr(pointlight_component->specular));
 
 					ImGui::EndChild();
 				}
 				ImGui::TreePop();
 			}
 
-			if( m_Entity->has<DirectionalLightComponent>() )
+			if (m_Entity->has<DirectionalLightComponent>())
 			{
 				auto&& directionallight_component = m_Entity->component<DirectionalLightComponent>();
 				if (ImGui::BeginChild("Directional Light", ImVec2(0, 90), true))
 				{
 					// draw component properties
-					ImGui::InputFloat3("Ambient", glm::value_ptr(directionallight_component->ambient));
-					ImGui::InputFloat3("Diffuse", glm::value_ptr(directionallight_component->diffuse));
-					ImGui::InputFloat3("Specular", glm::value_ptr(directionallight_component->specular));
+					ImGui::DragFloat3("Ambient", glm::value_ptr(directionallight_component->ambient));
+					ImGui::DragFloat3("Diffuse", glm::value_ptr(directionallight_component->diffuse));
+					ImGui::DragFloat3("Specular", glm::value_ptr(directionallight_component->specular));
 
 					ImGui::EndChild();
 				}
@@ -520,8 +532,17 @@ namespace SPW
 		ImGui::SameLine();
 		if (ImGui::TreeNode("Audio Source")) /* TODO: add icon*/
 		{
+			if (ImGui::Button("delete"))
+			{
+				m_Entity->remove<AudioComponent>();
+
+				ImGui::TreePop();
+				ImGui::PopID();
+				return;
+			}
+
 			int i = 1, j = 1;
-			for (auto& a: component->allSounds)
+			for (auto& a : component->allSounds)
 			{
 				std::string clipNum = "Audio Clip " + std::to_string(i++);
 				std::string AudioSourceNum = "Audio Source " + std::to_string(j++);
@@ -548,6 +569,15 @@ namespace SPW
 		ImGui::SameLine();
 		if (ImGui::TreeNode("Audio")) /* TODO: add icon*/
 		{
+			if (ImGui::Button("delete"))
+			{
+				m_Entity->remove<AudioListener>();
+
+				ImGui::TreePop();
+				ImGui::PopID();
+				return;
+			}
+
 			if (ImGui::BeginChild("AudioSource", ImVec2(0, 90), true))
 			{
 				// draw component properties
@@ -567,6 +597,15 @@ namespace SPW
 		ImGui::SameLine();
 		if (ImGui::TreeNode("Event System")) /* TODO: add icon*/
 		{
+			if (ImGui::Button("delete"))
+			{
+				m_Entity->remove<KeyComponent>();
+
+				ImGui::TreePop();
+				ImGui::PopID();
+				return;
+			}
+
 			if (ImGui::BeginChild("Event System", ImVec2(0, 90), true))
 			{
 				// draw component properties

@@ -35,9 +35,9 @@ namespace SPW
 		{
 		}
 
-		void SetBindedScene(std::shared_ptr<Scene> scene)
+		void SetActiveScene(const std::shared_ptr<Scene>& scene)
 		{
-			scene_ptr = scene;
+			scene_ptr = scene.get();
 		}
 
 		void SetSelectedGameObject(const Entity& e)
@@ -56,11 +56,9 @@ namespace SPW
 		void Draw() override;
 
 	private:
-		void DrawTransformComponent(TransformComponent* component) const;
+		void DrawTransformComponent(TransformComponent* component);
 		void DrawMeshComponent(MeshComponent* component);
 		void DrawCameraComponent(CameraComponent* component) const;
-		void DrawPointLightComponent(PointLightComponent* component) const;
-		void DrawDirectionalLightComponent(DirectionalLightComponent* component) const;
 		void DrawLightComponent() const;
 		void DrawAudioComponent(AudioComponent* component) const;
 		void DrawAudioListener(AudioListener* component) const;
@@ -68,14 +66,14 @@ namespace SPW
 
 	private:
 		const Entity* m_Entity = nullptr;
-		std::weak_ptr<Scene> scene_ptr ;
+		Scene* scene_ptr = nullptr;
 		std::unordered_map<ComponentType, bool> componentStatus;
 
 		ImGuiIconManager* m_IconManager;
 		ImVec2 k_DefalutImageSize = ImVec2(20, 20);
 		std::unique_ptr<ImGuiMessageBox> msgBox_Inspector;
 
-		bool show_panel = false;
+		bool show_selectingMesh = false;
 		bool show_naming = false;
 		bool show_addcomponent = false;
 		char m_PendingName[256] = "";

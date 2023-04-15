@@ -5,11 +5,9 @@
 
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
-#include "Asset/AssetData/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
@@ -22,7 +20,6 @@
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
-#include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 #include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
 
 #include "Utils/UUID.hpp"
@@ -34,7 +31,6 @@
 
 #include "SimpleRender.h"
 #include "Asset/ResourceManager/ResourceManager.h"
-#include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
 #include "EcsFramework/Component/MeshComponent.hpp"
@@ -433,42 +429,9 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube
 
         ImGui::Begin("Test Button Panel");
 
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-        if(ImGui::Button("Save Asset"))
-        {
-            ImGui::OpenPopup("Example Popup");
-            std::cout << " Clicked!\n";
-        }
-
-    	if(ImGui::Button(" Convert To DDS "))
-        {
-            ImGui::OpenPopup("Example Popup");
-            std::cout << " Clicked!\n";
-        }
-
-    	if(ImGui::Button("Load Asset"))
-        {
-            ImGui::OpenPopup("Example Popup");
-            std::cout << " Clicked!\n";
-        }
-
-        if (ImGui::BeginPopupModal("Example Popup", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-        {
-            ImGui::Text("Hello from the popup!");
-
-            if (ImGui::Button("Close"))
-            {
-                ImGui::CloseCurrentPopup();
-            }
-
-            ImGui::EndPopup();
-        }
-
         //------------------ SAVE SCENE -----------------------
         if(ImGui::Button("Save Scene"))
         {
-            // TODO: dudu
             ImGui::OpenPopup("Save Scene");
             SPW::EntitySerializer::SaveScene(scene);
         }
@@ -478,7 +441,6 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube
             if (ImGui::Button("x")) { ImGui::CloseCurrentPopup(); }
             ImGui::EndPopup();
         }
-
         if(ImGui::Button("Load Scene"))
         {
             std::cout << " Clicked!\n";
@@ -490,8 +452,8 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube
         m_ImguiManager->CreateImagePanel(renderSystem->getTextureID());
         m_ImguiManager->RenderAllPanels();
         //----------------------------------------------------------------------------------------
-		m_ImguiManager->GetInspectorPanel()->SetBindedScene(scene);
-
+		m_ImguiManager->GetInspectorPanel()->SetActiveScene(scene);
+        m_ImguiManager->GetEntityPanel()->SetActiveScene(scene);
 		scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
         {
 	        const auto component_name= e.component<SPW::NameComponent>()->getName();
