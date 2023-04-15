@@ -31,7 +31,7 @@ namespace SPW {
 				ImVec2(0.0, 1.0),
 				ImVec2(1.0, 0.0),
 				ImVec4(1, 1, 1, 1),
-				ImVec4(0, 0, 0, 0.f)
+				ImVec4(0, 0, 0, 1)
 			);
 		}
 
