@@ -51,12 +51,12 @@
 
 #include "SimpleRender.h"
 #include "IO/ResourceManager.h"
-#include "Model/Model.h"
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
-std::shared_ptr<SPW::Skeleton> createSkeleton() {
-    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/dragon/scene.gltf");
+std::unique_ptr<SPW::Skeleton> createSkeleton()
+{
+    return SPW::ResourceManager::LoadAnimation("./resources/models/dragon/scene.gltf");
 }
 
 std::shared_ptr<SPW::Model> createModel() {

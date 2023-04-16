@@ -282,11 +282,11 @@ public:
             model->modelProgram = shaderHandle;
             model->shadowProgram = ShadowShaderHandle;
             model->model = createModel();
-            auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
+            auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton());
             animation->skeleton = createSkeleton();
             animation->swapCurrentAnim("mixamo.com");
             //animation->incomingAnimName = "mantis_anim";
-            //animation->currentAnimation = animation->skeleton->m_animClips[0];
+            //animation->currentAnimation = animation->skeleton->animClips[0];
 
             testColor->updateSubData(sColors.data(), 0, sColors.size() * sizeof(glm::vec4));
             model->preRenderCommands.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::initStorageBuffer, testColor));

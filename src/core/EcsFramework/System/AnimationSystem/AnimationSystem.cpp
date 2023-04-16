@@ -53,9 +53,9 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
          auto animationComp = entity.component<SPW::AnimationComponent>();
          auto modelComp = entity.component<SPW::MeshComponent>();
 
-         if (!animationComp->onGoingAnim.expired())
+         if (animationComp->onGoingAnim)
          {
-             animationComp->onGoingAnim.lock()->update(deltaTime);
+             animationComp->onGoingAnim->update(deltaTime);
          }
 
          animationComp->SPW_AnimSSBO->updateDynamicBuffer(animationComp->onGoingAnim);

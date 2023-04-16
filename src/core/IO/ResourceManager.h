@@ -2,8 +2,8 @@
 #include "Utils/SingletonBase.h"
 #include "Model/Model.h"
 #include "Render/shader.h"
-#include "Model/Animation/Skeleton.h"
 #include <filesystem>
+#include "Model/Animation/AnimDefinitions.h"
 
 namespace SPW
 {
@@ -14,7 +14,7 @@ namespace SPW
 		using textureLoadCallback = std::function<void(int width, int height, int bpp, unsigned char*)>;
 		void LoadTextureScope(bool flip, const std::filesystem::path& filePath, const textureLoadCallback &callback);
 
-		[[nodiscard]] std::shared_ptr<Skeleton> LoadAnimation(const std::filesystem::path& filePath);
+		static std::unique_ptr<Skeleton> LoadAnimation(const std::filesystem::path& filePath);
 	};
 
 }

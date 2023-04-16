@@ -1,17 +1,9 @@
 #pragma once
 
-#include "AnimDefinitions.h"
-#include <vector>
-#include <memory>
+// #include "AnimDefinitions.h"
+// #include <vector>
+// #include <memory>
 
-namespace SPW {
-	class Skeleton
-	{
-	public:
-		Skeleton() = default;
-		std::vector<std::shared_ptr<AnimationClip>> m_animClips;
-        //BoneInfo
-		std::vector<std::shared_ptr<BoneInfo>> m_Bones;
-        AssimpNodeData m_assimpRootNode;
-	};
+namespace SPW
+{
 }

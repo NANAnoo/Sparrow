@@ -46,7 +46,7 @@ namespace SPW{
         void stopAnimation(AnimationComponent& animationComponent);
 
         //TODO: bone is actually aiNode
-        void calculateBoneTransform(const AssimpNodeData* node,
+        void calculateBoneTransform(const HierarchyNode* node,
                                     glm::mat4 parrentTransform,
                                     AnimationComponent& animationComponent,
                                     float currentTime);
