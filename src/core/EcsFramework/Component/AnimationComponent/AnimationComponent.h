@@ -226,14 +226,16 @@ namespace SPW
 
 		explicit AnimationComponent(const std::shared_ptr<Skeleton>& data)
 		{
-			for (int i = 0; i < data->animClips.size(); i++)
+			for (auto& animClip : data->animClips)
 			{
-				allAnimations.insert({ data->animClips[i].name , data->animClips[i] });
+				allAnimations.insert({animClip.name , animClip});
 			}
 
 			skeleton = data;
 			isLoaded = true;
-		};
+		}
+
+		~AnimationComponent() { onGoingAnim = nullptr; }
 
 		//Take action on current Anim
 		void respondAction(SPW::AnimationAction action, std::string animationName)
