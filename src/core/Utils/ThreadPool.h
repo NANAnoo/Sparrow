@@ -118,13 +118,13 @@ namespace SPW{
             ThreadPool* pool = static_cast<ThreadPool*>(arg);
             while(!pool->shutdown)
             {
-                //每隔3秒检测一次
+
                 //取出线程池中任务的数量和当前线程的数量
                 unique_lock<mutex> lk(pool->mutexPool);
                 int queuesize = pool->taskQ.size();
                 int livenum = pool->AliveNum();
                 int busynum = pool->BusyNum();
-
+                //
                 lk.unlock();
 
                 //添加线程
@@ -157,8 +157,6 @@ namespace SPW{
                 }
             }
         }
-
-
         static void worker(void* arg)
         {
             ThreadPool* pool = static_cast<ThreadPool*>(arg);
@@ -196,7 +194,6 @@ namespace SPW{
                 lk.unlock();
             }
         }
-
     };
 }
 #endif //SPARROW_THREADPOOL_H

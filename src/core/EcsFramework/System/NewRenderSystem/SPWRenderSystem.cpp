@@ -63,7 +63,7 @@ namespace SPW {
 
     void SPWRenderSystem::afterUpdate()
     {
-        TICKTOCK;
+        //TICKTOCK;
         // clear screen and clear screen buffer
         screenBuffer->bind();
         renderBackEnd->Clear();

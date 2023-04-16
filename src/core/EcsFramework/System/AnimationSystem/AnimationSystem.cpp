@@ -17,12 +17,10 @@ void SPW::AnimationSystem::beforeUpdate()
             (animatedGroup,
              [this,&animatedGroup](const Entity &entity)
              {
-
                  AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
                  //Get animationComp and modelComp of this entity
                  auto animationComp = entity.component<SPW::AnimationComponent>();
                  auto modelComp = entity.component<SPW::MeshComponent>();
-
 
                  if (!animationComp->mapInitialize)
                  {
@@ -43,7 +41,7 @@ void SPW::AnimationSystem::beforeUpdate()
 
 void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 {
-    TICKTOCK;
+    //TICKTOCK;
     double deltaTime = dt.toSecond();
     ComponentGroup<SPW::AnimationComponent,SPW::IDComponent,SPW::MeshComponent> animatedGroup;
     locatedScene.lock()->forEachEntityInGroup
@@ -64,7 +62,6 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
          animationComp->SPW_AnimSSBO->pushData(modelComp);
      });
 }
-
 
 void SPW::AnimationSystem::afterUpdate() {}
 void SPW::AnimationSystem::onStop() {}

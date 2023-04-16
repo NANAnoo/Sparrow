@@ -1,12 +1,8 @@
 //
 // Created by Shawwy on 2/24/2023.
 //
-
-
-
 #ifndef SPARROW_ANIMATIONCOMPONENT_H
 #define SPARROW_ANIMATIONCOMPONENT_H
-
 #include "../ComponentI.h"
 #include "EcsFramework/Component/MeshComponent.hpp"
 #include "Model/Animation/Skeleton.h"
@@ -91,22 +87,21 @@ namespace SPW {
         }
 
         void preload() {
-            // totol frames Get total frames
-            // 多线程计算总关键帧的所有finalBoneMatrices
-            // calculate用于在某两帧之间进行mix // 60帧
+
             //Initialize matrices
-            preload_finalBoneMatrices.resize(120);
-            for(int i = 0 ; i < 120; ++i)
+            const int frameCount = 240;
+            preload_finalBoneMatrices.resize(frameCount);
+            for(int i = 0 ; i < frameCount; ++i)
             {
                 float index = i * 1.0f;
-                float timeStamp = (duration / 119.0f) * index;
+                float timeStamp = (duration / (float)(frameCount-1) ) * index;
                 preload_finalBoneMatrices[i].timeStamp = timeStamp;
                 preload_finalBoneMatrices[i].transformMatrix.resize(m_BoneMap.size(),glm::mat4(1.0f));
             }
 
             ThreadPool threadPool(3,16);
             std::vector<std::future<void>> futures;
-            for (int i = 0; i < 120; ++i)
+            for (int i = 0; i < frameCount; ++i)
             {
                 auto promise = std::make_shared<std::promise<void>>();
                 futures.push_back(promise->get_future());
@@ -121,9 +116,12 @@ namespace SPW {
             }
 
             // Wait for all tasks to complete
+            int i = 0;
             for (auto& future : futures) {
                 future.wait();
+                i++;
             }
+            std::cout <<"\n\n"<< " Animation preload finished" << std::endl;
         }
 
         void play()
@@ -443,7 +441,6 @@ namespace SPW {
                 size.push_back(temp.boneID.size());
             }
         }
-
         //Buffer information
         std::vector<uint32_t> startIndex;
         std::vector<uint32_t> size;
@@ -610,7 +607,6 @@ namespace SPW {
                     break;
             }
         }
-
         void initializeMapping(std::weak_ptr<Model> model)
         {
             if (skeleton)

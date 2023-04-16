@@ -32,7 +32,6 @@ namespace SPW {
                 : boneID(_boneID), name(_name), mNumWeights(_mNumWeights), weights(_weights), offsetMatrix(_offsetMatrix) {}
     };
 
-
     struct AssimpNodeData
     {
         glm::mat4 transformation;
