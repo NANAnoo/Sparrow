@@ -14,6 +14,7 @@
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/Audio/AudioComponent.h"
 #include "EcsFramework/Component/Audio/AudioListener.h"
+#include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
@@ -63,6 +64,7 @@ namespace SPW
 		void DrawAudioComponent(AudioComponent* component) const;
 		void DrawAudioListener(AudioListener* component) const;
 		void DrawKeyComponent(KeyComponent* component) const;
+		void DrawAnimationComponent(AnimationComponent* component) const;
 
 	private:
 		const Entity* m_Entity = nullptr;

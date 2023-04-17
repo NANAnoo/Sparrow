@@ -45,7 +45,7 @@ namespace SPW
 	}
 
 	// save data from the model imported.
-	bool AssetManager::SaveAsset(std::unique_ptr<AssetData>&& model_data)
+	bool AssetManager::SaveAsset(std::unique_ptr<AssetData>&& model_data, std::string org_path)
 	{
 		std::string absolute_modelDir = FileSystem::JoinPaths(FileRoots::k_Assets, model_data->assetName);
 		FileSystem::CreateDirectory(absolute_modelDir);
@@ -67,8 +67,13 @@ namespace SPW
 			// 2. Loop Textures and Copy Files into Texture Directory
 			for (auto& [k, v] : model_data->textures)
 			{
+				// std::string rgo = org_path;
+				std::string src = std::filesystem::path(org_path).parent_path().string();
+				FileSystem::ResolveSlash(src);
+				
+				std::string sourceFilePath = src + v;
 				std::string destinationFilePath(textureDir + FileSystem::ToFsPath(v).filename().string());
-				FileSystem::CopyFile(v, destinationFilePath);
+				FileSystem::CopyFile(sourceFilePath, destinationFilePath);
 
 				// 3. Update Texture Path To Relative
 				v = FileSystem::ToRelativePath(destinationFilePath, FileRoots::k_Root);
@@ -107,7 +112,7 @@ namespace SPW
 			return false;
 		}
 
-		return SaveAsset(std::move(model_data)) ? true : false;
+		return SaveAsset(std::move(model_data), path) ? true : false;
 	}
 
 	int64_t AssetManager::LoadCompressedImage(const std::string& filename)

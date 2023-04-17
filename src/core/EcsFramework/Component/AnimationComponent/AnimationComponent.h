@@ -38,13 +38,13 @@ namespace SPW
 	public:
 		SPWVertexBoneMap() = default;
 
-		explicit SPWVertexBoneMap(std::vector<BoneInfo> m_Bones, std::string assetName)
+		explicit SPWVertexBoneMap(const std::vector<BoneInfo>& m_Bones, const std::string& assetName)
 		{
 			m_NumBones = m_Bones.size();
 			ExtractWeightFromBones(assetName, m_Bones);
 		}
 
-		void ExtractWeightFromBones(std::string assetName, std::vector<BoneInfo> m_BoneMap)
+		void ExtractWeightFromBones(const std::string& assetName, std::vector<BoneInfo> m_BoneMap)
 		{
 			const auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[assetName].meshes;
 			unsigned int numVertex = 0;
@@ -290,6 +290,7 @@ namespace SPW
 				if (!onGoingAnim)
 				{
 					onGoingAnim = &result->second;
+					onGoingAnim->root = skeleton->root;
 				}
 
 				onGoingAnim->play();

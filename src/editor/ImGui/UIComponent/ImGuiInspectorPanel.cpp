@@ -45,6 +45,8 @@ namespace SPW
 			//				componentStatus.at(ComponentType::PointLightComponent) = true;
 			if (m_Entity->has<DirectionalLightComponent>() || m_Entity->has<PointLightComponent>())
 				componentStatus.at(ComponentType::DirectionalLightComponent) = true;
+			if (m_Entity->has<AnimationComponent>())
+				componentStatus.at(ComponentType::AnimationComponent) = true;
 			if (m_Entity->has<AudioComponent>())
 				componentStatus.at(ComponentType::AudioComponent) = true;
 			if (m_Entity->has<AudioListener>())
@@ -68,6 +70,8 @@ namespace SPW
 			//				DrawDirectionalLightComponent(m_Entity->component<DirectionalLightComponent>());
 			if (m_Entity->has<PointLightComponent>() || m_Entity->has<DirectionalLightComponent>())
 				DrawLightComponent();
+			if (m_Entity->has<AnimationComponent>())
+				DrawAnimationComponent(m_Entity->component<AnimationComponent>());
 			if (m_Entity->has<AudioComponent>())
 				DrawAudioComponent(m_Entity->component<AudioComponent>());
 			if (m_Entity->has<AudioListener>())
@@ -361,6 +365,49 @@ namespace SPW
 			}
 			ImGui::PopID();
 		}
+	}
+
+	void ImGuiInspectorPanel::DrawAnimationComponent(AnimationComponent* component) const
+	{
+		ImGui::PushID("Animation");
+		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
+		ImGui::SameLine();
+
+		if (ImGui::TreeNode("Animation")) /* TODO: add icon*/
+		{
+			if (ImGui::Button("delete"))
+			{
+				m_Entity->remove<AnimationComponent>();
+
+				ImGui::TreePop();
+				ImGui::PopID();
+				return;
+			}
+
+			if (ImGui::BeginChild("Animation", ImVec2(0, 120), true))
+			{
+				for(const auto& anim : component->skeleton->animClips)
+				{
+					const char* anim_name = anim.name.c_str();
+					ImGui::Text("name : %s", anim_name);
+				}
+
+				// uint32_t m_NumBones = component->SPW_VertexMap->m_NumBones;
+				// ImGui::Text("m_NumBones : %d", m_NumBones);
+
+
+				int b_Binding = int(component->SPW_AnimSSBO->bBinding);
+				ImGui::Text("b_Binding : %d", b_Binding);
+
+				int b_Initialized = int(component->SPW_AnimSSBO->bInitialized);
+				ImGui::Text("b_Initialized : %d", b_Initialized);
+
+				ImGui::EndChild();
+			}
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
+
 	}
 
 	void ImGuiInspectorPanel::DrawCameraComponent(CameraComponent* component) const

@@ -37,7 +37,7 @@ namespace SPW
 		static bool LoadAsset(const std::string& path, AssetData& assetData);
 		static AssetData LoadAsset(const std::string& path);
 
-		static bool SaveAsset(std::unique_ptr<AssetData>&& model_data);
+		static bool SaveAsset(std::unique_ptr<AssetData>&& model_data, std::string org_path);
 
 		static bool ImportModel(const std::string& path);
 

@@ -26,6 +26,9 @@ namespace SPW
 		PointLightComponent,
 		DirectionalLightComponent,
 
+		/* animation */
+		AnimationComponent,
+
 		/* audio */
 		AudioComponent,
 		AudioListener,
@@ -51,6 +54,8 @@ namespace SPW
 			return "PointLightComponent";
 		case static_cast<int>(ComponentType::DirectionalLightComponent):
 			return "DirectionalLightComponent";
+		case static_cast<int>(ComponentType::AnimationComponent):
+			return "AnimationComponent";
 		case static_cast<int>(ComponentType::AudioComponent):
 			return "AudioComponent";
 		case static_cast<int>(ComponentType::AudioListener):
