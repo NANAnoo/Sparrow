@@ -24,7 +24,7 @@ void SPW::AnimationSystem::beforeUpdate()
 
                  if (!animationComp->mapInitialize)
                  {
-                     animationComp->initializeMapping(modelComp->model);
+                     animationComp->initializeMapping(modelComp->assetName);
                  }
 
                  //Binding buffer

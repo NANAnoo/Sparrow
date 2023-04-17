@@ -1,9 +1,5 @@
 add_subdirectory(AudioSystem)
 add_subdirectory(NewRenderSystem)
 add_subdirectory(ControlSystem)
-
-CORE_ADD_SOURCE(
-        SystemI.h
-#        AnimationSystem/AnimationSystem.h
-#        AnimationSystem/AnimationSystem.cpp
-        )
+add_subdirectory(AnimationSystem)
+CORE_ADD_SOURCE(SystemI.h)

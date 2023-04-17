@@ -29,6 +29,8 @@ namespace SPW
         std::vector<unsigned int>   indices;
         std::string                 materialID;
 
+        unsigned int offset = 0;
+
         Mesh() = default;
 
         Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices)

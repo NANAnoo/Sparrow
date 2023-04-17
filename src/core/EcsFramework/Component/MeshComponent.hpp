@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_set>
 #include "Render/RenderGraph.hpp"
+#include "Render/RenderCommandsQueue.hpp"
 #include "Utils/UUID.hpp"
 #include "Asset/Asset.hpp"
 #include <cereal/types/memory.hpp>
@@ -46,11 +47,17 @@ namespace SPW
 		{
 		}
 
+
+
 		// getLuaValue
 		virtual sol::object getLuaValue(const sol::table& value, const std::string& key)
 		{
 			return sol::nil;
 		}
+
+		// render callback
+		std::function<void(RenderCommandsQueue<Shader>& queue)> onDraw;
+		std::function<void(RenderCommandsQueue<RenderBackEndI>& queue)> beforeDraw;
 
 		UUID bindCamera;
 		// render pass id -> subpass ref -> shader

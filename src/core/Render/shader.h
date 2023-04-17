@@ -13,6 +13,7 @@
 #include <utility>
 
 #include "Light.h"
+#include "StorageBuffer.h"
 
 namespace SPW
 {
@@ -23,7 +24,7 @@ namespace SPW
         virtual void Bind() const = 0;
         virtual void Unbind() const = 0;
         template<class T>
-        void SetUniformValue(const std::string& str,T value)
+        void SetUniformValue(std::string str,T value)
         {
             if constexpr (std::is_same<T,bool>::value)
                 setBool(str,value);
@@ -57,6 +58,7 @@ namespace SPW
         virtual void setMat4(const std::string& name, glm::mat4 mat) const = 0;
         virtual void setDLight(unsigned int idx, const DLight &light) const = 0;
         virtual void setPLight(unsigned int idx, const PLight &light) const = 0;
+        virtual void setStorageBuffer(std::shared_ptr<StorageBuffer> uniformBuffer) = 0;
         virtual void bindTex2D(unsigned int slot,unsigned int texid) const = 0;
         virtual void bindTexArray(unsigned int slot,unsigned int texid) const = 0;
     };

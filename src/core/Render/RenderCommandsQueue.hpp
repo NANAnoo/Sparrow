@@ -6,22 +6,23 @@
 #define SPARROW_RENDERCOMMANDSQUEUE_HPP
 
 #include "RenderCommand.hpp"
-#include "RenderBackEndI.h"
+#include <vector>
 
 namespace SPW {
+    template <class API>
     class RenderCommandsQueue{
     public:
-        void executeWithAPI(std::shared_ptr<RenderBackEndI> &backEnd) {
+        void executeWithAPI(std::shared_ptr<API> &api) {
             for (auto &command : commands) {
-                command.execute(backEnd);
+                command.execute(api);
             }
             commands.clear();
         }
-        void pushCommand(RenderCommand &&command) {
+        void pushCommand(RenderCommand<API> &&command) {
             commands.emplace_back(command);
         }
     private:
-        std::vector<RenderCommand> commands;
+        std::vector<RenderCommand<API>> commands;
     };
 }
 

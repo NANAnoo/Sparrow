@@ -11,7 +11,6 @@ namespace SPW
 	public:
 		using textureLoadCallback = std::function<void(int width, int height, int bpp, unsigned char*)>;
 		void LoadTextureScope(bool flip, const std::filesystem::path& filePath, const textureLoadCallback &callback);
-
 	public:
 		std::unordered_map<std::string, AssetData> m_AssetDataMap;
 	};

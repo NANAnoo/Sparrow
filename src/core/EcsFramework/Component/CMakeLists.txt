@@ -1,10 +1,8 @@
 add_subdirectory(BasicComponent)
+add_subdirectory(AnimationComponent)
 add_subdirectory(Audio)
 add_subdirectory(Lights)
-
-CORE_ADD_SOURCE(
-        ComponentI.h
-        ComponentTypes.h
+CORE_ADD_SOURCE(ComponentI.h
         MeshComponent.hpp
         TransformComponent.hpp
         CameraComponent.hpp

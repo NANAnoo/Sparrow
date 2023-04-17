@@ -45,6 +45,9 @@ namespace SPW
         void BindImageTex(std::string path, int slot) final;
         void BindCubeMap(std::vector<std::string> paths, int slot) final;
 
+        // uniform buffer
+        void initStorageBuffer(std::shared_ptr<StorageBuffer> ub) final;
+
         //for draw
         std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) final
         {

@@ -18,8 +18,8 @@
 #include <glm/glm/gtx/euler_angles.hpp>
 
 
-#include "Model/Animation/Skeleton.h"
-#include "Model/Animation/AnimDefinitions.h"
+#include "Asset/AssetData/AssetData.h"
+#include "Asset/AssetData/AnimationData.h"
 
 #include <tuple>
 #include <vector>

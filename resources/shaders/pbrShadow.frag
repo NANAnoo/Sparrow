@@ -43,7 +43,7 @@ float ShadowCalculation(int slot)
     // now get current linear depth as the length between the fragment and light position
     float currentDepth = length(fragToLight);
     // now test for shadows
-    float bias = 0.0001; 
+    float bias = 0.01; 
     float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
 
     return shadow;

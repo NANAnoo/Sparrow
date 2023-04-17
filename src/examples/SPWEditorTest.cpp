@@ -213,9 +213,9 @@ public:
 #endif
 // -------------------------------OFFLINE TEST-------------------------------------------
 
-		auto data = SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf");
+//		auto data = SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf");
 
-		data;
+//		data;
         std::shared_ptr<SPW::GlfwWindow> window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
         app->window->setSize(1280, 720);

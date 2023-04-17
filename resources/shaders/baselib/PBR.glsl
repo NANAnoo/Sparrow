@@ -162,5 +162,3 @@ vec3 PBR_D(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec
     return color;
 }
 #endif
-
-

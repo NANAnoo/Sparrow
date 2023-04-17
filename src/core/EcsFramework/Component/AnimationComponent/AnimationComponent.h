@@ -5,10 +5,6 @@
 #define SPARROW_ANIMATIONCOMPONENT_H
 #include "../ComponentI.h"
 #include "EcsFramework/Component/MeshComponent.hpp"
-#include "Model/Animation/Skeleton.h"
-#include "Model/Animation/AnimDefinitions.h"
-#include "Model/Model.h"
-#include "Model/Mesh.h"
 #include <vector>
 #include <map>
 #include <thread>
@@ -18,6 +14,7 @@
 #include "Utils/ThreadPool.h"
 #include <future>
 #include <glm/gtx/matrix_decompose.hpp>
+#include "Asset/ResourceManager/ResourceManager.h"
 
 namespace SPW
 {
@@ -41,19 +38,20 @@ namespace SPW
 	public:
 		SPWVertexBoneMap() = default;
 
-		explicit SPWVertexBoneMap(std::vector<BoneInfo> m_Bones, std::weak_ptr<Model> model)
+		explicit SPWVertexBoneMap(std::vector<BoneInfo> m_Bones, std::string assetName)
 		{
 			m_NumBones = m_Bones.size();
-			ExtractWeightFromBones(model, m_Bones);
+			ExtractWeightFromBones(assetName, m_Bones);
 		}
 
-		void ExtractWeightFromBones(std::weak_ptr<Model> model, std::vector<BoneInfo> m_BoneMap)
+		void ExtractWeightFromBones(std::string assetName, std::vector<BoneInfo> m_BoneMap)
 		{
+			const auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[assetName].meshes;
 			unsigned int numVertex = 0;
 			std::vector<VerMapBone> verMapBone;
-			for (std::weak_ptr<Mesh> mesh : model.lock()->GetMeshes())
+			for (const auto& m : meshes)
 			{
-				numVertex += mesh.lock()->vertices.size();
+				numVertex += m.vertices.size();
 			}
 
 			verMapBone.resize(numVertex);
@@ -226,26 +224,16 @@ namespace SPW
 
 		explicit AnimationComponent(const std::shared_ptr<Skeleton>& data)
 		{
-<<<<<<< HEAD
 			for (auto& animClip : data->animClips)
 			{
 				allAnimations.insert({animClip.name , animClip});
-=======
-			for (int i = 0; i < data->animClips.size(); i++)
-			{
-				allAnimations.insert({ data->animClips[i].name , data->animClips[i] });
->>>>>>> ff1e267... OPT: REVISE CODE STRUCTURE A LOT FOR SER
 			}
 
 			skeleton = data;
 			isLoaded = true;
-<<<<<<< HEAD
 		}
 
 		~AnimationComponent() { onGoingAnim = nullptr; }
-=======
-		};
->>>>>>> ff1e267... OPT: REVISE CODE STRUCTURE A LOT FOR SER
 
 		//Take action on current Anim
 		void respondAction(SPW::AnimationAction action, std::string animationName)
@@ -270,10 +258,10 @@ namespace SPW
 			}
 		}
 
-		void initializeMapping(std::weak_ptr<Model> model)
+		void initializeMapping(std::string assetName)
 		{
 			if (skeleton)
-				SPW_VertexMap = std::make_shared<SPWVertexBoneMap>(skeleton->m_Bones, model);
+				SPW_VertexMap = std::make_shared<SPWVertexBoneMap>(skeleton->m_Bones, assetName);
 
 			if (SPW_VertexMap)
 				SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(SPW_VertexMap);

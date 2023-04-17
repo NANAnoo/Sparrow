@@ -7,7 +7,8 @@
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
-#include "Asset/AssetData/Mesh.h"
+#include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
+#include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include <glad/glad.h>
@@ -54,26 +55,18 @@
 #include "Model/Model.h"
 =======
 #include "IO/ResourceManager.h"
->>>>>>> ff1e267... OPT: REVISE CODE STRUCTURE A LOT FOR SER
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 #include "IO/FileSystem.h"
 
-<<<<<<< HEAD
-std::string SPW::FileRoots::k_Root = "C:/Users/dudu/Desktop/UserProject/"; // TODO : change this to your own path
-std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
-std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
-std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
-=======
 std::unique_ptr<SPW::Skeleton> createSkeleton()
 {
     return SPW::ResourceManager::LoadAnimation("./resources/models/dragon/scene.gltf");
 }
->>>>>>> ff1e267... OPT: REVISE CODE STRUCTURE A LOT FOR SER
 
 std::shared_ptr<SPW::Model> createModel() {
     //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mantis/scene.gltf");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/dragon/scene.gltf");
 }
 std::shared_ptr<SPW::Model> createCubeModel()
 {
@@ -95,6 +88,7 @@ const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, floa
     cam->whetherMainCam = true;
     //add a key component for testing, press R to rotate
     auto cameraKey = camera->emplace<SPW::KeyComponent>();
+    static float speed = 0.02f;
     auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode){
         auto mainCameraTrans = e.component<SPW::TransformComponent>();
         auto rotMat = glm::eulerAngleYXZ(glm::radians(mainCameraTrans->rotation.y),
@@ -107,26 +101,34 @@ const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, floa
         glm::vec3 up = {0, 1, 0};
         glm::vec3 right = glm::normalize(glm::cross(forward, up));
         if(keycode == SPW::Key::W)
-            mainCameraTrans->position +=0.01f * forward;
+            mainCameraTrans->position +=speed * forward;
         if(keycode == SPW::Key::S)
-            mainCameraTrans->position -=0.01f * forward;
+            mainCameraTrans->position -=speed * forward;
         if(keycode == SPW::Key::A)
-            mainCameraTrans->position -=0.01f * right;
+            mainCameraTrans->position -=speed * right;
         if(keycode == SPW::Key::D)
-            mainCameraTrans->position +=0.01f * right;
+            mainCameraTrans->position +=speed * right;
         if(keycode == SPW::Key::Q)
-            mainCameraTrans->position -=0.01f * up;
+            mainCameraTrans->position -=speed * up;
         if(keycode == SPW::Key::E)
-            mainCameraTrans->position +=0.01f * up;
+            mainCameraTrans->position +=speed * up;
+        if (keycode == SPW::Key::LeftShift) {
+            speed = 0.1f;
+        }
     };
     auto mouse = camera->emplace<SPW::MouseComponent>();
     mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
         auto transform = e.component<SPW::TransformComponent>();
-        transform->rotation.x -= y_pos_bias * 0.02;
+        transform->rotation.x -= y_pos_bias * 0.1;
         transform->rotation.y -= x_pos_bias * 0.1 ;
     };
     cameraKey->onKeyHeldCallBack = cb;
     cameraKey->onKeyDownCallBack = cb;
+    cameraKey->onKeyReleasedCallBack = [](const SPW::Entity& e, SPW::KeyCode keycode) {
+        if (keycode == SPW::Key::LeftShift) {
+            speed = 0.02f;
+        }
+    };
     return camera->component<SPW::IDComponent>()->getID();
 }
 
@@ -233,6 +235,7 @@ public:
             scene->addSystem(rendersystem);
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
 
             // ------ create main render graph ----------------
             auto pbr_with_PDshadow = rendersystem->createRenderGraph();
@@ -244,8 +247,8 @@ public:
 
 
             auto d_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
-            d_shadowmap_node->width = 2048;
-            d_shadowmap_node->height = 2048;
+            d_shadowmap_node->width = 4096;
+            d_shadowmap_node->height = 4096;
             d_shadowmap_node->clearType = SPW::ClearDepth;
 
             auto pbr_shadow_lighting_node = pbr_with_PDshadow->createRenderNode<SPW::ModelToScreenNode>();
@@ -258,6 +261,13 @@ public:
             
             auto pbr_shadow_lighting_output = pbr_shadow_lighting_node->addScreenAttachment(SPW::ScreenColorType);
             // ------ create main render graph ----------------
+
+            // ------ create render graph for skybox ----------------
+            auto skyGraph = rendersystem->createRenderGraph();
+            auto skyNode = skyGraph->createRenderNode<SPW::ModelToScreenNode>();
+            skyNode->addScreenAttachment(SPW::ScreenColorType);
+            skyNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
+            // ------ create render graph for skybox ----------------
 
             // ------ create post processing graph --------------
             auto post_processing_pass = rendersystem->createRenderGraph();
@@ -273,7 +283,11 @@ public:
                                          "./resources/shaders/simpleVs.vert",
                                          "./resources/shaders/pbrShadow.frag"
                                      });
-
+            SPW::ShaderHandle pbr_ani_light_shadow({
+                                         "pbr_light_shadow",
+                                         "./resources/shaders/ani_model.vert",
+                                         "./resources/shaders/pbrShadow.frag"
+                                     });
             SPW::ShaderHandle pbr_light_shadow_tiled({
                                             "pbr_light_shadow_tiled",
                                             "./resources/shaders/simpleVs.vert",
@@ -281,13 +295,22 @@ public:
                                     });
             auto p_shadow_desc = SPW::P_shadowmap_desc();
             auto d_shadow_desc = SPW::D_shadowmap_desc();
+            auto p_ani_shadow_desc = SPW::P_ani_shadowmap_desc();
+            auto d_ani_shadow_desc = SPW::D_ani_shadowmap_desc();
 
+            auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_ani_light_shadow);
             auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
             auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow_tiled);
+            
+            auto skybox_desc = SPW::SkyBoxShader_desc();
             rendersystem->addShaderDesciptor(pbr_light_shadow_desc);
             rendersystem->addShaderDesciptor(pbr_light_shadow_tiled_desc);
             rendersystem->addShaderDesciptor(p_shadow_desc);
             rendersystem->addShaderDesciptor(d_shadow_desc);
+            rendersystem->addShaderDesciptor(skybox_desc);
+            rendersystem->addShaderDesciptor(p_ani_shadow_desc);
+            rendersystem->addShaderDesciptor(d_ani_shadow_desc);
+            rendersystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
 
             // --------------- create shader ---------------
             auto camera_id = createMaincamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
@@ -295,7 +318,7 @@ public:
 
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
-            transform->scale = {0.1, 0.1, 0.1};
+            transform->scale = {0.05, 0.05, 0.05};
             transform->rotation = {0, 90, 0};
             transform->position = {0, -0.3, 0};
 
@@ -303,11 +326,14 @@ public:
             auto model = obj->emplace<SPW::MeshComponent>(camera_id);
 
             model->bindRenderGraph = pbr_with_PDshadow->graph_id;
-            model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
-            model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
-            model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
+            model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
+            model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
+            model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_ani_light_shadow_desc.uuid;
 
             model->model = createModel();
+            auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton());
+            //animation->swapCurrentAnim("mixamo.com");
+            animation->swapCurrentAnim("Scene");
 
             // --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
@@ -319,6 +345,21 @@ public:
 
             cubemodel->bindRenderGraph = pbr_with_PDshadow->graph_id;
             cubemodel->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_tiled_desc.uuid;
+
+            // --------------------------------------------------------------------------------
+            auto skybox = scene->createEntity("skybox");
+            auto skyboxTrans = skybox->emplace<SPW::TransformComponent>();
+            auto skyMesh = skybox->emplace<SPW::MeshComponent>(camera_id);
+            skyMesh->model = SPW::createSkyBoxModel({
+                "./resources/texture/skybox/right.jpg",
+                "./resources/texture/skybox/left.jpg",
+                "./resources/texture/skybox/top.jpg",
+                "./resources/texture/skybox/bottom.jpg",
+                "./resources/texture/skybox/front.jpg",
+                "./resources/texture/skybox/back.jpg"
+            });
+            skyMesh->bindRenderGraph = skyGraph->graph_id;
+            skyMesh->modelSubPassPrograms[skyNode->pass_id] = skybox_desc.uuid;
 
             auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
             auto light2 = createPlight(scene, {-1, 1, 0}, {0, 0.5, 1});
@@ -343,9 +384,9 @@ public:
                             } else if (code == SPW::KeyCode::Down) {
                                 en.component<SPW::TransformComponent>()->position.z += 0.1;
                             } else if (code == SPW::KeyCode::Left) {
-                                en.component<SPW::TransformComponent>()->position.x += 0.1;
-                            } else if (code == SPW::KeyCode::Right) {
                                 en.component<SPW::TransformComponent>()->position.x -= 0.1;
+                            } else if (code == SPW::KeyCode::Right) {
+                                en.component<SPW::TransformComponent>()->position.x += 0.1;
                             }
                         } else {
                             if (code == SPW::KeyCode::Up) {
@@ -390,21 +431,6 @@ public:
         // }
     }
     void onAppStopped() final{
-        sol::state state;
-        state.open_libraries(sol::lib::base, sol::lib::package);
-        std::string x = state["package"]["path"];
-        state["package"]["path"] = x + ";./resources/scripts/lua/?.lua";
-        try {
-            if(state.script_file("./resources/scripts/lua/test.lua").valid()) {
-                sol::protected_function main_function=state["main"];
-                sol::protected_function_result result=main_function();
-                if (!result.valid()) {
-                    std::cout << "execution error" << std::endl;
-                }
-            }
-        } catch (sol::error &e) {
-            std::cout << e.what() << std::endl;
-        }
         std::cout << "app stopped" << std::endl;
         scene->onStop();
     }
