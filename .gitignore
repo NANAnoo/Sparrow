@@ -4,4 +4,6 @@
 .cache
 .vscode/
 .vs
-UserProject/
+UserProject/Engine
+UserProject/Scenes
+

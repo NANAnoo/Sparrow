@@ -1,0 +1,98 @@
+{
+    "assetID": "9358d329-d9fe-4a78-86c7-f01dd93a2053",
+    "assetName": "mantis",
+    "assetPath": "Assets/mantis/mantis.json",
+    "meshURI": "396e693a-1ade-4cbc-bb28-efce5e79e1a8",
+    "materials": [
+        {
+            "id": "58c2dac2-83b7-4916-8f98-0ce3ab90702a",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "cbd6b247-390c-41dd-8910-1edb4e0b8e5e"
+                },
+                {
+                    "key": "Normal",
+                    "value": "3c63c7ff-0f44-4b0b-83f6-69b2f6ba8eb7"
+                },
+                {
+                    "key": "Metalness",
+                    "value": "b457283c-f34e-475c-8b11-e6488d169b1d"
+                },
+                {
+                    "key": "Roughness",
+                    "value": "cdb5f210-2bfe-4da1-8216-a32169c92dc9"
+                },
+                {
+                    "key": "AmbientOcclusion",
+                    "value": "fceddf80-3ed5-4b62-a6a2-cf7e7b404cc3"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 0.48951980471611025,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 0.0,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        }
+    ],
+    "textures": [
+        {
+            "key": "cbd6b247-390c-41dd-8910-1edb4e0b8e5e",
+            "value": "Assets/mantis/Textures/lambert1_baseColor.jpeg"
+        },
+        {
+            "key": "3c63c7ff-0f44-4b0b-83f6-69b2f6ba8eb7",
+            "value": "Assets/mantis/Textures/lambert1_normal.png"
+        },
+        {
+            "key": "b457283c-f34e-475c-8b11-e6488d169b1d",
+            "value": "Assets/mantis/Textures/lambert1_metallicRoughness.png"
+        },
+        {
+            "key": "cdb5f210-2bfe-4da1-8216-a32169c92dc9",
+            "value": "Assets/mantis/Textures/lambert1_metallicRoughness.png"
+        },
+        {
+            "key": "fceddf80-3ed5-4b62-a6a2-cf7e7b404cc3",
+            "value": "Assets/mantis/Textures/lambert1_metallicRoughness.png"
+        }
+    ]
+}
