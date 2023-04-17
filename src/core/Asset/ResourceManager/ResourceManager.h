@@ -1,9 +1,7 @@
 #pragma once
 #include "Utils/SingletonBase.h"
-#include "Render/shader.h"
 #include "Asset/AssetManager/AssetManager.h"
 #include "Asset/AssetData/AssetData.h"
-
 #include <filesystem>
 
 namespace SPW

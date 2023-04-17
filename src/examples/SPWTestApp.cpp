@@ -268,6 +268,17 @@ public:
             model->modelProgram = shaderHandle;
             model->shadowProgram = ShadowShaderHandle;
             model->model = createModel();
+<<<<<<< HEAD
+=======
+            auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton());
+            animation->skeleton = createSkeleton();
+            animation->swapCurrentAnim("mixamo.com");
+            //animation->incomingAnimName = "mantis_anim";
+            //animation->currentAnimation = animation->skeleton->animClips[0];
+
+            testColor->updateSubData(sColors.data(), 0, sColors.size() * sizeof(glm::vec4));
+            model->preRenderCommands.pushCommand(SPW::RenderCommand(&SPW::RenderBackEndI::initStorageBuffer, testColor));
+>>>>>>> ff1e267... OPT: REVISE CODE STRUCTURE A LOT FOR SER
             auto cubeObj = scene->createEntity("floor");
             auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
             cubeTrans->scale = {5.0, 0.05, 5.0};

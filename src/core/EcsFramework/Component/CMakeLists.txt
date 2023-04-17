@@ -11,4 +11,5 @@ CORE_ADD_SOURCE(
         ModelComponent.h
         KeyComponent.hpp
         MouseComponent.hpp
+        AnimationComponent/AnimationComponent.h
         )

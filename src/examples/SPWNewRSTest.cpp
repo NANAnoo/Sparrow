@@ -49,16 +49,27 @@
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
+<<<<<<< HEAD
 #include "Asset/ResourceManager/ResourceManager.h"
 #include "Model/Model.h"
+=======
+#include "IO/ResourceManager.h"
+>>>>>>> ff1e267... OPT: REVISE CODE STRUCTURE A LOT FOR SER
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 #include "IO/FileSystem.h"
 
+<<<<<<< HEAD
 std::string SPW::FileRoots::k_Root = "C:/Users/dudu/Desktop/UserProject/"; // TODO : change this to your own path
 std::string SPW::FileRoots::k_Engine = k_Root + "Engine/";
 std::string SPW::FileRoots::k_Assets = k_Root + "Assets/";
 std::string SPW::FileRoots::k_Scenes = k_Root + "Scenes/";
+=======
+std::unique_ptr<SPW::Skeleton> createSkeleton()
+{
+    return SPW::ResourceManager::LoadAnimation("./resources/models/dragon/scene.gltf");
+}
+>>>>>>> ff1e267... OPT: REVISE CODE STRUCTURE A LOT FOR SER
 
 std::shared_ptr<SPW::Model> createModel() {
     //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");

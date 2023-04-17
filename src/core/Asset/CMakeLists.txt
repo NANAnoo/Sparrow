@@ -11,6 +11,7 @@ CORE_ADD_SOURCE(
         AssetData/MeshData.h
         AssetData/Mesh.h
         AssetData/MaterialData.h
+        AssetData/AnimationData.h
 
         ResourceManager/ResourceManager.h
         ResourceManager/ResourceManager.cpp

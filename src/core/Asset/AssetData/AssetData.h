@@ -9,6 +9,7 @@
 
 #include "MaterialData.h"
 #include "Asset/Asset.hpp"
+#include "Asset/AssetData/AnimationData.h"
 #include "Mesh.h"
 
 namespace SPW
@@ -22,5 +23,7 @@ namespace SPW
         std::vector<Mesh>                               meshes;
         std::vector<MaterialData>                       materials;
         std::unordered_map<std::string, std::string>    textures;
+
+		Skeleton skeleton;
 	};
 }
