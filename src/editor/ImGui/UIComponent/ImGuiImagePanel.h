@@ -21,21 +21,22 @@ namespace SPW {
 		void Draw() override
 		{
             //Starter and Loader
-            StarterAndLoader();
+//            StarterAndLoader();
 
             //Main scene window
             ImVec2 windowSize = ImGui::GetWindowSize();
-            ImVec2 panelSize = ImVec2(windowSize.x - 20.0f,windowSize.y - 70.0f);
-            ImGui::SetNextWindowSize(panelSize);
+//            ImVec2 panelSize = ImVec2(windowSize.x - 20.0f,windowSize.y - 70.0f);
+            ImGui::SetNextWindowSize(windowSize);
+            ImGui::SetCursorPos(ImVec2(0,0));
 
 			ImGui::Image
 			(
 				(void*)texture_id,
-				panelSize,
+				windowSize,
  			    ImVec2(0.0, 1.0),
 				ImVec2(1.0, 0.0),
 				ImVec4(1, 1, 1, 1),
-				ImVec4(0, 1.0f, 0, 1.0f)
+				ImVec4(0, 0, 0, 1.0f)
 			);
 		}
 
