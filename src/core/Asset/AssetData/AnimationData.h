@@ -81,7 +81,7 @@ namespace SPW
 
 	struct AnimationClip
 	{
-		std::string name = "Scene";
+		std::string name;
 		double	 duration;
 		uint32_t FPS;
 		uint32_t frameCount;
