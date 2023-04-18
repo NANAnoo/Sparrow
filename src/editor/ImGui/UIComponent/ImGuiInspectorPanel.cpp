@@ -107,7 +107,21 @@ namespace SPW
 								/*&& componentStatus[ComponentType::CameraComponent]*/)
 							{
 								std::cout << "Add MeshComponent\n";
-								m_Entity->emplace<MeshComponent>();
+								// auto transform = m_Entity->emplace<TransformComponent>();
+								// transform->scale = { 0.1, 0.1, 0.1 };
+								// transform->rotation = { 0, 90, 0 };
+								// transform->position = { 0, -0.3, 0 };
+
+								const auto& rm = ResourceManager::getInstance();
+								// add a model to show
+								auto model = m_Entity->emplace<MeshComponent>(rm->m_CameraMap["main"]);
+
+								model->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
+								model->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_shadow_desc"].uuid;
+								model->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["d_shadowmap_node"]->pass_id] = rm->m_ShaderMap["d_shadow_desc"].uuid;
+								model->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_light_shadow_desc"].uuid;
+
+								// m_Entity->emplace<MeshComponent>();
 							}
 							else if (componentType == ComponentType::CameraComponent)
 							{
@@ -206,7 +220,7 @@ namespace SPW
 		{
 			ImGui::Begin("Select Your Mesh", &show_selectingMesh, ImGuiWindowFlags_AlwaysAutoResize);
 			ImGui::Separator();
-			if (!component->assetName.empty())
+			// if (!component->assetName.empty())
 			{
 				for (const auto& [k, v] : ResourceManager::getInstance()->m_AssetDataMap)
 				{
@@ -217,14 +231,14 @@ namespace SPW
 							component->assetID = v.assetID;
 							component->assetName = v.assetName;
 							component->assetPath = v.path;
-
+							component->ready = false;
 							show_selectingMesh = false;
 						}
 					}
 				}
 			}
-			else
-				ImGui::Text("dude, It is not a valid mesh Component");
+			// else
+			// 	ImGui::Text("dude, It is not a valid mesh Component");
 
 			ImGui::End();
 		}
@@ -392,15 +406,11 @@ namespace SPW
 					ImGui::Text("name : %s", anim_name);
 				}
 
-				// uint32_t m_NumBones = component->SPW_VertexMap->m_NumBones;
-				// ImGui::Text("m_NumBones : %d", m_NumBones);
+				ImGui::Checkbox("onGoingAnim update", &component->onGoingAnim->bUpdate);
+				
+				ImGui::Checkbox("anim ssbo bind", &component->SPW_AnimSSBO->bBinding);
 
-
-				int b_Binding = int(component->SPW_AnimSSBO->bBinding);
-				ImGui::Text("b_Binding : %d", b_Binding);
-
-				int b_Initialized = int(component->SPW_AnimSSBO->bInitialized);
-				ImGui::Text("b_Initialized : %d", b_Initialized);
+				ImGui::Checkbox("anim ssbo Initialized", &component->SPW_AnimSSBO->bInitialized);
 
 				ImGui::EndChild();
 			}

@@ -61,7 +61,7 @@ namespace SPW
 
 			if( ImGui::Button( "Add Entity" ) )
 			{
-				auto new_gameObject = scene_ptr->createEntity("GameObject");
+				auto new_gameObject = scene_ptr->createEntity("NewGameObject");
 				new_gameObject->emplace<TransformComponent>();
 			}
 		}

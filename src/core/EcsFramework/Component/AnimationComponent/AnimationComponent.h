@@ -55,7 +55,7 @@ namespace SPW
 			}
 
 			verMapBone.resize(numVertex);
-			for (auto boneInfo : skeleton->m_Bones)
+			for (auto boneInfo : m_BoneMap)
 			{
 				for (Weight weight : boneInfo.weights)
 				{
@@ -284,7 +284,6 @@ namespace SPW
 				if (!onGoingAnim)
 				{
 					onGoingAnim = &result->second;
-					onGoingAnim->root = skeleton->root;
 				}
 
 				onGoingAnim->play();

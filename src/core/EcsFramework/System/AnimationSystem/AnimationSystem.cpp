@@ -65,5 +65,3 @@ void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 
 void SPW::AnimationSystem::afterUpdate() {}
 void SPW::AnimationSystem::onStop() {}
-
-

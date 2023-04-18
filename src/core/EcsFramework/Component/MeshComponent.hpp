@@ -69,6 +69,7 @@ namespace SPW
 
 		bool ready = false;
 
+		// -------------- NEW ASSET DATA --------------
 		std::string assetPath{};
 		std::string assetID{};
 		std::string assetName{};
