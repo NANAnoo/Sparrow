@@ -28,8 +28,7 @@ namespace SPW
         std::vector<Vertex>         vertices;
         std::vector<unsigned int>   indices;
         std::string                 materialID;
-
-        unsigned int offset = 0;
+        uint32_t                    offset = 0;
 
         Mesh() = default;
 
@@ -76,7 +75,8 @@ namespace SPW
             ar(
                 cereal::make_nvp("vertices", vertices),
                 cereal::make_nvp("indices", indices),
-                cereal::make_nvp("materialID", materialID)
+                cereal::make_nvp("materialID", materialID),
+                cereal::make_nvp("mesh_offset", offset)
 			);
         }
 

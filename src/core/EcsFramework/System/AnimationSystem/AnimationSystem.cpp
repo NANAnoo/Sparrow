@@ -8,35 +8,35 @@
 
 void SPW::AnimationSystem::initial()
 {
-    ComponentGroup<AnimationComponent, IDComponent, MeshComponent> animatedGroup;
-    locatedScene.lock()->forEachEntityInGroup
-    (animatedGroup,
-        [this, &animatedGroup](const Entity& entity)
-        {
-            AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
-            //Get animationComp and modelComp of this entity
-            auto animationComp = entity.component<AnimationComponent>();
-            auto modelComp = entity.component<MeshComponent>();
 
-            if (!animationComp->mapInitialize)
-            {
-                animationComp->initializeMapping(modelComp->assetName);
-            }
-
-            //Binding buffer
-            if (animationComp->SPW_AnimSSBO)
-            {
-                if (!animationComp->SPW_AnimSSBO->bBinding)
-                {
-                    animationComp->SPW_AnimSSBO->bindingBuffer(modelComp);
-                    animationComp->SPW_AnimSSBO->updateStaticBuffer(animationComp->SPW_VertexMap);
-                }
-            }
-        });
 }
 void SPW::AnimationSystem::beforeUpdate()
 {
+	ComponentGroup<AnimationComponent, IDComponent, MeshComponent> animatedGroup;
+	locatedScene.lock()->forEachEntityInGroup
+		(animatedGroup,
+			[this, &animatedGroup](const Entity& entity)
+			{
+				AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
+				//Get animationComp and modelComp of this entity
+				auto animationComp = entity.component<AnimationComponent>();
+				auto modelComp = entity.component<MeshComponent>();
 
+				if (!animationComp->mapInitialize)
+				{
+					animationComp->initializeMapping(modelComp->assetName);
+				}
+
+				//Binding buffer
+				if (animationComp->SPW_AnimSSBO)
+				{
+					if (!animationComp->SPW_AnimSSBO->bBinding)
+					{
+						animationComp->SPW_AnimSSBO->bindingBuffer(modelComp);
+						animationComp->SPW_AnimSSBO->updateStaticBuffer(animationComp->SPW_VertexMap);
+					}
+				}
+			});
 }
 
 void SPW::AnimationSystem::onUpdate(TimeDuration dt)

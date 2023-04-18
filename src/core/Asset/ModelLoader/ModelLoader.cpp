@@ -267,7 +267,7 @@ namespace SPW
 			RecursiveCalculateTransforms(asset, anim_clip, child, local_transform, frame);
 	}
 
-	void SkeletonBinding(AssetData* asset, SPW::AnimationClip& anim_clip, int frame)
+	void CalculateBoneTransforms(AssetData* asset, SPW::AnimationClip& anim_clip, int frame)
 	{
 		RecursiveCalculateTransforms(asset, anim_clip, asset->skeleton.root, glm::mat4(1.0f), frame);
 	}
@@ -392,7 +392,7 @@ namespace SPW
 		modelData->materials.emplace_back(std::move(tmpMaterial));
 	}
 
-	void ProcessMeshNode(AssetData* modelData, aiMesh* mesh, const aiScene* scene)
+	void ProcessMeshNode(AssetData* modelData, aiMesh* mesh, const aiScene* scene, uint32_t offset)
 	{
 		// modelData->model.m_MeshIDs.emplace_back(FileSystem::GenerateRandomUUID());
 		Mesh tmpMesh{};
@@ -440,6 +440,10 @@ namespace SPW
 				tmpMesh.indices.emplace_back(face.mIndices[j]);
 		}
 
+		tmpMesh.offset = offset;
+		offset += tmpMesh.vertices.size();
+		//		tmpMesh.vertices.size();
+
 		if (!(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
 		{
 			// tmpMesh.materialID = tmpMesh.ID;
@@ -449,17 +453,17 @@ namespace SPW
 		modelData->meshes.emplace_back(std::move(tmpMesh));
 	}
 
-	void ProcessNodes(AssetData* modelData, aiNode* node, const aiScene* scene)
+	void ProcessNodes(AssetData* modelData, aiNode* node, const aiScene* scene, uint32_t offset)
 	{
 		for (uint32_t i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			ProcessMeshNode(modelData, mesh, scene);
+			ProcessMeshNode(modelData, mesh, scene, offset);
 		}
 
 		for (uint32_t i = 0; i < node->mNumChildren; i++)
 		{
-			ProcessNodes(modelData, node->mChildren[i], scene);
+			ProcessNodes(modelData, node->mChildren[i], scene, offset);
 		}
 	}
 
@@ -485,7 +489,8 @@ namespace SPW
 
 		std::cout << "SUCESS::ASSIMP::" << filename << std::endl;
 
-		ProcessNodes(ret.get(), scene->mRootNode, scene);
+		uint32_t offset = 0;
+		ProcessNodes(ret.get(), scene->mRootNode, scene, offset);
 
 // ------- LOAD ANIMATION --------------------------------
 		const bool hasAnimations = scene->HasAnimations();
@@ -501,7 +506,6 @@ namespace SPW
 			// ----- ANIMATIONCLIP ----
 			ProcessAnimationClips(ret.get(), scene);
 			// ----- ANIMATIONCLIP ----
-
 
 			// ----- BONES ----
 			// Get all meshes from assimp loading
@@ -521,7 +525,7 @@ namespace SPW
 			ret_skeleton.boneMap = NameMappingBones(ret->skeleton.m_Bones);
 			// ----- BONES ----
 
-			// ---------- BINDING ----------
+			// ---------- Calculate Bone Transforms ----------
 			for(int clip = 0 ; clip < ret_skeleton.animClips.size(); ++clip)
 			{
 				ret_skeleton.animClips[clip].finalBoneMatrices.resize(ret_skeleton.boneMap.size(), glm::mat4(1.0f));
@@ -536,7 +540,7 @@ namespace SPW
 
 				for (int i = 0; i < frameCount; ++i)
 				{
-					SkeletonBinding(ret.get(), ret_skeleton.animClips[clip], i);
+					CalculateBoneTransforms(ret.get(), ret_skeleton.animClips[clip], i);
 				}
 			}
 		}

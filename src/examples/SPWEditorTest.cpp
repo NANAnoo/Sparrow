@@ -39,6 +39,7 @@
 #include "ImGui/ImGuiManager.hpp"
 #include "Asset/Serializer/EntitySerializer.h"
 #include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
+#include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
 
 
 auto CreateEmptyNode(const std::shared_ptr<SPW::Scene>& scene) -> std::shared_ptr<SPW::Entity>
@@ -202,13 +203,13 @@ public:
             SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
         }
 
-    	{
-            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "scifi_cube/scifi_cube.json");
-            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
-        }
+    	// {
+     //        auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "scifi_cube/scifi_cube.json");
+     //        SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+     //    }
 
     	{
-            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "cube/cube.json");
+            auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "sand_cube/sand_cube.json");
             SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
         }
 
@@ -216,12 +217,10 @@ public:
             auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "dragon/dragon.json");
             SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
         }
+
 #endif
 // -------------------------------OFFLINE TEST-------------------------------------------
 
-//		auto data = SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf");
-
-//		data;
         std::shared_ptr<SPW::GlfwWindow> window = std::make_shared<SPW::GlfwWindow>();
         app->window = window;
         app->window->setSize(1280, 720);
@@ -254,6 +253,7 @@ public:
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(renderSystem);
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
 
             //TODO
             //scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
@@ -322,7 +322,7 @@ auto empty_node= CreateEmptyNode(scene);
 
 // --------------- dragon ---------------
 
-// dragon_ptr = SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf");
+dragon_ptr = SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf");
 
 auto dragon = scene->createEntity("dragon");
 auto dragon_transform = dragon->emplace<SPW::TransformComponent>();
@@ -336,27 +336,22 @@ dragon_model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uu
 dragon_model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
 dragon_model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
 
-// model->model = createModel();
-/*
- * TODO HACK FOR SER TEST
- */
-
 dragon_model->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
 dragon_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName;
 dragon_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].path;
 
-std::shared_ptr<SPW::Skeleton> skeleton = std::make_shared<SPW::Skeleton>(SPW::ModelLoader::LoadModel("./resources/models/dragon/scene.gltf")->skeleton);
-// // add a model to show
+std::shared_ptr<SPW::Skeleton> skeleton = std::make_shared<SPW::Skeleton>(SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf")->skeleton);
+// add a model to show
 auto dragon_anim = dragon->emplace<SPW::AnimationComponent>(skeleton);
-dragon_anim->swapCurrentAnim("Scene");
+dragon_anim->swapCurrentAnim("dragon_idle");
 dragon_anim->initializeMapping("dragon");
-//
-// __debugbreak();
+
+ __debugbreak();
 
 // --------------------------------------------------------------------------------
 
 
-            auto obj = scene->createEntity("test");
+            auto obj = scene->createEntity("mantis");
             auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.1, 0.1, 0.1};
             transform->rotation = {0, 90, 0};
@@ -377,16 +372,16 @@ dragon_anim->initializeMapping("dragon");
 model->assetID    = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
 model->assetName  = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName;
 model->assetPath  = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].path;
-
+//
 //            --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
             auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
             cubeTrans->scale = {5.0, 0.05, 5.0};
             cubeTrans->position.y-=0.35f;
             auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
-cubemodel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetID;
-cubemodel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetName;
-cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].path;
+cubemodel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetID;
+cubemodel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName;
+cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].path;
 
             cubemodel->bindRenderGraph = pbr_with_PDshadow->graph_id;
             cubemodel->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_tiled_desc.uuid;
@@ -454,7 +449,6 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube
             scene->initial();
             transformer->scene = scene;
 
-             // SPW::EntitySerializer::SaveScene(scene, "C:/Users/dudu/Desktop/");
         });
     }
     void beforeAppUpdate() final

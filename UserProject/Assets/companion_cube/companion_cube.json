@@ -1,31 +1,31 @@
 {
-    "assetID": "f935a0ef-8920-468c-8a19-61e245b44f06",
+    "assetID": "447c3da0-435f-45b9-82c4-e60b2a5b8366",
     "assetName": "companion_cube",
     "assetPath": "Assets/companion_cube/companion_cube.json",
-    "meshURI": "5a322978-5d65-4e2a-adf7-aa30befdac7b",
+    "meshURI": "b6bed3f8-0c59-4049-94e3-8b8b9d8fd715",
     "materials": [
         {
-            "id": "b79107e9-f97e-46ff-bede-b3f1249f9679",
+            "id": "7fe14278-a6f2-4b6d-99db-f96db5ffcdc6",
             "textureMap": [
                 {
                     "key": "Albedo",
-                    "value": "2329daf6-e687-4f81-a4f9-bf9c86644303"
+                    "value": "56523289-c736-4a5a-94b6-c2a09e640ced"
                 },
                 {
                     "key": "Normal",
-                    "value": "0ae05914-4134-4521-a295-724560ea298d"
+                    "value": "edad721f-45ab-441e-9b7b-b4a860950152"
                 },
                 {
                     "key": "Metalness",
-                    "value": "57f85498-f155-499d-910d-e8e0597c6207"
+                    "value": "7d235558-47ef-4c1d-b919-2c6c95b48b42"
                 },
                 {
                     "key": "Roughness",
-                    "value": "03bf3b9f-1f69-4585-b774-395dc210cabe"
+                    "value": "45284b27-1d33-41ca-b717-c93f88a718a4"
                 },
                 {
                     "key": "AmbientOcclusion",
-                    "value": "11205121-7e93-4c83-ad25-8617665e026b"
+                    "value": "28130270-a7d1-4da3-81c7-0ca1124aac06"
                 }
             ],
             "property": {
@@ -73,27 +73,27 @@
             }
         },
         {
-            "id": "955de222-e233-4df6-ac8d-3855f8d05e8a",
+            "id": "c9d45523-0205-43bf-8ae0-ae8dfd8e9cf1",
             "textureMap": [
                 {
                     "key": "Albedo",
-                    "value": "aedf6d6b-92fe-405f-adb7-47bd701f3429"
+                    "value": "b2b09138-b71a-4c32-86eb-f5bc8f84556b"
                 },
                 {
                     "key": "Normal",
-                    "value": "199f5020-cf3f-4817-9632-8b3acaa53981"
+                    "value": "6220a040-7cc1-4f78-aadd-73dcee5c72ad"
                 },
                 {
                     "key": "Metalness",
-                    "value": "b80f8651-90f0-4eb2-96f8-8ea88c2fda79"
+                    "value": "21a79499-34d4-4b14-8a8c-2b2e9be9dbe4"
                 },
                 {
                     "key": "Roughness",
-                    "value": "d92f9648-add2-4e0c-8cf7-7696b5517aa5"
+                    "value": "fbc2d1b8-a1d8-49e0-b62f-d3a7b847359e"
                 },
                 {
                     "key": "AmbientOcclusion",
-                    "value": "9645bbcb-dbd0-4912-9cb4-3a21b8033d18"
+                    "value": "aa374996-475f-40fa-b663-b6832b28cefc"
                 }
             ],
             "property": {
@@ -141,27 +141,27 @@
             }
         },
         {
-            "id": "ced2b079-7939-4e6f-aec4-937328969499",
+            "id": "99cb15f9-8162-4fde-85a7-e31234013709",
             "textureMap": [
                 {
                     "key": "Albedo",
-                    "value": "d134c3bd-7349-4661-9ea4-b9e610bc7fef"
+                    "value": "898f588f-e2fa-44a2-9cec-6d497f257d0f"
                 },
                 {
                     "key": "Normal",
-                    "value": "0df81726-42b7-4eb2-8e2e-3e545d3f90f9"
+                    "value": "be1055e7-0853-4617-97fe-14ac189ec319"
                 },
                 {
                     "key": "Metalness",
-                    "value": "c57bdd50-4204-4144-bbde-b3016435ae49"
+                    "value": "c6c11409-5e08-45d7-b13f-bb1dbb5b845d"
                 },
                 {
                     "key": "Roughness",
-                    "value": "83787b4d-94d0-48da-b863-7ea0a6c8cfaf"
+                    "value": "29bc1c95-b748-4099-8fb6-57f2981e962d"
                 },
                 {
                     "key": "AmbientOcclusion",
-                    "value": "dc4738a6-73eb-48ff-862b-882ccc1fbda3"
+                    "value": "2426fbe7-9e97-4664-bd9d-fcf67c72e99e"
                 }
             ],
             "property": {
@@ -211,63 +211,63 @@
     ],
     "textures": [
         {
-            "key": "57f85498-f155-499d-910d-e8e0597c6207",
+            "key": "21a79499-34d4-4b14-8a8c-2b2e9be9dbe4",
             "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
         },
         {
-            "key": "2329daf6-e687-4f81-a4f9-bf9c86644303",
+            "key": "b2b09138-b71a-4c32-86eb-f5bc8f84556b",
             "value": "Assets/companion_cube/Textures/DefaultMaterial_baseColor.jpeg"
         },
         {
-            "key": "83787b4d-94d0-48da-b863-7ea0a6c8cfaf",
-            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
-        },
-        {
-            "key": "0ae05914-4134-4521-a295-724560ea298d",
-            "value": "Assets/companion_cube/Textures/DefaultMaterial_normal.jpeg"
-        },
-        {
-            "key": "b80f8651-90f0-4eb2-96f8-8ea88c2fda79",
-            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
-        },
-        {
-            "key": "0df81726-42b7-4eb2-8e2e-3e545d3f90f9",
-            "value": "Assets/companion_cube/Textures/DefaultMaterial_normal.jpeg"
-        },
-        {
-            "key": "03bf3b9f-1f69-4585-b774-395dc210cabe",
-            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
-        },
-        {
-            "key": "11205121-7e93-4c83-ad25-8617665e026b",
-            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
-        },
-        {
-            "key": "aedf6d6b-92fe-405f-adb7-47bd701f3429",
+            "key": "56523289-c736-4a5a-94b6-c2a09e640ced",
             "value": "Assets/companion_cube/Textures/DefaultMaterial_baseColor.jpeg"
         },
         {
-            "key": "199f5020-cf3f-4817-9632-8b3acaa53981",
+            "key": "edad721f-45ab-441e-9b7b-b4a860950152",
             "value": "Assets/companion_cube/Textures/DefaultMaterial_normal.jpeg"
         },
         {
-            "key": "d92f9648-add2-4e0c-8cf7-7696b5517aa5",
+            "key": "7d235558-47ef-4c1d-b919-2c6c95b48b42",
             "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
         },
         {
-            "key": "9645bbcb-dbd0-4912-9cb4-3a21b8033d18",
+            "key": "45284b27-1d33-41ca-b717-c93f88a718a4",
             "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
         },
         {
-            "key": "d134c3bd-7349-4661-9ea4-b9e610bc7fef",
+            "key": "28130270-a7d1-4da3-81c7-0ca1124aac06",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "6220a040-7cc1-4f78-aadd-73dcee5c72ad",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_normal.jpeg"
+        },
+        {
+            "key": "fbc2d1b8-a1d8-49e0-b62f-d3a7b847359e",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "aa374996-475f-40fa-b663-b6832b28cefc",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "898f588f-e2fa-44a2-9cec-6d497f257d0f",
             "value": "Assets/companion_cube/Textures/DefaultMaterial_baseColor.jpeg"
         },
         {
-            "key": "c57bdd50-4204-4144-bbde-b3016435ae49",
+            "key": "be1055e7-0853-4617-97fe-14ac189ec319",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_normal.jpeg"
+        },
+        {
+            "key": "c6c11409-5e08-45d7-b13f-bb1dbb5b845d",
             "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
         },
         {
-            "key": "dc4738a6-73eb-48ff-862b-882ccc1fbda3",
+            "key": "29bc1c95-b748-4099-8fb6-57f2981e962d",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "2426fbe7-9e97-4664-bd9d-fcf67c72e99e",
             "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
         }
     ]
