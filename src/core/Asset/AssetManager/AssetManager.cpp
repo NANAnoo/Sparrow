@@ -156,12 +156,21 @@ namespace SPW
 	int64_t AssetManager::LoadRawImage(const std::string& filename)
 	{
 		/* load an image file directly as a new OpenGL texture */
+		int width, height, channels;
+		unsigned char* image = SOIL_load_image
+		(
+			filename.c_str(),
+			&width, &height, &channels,
+			SOIL_LOAD_L
+		);
+
+		/* load an image file directly as a new OpenGL texture */
 		int64_t tex_2d = SOIL_load_OGL_texture
 		(
 			filename.c_str(),
 			SOIL_LOAD_AUTO,
 			SOIL_CREATE_NEW_ID,
-			SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
+			/*SOIL_FLAG_MIPMAPS | */SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
 		);
 
 		/* check for an error during the load process */
