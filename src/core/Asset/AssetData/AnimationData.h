@@ -85,13 +85,12 @@ namespace SPW
 		double	 duration;
 		uint32_t FPS;
 		uint32_t frameCount;
-		HierarchyNode root;
 		std::vector<AnimationNode>	nodeAnimations;
 		std::vector<MatrixPerFrame>	boneBindings;
 
 		bool isLoop			 = false;
 		bool bUpdate		 = false;
-		float currentTime	 = 0.f;
+		double currentTime	 = 0.0;
 		AnimationState state = AnimationState::Stopped;
 
 		std::vector<glm::mat4> finalBoneMatrices;
@@ -362,11 +361,11 @@ namespace SPW
 	{
 		std::vector<AnimationClip>				  animClips;
 		std::unordered_map<std::string, BoneInfo> boneMap;
-		// std::vector<MatrixPerFrame>				  boneMatrices;
 
 		// TODO: try to remove it
 		std::vector<BoneInfo> m_Bones;
 		HierarchyNode		  root;
+		uint32_t  offsetMatcount = 0;
 	};
 
 

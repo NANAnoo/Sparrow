@@ -55,7 +55,7 @@ namespace SPW
 			}
 
 			verMapBone.resize(numVertex);
-			for (auto boneInfo : m_BoneMap)
+			for (auto boneInfo : skeleton->m_Bones)
 			{
 				for (Weight weight : boneInfo.weights)
 				{
@@ -88,7 +88,7 @@ namespace SPW
 			}
 		}
 
-		//Buffer information
+		// Buffer information
 		std::vector<uint32_t> startIndex;
 		std::vector<uint32_t> size;
 		std::vector<float> weights;
@@ -102,12 +102,6 @@ namespace SPW
 		SPWAnimSSBO() = default;
 
 		explicit SPWAnimSSBO(std::shared_ptr<SPW::SPWVertexBoneMap> SPW_VertexMap)
-		{
-			initializeBuffer(SPW_VertexMap);
-		}
-
-
-		void initializeBuffer(std::shared_ptr<SPW::SPWVertexBoneMap> SPW_VertexMap)
 		{
 			starts = std::make_shared<StorageBuffer>(
 				"WeightDictStart",
