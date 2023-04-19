@@ -250,7 +250,7 @@ public:
             auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.5, 0.5, 0.5};
             transform->rotation = {-90, 90, 0};
-            transform->position = {0, 0.6, 0};
+            transform->position = {0, -0.5, 0};
             //add physics rigid actor
             auto  rigid1 = obj->emplace<SPW::RigidDynamicComponent>();
             rigid1->rigidState=SPW::Awake;

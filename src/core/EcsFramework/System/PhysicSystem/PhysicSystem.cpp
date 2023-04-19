@@ -6,6 +6,9 @@
 #include "../SystemI.h"
 #include "./EcsFramework/Entity/Entity.hpp"
 #include "EcsFramework/Scene.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/PhysicalComponent/RigidActor.h"
@@ -316,7 +319,9 @@ namespace SPW{
 
                     if(dc->rigidState==Awake&&dc->rigid != nullptr){
                         tc->position = glm::vec3 (dc->rigid->getGlobalPose().p.x,dc->rigid->getGlobalPose().p.y,dc->rigid->getGlobalPose().p.z);
-                        tc->rotation = glm::vec3 (dc->rigid->getGlobalPose().q.x,dc->rigid->getGlobalPose().q.y,dc->rigid->getGlobalPose().q.z);
+                        tc->rotation = glm::vec3 (tc->rotation.x+dc->rigid->getGlobalPose().q.x,tc->rotation.y+dc->rigid->getGlobalPose().q.y,tc->rotation.z+dc->rigid->getGlobalPose().q.z);
+
+
                     }
 
                 });
