@@ -25,7 +25,7 @@ namespace SPW{
         ~Collider()=default;
         ColliderState state = sleep;
         std::shared_ptr<PhysicMaterial> custom_material_;
-        bool is_trigger_;
+        bool is_trigger_ = false;
 
 
     protected:
@@ -52,8 +52,8 @@ namespace SPW{
         float capsule_radius_;
         float capsule_half_height_;
         // Adjust capsule shape
-        //glm::vec3 capsule_axis_
-        //float degree
+        glm::vec3 capsule_axis_;
+        float degree;
 
     };
 

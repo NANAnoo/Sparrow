@@ -9,8 +9,10 @@
 #include "Physics/physic_error_call_back.h"
 #include <PxPhysicsAPI.h>
 #include <memory>
+#include "Physics/SimulationEventCallback.h"
 
 namespace SPW{
+
 
 
     class PhysicSystem : public SystemI {
@@ -31,7 +33,7 @@ namespace SPW{
         PxRigidStatic* CreateRigidStatic(const glm::vec3& pos,const char* name);
 
         PxMaterial* CreatPhysicMaterial(float static_friction, float dynamic_friction, float restitution);
-
+        //std::function<void(const SPW::Entity& e)> myPxCallBack;
         //static bool AttachSphereCollider(float radius_, PxMaterial* material);
         //static bool AttachBoxCollider(glm::vec3 size_, PxMaterial* material);
         //static bool AttachCapsuleCollider(float capsule_radius_,float capsule_half_height_, PxMaterial* material);
@@ -40,7 +42,7 @@ namespace SPW{
     private:
         PxDefaultAllocator px_allocator_;
         PhysicErrorCallback	    physic_error_callback_;
-        //static SimulationEventCallback  simulation_event_callback_;
+        SimulationEventCallback  simulation_event_callback_;
         PxFoundation *px_foundation_;
         PxPhysics *px_physics_;
         PxDefaultCpuDispatcher *px_cpu_dispatcher_;

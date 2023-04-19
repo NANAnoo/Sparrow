@@ -16,6 +16,20 @@
 
 namespace SPW{
 
+
+
+    static PxFilterFlags SimulationFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0,PxFilterObjectAttributes attributes1, PxFilterData filterData1,PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize) {
+        pairFlags = PxPairFlag::eCONTACT_DEFAULT | PxPairFlag::eNOTIFY_TOUCH_FOUND;
+        return PxFilterFlags();
+    }
+
+
+
+
+
+
+
+
     PhysicSystem::PhysicSystem(std::shared_ptr<Scene> &scene) : SystemI(scene) {}
 
     void PhysicSystem::initial() {
@@ -29,12 +43,7 @@ namespace SPW{
 
         //Creates an instance of the physics SDK.
         px_physics_ = PxCreatePhysics(PX_PHYSICS_VERSION, *px_foundation_, PxTolerancesScale(),true,px_pvd_);
-
         px_scene_ = CreatePxScene();
-
-
-
-
 
     }
 
@@ -50,10 +59,9 @@ namespace SPW{
 
                     if(dc->rigidState==Awake&&dc->rigid== nullptr){
                         dc->rigid =(PhysicSystem::CreateRigidDynamic(tc->position,nc->getID().toString().c_str()));
+
                     }
 
-                    //auto box_collider = en.component<SphereCollider>();
-                    //auto capsule_collider = en.component<CapsuleCollider>();
                     if(en.has<SphereCollider>()){
                         auto sphere_collider = en.component<SphereCollider>();
                         if(sphere_collider->state==needAwake){
@@ -68,19 +76,18 @@ namespace SPW{
                                 material_temp=CreatPhysicMaterial(0.5,0.5,0.5);
                             }
 
-
-                            //PxShape* shape = px_physics_->createShape(PxSphereGeometry(radius),*material_temp,true);
-                            //dc->rigid->attachShape(*shape);
-                            //shape->release();
-
-                            PxRigidActorExt::createExclusiveShape(*dc->rigid,PxSphereGeometry(radius),*material_temp);
-
+                            if(sphere_collider->is_trigger_){
+                                PxShape* sphere_shape = PxRigidActorExt::createExclusiveShape(*dc->rigid,PxSphereGeometry(radius),*material_temp,physx::PxShapeFlag::eVISUALIZATION|physx::PxShapeFlag::eTRIGGER_SHAPE);
+                                sphere_shape->userData = (void*)&en;
+                            }else{
+                                PxShape* sphere_shape = PxRigidActorExt::createExclusiveShape(*dc->rigid,PxSphereGeometry(radius),*material_temp);
+                                sphere_shape->userData = (void*)&en;
+                            }
 
 
                             material_temp->release();
                             PxRigidBodyExt::updateMassAndInertia(*dc->rigid, 1.0f,false);
                             sphere_collider->state=awake;
-                            std::cout<<"1"<<std::endl;
                         }
 
                     }
@@ -90,24 +97,67 @@ namespace SPW{
                         if(capsule_collider->state==needAwake){
                             float capsule_radius = capsule_collider->capsule_radius_;
                             float capsule_half_height = capsule_collider->capsule_half_height_;
+                            float degree =capsule_collider->degree;
+                            glm::vec3 axis = capsule_collider->capsule_axis_;
+
+
                             PxMaterial* material_temp;
                             if(capsule_collider->custom_material_){
-
                                 auto custom_material = capsule_collider->custom_material_;
                                 material_temp=CreatPhysicMaterial(custom_material->static_friction(),custom_material->static_friction(),custom_material->restitution());
                             }else{
                                 material_temp=CreatPhysicMaterial(0.5,0.5,0.5);
                             }
 
+                            if(capsule_collider->is_trigger_){
+                                PxTransform relativePose(PxQuat(degree, PxVec3(axis.x,axis.y,axis.z)));
+                                PxShape* aCapsuleShape = PxRigidActorExt::createExclusiveShape(*dc->rigid,
+                                                                                               PxCapsuleGeometry(capsule_radius, capsule_half_height), *material_temp,physx::PxShapeFlag::eVISUALIZATION|physx::PxShapeFlag::eTRIGGER_SHAPE);
 
+                                aCapsuleShape->setLocalPose(relativePose);
+                                aCapsuleShape->userData = (void*)&en;
 
-                            PxShape* shape = px_physics_->createShape(PxCapsuleGeometry(capsule_radius,capsule_half_height),*material_temp);
-                            dc->rigid->attachShape(*shape);
-                            shape->release();
+                            }else{
+                                PxTransform relativePose(PxQuat(degree, PxVec3(axis.x,axis.y,axis.z)));
+                                PxShape* aCapsuleShape = PxRigidActorExt::createExclusiveShape(*dc->rigid,
+                                                                                               PxCapsuleGeometry(capsule_radius, capsule_half_height), *material_temp);
+                                aCapsuleShape->setLocalPose(relativePose);
+                                aCapsuleShape->userData = (void*)&en;
+
+                            }
+
                             material_temp->release();
                             PxRigidBodyExt::updateMassAndInertia(*dc->rigid, 1.0f,false);
                             capsule_collider->state=awake;
-                            std::cout<<"2"<<std::endl;
+                        }
+
+                    }
+
+                    if(en.has<BoxCollider>()){
+                        auto box_collider = en.component<BoxCollider>();
+                        if(box_collider->state==needAwake){
+                            glm::vec3 box_size = box_collider->box_size_;
+
+                            PxMaterial* material_temp;
+                            if(box_collider->custom_material_){
+                                auto custom_material = box_collider->custom_material_;
+                                material_temp=CreatPhysicMaterial(custom_material->static_friction(),custom_material->static_friction(),custom_material->restitution());
+                            }else{
+                                material_temp=CreatPhysicMaterial(0.5,0.5,0.5);
+                            }
+
+                            if(box_collider->is_trigger_){
+                                PxShape* box_shape = PxRigidActorExt::createExclusiveShape(*dc->rigid,PxBoxGeometry(box_size.x,box_size.y,box_size.z),*material_temp,physx::PxShapeFlag::eVISUALIZATION|physx::PxShapeFlag::eTRIGGER_SHAPE);
+                                box_shape->userData = (void*)&en;
+                            }else{
+                                PxShape* box_shape = PxRigidActorExt::createExclusiveShape(*dc->rigid,PxBoxGeometry(box_size.x,box_size.y,box_size.z),*material_temp);
+                                box_shape->userData = (void*)&en;
+                            }
+
+
+                            material_temp->release();
+                            PxRigidBodyExt::updateMassAndInertia(*dc->rigid, 1.0f,false);
+                            box_collider->state=awake;
                         }
 
                     }
@@ -134,6 +184,8 @@ namespace SPW{
                         if(capsule_collider->state==needAwake){
                             float capsule_radius = capsule_collider->capsule_radius_;
                             float capsule_half_height = capsule_collider->capsule_half_height_;
+                            float degree =capsule_collider->degree;
+                            glm::vec3 axis = capsule_collider->capsule_axis_;
                             PxMaterial* material_temp;
                             if(capsule_collider->custom_material_){
 
@@ -145,13 +197,28 @@ namespace SPW{
 
 
 
-                            PxShape* shape = px_physics_->createShape(PxCapsuleGeometry(capsule_radius,capsule_half_height),*material_temp);
-                            sc->rigid->attachShape(*shape);
-                            shape->release();
+                            if(capsule_collider->is_trigger_){
+                                PxTransform relativePose(PxQuat(degree, PxVec3(axis.x,axis.y,axis.z)));
+                                PxShape* aCapsuleShape = PxRigidActorExt::createExclusiveShape(*sc->rigid,
+                                                                                               PxCapsuleGeometry(capsule_radius, capsule_half_height), *material_temp,physx::PxShapeFlag::eVISUALIZATION|physx::PxShapeFlag::eTRIGGER_SHAPE);
+
+                                aCapsuleShape->setLocalPose(relativePose);
+                                aCapsuleShape->userData = (void*)&en;
+
+                            }else{
+                                PxTransform relativePose(PxQuat(degree, PxVec3(axis.x,axis.y,axis.z)));
+                                PxShape* aCapsuleShape = PxRigidActorExt::createExclusiveShape(*sc->rigid,
+                                                                                               PxCapsuleGeometry(capsule_radius, capsule_half_height), *material_temp);
+                                aCapsuleShape->setLocalPose(relativePose);
+                                aCapsuleShape->userData = (void*)&en;
+
+                            }
+
+
+
                             material_temp->release();
-                            //PxRigidBodyExt::updateMassAndInertia(*sc->rigid, 1.0f,false);
+
                             capsule_collider->state=awake;
-                            std::cout<<"2"<<std::endl;
                         }
 
                     }
@@ -161,7 +228,7 @@ namespace SPW{
                     if(en.has<BoxCollider>()){
                         auto box_collider = en.component<BoxCollider>();
                         if(box_collider->state==needAwake){
-                            glm::vec3 box_radius = box_collider->box_size_;
+                            glm::vec3 box_size = box_collider->box_size_;
 
                             PxMaterial* material_temp;
                             if(box_collider->custom_material_){
@@ -173,19 +240,50 @@ namespace SPW{
                             }
 
 
-
-                            PxShape* shape = px_physics_->createShape(PxBoxGeometry(box_radius.x,box_radius.y,box_radius.z),*material_temp);
-                            sc->rigid->attachShape(*shape);
-                            shape->release();
+                            if(box_collider->is_trigger_){
+                                PxShape* box_shape = PxRigidActorExt::createExclusiveShape(*sc->rigid,PxBoxGeometry(box_size.x,box_size.y,box_size.z),*material_temp,physx::PxShapeFlag::eVISUALIZATION|physx::PxShapeFlag::eTRIGGER_SHAPE);
+                                box_shape->userData = (void*)&en;
+                            }else{
+                                PxShape* box_shape = PxRigidActorExt::createExclusiveShape(*sc->rigid,PxBoxGeometry(box_size.x,box_size.y,box_size.z),*material_temp);
+                                box_shape->userData = (void*)&en;
+                            }
                             material_temp->release();
-                            //PxRigidBodyExt::updateMassAndInertia(*sc->rigid, 1.0f,false);
+
                             box_collider->state=awake;
-                            std::cout<<"2"<<std::endl;
+
                         }
 
                     }
 
+                    if(en.has<SphereCollider>()){
+                        auto sphere_collider = en.component<SphereCollider>();
+                        if(sphere_collider->state==needAwake){
+                            float radius = sphere_collider->sphere_radius_;
 
+                            PxMaterial* material_temp;
+                            if(sphere_collider->custom_material_){
+
+                                auto custom_material = sphere_collider->custom_material_;
+                                material_temp=CreatPhysicMaterial(custom_material->static_friction(),custom_material->static_friction(),custom_material->restitution());
+                            }else{
+                                material_temp=CreatPhysicMaterial(0.5,0.5,0.5);
+                            }
+
+                            if(sphere_collider->is_trigger_){
+                                PxShape* sphere_shape = PxRigidActorExt::createExclusiveShape(*sc->rigid,PxSphereGeometry(radius),*material_temp,physx::PxShapeFlag::eVISUALIZATION|physx::PxShapeFlag::eTRIGGER_SHAPE);
+                                sphere_shape->userData = (void*)&en;
+                            }else{
+                                PxShape* sphere_shape = PxRigidActorExt::createExclusiveShape(*sc->rigid,PxSphereGeometry(radius),*material_temp);
+                                sphere_shape->userData = (void*)&en;
+                            }
+
+
+                            material_temp->release();
+
+                            sphere_collider->state=awake;
+                        }
+
+                    }
                 });
 
 
@@ -198,12 +296,6 @@ namespace SPW{
 
     void PhysicSystem::onUpdate(TimeDuration dt) {
 
-        //creat dynamic rigid
-
-
-
-
-
 
 
 
@@ -213,6 +305,27 @@ namespace SPW{
     void PhysicSystem::afterUpdate() {
         px_scene_->simulate(1.0f/60.0f);
         px_scene_ ->fetchResults(true);
+
+        ComponentGroup<SPW::IDComponent, SPW::TransformComponent, SPW::RigidDynamicComponent> RigidDynamicGroup;
+        locatedScene.lock()->forEachEntityInGroup(
+                RigidDynamicGroup,
+                [this](const Entity &en) {
+                    auto nc = en.component<IDComponent>();
+                    auto tc = en.component<TransformComponent>();
+                    auto dc=en.component<RigidDynamicComponent>();
+
+                    if(dc->rigidState==Awake&&dc->rigid != nullptr){
+                        tc->position = glm::vec3 (dc->rigid->getGlobalPose().p.x,dc->rigid->getGlobalPose().p.y,dc->rigid->getGlobalPose().p.z);
+                        tc->rotation = glm::vec3 (dc->rigid->getGlobalPose().q.x,dc->rigid->getGlobalPose().q.y,dc->rigid->getGlobalPose().q.z);
+                    }
+
+                });
+
+
+
+
+
+
     }
 
 
@@ -243,9 +356,9 @@ namespace SPW{
         px_cpu_dispatcher_ = PxDefaultCpuDispatcherCreate(2);
         sceneDesc.cpuDispatcher	= px_cpu_dispatcher_;
 
-        //sceneDesc.simulationEventCallback = &simulation_event_callback_;
+        sceneDesc.simulationEventCallback = &simulation_event_callback_;
 
-        sceneDesc.filterShader	= PxDefaultSimulationFilterShader;
+        sceneDesc.filterShader	= SimulationFilterShader;
 
         PxScene* px_scene = px_physics_->createScene(sceneDesc);
 

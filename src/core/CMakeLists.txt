@@ -11,7 +11,7 @@ macro(CORE_ADD_SOURCE)
     set(CoreSourceFiles ${CoreSourceFiles} ${SOURCE_FILES} PARENT_SCOPE)
 endmacro(CORE_ADD_SOURCE)
 
-set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h" EcsFramework/System/PhysicSystem/PhysicSystem.cpp EcsFramework/System/PhysicSystem/PhysicSystem.h Physics/physic_error_call_back.h EcsFramework/Component/PhysicalComponent/Collider.h EcsFramework/Component/PhysicalComponent/RigidActor.h Physics/PhysicMaterial.cpp Physics/PhysicMaterial.h)
+set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h" EcsFramework/System/PhysicSystem/PhysicSystem.cpp EcsFramework/System/PhysicSystem/PhysicSystem.h Physics/physic_error_call_back.h EcsFramework/Component/PhysicalComponent/Collider.h EcsFramework/Component/PhysicalComponent/RigidActor.h Physics/PhysicMaterial.cpp Physics/PhysicMaterial.h Physics/SimulationEventCallback.h)
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(Utils)

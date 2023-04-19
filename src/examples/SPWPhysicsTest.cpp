@@ -143,9 +143,9 @@ public:
 
             // add system
             //scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
-            //scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight()));
-            //scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
-            //scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::RenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight()));
+            scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::PhysicSystem>(scene));
 
             // add a camera entity
@@ -250,13 +250,19 @@ public:
             auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.5, 0.5, 0.5};
             transform->rotation = {-90, 90, 0};
-            transform->position = {0, 1.0, 0};
+            transform->position = {0, 0.6, 0};
             //add physics rigid actor
             auto  rigid1 = obj->emplace<SPW::RigidDynamicComponent>();
             rigid1->rigidState=SPW::Awake;
-            auto  collider1 = obj->emplace<SPW::SphereCollider>();
-            collider1->sphere_radius_=0.5f;
+
+            auto  collider1 = obj->emplace<SPW::CapsuleCollider>();
+            collider1->capsule_half_height_=0.8;
+            collider1->capsule_radius_=0.8;
+            collider1->degree=PxHalfPi;
+            collider1->capsule_axis_=glm::vec3(0,0,1);
             collider1->state = SPW::needAwake;
+            collider1->is_trigger_=false;
+
 
 
             // add a test2 game object
@@ -264,12 +270,25 @@ public:
             auto transform2 = obj2->emplace<SPW::TransformComponent>();
             transform2->scale = {0.5, 0.5, 0.5};
             transform2->rotation = {-90, 90, 0};
-            transform2->position = {0, -0.0, 0};
+            transform2->position = {0, -3.0, 0};
             auto  rigid2 = obj2->emplace<SPW::RigidStaticComponent>();
             rigid2->rigidState=SPW::Awake;
             auto  collider2 = obj2->emplace<SPW::BoxCollider>();
-            collider2->box_size_=glm::vec3(10,10,10);
+            collider2->box_size_=glm::vec3(10,0.5,10);
             collider2->state = SPW::needAwake;
+
+            // add a test3 game object
+            auto obj3 = scene->createEntity("test3");
+            auto transform3 = obj3->emplace<SPW::TransformComponent>();
+            transform3->scale = {0.5, 0.5, 0.5};
+            transform3->rotation = {-90, 90, 0};
+            transform3->position = {0, 10.0, 0};
+            auto  rigid3 = obj3->emplace<SPW::RigidStaticComponent>();
+            rigid3->rigidState=SPW::Awake;
+            auto  collider3 = obj3->emplace<SPW::CapsuleCollider>();
+            collider3->capsule_half_height_=1.0;
+            collider3->capsule_radius_=2;
+            collider3->state = SPW::needAwake;
 
 
 
