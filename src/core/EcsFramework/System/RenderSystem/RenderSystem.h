@@ -15,6 +15,7 @@
 
 
 namespace SPW {
+
     using RenderCamera = std::tuple<IDComponent *, CameraComponent *, TransformComponent *>;
     class RenderSystem : public SystemI, public WindowEventResponder {
     public:
@@ -28,6 +29,9 @@ namespace SPW {
                 frameBuffer->AttachDepthRenderBuffer(w,h);
                 frameBuffer->CheckFramebufferStatus();
                 frameBuffer->unbind();
+                width = w;
+                height = h;
+
         }
         void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
             renderBackEnd = backEnd;
@@ -41,12 +45,16 @@ namespace SPW {
         // events
         const char *getName() override {return "SPW_RENDER_SYSTEM";}
         bool onFrameResize(int w, int h) override;
-        RenderPass postProcessPass;
+        RenderPass<RenderBackEndI> postProcessPass;
 
     private:
         void renderModelsWithCamera(const RenderCamera &camera,glm::mat4& View,glm::mat4& Pro);
+        void findAllLights(std::vector<PLight> &Plights, std::vector<DLight> &Dlights);
         std::shared_ptr<RenderBackEndI> renderBackEnd;
         std::shared_ptr<SPW::FrameBuffer> frameBuffer;
+        std::shared_ptr<SPW::FrameBuffer> depthBuffer;
+        int width;
+        int height;
     };
 }
 

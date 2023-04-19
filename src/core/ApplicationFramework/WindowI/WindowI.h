@@ -10,7 +10,7 @@
 
 namespace SPW {
     struct WindowMeta {
-        const char *title;
+        std::string title;
         int width;
         int height;
         EventI::EventHanlder handler;
@@ -20,7 +20,7 @@ namespace SPW {
         virtual void init(WindowMeta meta) = 0;
         virtual void onUpdate() = 0;
         virtual const char *title() = 0;
-        virtual void setTitle(const char *t) = 0;
+        virtual void setTitle(std::string t) = 0;
         virtual int width() = 0;
         virtual int height() = 0;
         virtual int frameWidth() = 0;

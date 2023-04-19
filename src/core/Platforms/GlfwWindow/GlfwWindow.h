@@ -17,11 +17,11 @@ namespace SPW {
         ~GlfwWindow();
         void init(WindowMeta meta) override;
         void onUpdate() override;
-        const char *title() override {return data.title;}
-        void setTitle(const char *t) override {
+        const char *title() override {return data.title.c_str();}
+        void setTitle(std::string t) override {
             data.title = t;
             if (window) {
-                glfwSetWindowTitle(window, t);
+                glfwSetWindowTitle(window,  data.title.c_str());
             }
         }
         int width() override {return data.width;}

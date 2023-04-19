@@ -77,8 +77,12 @@ namespace SPW
                     return;
                 }
                 bool play = false;
+                // update volume
+                chan->setVolume(volume);
+                // check if sound is playing
                 chan->isPlaying(&play);
                 if (!play) {
+                    // sound is not playing
                     state = Stop;
                     shouldUpdate = false;
                 }
@@ -95,6 +99,7 @@ namespace SPW
         SoundState state = Stop;
         bool is3D = false;
         bool isLoop = false;
+        float volume = 1.0f;
 
     private:
         bool shouldUpdate = true;
@@ -123,7 +128,12 @@ namespace SPW
             if (allSounds.find(path) != allSounds.end())
                 allSounds[path]->isLoop = enable;
         }
-        std::unordered_map<std::string, std::shared_ptr<SPWSound>> allSounds;
+
+        void setVolume(const std::string &path, float volume) {
+            if (allSounds.find(path) != allSounds.end())
+                allSounds[path]->volume = std::max(0.0f, std::min(1.0f, volume));
+        }
+        
         SoundState getState(const std::string &path) {
             if (allSounds.find(path) != allSounds.end())
                 return allSounds[path]->state;
@@ -134,6 +144,63 @@ namespace SPW
             if (allSounds.find(path) != allSounds.end())
                 allSounds[path]->setState(s);
         }
+
+        // init from lua
+        void initFromLua(const sol::table &value) override {
+            if (!value["audioFiles"].valid())
+                return;
+            sol::table audioFiles = value["audioFiles"];
+            for (int i = 1; i <= audioFiles.size(); ++i) {
+                if (!audioFiles[i].valid())
+                    continue;
+                std::string path = audioFiles[i];
+                auto sound = std::make_shared<SPWSound>(path);
+                allSounds.insert({path, sound});
+            }
+        }
+
+        // update from lua
+        void update(const std::string&key, const sol::table &value) override {
+            if (key == "enable3D" && value["value"].valid()) {
+                std::string path = value["value"];
+                set3D(path, true);
+            } else if (key == "disable3D" && value["value"].valid()) {
+                std::string path = value["value"];
+                set3D(path, false);
+            } else if (key == "enableLoop" && value["value"].valid()) {
+                std::string path = value["value"];
+                setLoop(path, true);
+            } else if (key == "enableLoop" && value["value"].valid()) {
+                std::string path = value["value"];
+                setLoop(path, false);
+            } else if (key == "setState" && value["value"].valid()) {
+                if (!value["value"]["path"].valid() || !value["value"]["state"].valid())
+                    return;
+                std::string path = value["value"]["path"];
+                int s = value["value"]["state"];
+                setState(path, (SoundState)s);
+            } else if (key == "setVolume" && value["value"].valid()) {
+                if (!value["value"]["path"].valid() || !value["value"]["volume"].valid())
+                    return;
+                std::string path = value["value"]["path"];
+                float volume = value["value"]["volume"];
+                setVolume(path, volume);
+            }
+        }
+
+        // getLuaValue
+        virtual sol::object getLuaValue(const sol::table &value, const std::string &key) override {
+            if (key == "audioFiles") {
+                sol::table audioFiles = sol::state_view(value.lua_state()).create_table();
+                for (auto &sound : allSounds) {
+                    audioFiles[sound.first] = sound.second->state;
+                }
+                return audioFiles;
+            } 
+            return sol::nil;
+        }
+
+        std::unordered_map<std::string, std::shared_ptr<SPWSound>> allSounds;
     };
 
 

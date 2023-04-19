@@ -69,19 +69,27 @@ namespace SPW {
                 registry.lock()->remove<C>(entity);
         }
 
-        UUID getUUID() {
+        UUID getUUID() const{
             // check validation of weak_scene
             if (!registry.expired())
                 return component<SPW::IDComponent>()->getID();
             else
                 return SPW::UUID::noneID();
         }
-        const std::string& getName() {
+        const std::string getName() {
             // check validation of weak_scene
             if (!registry.expired())
                 return component<SPW::NameComponent>()->getName();
             else
-                return NameComponent().getName();
+                return "";
+        }
+
+        static Entity nullEntity() {
+            return Entity(entt::null, nullptr);
+        }
+
+        bool isNull() const {
+            return entity == entt::null;
         }
 
         bool operator==(const Entity& other) const

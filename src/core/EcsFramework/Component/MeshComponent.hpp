@@ -1,0 +1,91 @@
+#pragma once
+
+#include "ComponentI.h"
+#include "Model/Model.h"
+#include "Render/PipeLine.hpp"
+#include <string>
+#include <unordered_set>
+#include "Render/RenderGraph.hpp"
+#include "Render/RenderCommandsQueue.hpp"
+#include "Utils/UUID.hpp"
+#include "IO/ResourceManager.h"
+
+namespace SPW {
+    class MeshComponent : public ComponentI {
+    public:
+        MeshComponent() = delete;
+
+        explicit MeshComponent(const UUID &id) {
+            bindCamera = id;
+        }
+
+        void update(const std::string &key, const sol::table &value) final {
+            if (!value["value"].valid()) 
+                return;
+            if (key == "mesh_path") {
+                std::string path = value["value"];
+                model = ResourceManager::getInstance()->LoadModel(path);
+                ready = false;
+            } else if (key == "cam_id") {
+                std::string id = value["value"];
+                bindCamera = UUID::fromString(id.c_str());
+            } else if (key == "graph_id") {
+                unsigned int id = value["value"];
+                bindRenderGraph = id;
+            } else if (key == "renderPrograms") {
+                unsigned int id = value["value"]["pass_id"];
+                std::string program = value["value"]["shader_id"];
+                modelSubPassPrograms[id] = UUID::fromString(program.c_str());
+            }
+
+        }
+
+        void initFromLua(const sol::table &value) {
+            if (value["mesh_path"].valid()) {
+                std::string path = value["mesh_path"];
+                model = ResourceManager::getInstance()->LoadModel(path);
+                ready = false;
+            }
+            if (value["cam_id"].valid()) {
+                std::string id = value["cam_id"];
+                bindCamera = UUID::fromString(id.c_str());
+            }
+            if (value["graph_id"].valid()) {
+                unsigned int id = value["graph_id"];
+                bindRenderGraph = id;
+            }
+        }
+
+        // getLuaValue
+        virtual sol::object getLuaValue(const sol::table &value, const std::string &key) {
+            if (key == "mesh_path") {
+                return sol::make_object(value.lua_state(), model->getFilePath());
+            } else if (key == "cam_id") {
+                return sol::make_object(value.lua_state(), bindCamera.toString());
+            } else if (key == "graph_id") {
+                return sol::make_object(value.lua_state(), bindRenderGraph);
+            } else if (key == "renderPrograms") {
+                sol::table programs = sol::state_view(value.lua_state()).create_table();
+                for (auto &program : modelSubPassPrograms) {
+                    programs[program.first] = program.second.toString();
+                }
+                return sol::make_object(value.lua_state(), programs);
+            }
+            return sol::nil;
+        }
+
+
+        // render callback
+        std::function<void(RenderCommandsQueue<Shader>& queue)> onDraw;
+        std::function<void(RenderCommandsQueue<RenderBackEndI>& queue)> beforeDraw;
+
+        UUID bindCamera;
+
+        // render pass id -> subpass ref -> shader
+        unsigned int bindRenderGraph = 0;
+        std::unordered_map<unsigned int, UUID> modelSubPassPrograms;
+
+        bool ready = false;
+        std::shared_ptr<Model> model;
+    };
+}
