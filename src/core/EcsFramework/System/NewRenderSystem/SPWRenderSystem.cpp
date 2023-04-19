@@ -47,6 +47,7 @@ namespace SPW {
 
     void SPWRenderSystem::beforeUpdate() 
     {
+        std::cout << "Render IS Running" << std::endl;
         locatedScene.lock()->forEach(
         [this](MeshComponent *meshComponent){
             if (!meshComponent->ready)

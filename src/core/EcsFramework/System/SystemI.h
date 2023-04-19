@@ -8,6 +8,7 @@
 #include <memory>
 #include "Utils/Timer.hpp"
 #include "queue"
+#include <iostream>
 
 namespace SPW {
     class Scene;
@@ -17,11 +18,16 @@ namespace SPW {
             locatedScene(scene) {
 
         }
+        void setPausd(bool pause) {
+            isPaused = pause;
+        };
         virtual void initial() = 0;
         virtual void beforeUpdate() = 0;
         virtual void onUpdate(TimeDuration dt) = 0;
         virtual void afterUpdate() = 0;
         virtual void onStop() = 0;
+        bool isPaused = false;
+
 
     protected:
         std::weak_ptr<Scene> locatedScene;

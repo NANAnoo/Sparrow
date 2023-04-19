@@ -10,7 +10,6 @@
 namespace SPW {
     class KeyControlSystem :public SPW::KeyEventResponder, public SPW::SystemI{
     public:
-
         KeyControlSystem(std::shared_ptr<Scene> &scene)
                 : KeyEventResponder(scene), SystemI(scene) {};
 
@@ -37,38 +36,40 @@ namespace SPW {
 
         void initial() final{}
         void beforeUpdate() final{
+            if(!isPaused){
+                while(key_queue.size() != 0){
 
-            while(key_queue.size() != 0){
+                    auto e = key_queue.front();
 
-                auto e = key_queue.front();
+                    switch (e->type()) {
 
-                switch (e->type()) {
+                        case SPW::EventType::KeyDownType:
+                            locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity &entity){
+                                if(entity.component<KeyComponent>()->onKeyDownCallBack)
+                                    entity.component<KeyComponent>()->onKeyDownCallBack(entity, e->keycode);
+                            });
+                            break;
 
-                    case SPW::EventType::KeyDownType:
-                        locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity &entity){
-                        if(entity.component<KeyComponent>()->onKeyDownCallBack)
-                            entity.component<KeyComponent>()->onKeyDownCallBack(entity, e->keycode);
-                    });
-                        break;
+                        case SPW::EventType::KeyHeldType:
+                            locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity &entity){
+                                if(entity.component<KeyComponent>()->onKeyHeldCallBack)
+                                    entity.component<KeyComponent>()->onKeyHeldCallBack(entity, e->keycode);
+                            });
+                            break;
 
-                    case SPW::EventType::KeyHeldType:
-                        locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity &entity){
-                        if(entity.component<KeyComponent>()->onKeyHeldCallBack)
-                            entity.component<KeyComponent>()->onKeyHeldCallBack(entity, e->keycode);
-                    });
-                        break;
-
-                    case SPW::EventType::KeyReleasedType:
-                        locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity &entity){
-                        if(entity.component<KeyComponent>()->onKeyReleasedCallBack)
-                            entity.component<KeyComponent>()->onKeyReleasedCallBack(entity, e->keycode);
-                    });
-                        break;
-                    default:
-                    break;
+                        case SPW::EventType::KeyReleasedType:
+                            locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity &entity){
+                                if(entity.component<KeyComponent>()->onKeyReleasedCallBack)
+                                    entity.component<KeyComponent>()->onKeyReleasedCallBack(entity, e->keycode);
+                            });
+                            break;
+                        default:
+                            break;
+                    }
+                    key_queue.pop();
                 }
-                key_queue.pop();
             }
+
         }
         
         void onUpdate(TimeDuration dt) final{}

@@ -19,6 +19,7 @@
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
+#include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
 
@@ -250,10 +251,8 @@ public:
             renderSystem = std::make_shared<SPW::SPWRenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight());
 
 			// add system
-            scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
+            //scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(renderSystem);
-            scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
 
             //TODO
             //scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
@@ -487,7 +486,19 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand
     void beforeAppUpdate() final
 	{
         scene->beforeUpdate();
-
+        if(isLoading){
+            scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+        }else{
+            if(isPause){
+                scene->PauseSystem(std::make_shared<SPW::AudioSystem>(scene));
+                scene->PauseSystem(std::make_shared<SPW::KeyControlSystem>(scene));
+                scene->PauseSystem(std::make_shared<SPW::AnimationSystem>(scene));
+                scene->PauseSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+            }
+        }
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
 
@@ -516,13 +527,20 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand
         }
         if(ImGui::Button("Load Scene"))
         {
+            isLoading = true;
+            isPause = false;
+        }
+        if(ImGui::Button("Pause Scene")){
             std::cout << " Clicked!\n";
+            isLoading = false;
+            isPause = true;
         }
 
 
     	ImGui::End();
         //----------------------------------------------------------------------------------------
         m_ImguiManager->CreateImagePanel(renderSystem->getTextureID());
+
         m_ImguiManager->RenderAllPanels();
         //----------------------------------------------------------------------------------------
 		m_ImguiManager->GetInspectorPanel()->SetActiveScene(scene);
@@ -588,6 +606,8 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand
     std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
     std::shared_ptr<SPW::SPWRenderSystem> renderSystem;
     std::shared_ptr<SPW::AssetData> dragon_ptr;
+    bool isLoading = false;
+    bool isPause = false;
 };
 
 // main entrance

@@ -21,7 +21,7 @@ namespace SPW {
 		void Draw() override
 		{
             //Starter and Loader
-//            StarterAndLoader();
+            //StarterAndLoader();
 
             //Main scene window
             ImVec2 windowSize = ImGui::GetWindowSize();
@@ -49,8 +49,13 @@ namespace SPW {
             ImGui::SetCursorPos(buttonPos2);
             if (ImGui::Button(">", buttonSize))
             {
-                if(!isPlaying) isPlaying = true;
+                if(!isPlaying)
+                {
+                    isPlaying = true;
+
+                }
                 //TODO::CHANGE SYSTEM
+                
             }
 
             ImGui::SetCursorPos(buttonPos);

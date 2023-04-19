@@ -28,24 +28,27 @@ namespace SPW {
     }
 
     void AudioSystem::onUpdate(TimeDuration dt) {
-        manageSound();
+        if(!isPaused){
+            manageSound();
 
-        // manage listeners
-        ComponentGroup<SPW::IDComponent,SPW::TransformComponent,SPW::AudioListener> ListenerGroup;
-        locatedScene.lock()->forEachEntityInGroup(
-                ListenerGroup,
-                [this](const Entity &en) {
-                    auto trans = en.component<TransformComponent>();
-                    auto player = en.component<AudioListener>();
-                    FMOD_VECTOR listenerPos = { trans->position.x, trans->position.y, trans->position.z };
-                    FMOD_VECTOR listenerVel = { 0, 0, 0 };
-                    glm::vec4 forward(0, 0, -1, 0);
-                    forward = forward * glm::eulerAngleY(glm::radians(trans->rotation.y));
-                    FMOD_VECTOR listenerForward = { forward.x, forward.y, -forward.z }; 
-                    FMOD_VECTOR listenerUp = { 0, 1, 0 }; 
-                    mFmodSystem->set3DListenerAttributes(player->Listener_id, &listenerPos, &listenerVel, &listenerForward, &listenerUp);
-                });
-        mFmodSystem->update();
+            // manage listeners
+            ComponentGroup<SPW::IDComponent,SPW::TransformComponent,SPW::AudioListener> ListenerGroup;
+            locatedScene.lock()->forEachEntityInGroup(
+                    ListenerGroup,
+                    [this](const Entity &en) {
+                        auto trans = en.component<TransformComponent>();
+                        auto player = en.component<AudioListener>();
+                        FMOD_VECTOR listenerPos = { trans->position.x, trans->position.y, trans->position.z };
+                        FMOD_VECTOR listenerVel = { 0, 0, 0 };
+                        glm::vec4 forward(0, 0, -1, 0);
+                        forward = forward * glm::eulerAngleY(glm::radians(trans->rotation.y));
+                        FMOD_VECTOR listenerForward = { forward.x, forward.y, -forward.z };
+                        FMOD_VECTOR listenerUp = { 0, 1, 0 };
+                        mFmodSystem->set3DListenerAttributes(player->Listener_id, &listenerPos, &listenerVel, &listenerForward, &listenerUp);
+                    });
+            mFmodSystem->update();
+        }
+
     }
 
     void AudioSystem::onStop() {
