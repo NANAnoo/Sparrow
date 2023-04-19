@@ -50,7 +50,7 @@ namespace SPW {
         std::cout << "Render IS Running" << std::endl;
         locatedScene.lock()->forEach(
         [this](MeshComponent *meshComponent){
-            if (!meshComponent->ready)
+            if (!meshComponent->ready)  
 			{
 				auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[meshComponent->assetName].meshes;
 				for (auto& mesh : meshes)

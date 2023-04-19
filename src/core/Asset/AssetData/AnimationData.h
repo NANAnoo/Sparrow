@@ -356,6 +356,25 @@ namespace SPW
 		}
 	};
 
+	struct VerMapBone
+	{
+		//Vertex -> <BoneID> -> (stores Index of finalBoneMatrix)
+		std::vector<uint32_t> boneID;
+		//Weight -> <double) -> (stores corresponding weight; (boneID[0] - Weight[0]) )
+		std::vector<float> weight;
+	};
+
+	struct VertBoneMap
+	{
+		// Buffer information
+		std::vector<uint32_t> startIndex;
+		std::vector<uint32_t> size;
+		std::vector<float> weights;
+		std::vector<uint32_t> boneID;
+		int m_NumBones;
+	};
+
+
 	// TODO: Insert it into asset data
 	struct Skeleton
 	{
@@ -366,16 +385,8 @@ namespace SPW
 		std::vector<BoneInfo> m_Bones;
 		HierarchyNode		  root;
 		uint32_t  offsetMatcount = 0;
-	};
 
-
-
-	struct VerMapBone
-	{
-		//Vertex -> <BoneID> -> (stores Index of finalBoneMatrix)
-		std::vector<uint32_t> boneID;
-		//Weight -> <double) -> (stores corresponding weight; (boneID[0] - Weight[0]) )
-		std::vector<float> weight;
+		VertBoneMap m_VertBoneMap;
 	};
 
 	inline glm::mat4 CalculateInterpolatedMatrix(AnimationNode* node, float currentTime)

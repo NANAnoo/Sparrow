@@ -14,6 +14,7 @@
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
 
+
 namespace glm
 {
 	glm::vec3 toVec3(const aiVector3D& _val)
@@ -68,6 +69,54 @@ namespace glm
 
 namespace SPW
 {
+
+	void ExtractWeightFromBones(AssetData* assetdata)
+	{
+		VertBoneMap vertBoneMap;
+
+		vertBoneMap.m_NumBones = assetdata->skeleton.m_Bones.size();
+
+		unsigned int numVertex = 0;
+		std::vector<VerMapBone> verMapBone;
+		for (const auto& m : assetdata->meshes)
+		{
+			numVertex += m.vertices.size();
+		}
+
+		verMapBone.resize(numVertex);
+		for (auto boneInfo : assetdata->skeleton.m_Bones)
+		{
+			for (Weight weight : boneInfo.weights)
+			{
+				uint32_t vertexID = weight.vertexID;
+				uint32_t boneID = boneInfo.boneID;
+				float value = weight.value;
+
+				verMapBone[vertexID].boneID.push_back(boneID);
+				verMapBone[vertexID].weight.push_back(value);
+			}
+		}
+
+		//Get number of vertices
+		vertBoneMap.startIndex.reserve(verMapBone.size());
+
+		//For every vertex
+		int startInd = 0;
+		for (auto temp : verMapBone)
+		{
+			vertBoneMap.startIndex.push_back(startInd);
+
+			for (int j = 0; j < temp.boneID.size(); j++)
+			{
+				vertBoneMap.boneID.push_back(temp.boneID[j]);
+				vertBoneMap.weights.push_back(temp.weight[j]);
+			}
+			startInd += temp.boneID.size();
+			vertBoneMap.size.push_back(temp.boneID.size());
+		}
+
+		assetdata->skeleton.m_VertBoneMap = vertBoneMap;
+	}
 
 	uint32_t findBoneId (const std::vector<BoneInfo>& m_Bones, std::string name)
 	{
@@ -392,7 +441,7 @@ namespace SPW
 		modelData->materials.emplace_back(std::move(tmpMaterial));
 	}
 
-	void ProcessMeshNode(AssetData* modelData, aiMesh* mesh, const aiScene* scene, uint32_t offset)
+	Mesh ProcessMeshNode(AssetData* modelData, aiMesh* mesh, const aiScene* scene)
 	{
 		// modelData->model.m_MeshIDs.emplace_back(FileSystem::GenerateRandomUUID());
 		Mesh tmpMesh{};
@@ -440,8 +489,8 @@ namespace SPW
 				tmpMesh.indices.emplace_back(face.mIndices[j]);
 		}
 
-		tmpMesh.offset = offset;
-		offset += tmpMesh.vertices.size();
+		// tmpMesh.offset = offset;
+		// offset += tmpMesh.vertices.size();
 		//		tmpMesh.vertices.size();
 
 		if (!(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
@@ -450,20 +499,20 @@ namespace SPW
 			LoadMaterial(modelData, scene->mMaterials[mesh->mMaterialIndex], tmpMesh.materialID);
 		}
 
-		modelData->meshes.emplace_back(std::move(tmpMesh));
+		return (std::move(tmpMesh));
 	}
 
-	void ProcessNodes(AssetData* modelData, aiNode* node, const aiScene* scene, uint32_t offset)
+	void ProcessNodes(AssetData* modelData, aiNode* node, const aiScene* scene)
 	{
 		for (uint32_t i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			ProcessMeshNode(modelData, mesh, scene, offset);
+			ProcessMeshNode(modelData, mesh, scene);
 		}
 
 		for (uint32_t i = 0; i < node->mNumChildren; i++)
 		{
-			ProcessNodes(modelData, node->mChildren[i], scene, offset);
+			ProcessNodes(modelData, node->mChildren[i], scene);
 		}
 	}
 
@@ -489,8 +538,23 @@ namespace SPW
 
 		std::cout << "SUCESS::ASSIMP::" << filename << std::endl;
 
-		uint32_t offset = 0;
-		ProcessNodes(ret.get(), scene->mRootNode, scene, offset);
+		// uint32_t offset = 0;
+		// ProcessNodes(ret.get(), scene->mRootNode, scene);
+
+		// Get all meshes from assimp loading
+		std::vector<aiMesh*> all_meshes;
+		getAllMeshNodes(all_meshes, scene->mRootNode, scene);
+
+		size_t offset = 0;
+		for (const auto& mesh : all_meshes)
+		{
+			ret->meshes.emplace_back(ProcessMeshNode(ret.get(), mesh, scene));
+			ret->meshes.back().offset = offset;
+
+			// pass offset into
+			// ProcessMeshNode(ret.get(), mesh, scene);
+			offset += mesh->mNumVertices;
+		}
 
 // ------- LOAD ANIMATION --------------------------------
 		const bool hasAnimations = scene->HasAnimations();
@@ -509,15 +573,12 @@ namespace SPW
 
 			// ----- BONES ----
 			// Get all meshes from assimp loading
-			std::vector<aiMesh*> all_meshes;
-			getAllMeshNodes(all_meshes, scene->mRootNode, scene);
-			// TODO: optimize this later
-			unsigned int offset = 0;
+			size_t anim_offset = 0;
 			for (const auto& mesh : all_meshes)
 			{
 				// pass offset into
-				ProcessBoneNode(ret.get(), mesh, offset, scene);
-				offset += mesh->mNumVertices;
+				ProcessBoneNode(ret.get(), mesh, anim_offset, scene);
+				anim_offset += mesh->mNumVertices;
 			}
 
 			auto& ret_skeleton = ret->skeleton;
@@ -543,11 +604,13 @@ namespace SPW
 					CalculateBoneTransforms(ret.get(), ret_skeleton.animClips[clip], i);
 				}
 			}
+
+			ExtractWeightFromBones(ret.get());
 		}
 		else
 			std::cout << "No AnimationClips Exist! Only Return Static Data! \n";
 
-
 		return std::move(ret);
 	}
 }
+

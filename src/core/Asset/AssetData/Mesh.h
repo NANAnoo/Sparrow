@@ -54,7 +54,6 @@ namespace SPW
 
         void setupMesh(std::shared_ptr<RenderBackEndI>& renderBackEnd)
         {
-
             VBuffer = renderBackEnd->createVertexBuffer();
             VBuffer->VertexBufferData(vertices);
             EBO = renderBackEnd->createIndexBuffer(indices);

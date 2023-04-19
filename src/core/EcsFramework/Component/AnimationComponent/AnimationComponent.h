@@ -31,124 +31,59 @@ namespace SPW
 	};
 
 
-	//SPW::SPWVertexBoneMap class
-	//顶点映射类
-	class SPWVertexBoneMap
-	{
-	public:
-		SPWVertexBoneMap() = default;
-
-		explicit SPWVertexBoneMap(const std::vector<BoneInfo>& m_Bones, const std::string& assetName)
-		{
-			m_NumBones = m_Bones.size();
-			ExtractWeightFromBones(assetName, m_Bones);
-		}
-
-		void ExtractWeightFromBones(const std::string& assetName, std::vector<BoneInfo> m_BoneMap)
-		{
-			const auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[assetName].meshes;
-			unsigned int numVertex = 0;
-			std::vector<VerMapBone> verMapBone;
-			for (const auto& m : meshes)
-			{
-				numVertex += m.vertices.size();
-			}
-
-			verMapBone.resize(numVertex);
-			for (auto boneInfo : m_BoneMap)
-			{
-				for (Weight weight : boneInfo.weights)
-				{
-					uint32_t vertexID = weight.vertexID;
-					uint32_t boneID = boneInfo.boneID;
-					float value = weight.value;
-
-					verMapBone[vertexID].boneID.push_back(boneID);
-					verMapBone[vertexID].weight.push_back(value);
-				}
-			}
-
-			//Get number of vertices
-			startIndex.reserve(verMapBone.size());
-
-			//For every vertex
-			int startInd = 0;
-			for (int i = 0; i < verMapBone.size(); ++i)
-			{
-				auto temp = verMapBone[i];
-				startIndex.push_back(startInd);
-
-				for (int j = 0; j < temp.boneID.size(); j++)
-				{
-					boneID.push_back(temp.boneID[j]);
-					weights.push_back(temp.weight[j]);
-				}
-				startInd += temp.boneID.size();
-				size.push_back(temp.boneID.size());
-			}
-		}
-
-		// Buffer information
-		std::vector<uint32_t> startIndex;
-		std::vector<uint32_t> size;
-		std::vector<float> weights;
-		std::vector<uint32_t> boneID;
-		int m_NumBones;
-	};
-
 	class SPWAnimSSBO
 	{
 	public:
 		SPWAnimSSBO() = default;
 
-		explicit SPWAnimSSBO(std::shared_ptr<SPW::SPWVertexBoneMap> SPW_VertexMap)
+		explicit SPWAnimSSBO(const VertBoneMap& SPW_VertexMap)
 		{
 			starts = std::make_shared<StorageBuffer>(
 				"WeightDictStart",
-				SPW_VertexMap->startIndex.size() * sizeof(int),
+				SPW_VertexMap.startIndex.size() * sizeof(int),
 				0);
 
 			sizes = std::make_shared<StorageBuffer>(
 				"WeightDictSize",
-				SPW_VertexMap->size.size() * sizeof(int),
+				SPW_VertexMap.size.size() * sizeof(int),
 				1);
 
 			boneIndices = std::make_shared<StorageBuffer>(
 				"WeightDictKey",
-				SPW_VertexMap->boneID.size() * sizeof(int),
+				SPW_VertexMap.boneID.size() * sizeof(int),
 				2);
 
 			weights = std::make_shared<StorageBuffer>(
 				"WeightDictValue",
-				SPW_VertexMap->weights.size() * sizeof(float),
+				SPW_VertexMap.weights.size() * sizeof(float),
 				3);
 
 			mats = std::make_shared<StorageBuffer>(
 				"WeightMatries",
-				SPW_VertexMap->m_NumBones * sizeof(glm::mat4),
+				SPW_VertexMap.m_NumBones * sizeof(glm::mat4),
 				4);
 			bInitialized = true;
 		}
 
-		void updateStaticBuffer(std::shared_ptr<SPW::SPWVertexBoneMap> SPW_VertexMap)
+		void updateStaticBuffer(const VertBoneMap& SPW_VertexMap)
 		{
-			starts->updateSubData(SPW_VertexMap->startIndex.data(),
+			starts->updateSubData((void*)SPW_VertexMap.startIndex.data(),
 			                      0,
-			                      SPW_VertexMap->startIndex.size() * sizeof(int));
+			                      SPW_VertexMap.startIndex.size() * sizeof(int));
 			sizes->updateSubData(
-				SPW_VertexMap->size.data(),
+				(void*)SPW_VertexMap.size.data(),
 				0,
-				SPW_VertexMap->size.size() * sizeof(int));
+				SPW_VertexMap.size.size() * sizeof(int));
 
 			boneIndices->updateSubData(
-				SPW_VertexMap->boneID.data(),
+				(void*)SPW_VertexMap.boneID.data(),
 				0,
-				SPW_VertexMap->boneID.size() * sizeof(int));
+				SPW_VertexMap.boneID.size() * sizeof(int));
 
 			weights->updateSubData(
-				SPW_VertexMap->weights.data(),
+				(void*)SPW_VertexMap.weights.data(),
 				0,
-				SPW_VertexMap->weights.size() * sizeof(float));
+				SPW_VertexMap.weights.size() * sizeof(float));
 		}
 
 		void updateDynamicBuffer(AnimationClip* onGoingAnim)
@@ -224,7 +159,8 @@ namespace SPW
 			}
 
 			skeleton = data;
-			isLoaded = true;
+
+			SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(skeleton->m_VertBoneMap);
 		}
 
 		~AnimationComponent() { onGoingAnim = nullptr; }
@@ -252,20 +188,6 @@ namespace SPW
 			}
 		}
 
-		void initializeMapping(std::string assetName)
-		{
-			if (skeleton)
-				SPW_VertexMap = std::make_shared<SPWVertexBoneMap>(skeleton->m_Bones, assetName);
-
-			if (SPW_VertexMap)
-				SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(SPW_VertexMap);
-
-			mapInitialize = true;
-		}
-
-
-		bool isLoaded = false;
-		bool mapInitialize = false;
 
 		//swap animation
 		void swapCurrentAnim(const std::string& name)
@@ -312,7 +234,6 @@ namespace SPW
 
 		std::unordered_map<std::string, AnimationClip> allAnimations;
 		std::shared_ptr<SPWAnimSSBO> SPW_AnimSSBO;
-		std::shared_ptr<SPWVertexBoneMap> SPW_VertexMap;
 		AnimationClip* onGoingAnim = nullptr;
 
 		//Original data
