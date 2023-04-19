@@ -13,14 +13,14 @@
 namespace glm
 {
 	template<class Archive, class T>
-	void serialize(Archive& archive, glm::vec<2, T, glm::defaultp>& v)
+	inline void serialize(Archive& archive, glm::vec<2, T, glm::defaultp>& v)
 	{
 		archive(cereal::make_nvp("x", v.x),
 				cereal::make_nvp("y", v.y));
 	}
 
 	template<class Archive, class T>
-	void serialize(Archive& archive, glm::vec<3, T, glm::defaultp>& v)
+	inline void serialize(Archive& archive, glm::vec<3, T, glm::defaultp>& v)
 	{
 		archive(cereal::make_nvp("x", v.x),
 				cereal::make_nvp("y", v.y),
@@ -28,7 +28,7 @@ namespace glm
 	}
 
 	template<class Archive, class T>
-	void serialize(Archive& archive, glm::vec<4, T, glm::defaultp>& v)
+	inline void serialize(Archive& archive, glm::vec<4, T, glm::defaultp>& v)
 	{
 		archive(cereal::make_nvp("x", v.x),
 				cereal::make_nvp("y", v.y),
@@ -38,16 +38,16 @@ namespace glm
 
 	// glm matrices serialization
 	template<class Archive, class T>
-	void serialize(Archive& archive, glm::mat<2, 2, T, glm::defaultp>& m) { archive(m[0], m[1]); }
+	inline void serialize(Archive& archive, glm::mat<2, 2, T, glm::defaultp>& m) { archive(m[0], m[1]); }
 
 	template<class Archive, class T>
-	void serialize(Archive& archive, glm::mat<3, 3, T, glm::defaultp>& m) { archive(m[0], m[1], m[2]); }
+	inline void serialize(Archive& archive, glm::mat<3, 3, T, glm::defaultp>& m) { archive(m[0], m[1], m[2]); }
 
 	template<class Archive, class T>
-	void serialize(Archive& archive, glm::mat<4, 4, T, glm::defaultp>& m) { archive(m[0], m[1], m[2], m[3]); }
+	inline void serialize(Archive& archive, glm::mat<4, 4, T, glm::defaultp>& m) { archive(m[0], m[1], m[2], m[3]); }
 
 	template<class Archive, class T>
-	void serialize(Archive& archive, glm::qua<T, glm::defaultp>& q)
+	inline void serialize(Archive& archive, glm::qua<T, glm::defaultp>& q)
 	{
 		archive(cereal::make_nvp("x", q.x),
 				cereal::make_nvp("y", q.y),
@@ -61,7 +61,7 @@ namespace glm
 namespace cereal
 {
 	template <class Archive>
-	std::string save_minimal(const Archive&, const SPW::AssetType& t)
+	inline std::string save_minimal(const Archive&, const SPW::AssetType& t)
 	{
 		switch (t)
 		{
@@ -76,7 +76,7 @@ namespace cereal
 	}
 
 	template <class Archive>
-	void load_minimal(const Archive&, SPW::AssetType& t, const std::string& value)
+	inline void load_minimal(const Archive&, SPW::AssetType& t, const std::string& value)
 	{
 		if (value == "StaticModel") t = SPW::AssetType::StaticModel;
 		else if (value == "AnimatedModel") t = SPW::AssetType::AnimatedModel;

@@ -53,8 +53,8 @@ namespace SPW{
 
         void initializeComponent(AnimationComponent& animationComponent,MeshComponent& MeshComponent);
         void changeMap(AnimationComponent& animationComponent, MeshComponent& MeshComponent);
-        void vertexBoneMapping(AnimationComponent &animationComponent, MeshComponent &MeshComponent,
-                               std::vector<VerMapBone> map);
+        // void vertexBoneMapping(AnimationComponent &animationComponent, MeshComponent &MeshComponent,
+        //                        std::vector<VerMapBone> map);
 
         AnimationNode findAnimationNode(std::string name,std::weak_ptr<AnimationClip> currentAnimation);
         std::shared_ptr<AnimationClip> findAnimation(std::string name,AnimationComponent& animationComponent);

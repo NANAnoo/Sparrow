@@ -360,10 +360,10 @@ dragon_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["d
 
 auto data = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"];
 
-std::shared_ptr<SPW::Skeleton> skeleton = std::make_shared<SPW::Skeleton>(SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf")->skeleton);
+// std::shared_ptr<SPW::Skeleton> skeleton = std::make_shared<SPW::Skeleton>(SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf")->skeleton);
 
 // add a model to show
-auto dragon_anim = dragon->emplace<SPW::AnimationComponent>(skeleton);
+auto dragon_anim = dragon->emplace<SPW::AnimationComponent>(SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].skeleton);
 dragon_anim->swapCurrentAnim("dragon_idle");
 // --------------------------------------------------------------------------------
 

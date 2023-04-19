@@ -70,64 +70,6 @@ namespace glm
 namespace SPW
 {
 
-	void ExtractWeightFromBones(AssetData* assetdata)
-	{
-		VertBoneMap vertBoneMap;
-
-		vertBoneMap.m_NumBones = assetdata->skeleton.m_Bones.size();
-
-		unsigned int numVertex = 0;
-		std::vector<VerMapBone> verMapBone;
-		for (const auto& m : assetdata->meshes)
-		{
-			numVertex += m.vertices.size();
-		}
-
-		verMapBone.resize(numVertex);
-		for (auto boneInfo : assetdata->skeleton.m_Bones)
-		{
-			for (Weight weight : boneInfo.weights)
-			{
-				uint32_t vertexID = weight.vertexID;
-				uint32_t boneID = boneInfo.boneID;
-				float value = weight.value;
-
-				verMapBone[vertexID].boneID.push_back(boneID);
-				verMapBone[vertexID].weight.push_back(value);
-			}
-		}
-
-		//Get number of vertices
-		vertBoneMap.startIndex.reserve(verMapBone.size());
-
-		//For every vertex
-		int startInd = 0;
-		for (auto temp : verMapBone)
-		{
-			vertBoneMap.startIndex.push_back(startInd);
-
-			for (int j = 0; j < temp.boneID.size(); j++)
-			{
-				vertBoneMap.boneID.push_back(temp.boneID[j]);
-				vertBoneMap.weights.push_back(temp.weight[j]);
-			}
-			startInd += temp.boneID.size();
-			vertBoneMap.size.push_back(temp.boneID.size());
-		}
-
-		assetdata->skeleton.m_VertBoneMap = vertBoneMap;
-	}
-
-	uint32_t findBoneId (const std::vector<BoneInfo>& m_Bones, std::string name)
-	{
-		for(auto bone : m_Bones)
-		{
-			if(bone.name == name)
-				return bone.boneID;
-		}
-		return 0;
-	}
-
 	void ProcessAnimationNode(AssetData* asset, aiAnimation* animation, const aiScene* scene)
 	{
 		AnimationClip animation_clip;
@@ -135,19 +77,14 @@ namespace SPW
 		animation_clip.duration		= animation->mDuration;
 		animation_clip.FPS			= animation->mTicksPerSecond;
 		animation_clip.frameCount	= animation->mChannels[0]->mNumPositionKeys;
-		animation_clip.nodeAnimations.resize(animation->mNumChannels);
+		animation_clip.animNodes.resize(animation->mNumChannels);
 
 		// Iterate over all channels in the animation
 		for (unsigned int j = 0; j < animation->mNumChannels; j++)
 		{
 			const aiNodeAnim* channel = animation->mChannels[j];
 
-			//Find boneId
-			const auto& bones = asset->skeleton.m_Bones;
-			uint32_t boneId = findBoneId(bones,animation->mChannels[j]->mNodeName.C_Str());
-
-			animation_clip.nodeAnimations[j].nodeName = channel->mNodeName.C_Str();
-			animation_clip.nodeAnimations[j].boneID = boneId;
+			animation_clip.animNodes[j].name = channel->mNodeName.C_Str();
 
 			for (int positionIndex = 0; positionIndex < channel->mNumPositionKeys; ++positionIndex)
 			{
@@ -156,7 +93,7 @@ namespace SPW
 				KeyPosition data{};
 				data.position = glm::toVec3(aiPosition);
 				data.time = timeStamp;
-				animation_clip.nodeAnimations[j].m_Position.push_back(data);
+				animation_clip.animNodes[j].positionKeys.push_back(data);
 			}
 
 			for (int rotationIndex = 0; rotationIndex < channel->mNumRotationKeys; ++rotationIndex)
@@ -166,7 +103,7 @@ namespace SPW
 				KeyRotation data;
 				data.rotation = glm::toQuat(aiOrientation);
 				data.time = timeStamp;
-				animation_clip.nodeAnimations[j].m_Rotation.push_back(data);
+				animation_clip.animNodes[j].rotationKeys.push_back(data);
 			}
 
 			for (int scaleIndex = 0; scaleIndex < channel->mNumScalingKeys; ++scaleIndex)
@@ -176,7 +113,7 @@ namespace SPW
 				KeyScale data;
 				data.scaling = glm::toVec3(scale);
 				data.time = timeStamp;
-				animation_clip.nodeAnimations[j].m_Scaling.push_back(data);
+				animation_clip.animNodes[j].scalingKeys.push_back(data);
 			}
 
 			if (channel->mNumPositionKeys > animation_clip.frameCount) animation_clip.frameCount = channel->mNumPositionKeys;
@@ -194,54 +131,25 @@ namespace SPW
 		}
 	}
 
-	void ProcessBoneNode(AssetData* asset, aiMesh* mesh, unsigned int offset, const aiScene* scene)
-	{
-		// Bones
-		for (unsigned int i = 0; i < mesh->mNumBones; i++)
-		{
-			const aiBone* bone = mesh->mBones[i];
-			// Weights
-			std::vector<Weight> weights;
-
-			for (unsigned int j = 0; j < bone->mNumWeights; j++)
-				weights.emplace_back(Weight{ bone->mWeights[j].mVertexId + offset, bone->mWeights[j].mWeight });
-
-			asset->skeleton.m_Bones.emplace_back(i, bone->mName.C_Str(), bone->mNumWeights, std::move(weights), glm::toMat4(bone->mOffsetMatrix ));
-		}
-
-		// Iterate through each bone and get its parent bone index
-		for (int i = 0; i < mesh->mNumBones; i++)
-		{
-			const aiBone* bone = mesh->mBones[i];
-			int parentBoneIndex = -1;
-
-			// Check if the bone has a parent node
-			if (bone->mNode->mParent)
-			{
-				// Find the parent bone index by iterating through the bone array
-				for (int j = 0; j < mesh->mNumBones; j++)
-				{
-					if (i == j) continue;
-
-					const aiBone* otherBone = mesh->mBones[j];
-					if (otherBone->mNode == bone->mNode->mParent) {
-						parentBoneIndex = j;
-						break;
-					}
-				}
-			}
-			asset->skeleton.m_Bones[i].parentID = parentBoneIndex;
-			asset->skeleton.m_Bones[i].boneID = i;
-		}
-
-		// Iterate through each bone and get its children indices
-		for (int i = 0; i < mesh->mNumBones; i++)
-		{
-			const auto& parentID = asset->skeleton.m_Bones[i].parentID;
-			if (parentID == -1) continue;
-			asset->skeleton.m_Bones[parentID].childrenIDs.emplace_back(i);
-		}
-	}
+	// void ProcessBoneNode(AssetData* asset, aiMesh* mesh, unsigned int offset, const aiScene* scene, std::vector<BoneInfo>& t_BonesInLoading)
+	// {
+	// 	// Bones
+	// 	for (size_t i = 0; i < mesh->mNumBones; i++)
+	// 	{
+	// 		// Weights
+	// 		std::vector<Weight> weights;
+	// 		for (size_t j = 0; j < mesh->mBones[i]->mNumWeights; j++)
+	// 		{
+	// 			weights.emplace_back(Weight{ mesh->mBones[i]->mWeights[j].mVertexId + offset, mesh->mBones[i]->mWeights[j].mWeight });
+	// 		}
+	// 		BoneInfo boneInfo;
+	// 		boneInfo.boneID = i;
+	// 		boneInfo.name = mesh->mBones[i]->mName.C_Str();
+	// 		boneInfo.weights = std::move(weights);
+	// 		boneInfo.offsetMatrix = glm::toMat4(mesh->mBones[i]->mOffsetMatrix);
+	// 		t_BonesInLoading.emplace_back(std::move(boneInfo));
+	// 	}
+	// }
 
 	void getAllMeshNodes(std::vector<aiMesh*> &meshes, aiNode* node, const aiScene* scene)
 	{
@@ -270,20 +178,15 @@ namespace SPW
 		return ret;
 	}
 
-	std::unordered_map<std::string, SPW::BoneInfo> NameMappingBones(std::vector<BoneInfo> m_Bones)
+	std::unordered_map<std::string, BoneInfo> GetUniqueBoneMap(const std::vector<BoneInfo>& repeatedBones)
 	{
-		std::unordered_map<std::string, SPW::BoneInfo> bone_map;
+		std::unordered_map<std::string, BoneInfo> bone_map;
 
-		int count = 0;
-		for (const auto& bone : m_Bones)
+		for (const auto& bone : repeatedBones)
 		{
 			std::string name = bone.name;
 
-			if (bone_map.contains(name))
-			{
-				count++;
-			}
-			else
+			if (!bone_map.contains(name))
 			{
 				bone_map[name] = bone;
 			}
@@ -291,7 +194,7 @@ namespace SPW
 		return bone_map;
 	}
 
-	void RecursiveCalculateTransforms(AssetData* asset, SPW::AnimationClip& anim_clip, const SPW::HierarchyNode& node, const glm::mat4& parent_transform, int frame)
+	void RecursiveCalculateTransforms(AssetData* asset, AnimationClip& anim_clip, const SPW::HierarchyNode& node, const glm::mat4& parent_transform, int frame)
 	{
 		std::string node_name = node.name;                // get name from assimp Node
 		glm::mat4   local_transform = node.transformation;		// get localTransform from assimpNode
@@ -299,8 +202,8 @@ namespace SPW
 		// auto& curr_frame_matrix = skeleton->boneMatrices[frame];
 		if (auto* anim_node = FindAnimationNode(anim_clip, node_name))
 		{
-			float time = anim_clip.boneBindings[frame].timeStamp;
-			local_transform = SPW::CalculateInterpolatedMatrix(anim_node, time);
+			float time = anim_clip.matrixPerFrames[frame].timeStamp;
+			local_transform = CalculateInterpolatedMatrix(anim_node, time);
 		}
 		local_transform = parent_transform * local_transform;
 
@@ -309,32 +212,23 @@ namespace SPW
 			const auto& boneInfo = asset->skeleton.boneMap[node_name];
 			const auto& boneId = boneInfo.boneID;
 			const auto& boneOffset = boneInfo.offsetMatrix;
-			anim_clip.boneBindings[frame].transformMatrix[boneId] = local_transform * boneOffset;
+			anim_clip.matrixPerFrames[frame].transformMatrix[boneId] = local_transform * boneOffset;
 		}
 
 		for (const auto& child : node.children)
 			RecursiveCalculateTransforms(asset, anim_clip, child, local_transform, frame);
 	}
 
-	void CalculateBoneTransforms(AssetData* asset, SPW::AnimationClip& anim_clip, int frame)
+	void CalculateBoneTransforms(AssetData* asset, AnimationClip& anim_clip, int frame)
 	{
-		RecursiveCalculateTransforms(asset, anim_clip, asset->skeleton.root, glm::mat4(1.0f), frame);
+		RecursiveCalculateTransforms(asset, anim_clip, asset->skeleton.hierarchy, glm::mat4(1.0f), frame);
 	}
-
-
 
 	void LoadMaterial(AssetData* modelData, aiMaterial* material, const std::string& id_str)
 	{
 		MaterialData tmpMaterial{};
 
-		// tmpMaterial->ID = 0; TODO ID Setting
 		tmpMaterial.ID = id_str;
-		// tmpMaterial.type = AssetType::Material;
-		// tmpMaterial.name = material->GetName().C_Str();
-		// tmpMaterial.path = modelData->path;
-		// tmpMaterial.
-
-		// material->Get(AI_MATKEY_NAME, tmpMaterial.name);
 
 		auto& tmpProp = tmpMaterial.m_Properties;
 
@@ -443,12 +337,8 @@ namespace SPW
 
 	Mesh ProcessMeshNode(AssetData* modelData, aiMesh* mesh, const aiScene* scene)
 	{
-		// modelData->model.m_MeshIDs.emplace_back(FileSystem::GenerateRandomUUID());
 		Mesh tmpMesh{};
 		tmpMesh.materialID = FileSystem::GenerateRandomUUID();
-		// tmpMesh.type = AssetType::Mesh;
-		// tmpMesh.name = mesh->mName.C_Str();
-		// tmpMesh.path = modelData->model.path;
 
 		// Vertices
 		for (uint32_t i = 0; i < mesh->mNumVertices; i++)
@@ -488,10 +378,6 @@ namespace SPW
 			for (uint32_t j = 0; j < face.mNumIndices; j++)
 				tmpMesh.indices.emplace_back(face.mIndices[j]);
 		}
-
-		// tmpMesh.offset = offset;
-		// offset += tmpMesh.vertices.size();
-		//		tmpMesh.vertices.size();
 
 		if (!(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
 		{
@@ -538,9 +424,6 @@ namespace SPW
 
 		std::cout << "SUCESS::ASSIMP::" << filename << std::endl;
 
-		// uint32_t offset = 0;
-		// ProcessNodes(ret.get(), scene->mRootNode, scene);
-
 		// Get all meshes from assimp loading
 		std::vector<aiMesh*> all_meshes;
 		getAllMeshNodes(all_meshes, scene->mRootNode, scene);
@@ -551,12 +434,10 @@ namespace SPW
 			ret->meshes.emplace_back(ProcessMeshNode(ret.get(), mesh, scene));
 			ret->meshes.back().offset = offset;
 
-			// pass offset into
-			// ProcessMeshNode(ret.get(), mesh, scene);
 			offset += mesh->mNumVertices;
 		}
 
-// ------- LOAD ANIMATION --------------------------------
+		// ------- LOAD ANIMATION --------------------------------
 		const bool hasAnimations = scene->HasAnimations();
 
 		// Fill the meta information
@@ -571,32 +452,138 @@ namespace SPW
 			ProcessAnimationClips(ret.get(), scene);
 			// ----- ANIMATIONCLIP ----
 
-			// ----- BONES ----
+			// ---------- BONES ----------
 			// Get all meshes from assimp loading
-			size_t anim_offset = 0;
+			unsigned int anim_offset = 0;
+
+			struct Weight
+			{
+				unsigned int vertexID;
+				float value;
+			};
+
+			struct BoneInLoading
+			{
+				int32_t boneID = -1;
+				std::string name;
+				std::vector<Weight> weights;
+				glm::mat4 offsetMatrix;
+			};
+
+			std::vector<BoneInLoading> t_BonesInLoading;
 			for (const auto& mesh : all_meshes)
 			{
-				// pass offset into
-				ProcessBoneNode(ret.get(), mesh, anim_offset, scene);
+				// ProcessBoneNode(ret.get(), mesh, anim_offset, scene, t_BonesInLoading);
+				{
+					// Bones
+					for (size_t i = 0; i < mesh->mNumBones; i++)
+					{
+						// Weights
+						std::vector<Weight> weights;
+						for (size_t j = 0; j < mesh->mBones[i]->mNumWeights; j++)
+						{
+							weights.emplace_back(Weight{ (mesh->mBones[i]->mWeights[j].mVertexId + anim_offset), mesh->mBones[i]->mWeights[j].mWeight });
+						}
+						BoneInLoading boneInfo;
+						boneInfo.boneID = i;
+						boneInfo.name = mesh->mBones[i]->mName.C_Str();
+						boneInfo.weights = std::move(weights);
+						boneInfo.offsetMatrix = glm::toMat4(mesh->mBones[i]->mOffsetMatrix);
+						t_BonesInLoading.emplace_back(std::move(boneInfo));
+					}
+				}
 				anim_offset += mesh->mNumVertices;
 			}
 
 			auto& ret_skeleton = ret->skeleton;
-			ret_skeleton.root    = ProcessHierarchy(scene->mRootNode);
-			ret_skeleton.boneMap = NameMappingBones(ret->skeleton.m_Bones);
-			// ----- BONES ----
+			ret_skeleton.hierarchy    = ProcessHierarchy(scene->mRootNode);
+			// ret_skeleton.boneMap = GetUniqueBoneMap(t_BonesInLoading);
+			{
+				for (const auto& bone : t_BonesInLoading)
+				{
+					std::string name = bone.name;
+
+					if (!ret_skeleton.boneMap.contains(name))
+					{
+						BoneInfo boneInfo;
+						boneInfo.boneID = bone.boneID;
+						boneInfo.name = bone.name;
+						// boneInfo.weights = bone.weights;
+						boneInfo.offsetMatrix = bone.offsetMatrix;
+
+						ret_skeleton.boneMap[name] = boneInfo;
+					}
+				}
+			}
+
+			// ExtractWeightFromBones(ret.get(), t_BonesInLoading);
+			{
+				struct VerMapBone
+				{
+					//Vertex -> <BoneID> -> (stores Index of finalBoneMatrix)
+					std::vector<uint32_t> boneID;
+					//Weight -> <double) -> (stores corresponding weight; (boneID[0] - Weight[0]) )
+					std::vector<float> weight;
+				};
+
+				// VertBoneMap vertBoneMap;
+
+				ret->skeleton.vertexWeightMap.boneCount = t_BonesInLoading.size();
+
+				unsigned int numVertex = 0;
+				std::vector<VerMapBone> verMapBone;
+				for (const auto& m : ret->meshes)
+				{
+					numVertex += m.vertices.size();
+				}
+
+				verMapBone.resize(numVertex);
+				for (auto boneInfo : t_BonesInLoading)
+				{
+					for (Weight weight : boneInfo.weights)
+					{
+						uint32_t vertexID = weight.vertexID;
+						uint32_t boneID = boneInfo.boneID;
+						float value = weight.value;
+
+						verMapBone[vertexID].boneID.push_back(boneID);
+						verMapBone[vertexID].weight.push_back(value);
+					}
+				}
+
+				//Get number of vertices
+				ret->skeleton.vertexWeightMap.startIndex.reserve(verMapBone.size());
+
+				//For every vertex
+				int startInd = 0;
+				for (auto temp : verMapBone)
+				{
+					ret->skeleton.vertexWeightMap.startIndex.push_back(startInd);
+
+					for (int j = 0; j < temp.boneID.size(); j++)
+					{
+						ret->skeleton.vertexWeightMap.boneID.push_back(temp.boneID[j]);
+						ret->skeleton.vertexWeightMap.weights.push_back(temp.weight[j]);
+					}
+					startInd += temp.boneID.size();
+					ret->skeleton.vertexWeightMap.count.push_back(temp.boneID.size());
+				}
+
+				// assetdata->skeleton.vertexWeightMap = vertBoneMap;
+			}
+			// ---------- BONES ----------
 
 			// ---------- Calculate Bone Transforms ----------
 			for(int clip = 0 ; clip < ret_skeleton.animClips.size(); ++clip)
 			{
-				ret_skeleton.animClips[clip].finalBoneMatrices.resize(ret_skeleton.boneMap.size(), glm::mat4(1.0f));
+				ret_skeleton.animClips[clip].boneMatrices.resize(ret_skeleton.boneMap.size(), glm::mat4(1.0f));
 
 				int frameCount = 60;
-				ret_skeleton.animClips[clip].boneBindings.resize(frameCount);
+				ret_skeleton.animClips[clip].matrixPerFrames.resize(frameCount);
 				for (int i = 0; i < frameCount; ++i)
 				{
-					ret_skeleton.animClips[clip].boneBindings[i].timeStamp = ret_skeleton.animClips[clip].duration / static_cast<float>(frameCount - 1) * static_cast<float>(i);
-					ret_skeleton.animClips[clip].boneBindings[i].transformMatrix.resize(ret_skeleton.boneMap.size(), glm::mat4(1.0f));
+					ret_skeleton.animClips[clip].matrixPerFrames[i].timeStamp = ret_skeleton.animClips[clip].duration / static_cast<float>(frameCount - 1) * static_cast<float>(i);
+					ret_skeleton.animClips[clip].matrixPerFrames[i].transformMatrix.resize(ret_skeleton.boneMap.size(), glm::mat4(1.0f));
 				}
 
 				for (int i = 0; i < frameCount; ++i)
@@ -605,7 +592,6 @@ namespace SPW
 				}
 			}
 
-			ExtractWeightFromBones(ret.get());
 		}
 		else
 			std::cout << "No AnimationClips Exist! Only Return Static Data! \n";

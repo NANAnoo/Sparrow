@@ -48,7 +48,7 @@ void SPW::AnimationSystem::beforeUpdate()
 					if (!animationComp->SPW_AnimSSBO->bBinding)
 					{
 						animationComp->SPW_AnimSSBO->bindingBuffer(modelComp);
-						animationComp->SPW_AnimSSBO->updateStaticBuffer(animationComp->skeleton->m_VertBoneMap);
+						animationComp->SPW_AnimSSBO->updateStaticBuffer(animationComp->skeleton->vertexWeightMap);
 					}
 				}
 			};

@@ -34,6 +34,14 @@ namespace SPW
 			ar(cereal::make_nvp(assetData.meshURI, assetData.meshes));
 		}
 
+		if(std::filesystem::exists(FilePath(path).parent_path().string() + "/" + assetData.meshURI + ".anim"))
+		{
+			std::ifstream
+				mesh_bin(FilePath(path).parent_path().string() + "/" + assetData.meshURI + ".anim", std::ios::binary);
+			cereal::BinaryInputArchive ar(mesh_bin);
+			ar(cereal::make_nvp(assetData.meshURI + "anim", assetData.skeleton));
+		}
+
 		return true;
 	}
 
@@ -83,7 +91,7 @@ namespace SPW
 		ar(
 			cereal::make_nvp("assetID", model_data->assetID),
 			cereal::make_nvp("assetName", model_data->assetName),
-			cereal::make_nvp("assetPath", FileSystem::ToRelativePath(model_data->path, SPW::FileRoots::k_Root)),
+			cereal::make_nvp("assetPath", FileSystem::ToRelativePath(model_data->path, FileRoots::k_Root)),
 			cereal::make_nvp("meshURI", model_data->meshURI),
 			cereal::make_nvp("materials", model_data->materials),
 			cereal::make_nvp("textures", model_data->textures)
@@ -94,6 +102,13 @@ namespace SPW
 				mesh_bin(FileSystem::JoinPaths(absolute_modelDir, model_data->meshURI) + ".mesh", std::ios::binary);
 			cereal::BinaryOutputArchive archive(mesh_bin);
 			archive(cereal::make_nvp(model_data->meshURI, model_data->meshes));
+		}
+
+		{
+			std::ofstream
+				mesh_bin(FileSystem::JoinPaths(absolute_modelDir, model_data->meshURI) + ".anim", std::ios::binary);
+			cereal::BinaryOutputArchive archive(mesh_bin);
+			archive(cereal::make_nvp(model_data->meshURI + "anim", model_data->skeleton));
 		}
 
 		return true;

@@ -45,7 +45,7 @@ namespace SPW
 
 			sizes = std::make_shared<StorageBuffer>(
 				"WeightDictSize",
-				SPW_VertexMap.size.size() * sizeof(int),
+				SPW_VertexMap.count.size() * sizeof(int),
 				1);
 
 			boneIndices = std::make_shared<StorageBuffer>(
@@ -60,7 +60,7 @@ namespace SPW
 
 			mats = std::make_shared<StorageBuffer>(
 				"WeightMatries",
-				SPW_VertexMap.m_NumBones * sizeof(glm::mat4),
+				SPW_VertexMap.boneCount * sizeof(glm::mat4),
 				4);
 			bInitialized = true;
 		}
@@ -71,9 +71,9 @@ namespace SPW
 			                      0,
 			                      SPW_VertexMap.startIndex.size() * sizeof(int));
 			sizes->updateSubData(
-				(void*)SPW_VertexMap.size.data(),
+				(void*)SPW_VertexMap.count.data(),
 				0,
-				SPW_VertexMap.size.size() * sizeof(int));
+				SPW_VertexMap.count.size() * sizeof(int));
 
 			boneIndices->updateSubData(
 				(void*)SPW_VertexMap.boneID.data(),
@@ -93,9 +93,9 @@ namespace SPW
 				if (bInitialized)
 				{
 					mats->updateSubData(
-						onGoingAnim->finalBoneMatrices.data(),
+						onGoingAnim->boneMatrices.data(),
 						0,
-						onGoingAnim->finalBoneMatrices.size() * sizeof(glm::mat4)
+						onGoingAnim->boneMatrices.size() * sizeof(glm::mat4)
 					);
 				}
 			}
@@ -151,16 +151,16 @@ namespace SPW
 		//Constructor
 		AnimationComponent() = default;
 
-		explicit AnimationComponent(const std::shared_ptr<Skeleton>& data)
+		explicit AnimationComponent(Skeleton& data)
 		{
-			for (auto& animClip : data->animClips)
+			for (auto& animClip : data.animClips)
 			{
 				allAnimations.insert({animClip.name , animClip});
 			}
 
-			skeleton = data;
+			skeleton = &data;
 
-			SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(skeleton->m_VertBoneMap);
+			SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(skeleton->vertexWeightMap);
 		}
 
 		~AnimationComponent() { onGoingAnim = nullptr; }
@@ -237,7 +237,7 @@ namespace SPW
 		AnimationClip* onGoingAnim = nullptr;
 
 		//Original data
-		std::shared_ptr<Skeleton> skeleton;
+		Skeleton* skeleton;
 	};
 }
 

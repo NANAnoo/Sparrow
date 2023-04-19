@@ -23,7 +23,6 @@ namespace SPW
         std::vector<Mesh>                               meshes;
         std::vector<MaterialData>                       materials;
         std::unordered_map<std::string, std::string>    textures;
-
 		Skeleton skeleton;
 	};
 }

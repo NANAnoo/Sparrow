@@ -18,6 +18,5 @@ namespace SPW
 	{
 	public:
 		static std::unique_ptr<AssetData> LoadModel(const std::string& filename);
-		static std::unique_ptr<Skeleton> LoadAnimation(const std::filesystem::path& filePath);
 	};
 }
