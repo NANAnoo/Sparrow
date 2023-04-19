@@ -5,7 +5,6 @@
 #ifndef SPARROW_COLLIDER_H
 #define SPARROW_COLLIDER_H
 
-#endif //SPARROW_COLLIDER_H
 #include <PxPhysicsAPI.h>
 #include <memory>
 #include "../ComponentI.h"
@@ -26,6 +25,14 @@ namespace SPW{
         ColliderState state = sleep;
         std::shared_ptr<PhysicMaterial> custom_material_;
         bool is_trigger_ = false;
+
+
+        std::function<void(const SPW::Entity* e)> trigger_enter;
+        std::function<void(const SPW::Entity* e)> trigger_leave;
+        std::function<void(const SPW::Entity* e1,const SPW::Entity* e2)> contact_enter;
+        std::function<void(const SPW::Entity* e1,const SPW::Entity* e2)> contact_leave;
+
+
 
 
     protected:
@@ -66,3 +73,5 @@ namespace SPW{
 
 
 }
+
+#endif //SPARROW_COLLIDER_H
