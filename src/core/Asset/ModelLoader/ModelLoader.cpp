@@ -69,15 +69,6 @@ namespace glm
 
 namespace SPW
 {
-	struct VertBoneMap
-	{
-		// Buffer information
-		std::vector<uint32_t> startIndex;
-		std::vector<uint32_t> size;
-		std::vector<float> weights;
-		std::vector<uint32_t> boneID;
-		int m_NumBones;
-	};
 
 	void ExtractWeightFromBones(AssetData* assetdata)
 	{
@@ -123,6 +114,8 @@ namespace SPW
 			startInd += temp.boneID.size();
 			vertBoneMap.size.push_back(temp.boneID.size());
 		}
+
+		assetdata->skeleton.m_VertBoneMap = vertBoneMap;
 	}
 
 	uint32_t findBoneId (const std::vector<BoneInfo>& m_Bones, std::string name)

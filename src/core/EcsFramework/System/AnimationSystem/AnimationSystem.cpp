@@ -22,18 +22,13 @@ void SPW::AnimationSystem::beforeUpdate()
 				auto animationComp = entity.component<AnimationComponent>();
 				auto modelComp = entity.component<MeshComponent>();
 
-				if (!animationComp->mapInitialize)
-				{
-					animationComp->initializeMapping(modelComp->assetName);
-				}
-
 				//Binding buffer
 				if (animationComp->SPW_AnimSSBO)
 				{
 					if (!animationComp->SPW_AnimSSBO->bBinding)
 					{
 						animationComp->SPW_AnimSSBO->bindingBuffer(modelComp);
-						animationComp->SPW_AnimSSBO->updateStaticBuffer(animationComp->SPW_VertexMap);
+						animationComp->SPW_AnimSSBO->updateStaticBuffer(animationComp->skeleton->m_VertBoneMap);
 					}
 				}
 			});

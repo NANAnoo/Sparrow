@@ -366,10 +366,6 @@ std::shared_ptr<SPW::Skeleton> skeleton = std::make_shared<SPW::Skeleton>(SPW::M
 // add a model to show
 auto dragon_anim = dragon->emplace<SPW::AnimationComponent>(skeleton);
 dragon_anim->swapCurrentAnim("dragon_idle");
-dragon_anim->initializeMapping("dragon");
-
-// __debugbreak();
-
 // --------------------------------------------------------------------------------
 
 
