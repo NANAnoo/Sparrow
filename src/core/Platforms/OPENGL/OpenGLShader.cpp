@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include "OpenGLShaderStorageBuffer.h"
 
 namespace SPW
 {
@@ -159,5 +160,23 @@ namespace SPW
         setFloat(name+".quadratic",light.quadratic);
     }
 
+    void OpenGLShader::setStorageBuffer(std::shared_ptr<StorageBuffer> buffer)
+    {
+        buffer->flush();
+        auto ubo = std::dynamic_pointer_cast<OpenGLSSBO>(buffer->ssbo);
+        GLuint idx = glGetProgramResourceIndex(ID, GL_SHADER_STORAGE_BLOCK, buffer->name.c_str());
+        glShaderStorageBlockBinding(ID, idx, buffer->slot);
+    }
+    
+    void OpenGLShader::bindTex2D(unsigned int slot, unsigned int texid) const
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D,texid);
+    }
 
+    void OpenGLShader::bindTexArray(unsigned int slot, unsigned int texid) const
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D_ARRAY,texid);
+    }
 }

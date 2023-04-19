@@ -9,6 +9,7 @@
 
 #include "EcsFramework/Entity/Entity.hpp"
 #include "System/SystemI.h"
+#include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "Component/ComponentI.h"
 #include "Component/BasicComponent/IDComponent.h"
 #include "Component/BasicComponent/NameComponent.h"
@@ -43,6 +44,7 @@ namespace SPW {
             auto ent = std::make_shared<SPW::Entity>(registry);
             ent->emplace<SPW::IDComponent>(uid);
             ent->emplace<SPW::NameComponent>(name);
+            all_entities[uid.toString()] = ent;
             return ent;
         }
 
@@ -53,6 +55,30 @@ namespace SPW {
         // delete entity
         void deleteEntity(const std::shared_ptr<Entity> &entity) {
             registry->destroy(entity->entity);
+            all_entities.erase(entity->getUUID().toString());
+        }
+
+        // get entity by id
+        std::shared_ptr<Entity> getEntityByID(const std::string &uuid) {
+            if (all_entities.find(uuid) != all_entities.end()) {
+                return all_entities[uuid];
+            }
+            return nullptr;
+        }
+
+        // remove entity by id
+        void removeEntityByID(const std::string &uuid) {
+            if (all_entities.find(uuid) != all_entities.end()) {
+                deleteEntity(all_entities[uuid]);
+            }
+        }
+
+        void onEvent(const std::shared_ptr<EventI> &e) override{
+            if (isUIMode) {
+                // uiroot.onEvent(e);
+            } else {
+                EventResponderI::onEvent(e);
+            }
         }
 
         // for each
@@ -124,6 +150,25 @@ namespace SPW {
             return "SPWDefaultScene";
         }
 
+        // for UI
+        unsigned int getUIRenderGraphID() {
+            return m_renderSystem.lock()->uiGraph->graph_id;
+        }
+
+        unsigned int getUIRenderNodeID() {
+            return m_renderSystem.lock()->uiNode->pass_id;
+        }
+
+        UUID getUIProgramID() {
+            return m_renderSystem.lock()->UIProgram->uuid;
+        }
+
+        std::weak_ptr<SPWRenderSystem> m_renderSystem;
+
+        std::shared_ptr<Entity> uiCamera;
+
+        bool isUIMode = false;
+
     private:
         // get entity with components
         template<Component ...C>
@@ -131,6 +176,8 @@ namespace SPW {
             auto res = registry->view<C...>();
             return res;
         }
+
+        std::unordered_map<std::string, std::shared_ptr<Entity>> all_entities;
 
         std::shared_ptr<entt::registry> registry;
         std::vector<std::shared_ptr<SystemI>> systems;

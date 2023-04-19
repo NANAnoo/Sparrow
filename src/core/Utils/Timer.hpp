@@ -115,6 +115,22 @@ namespace SPW {
             return timer().current();
         }
     }
+
+    class TikTok {
+    public:
+        TikTok(const std::string &msg) : msg(msg) {
+            start = Timer::current();
+        }
+        ~TikTok() {
+            end = Timer::current();
+            std::printf("[%s costing]: %f ms\n", msg.c_str(), (end - start).toMs());
+        }
+        TimeStamp start;
+        TimeStamp end;
+        std::string msg;
+    };
+
+    #define TICKTOCK SPW::TikTok tiktok(std::string(__FUNCTION__));
 }
 
 //std::ostream& operator << (std::ostream &os, const SPW::TimeStamp &ts) {

@@ -11,7 +11,7 @@ macro(CORE_ADD_SOURCE)
     set(CoreSourceFiles ${CoreSourceFiles} ${SOURCE_FILES} PARENT_SCOPE)
 endmacro(CORE_ADD_SOURCE)
 
-set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h" EcsFramework/System/PhysicSystem/PhysicSystem.cpp EcsFramework/System/PhysicSystem/PhysicSystem.h Physics/physic_error_call_back.h EcsFramework/Component/PhysicalComponent/Collider.h EcsFramework/Component/PhysicalComponent/RigidActor.h Physics/PhysicMaterial.cpp Physics/PhysicMaterial.h Physics/SimulationEventCallback.h)
+set(CoreSourceFiles "${SparrowCoreDir}/SparrowCore.h" IO/ResourceManager.h Model/Mesh.h Model/Model.h Model/Vertex.h EcsFramework/Component/AnimationComponent/AnimationComponent.h EcsFramework/System/AnimationSystem/AnimationSystem.cpp EcsFramework/System/AnimationSystem/AnimationSystem.h IO/ResourceManager.cpp)
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(Utils)
@@ -21,9 +21,10 @@ add_subdirectory(ApplicationFramework)
 add_subdirectory(EcsFramework)
 add_subdirectory(Platforms)
 add_subdirectory(Render)
-add_subdirectory(Model)
 add_subdirectory(IO)
 add_subdirectory(Physics)
+add_subdirectory(Model)
+add_subdirectory(LuaBinding)
 # --------------------------- ALL SUBMODULES HERE --------------------------
 
 message("Core Sources:" ${CoreSourceFiles})
@@ -47,5 +48,6 @@ target_link_libraries(SparrowCore PUBLIC glfw
         PUBLIC Physx::base Physx::foundation Physx::extension Physx::pvd 
         PUBLIC FMOD::Core FMOD::Fsbank FMOD::Studio
         PUBLIC assimp
+        PUBLIC luasocket
         PUBLIC ${OPENGL_LIBRARIES}
         )

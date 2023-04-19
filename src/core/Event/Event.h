@@ -85,9 +85,15 @@ namespace SPW {
     private:
         std::unordered_set<EventResponderI*> subResponders;
         std::weak_ptr<EventResponderI> parent;
-
-        // private logic
-        void onEvent(const std::shared_ptr<EventI> &e) {
+        void dispatchEvent(const std::shared_ptr<EventI> &e) {
+            // track event processing chain in debug mode
+            DEBUG_EXPRESSION(e->processChain.emplace_back(getName());)
+            // try to consume event
+            solveEvent(e);
+            DEBUG_EXPRESSION(if (e->consumed)std::cout << e << std::endl;)
+        }
+    protected:
+        virtual void onEvent(const std::shared_ptr<EventI> &e) {
             if (e->consumed || !canRespondTo(e)) return;
             // pass event to children nodes
             for (auto sub : subResponders) {
@@ -97,13 +103,6 @@ namespace SPW {
             // try to consume event
             if (!e->consumed)
                 dispatchEvent(e);
-        }
-        void dispatchEvent(const std::shared_ptr<EventI> &e) {
-            // track event processing chain in debug mode
-            DEBUG_EXPRESSION(e->processChain.emplace_back(getName());)
-            // try to consume event
-            solveEvent(e);
-            DEBUG_EXPRESSION(if (e->consumed)std::cout << e << std::endl;)
         }
     friend Application;
     };

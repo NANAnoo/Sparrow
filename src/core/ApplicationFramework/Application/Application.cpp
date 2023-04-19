@@ -2,6 +2,7 @@
 
 #include "Utils/MessageDefines.h"
 #include "Utils/Timer.hpp"
+#include "Utils/Debounce.hpp"
 
 SPW::Application::Application()
         :EventResponderI() {
@@ -21,6 +22,7 @@ int SPW::Application::run(int argc, char **argv) {
     while (isRunning) {
         // pull events, update window
         window->getGraphicsContext()->SwapBuffers();
+        MainThreadExecutor::getInstance()->process_tasks();
         window->onUpdate();
         // calculate duration
         TimeDuration du = SPW::Timer::current() - begin;

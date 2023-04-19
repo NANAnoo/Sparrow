@@ -27,6 +27,8 @@ namespace SPW
         std::vector<Vertex>         vertices;
         std::vector<unsigned int>   indices;
 
+        unsigned int offset = 0;
+
         Mesh() = default;
 
         Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices)
@@ -42,6 +44,11 @@ namespace SPW
             renderBackEnd->DrawElement(VBuffer,EBO);
             VBuffer->UnBind();
 
+        }
+
+        void PureDraw(const std::shared_ptr<RenderBackEndI>& renderBackEnd)
+        {
+            renderBackEnd->DrawElement(VBuffer,EBO);
         }
 
         void setupMesh(std::shared_ptr<RenderBackEndI>& renderBackEnd)
