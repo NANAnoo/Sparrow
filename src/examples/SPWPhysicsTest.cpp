@@ -252,16 +252,7 @@ public:
             transform->rotation = {-90, 90, 0};
             transform->position = {0, -0.5, 0};
             //add physics rigid actor
-            auto  rigid1 = obj->emplace<SPW::RigidDynamicComponent>();
-            rigid1->rigidState=SPW::Awake;
 
-            auto  collider1 = obj->emplace<SPW::CapsuleCollider>();
-            collider1->capsule_half_height_=0.8;
-            collider1->capsule_radius_=0.8;
-            collider1->degree=PxHalfPi;
-            collider1->capsule_axis_=glm::vec3(0,0,1);
-            collider1->state = SPW::needAwake;
-            collider1->is_trigger_=false;
 
 
 

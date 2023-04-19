@@ -28,6 +28,8 @@
 #include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/PhysicalComponent/RigidActor.h"
+#include "EcsFramework/Component/PhysicalComponent/Collider.h"
 
 #include "EcsFramework/Component/Audio/AudioComponent.h"
 #include "EcsFramework/Component/Audio/AudioListener.h"
@@ -39,6 +41,7 @@
 #include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
+#include "EcsFramework/System/PhysicSystem/PhysicSystem.h"
 
 #include "Model/Model.h"
 
@@ -232,6 +235,7 @@ public:
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::PhysicSystem>(scene));
 
             // create ui camera
             scene->uiCamera = scene->createEntity("ui_camera");
@@ -318,7 +322,7 @@ public:
             auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.05, 0.05, 0.05};
             transform->rotation = {0, 90, 0};
-            transform->position = {0, -0.3, 0};
+            transform->position = {0, 4, 0};
 
             // add a model to show
             auto model = obj->emplace<SPW::MeshComponent>(camera_id);
@@ -332,6 +336,16 @@ public:
             auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
             //animation->swapCurrentAnim("mixamo.com");
             animation->swapCurrentAnim("Scene");
+            auto  rigid1 = obj->emplace<SPW::RigidDynamicComponent>();
+            rigid1->rigidState=SPW::Awake;
+
+            auto  collider1 = obj->emplace<SPW::CapsuleCollider>();
+            collider1->capsule_half_height_=0.1;
+            collider1->capsule_radius_=0.1;
+            collider1->degree=PxHalfPi;
+            collider1->capsule_axis_=glm::vec3(0,0,1);
+            collider1->state = SPW::needAwake;
+            collider1->is_trigger_=false;
 
             // --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
@@ -343,6 +357,11 @@ public:
 
             cubemodel->bindRenderGraph = pbr_with_PDshadow->graph_id;
             cubemodel->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_tiled_desc.uuid;
+            auto  rigid2 = cubeObj->emplace<SPW::RigidStaticComponent>();
+            rigid2->rigidState=SPW::Awake;
+            auto  collider2 = cubeObj->emplace<SPW::BoxCollider>();
+            collider2->box_size_=glm::vec3(10,0.001,10);
+            collider2->state = SPW::needAwake;
 
             // --------------------------------------------------------------------------------
             auto skybox = scene->createEntity("skybox");
