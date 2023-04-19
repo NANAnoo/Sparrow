@@ -41,11 +41,6 @@ namespace SPW
 		explicit SPWVertexBoneMap(const std::vector<BoneInfo>& m_Bones, const std::string& assetName)
 		{
 			m_NumBones = m_Bones.size();
-			ExtractWeightFromBones(assetName, m_Bones);
-		}
-
-		void ExtractWeightFromBones(const std::string& assetName, std::vector<BoneInfo> m_BoneMap)
-		{
 			const auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[assetName].meshes;
 			unsigned int numVertex = 0;
 			std::vector<VerMapBone> verMapBone;
@@ -55,7 +50,7 @@ namespace SPW
 			}
 
 			verMapBone.resize(numVertex);
-			for (auto boneInfo : m_BoneMap)
+			for (auto boneInfo : m_Bones)
 			{
 				for (Weight weight : boneInfo.weights)
 				{
@@ -86,6 +81,11 @@ namespace SPW
 				startInd += temp.boneID.size();
 				size.push_back(temp.boneID.size());
 			}
+		}
+
+		void ExtractWeightFromBones(const std::string& assetName, std::vector<BoneInfo> m_BoneMap)
+		{
+			
 		}
 
 		// Buffer information

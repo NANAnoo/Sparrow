@@ -1,31 +1,31 @@
 {
-    "assetID": "50f330e4-1a4d-46f4-8655-ae02e8d5a25a",
+    "assetID": "34fcadf4-dc56-4c6f-a21f-7e4574f8ed13",
     "assetName": "dragon",
     "assetPath": "Assets/dragon/dragon.json",
-    "meshURI": "4fcb9d39-b3b9-429d-886a-bd1f1881cad3",
+    "meshURI": "7d3e680e-ac84-4986-a73a-61a505a52d26",
     "materials": [
         {
-            "id": "58eb4938-37ef-4c65-9a7f-a0563679e2b6",
+            "id": "6c0689b5-701d-438e-aa6f-736fdc500f84",
             "textureMap": [
                 {
                     "key": "Albedo",
-                    "value": "1f797c31-63bf-4d75-bb32-0eae17c6b964"
+                    "value": "019b3f3c-7054-4f10-abf5-41e9e1b26876"
                 },
                 {
                     "key": "Normal",
-                    "value": "260b2367-bb8f-4ed7-8d49-2db56174b374"
+                    "value": "f3164407-9ad3-4bde-8980-d05eb4423c14"
                 },
                 {
                     "key": "Metalness",
-                    "value": "c5b93cb1-70e2-41a6-b707-d0939d99c712"
+                    "value": "456e8417-57be-4c24-8f8a-410ce4cf77ad"
                 },
                 {
                     "key": "Roughness",
-                    "value": "67892ae0-8f4d-4710-b631-9fc703f726b6"
+                    "value": "6c77b07d-a1b7-4e2d-83ba-b4ae5309872d"
                 },
                 {
                     "key": "AmbientOcclusion",
-                    "value": "8fa00b21-0b2f-497a-8428-cf17c328761d"
+                    "value": "b291f21d-996f-46a4-904a-33da95295c0d"
                 }
             ],
             "property": {
@@ -73,27 +73,27 @@
             }
         },
         {
-            "id": "930a0a3d-749e-4dac-8240-bb143fde20e8",
+            "id": "70fc3dbf-969e-464c-8c61-2a192f2bc892",
             "textureMap": [
                 {
                     "key": "Albedo",
-                    "value": "9a60e8fc-3859-4808-8601-5c95fda4de93"
+                    "value": "9dece111-8037-4682-a380-f01f5953b91e"
                 },
                 {
                     "key": "Normal",
-                    "value": "ccb505e6-96bc-42ab-8692-a3c7e4899f3b"
+                    "value": "f850394e-1296-4b1e-8354-eee21b783d60"
                 },
                 {
                     "key": "Metalness",
-                    "value": "b679d8d0-e3a5-41ec-b62d-139bc019e9df"
+                    "value": "f3c9e14f-089b-4423-ac31-62ac82a1da45"
                 },
                 {
                     "key": "Roughness",
-                    "value": "b778c9f0-a959-41c6-93c6-7bafc7a50c68"
+                    "value": "6fc672fc-b778-493f-8e61-d894cff97c2d"
                 },
                 {
                     "key": "AmbientOcclusion",
-                    "value": "a832105d-1849-424e-a80e-1094e3bb926d"
+                    "value": "2c390338-1b96-41ea-8946-98680458a22b"
                 }
             ],
             "property": {
@@ -141,27 +141,27 @@
             }
         },
         {
-            "id": "6573aeec-b460-479f-9c15-b5da9629f22a",
+            "id": "b8fa43d4-e01c-4f6f-945c-cd55617a4701",
             "textureMap": [
                 {
                     "key": "Albedo",
-                    "value": "505434fc-9a7e-425e-9893-acea3498e8c8"
+                    "value": "18c3a2b9-f4e4-42e2-b4e5-9363a58ac080"
                 },
                 {
                     "key": "Normal",
-                    "value": "6814323a-d262-4665-a7a0-879fcfda5396"
+                    "value": "0df4be09-d04e-4944-bbc9-4a722f32763a"
                 },
                 {
                     "key": "Metalness",
-                    "value": "8d26f6e9-6987-446c-a2af-e8bb640c0c2b"
+                    "value": "8a2c797d-4ebc-495e-977d-6387a7de6a4d"
                 },
                 {
                     "key": "Roughness",
-                    "value": "6e3aed06-b0ae-4fc1-a90e-65576deeb265"
+                    "value": "8ecaaf76-352b-4bc2-bab7-af65d45cde87"
                 },
                 {
                     "key": "AmbientOcclusion",
-                    "value": "5d317215-9d0a-481f-9e61-4b5381f894f6"
+                    "value": "48bd3d33-6ed7-40f4-9a62-306907d04a53"
                 }
             ],
             "property": {
@@ -209,27 +209,27 @@
             }
         },
         {
-            "id": "125839ab-c0f7-4778-ac09-2d3b6942de46",
+            "id": "fe1615d4-025a-492a-af0c-bcc92a918212",
             "textureMap": [
                 {
                     "key": "Albedo",
-                    "value": "366504bf-570e-426f-967e-1ed1197adbc6"
+                    "value": "3211d259-bc9f-4558-b38f-333d27179e58"
                 },
                 {
                     "key": "Normal",
-                    "value": "cfe26b08-520d-499e-ab2e-d3a85f8659cd"
+                    "value": "e0d14213-c822-4d88-bfa3-b247c1290d3d"
                 },
                 {
                     "key": "Metalness",
-                    "value": "c46ddaad-c431-4ce9-8f2b-25253e157a86"
+                    "value": "d66127f7-db5f-487a-bc18-81f1e74535c3"
                 },
                 {
                     "key": "Roughness",
-                    "value": "269685cb-e2b7-44c2-a72b-a5065b72a0f9"
+                    "value": "971c2c31-a611-4a84-8985-c854b4f12463"
                 },
                 {
                     "key": "AmbientOcclusion",
-                    "value": "a7f9bd4a-12a8-45ba-b9ac-f1a2863529be"
+                    "value": "3c29c69d-4045-45ee-bfb5-1d4eef1de073"
                 }
             ],
             "property": {
@@ -279,83 +279,83 @@
     ],
     "textures": [
         {
-            "key": "1f797c31-63bf-4d75-bb32-0eae17c6b964",
+            "key": "f850394e-1296-4b1e-8354-eee21b783d60",
+            "value": "Assets/dragon/Textures/EYES_baseColor.jpeg"
+        },
+        {
+            "key": "456e8417-57be-4c24-8f8a-410ce4cf77ad",
+            "value": "Assets/dragon/Textures/Material_metallicRoughness.png"
+        },
+        {
+            "key": "019b3f3c-7054-4f10-abf5-41e9e1b26876",
             "value": "Assets/dragon/Textures/Material_baseColor.jpeg"
         },
         {
-            "key": "8fa00b21-0b2f-497a-8428-cf17c328761d",
-            "value": "Assets/dragon/Textures/Material_metallicRoughness.png"
-        },
-        {
-            "key": "260b2367-bb8f-4ed7-8d49-2db56174b374",
+            "key": "f3164407-9ad3-4bde-8980-d05eb4423c14",
             "value": "Assets/dragon/Textures/Material_normal.png"
         },
         {
-            "key": "c5b93cb1-70e2-41a6-b707-d0939d99c712",
+            "key": "6c77b07d-a1b7-4e2d-83ba-b4ae5309872d",
             "value": "Assets/dragon/Textures/Material_metallicRoughness.png"
         },
         {
-            "key": "67892ae0-8f4d-4710-b631-9fc703f726b6",
+            "key": "b291f21d-996f-46a4-904a-33da95295c0d",
             "value": "Assets/dragon/Textures/Material_metallicRoughness.png"
         },
         {
-            "key": "9a60e8fc-3859-4808-8601-5c95fda4de93",
+            "key": "9dece111-8037-4682-a380-f01f5953b91e",
             "value": "Assets/dragon/Textures/EYES_baseColor.jpeg"
         },
         {
-            "key": "6814323a-d262-4665-a7a0-879fcfda5396",
+            "key": "f3c9e14f-089b-4423-ac31-62ac82a1da45",
+            "value": "Assets/dragon/Textures/EYES_metallicRoughness.png"
+        },
+        {
+            "key": "6fc672fc-b778-493f-8e61-d894cff97c2d",
+            "value": "Assets/dragon/Textures/EYES_metallicRoughness.png"
+        },
+        {
+            "key": "2c390338-1b96-41ea-8946-98680458a22b",
+            "value": "Assets/dragon/Textures/EYES_metallicRoughness.png"
+        },
+        {
+            "key": "18c3a2b9-f4e4-42e2-b4e5-9363a58ac080",
+            "value": "Assets/dragon/Textures/EYES_baseColor.jpeg"
+        },
+        {
+            "key": "0df4be09-d04e-4944-bbc9-4a722f32763a",
             "value": "Assets/dragon/Textures/Game_dragon_normal.jpeg"
         },
         {
-            "key": "ccb505e6-96bc-42ab-8692-a3c7e4899f3b",
-            "value": "Assets/dragon/Textures/EYES_baseColor.jpeg"
-        },
-        {
-            "key": "b679d8d0-e3a5-41ec-b62d-139bc019e9df",
-            "value": "Assets/dragon/Textures/EYES_metallicRoughness.png"
-        },
-        {
-            "key": "8d26f6e9-6987-446c-a2af-e8bb640c0c2b",
+            "key": "8a2c797d-4ebc-495e-977d-6387a7de6a4d",
             "value": "Assets/dragon/Textures/Game_dragon_metallicRoughness.png"
         },
         {
-            "key": "b778c9f0-a959-41c6-93c6-7bafc7a50c68",
-            "value": "Assets/dragon/Textures/EYES_metallicRoughness.png"
-        },
-        {
-            "key": "a832105d-1849-424e-a80e-1094e3bb926d",
-            "value": "Assets/dragon/Textures/EYES_metallicRoughness.png"
-        },
-        {
-            "key": "c46ddaad-c431-4ce9-8f2b-25253e157a86",
-            "value": "Assets/dragon/Textures/Game_dragon.001_metallicRoughness.png"
-        },
-        {
-            "key": "505434fc-9a7e-425e-9893-acea3498e8c8",
-            "value": "Assets/dragon/Textures/EYES_baseColor.jpeg"
-        },
-        {
-            "key": "6e3aed06-b0ae-4fc1-a90e-65576deeb265",
+            "key": "8ecaaf76-352b-4bc2-bab7-af65d45cde87",
             "value": "Assets/dragon/Textures/Game_dragon_metallicRoughness.png"
         },
         {
-            "key": "5d317215-9d0a-481f-9e61-4b5381f894f6",
+            "key": "48bd3d33-6ed7-40f4-9a62-306907d04a53",
             "value": "Assets/dragon/Textures/Game_dragon_metallicRoughness.png"
         },
         {
-            "key": "366504bf-570e-426f-967e-1ed1197adbc6",
+            "key": "3211d259-bc9f-4558-b38f-333d27179e58",
             "value": "Assets/dragon/Textures/EYES_baseColor.jpeg"
         },
         {
-            "key": "cfe26b08-520d-499e-ab2e-d3a85f8659cd",
+            "key": "e0d14213-c822-4d88-bfa3-b247c1290d3d",
             "value": "Assets/dragon/Textures/Game_dragon_normal.jpeg"
         },
         {
-            "key": "269685cb-e2b7-44c2-a72b-a5065b72a0f9",
+            "key": "d66127f7-db5f-487a-bc18-81f1e74535c3",
             "value": "Assets/dragon/Textures/Game_dragon.001_metallicRoughness.png"
         },
         {
-            "key": "a7f9bd4a-12a8-45ba-b9ac-f1a2863529be",
+            "key": "971c2c31-a611-4a84-8985-c854b4f12463",
+            "value": "Assets/dragon/Textures/Game_dragon.001_metallicRoughness.png"
+        },
+        {
+            "key": "3c29c69d-4045-45ee-bfb5-1d4eef1de073",
             "value": "Assets/dragon/Textures/Game_dragon.001_metallicRoughness.png"
         }
     ]

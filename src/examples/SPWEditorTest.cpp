@@ -203,10 +203,6 @@ public:
             SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
         }
 
-    	// {
-     //        auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "scifi_cube/scifi_cube.json");
-     //        SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
-     //    }
 
     	{
             auto data = SPW::AssetManager::LoadAsset(SPW::k_Assets + "sand_cube/sand_cube.json");
@@ -268,7 +264,6 @@ auto empty_node= CreateEmptyNode(scene);
             p_shadowmap_node->height = 256;
             p_shadowmap_node->clearType = SPW::ClearDepth;
 
-
             auto d_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
             d_shadowmap_node->width = 2048;
             d_shadowmap_node->height = 2048;
@@ -300,6 +295,16 @@ auto empty_node= CreateEmptyNode(scene);
                                                        "./resources/shaders/pbrShadow.frag"
                                                });
 
+
+            // animation shader
+        	SPW::ShaderHandle pbr_ani_light_shadow({
+                             "pbr_light_shadow",
+                             "./resources/shaders/ani_model.vert",
+                             "./resources/shaders/pbrShadow.frag"
+                });
+
+
+
             SPW::ShaderHandle pbr_light_shadow_tiled({
                                                              "pbr_light_shadow_tiled",
                                                              "./resources/shaders/simpleVs.vert",
@@ -310,10 +315,19 @@ auto empty_node= CreateEmptyNode(scene);
             auto d_shadow_desc = SPW::D_shadowmap_desc();
             auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
             auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow_tiled);
-            renderSystem->addShaderDesciptor(pbr_light_shadow_desc);
+
+            auto p_ani_shadow_desc = SPW::P_ani_shadowmap_desc();
+            auto d_ani_shadow_desc = SPW::D_ani_shadowmap_desc();
+            auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_ani_light_shadow);
+
+
+        	renderSystem->addShaderDesciptor(pbr_light_shadow_desc);
             renderSystem->addShaderDesciptor(pbr_light_shadow_tiled_desc);
             renderSystem->addShaderDesciptor(p_shadow_desc);
             renderSystem->addShaderDesciptor(d_shadow_desc);
+            renderSystem->addShaderDesciptor(p_ani_shadow_desc);
+            renderSystem->addShaderDesciptor(d_ani_shadow_desc);
+            renderSystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
 
             // --------------- create shader ---------------
             auto camera_id = createMaincamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
@@ -329,8 +343,6 @@ auto empty_node= CreateEmptyNode(scene);
 
 // --------------- dragon ---------------
 
-// dragon_ptr = SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf");
-
 auto dragon = scene->createEntity("dragon");
 auto dragon_transform = dragon->emplace<SPW::TransformComponent>();
 dragon_transform->scale = { 0.05, 0.05, 0.05 };
@@ -339,15 +351,18 @@ dragon_transform->position = { 0, -0.3, 0 };
 
 auto dragon_model = dragon->emplace<SPW::MeshComponent>(camera_id);
 dragon_model->bindRenderGraph = pbr_with_PDshadow->graph_id;
-dragon_model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
-dragon_model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
-dragon_model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
+dragon_model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
+dragon_model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
+dragon_model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_ani_light_shadow_desc.uuid;
 
 dragon_model->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
 dragon_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName;
 dragon_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].path;
 
+auto data = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"];
+
 std::shared_ptr<SPW::Skeleton> skeleton = std::make_shared<SPW::Skeleton>(SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf")->skeleton);
+
 // add a model to show
 auto dragon_anim = dragon->emplace<SPW::AnimationComponent>(skeleton);
 dragon_anim->swapCurrentAnim("dragon_idle");

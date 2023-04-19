@@ -507,8 +507,12 @@ namespace SPW {
                 for (int idx = 0; idx < meshes.size() ; ++idx)
                 {
                     bindMaterial(shader, shader_desc.mat_inputs, input.backend, materials[idx], textures, slot);
+                    if (shader_desc.context_inputs.contains(MeshOffset))
+                        shader->setInt(shader_desc.context_inputs.at(MeshOffset), meshes[idx].offset);
                     meshes[idx].PureDraw(input.backend);
                 }
+
+
             }
         }
     }
