@@ -5,22 +5,27 @@
  */
 #include "ImGuiFileExplorer.h"
 #include "IO/FileSystem.h"
+#include "ImGui/ImGuiManager.hpp"
+
 namespace SPW
 {
 	void SPW::ImGuiFileExplorer::Draw()
 	{
-		ImGui::Begin("Selected Folder");
+		ImGui::Begin(ICON_FA_FILE "  Selected Folder");
+		//ImGui::Text("%s", ); // Displays the "fa-camera" icon
+
 		if (!selected_dir.empty())
 		{
 			DisplaySelectedFolder(selected_dir);
 		}
 		ImGui::End();
 
-		DisplayImGuiFileExplorer(FileRoots::k_Root);
+		const char* icon = ICON_FA_FOLDER"  ";
+		DisplayImGuiFileExplorer(icon, FileRoots::k_Root);
 		DisplayImagePanel();
 	}
 
-	void SPW::ImGuiFileExplorer::DisplayImGuiFileExplorer(const std::string& path)
+	void SPW::ImGuiFileExplorer::DisplayImGuiFileExplorer(const char* icon, const std::string& path)
 	{
 		for (const auto& entry: fs::directory_iterator(FilePath(path)))
 		{
@@ -28,16 +33,18 @@ namespace SPW
 			if (fs::is_directory(entryPath))
 			{
 				std::string folderName = entryPath.filename().string();
-
-				if (ImGui::TreeNode(folderName.c_str()))
+				bool open = false;
+				//const char* icon = ICON_FA_FOLDER"  ";
+				if (ImGui::TreeNode((icon + folderName).c_str()))
 				{
-					DisplayImGuiFileExplorer(entryPath.string());
+					DisplayImGuiFileExplorer(icon, entryPath.string());
 					ImGui::TreePop();
 				}
 
 				if (ImGui::IsItemClicked())
 				{
 					selected_dir = entryPath.string();
+					open = !open;
 				}
 			}
 			else

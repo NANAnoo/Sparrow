@@ -4,6 +4,7 @@ EDITOR_ADD_SOURCE(
         ImGuiManager.hpp
         ImGuiManager.cpp
 
+        IconsFontAwesome6.h
         ImGuiIconManager.hpp
 
         ImGuiFileDialog.h

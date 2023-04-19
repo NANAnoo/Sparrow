@@ -23,6 +23,7 @@
 #include "ImGui/ImGuiIconManager.hpp"
 #include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
 #include "Asset/ResourceManager/ResourceManager.h"
+#include "ImGui/IconsFontAwesome6.h"
 #include "IO/FileSystem.h"
 
 namespace SPW
@@ -31,7 +32,7 @@ namespace SPW
 	{
 	public:
 		ImGuiInspectorPanel(std::string title, ImGuiIconManager* iconManager, bool* open = nullptr)
-			: ImGuiPanel(std::move(title), open)
+			: ImGuiPanel(ICON_FA_CIRCLE_EXCLAMATION"  "+std::move(title), open)
 			, m_IconManager(iconManager)
 		{
 		}

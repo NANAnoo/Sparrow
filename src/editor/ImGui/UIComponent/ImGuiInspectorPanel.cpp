@@ -1,5 +1,6 @@
 #include "ImGuiInspectorPanel.h"
 #include "EcsFramework/Component/ComponentTypes.h"
+#include "ImGui/IconsFontAwesome6.h"
 
 namespace SPW
 {
@@ -174,9 +175,7 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawTransformComponent(TransformComponent* component)
 	{
 		ImGui::PushID("Transform");
-		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-		ImGui::SameLine();
-		if (ImGui::TreeNode("Transform")) /* TODO: add icon*/
+		if (ImGui::TreeNode(ICON_FA_ARROW_RIGHT"		Transform")) 
 		{
 			if (ImGui::Button("delete"))
 			{
@@ -256,9 +255,7 @@ namespace SPW
 			auto& active_asset_data = ResourceManager::getInstance()->m_AssetDataMap[component->assetName];
 
 			ImGui::PushID("Asset Meta");
-			ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-			ImGui::SameLine();
-			std::string label = "Asset Meta: " + component->assetName;
+			std::string label = ICON_FA_DATABASE"		Asset Meta : " + component->assetName;
 			if (ImGui::TreeNode(label.c_str()))
 			{
 				if (ImGui::BeginChild("Asset Meta", ImVec2(0, 60), true))
@@ -273,9 +270,7 @@ namespace SPW
 			ImGui::PopID();
 
 			ImGui::PushID("Mesh Filter");
-			ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-			ImGui::SameLine();
-			if (ImGui::TreeNode("Mesh Filter"))
+			if (ImGui::TreeNode(ICON_FA_SQUARE"		Mesh Filter"))
 			{
 				// Add a child window with scrolling capabilities
 				ImGui::BeginChild("MeshFilterNoScrolling", ImVec2(0, 100), false,
@@ -300,9 +295,7 @@ namespace SPW
 			ImGui::PopID();
 
 			ImGui::PushID("Mesh Renderer");
-			ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-			ImGui::SameLine();
-			if (ImGui::TreeNode("Mesh Renderer"))
+			if (ImGui::TreeNode(ICON_FA_PALETTE"		Mesh Renderer"))
 			{
 				if (!component->assetName.empty())
 				{
@@ -384,10 +377,8 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawAnimationComponent(AnimationComponent* component) const
 	{
 		ImGui::PushID("Animation");
-		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-		ImGui::SameLine();
 
-		if (ImGui::TreeNode("Animation")) /* TODO: add icon*/
+		if (ImGui::TreeNode(ICON_FA_PERSON_RUNNING"		Animation")) /* TODO: add icon*/
 		{
 			if (ImGui::Button("delete"))
 			{
@@ -423,12 +414,10 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawCameraComponent(CameraComponent* component) const
 	{
 		ImGui::PushID("Camera");
-		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-		ImGui::SameLine();
 
 		const char* items[] = {"Perspective", "Ortho", "UIOrtho"};
 
-		if (ImGui::TreeNode("Camera")) /* TODO: add icon*/
+		if (ImGui::TreeNode(ICON_FA_CAMERA"		 Camera")) 
 		{
 			if (ImGui::Button("delete"))
 			{
@@ -490,12 +479,12 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawLightComponent() const
 	{
 		ImGui::PushID("Light");
-		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-		ImGui::SameLine();
+		//ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
+		//ImGui::SameLine();
 
 		//  PointLightComponent = 0, DirectionalLightComponent = 1;
-		const char* items[] = {"Point Light", "Directional Light"};
-		if (ImGui::TreeNode("Light Source"))
+		const char* items[] = {"Point Light","Directional Light"};
+		if (ImGui::TreeNode(ICON_FA_SUN"		Light Source"))
 		{
 			int orignal_lightType = m_Entity->has<PointLightComponent>() ? 0 : 1;
 
@@ -585,9 +574,7 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawAudioComponent(AudioComponent* component) const
 	{
 		ImGui::PushID("Audio Source");
-		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-		ImGui::SameLine();
-		if (ImGui::TreeNode("Audio Source")) /* TODO: add icon*/
+		if (ImGui::TreeNode(ICON_FA_MUSIC"			Audio Source")) /* TODO: add icon*/
 		{
 			if (ImGui::Button("delete"))
 			{
@@ -622,9 +609,7 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawAudioListener(AudioListener* component) const
 	{
 		ImGui::PushID("Audio");
-		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-		ImGui::SameLine();
-		if (ImGui::TreeNode("Audio")) /* TODO: add icon*/
+		if (ImGui::TreeNode(ICON_FA_HEADPHONES"		Audio")) /* TODO: add icon*/
 		{
 			if (ImGui::Button("delete"))
 			{
@@ -650,9 +635,7 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawKeyComponent(KeyComponent* component) const
 	{
 		ImGui::PushID("Event System");
-		ImGui::Image(reinterpret_cast<void*>(m_IconManager->GetLibIcon("file")), k_DefalutImageSize);
-		ImGui::SameLine();
-		if (ImGui::TreeNode("Event System")) /* TODO: add icon*/
+		if (ImGui::TreeNode(ICON_FA_BULLHORN"		Event System")) /* TODO: add icon*/
 		{
 			if (ImGui::Button("delete"))
 			{

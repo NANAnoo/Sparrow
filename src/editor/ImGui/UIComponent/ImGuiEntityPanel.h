@@ -5,6 +5,7 @@
  */
 #include "ImGuiInspectorPanel.h"
 #include "ImGuiPanel.h"
+#include "ImGui/IconsFontAwesome6.h"
 
 namespace SPW
 {
@@ -21,7 +22,7 @@ namespace SPW
 		};
 
 		ImGuiEntityPanel(const std::string& title, bool* open = nullptr)
-			: ImGuiPanel(title, open)
+			: ImGuiPanel(ICON_FA_LIST"  "+title, open)
 		{	}
 
 		void UpdateMenuItemLabel(const std::string& id, const std::string& label);
@@ -53,7 +54,7 @@ namespace SPW
 			for (const auto& item_pair : m_Items)
 			{
 				const auto& item = item_pair.second;
-				if (ImGui::MenuItem(item.name.c_str()))
+				if (ImGui::MenuItem(ICON_FA_CUBE,item.name.c_str()))
 				{
 					item.callback();
 				}

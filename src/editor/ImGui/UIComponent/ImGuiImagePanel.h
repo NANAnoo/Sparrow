@@ -7,7 +7,7 @@ namespace SPW {
 	{
 	public:
 		ImGuiImagePanel(int64_t tid)
-			: ImGuiPanel("Image Panel")
+			: ImGuiPanel(ICON_FA_IMAGE"  Image Panel")
 			, texture_id(tid)
 		{	}
 

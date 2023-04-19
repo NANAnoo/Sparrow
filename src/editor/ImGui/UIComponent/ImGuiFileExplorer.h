@@ -11,20 +11,22 @@
 #include "IO/FileSystem.h"
 #include <stb_image.h>
 
+#include "ImGui/IconsFontAwesome6.h"
+
 namespace SPW
 {
 	class ImGuiFileExplorer : public ImGuiPanel
     {
     public:
 		ImGuiFileExplorer(ImGuiIconManager* iconManager)
-			: ImGuiPanel("File Explorer Panel")
+			: ImGuiPanel(ICON_FA_FILE"  File Explorer Panel")
 			, m_IconManager(iconManager)
 		{ }
 
     protected:
 		void Draw() override;
 	private:
-		void DisplayImGuiFileExplorer(const std::string& path);
+		void DisplayImGuiFileExplorer(const char* icon, const std::string& path);
 		void DisplaySelectedFolder(const std::string& folderPath);
 		int64_t LoadImage(const std::string& file_path);
 		void DisplayImagePanel();

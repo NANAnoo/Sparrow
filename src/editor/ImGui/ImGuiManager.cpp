@@ -5,13 +5,14 @@
  */
 #include "ImGuiManager.hpp"
 
+#include "Asset/Serializer/EntitySerializer.h"
+
 namespace SPW
 {
-	void ImGuiManager::Init(GLFWwindow *window)
-	{
+	void ImGuiManager::Init(GLFWwindow* window) {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGuiIO &io = ImGui::GetIO();
+		ImGuiIO& io = ImGui::GetIO();
 		(void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
@@ -21,8 +22,26 @@ namespace SPW
 
 		windowHandle = window;
 
+		ImFont* default_font = io.Fonts->AddFontDefault();
+		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		ImFontConfig icons_config;
+		icons_config.MergeMode = true;  // This is important for merging the fonts
+		icons_config.PixelSnapH = true;
+		icons_config.OversampleH = icons_config.OversampleV = 1;
+		icons_config.GlyphMinAdvanceX = 4.0f;
+		icons_config.SizePixels = 16.f;
+		icons_config.GlyphOffset = ImVec2(0.0f,3.0f);
+		//io.Fonts->AddFontFromMemoryCompressedTTF(
+		//	FONT_ICON_FILE_NAME_FAS,
+		//	10, 16.f,
+		//	&icons_config, icons_ranges);
+		const char* font_path = "E:/gitdownload/Sparrow/resources/fonts/fa-solid-900.ttf";
+		//const char* font_path = "./resources/fonts/fa-solid-900.ttf";
+		io.Fonts->AddFontFromFileTTF(font_path, 16.0f, &icons_config, icons_ranges);
+
 		InitLayout();
 	}
+
 
 	void ImGuiManager::Begin()
 	{
@@ -108,8 +127,8 @@ namespace SPW
 		m_MainMenuBar->AddSubMenu("Tool");
 		m_MainMenuBar->AddSubMenu("Help");
 		m_MainMenuBar->AddSubMenu("About");
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() { std::cout << "Clikecd on Import Model"; });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Export Asset", [&]() {std::cout << "Clikecd on Export Asset"; });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {SPW::EntitySerializer::SaveScene(m_Scene); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {std::cout << "Clikecd on Export Asset"; });
 	}
 
 	void ImGuiManager::InitEntityPanel()
@@ -119,7 +138,7 @@ namespace SPW
 
 	void ImGuiManager::InitSceneHierarchy()
 	{
-		m_HierarchyPanel = std::make_shared<ImGuiTreeNodePanel>("Hierarchy Panel");
+		m_HierarchyPanel = std::make_shared<ImGuiTreeNodePanel>(ICON_FA_LIST"  Hierarchy Panel");
 
 		m_HierarchyPanel->AddTreeNode("Root", [] { std::cout << "Clicked on Root" << std::endl; });
 		m_HierarchyPanel->AddChildTreeNode("Root", "FolderA", [] { std::cout << "Clicked on FolderA" << std::endl; });

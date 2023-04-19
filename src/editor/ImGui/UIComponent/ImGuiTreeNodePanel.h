@@ -22,7 +22,7 @@ public:
   };
 
   ImGuiTreeNodePanel(std::string title, bool* open = nullptr)
-      : ImGuiPanel(std::move(title), open)
+      : ImGuiPanel( std::move(title), open)
   { }
 
   ImGuiTreeNodePanel(std::string title, std::vector<TreeNode> treeNodes, bool* open = nullptr)

@@ -26,11 +26,10 @@ namespace SPW
 			Draw();
 			End();
 		}
-
 	protected:
 		virtual void Begin()
 		{
-			ImGui::Begin(m_title.c_str(), m_open);
+			ImGui::Begin(m_title.c_str(), m_open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 		}
 
 		virtual void Draw() = 0;

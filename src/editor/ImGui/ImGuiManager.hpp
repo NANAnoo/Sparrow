@@ -17,7 +17,7 @@
 #include "UIComponent/ImGuiProfilingPanel.h"
 #include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
 #include "Asset/ResourceManager/ResourceManager.h"
-
+#include "ImGui/IconsFontAwesome6.h"
 
 namespace SPW
 {
@@ -26,7 +26,11 @@ namespace SPW
 	class ImGuiManager
 	{
 	public:
-		ImGuiManager() = default;
+		ImGuiManager(std::shared_ptr<Scene> scene)
+		{
+			m_Scene = scene;
+		}
+			
 
 		void Init(GLFWwindow* window);
 		void Begin();
@@ -61,11 +65,14 @@ namespace SPW
 		std::shared_ptr<ImGuiFileExplorer>      m_FileExplorer;
 		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
 		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel;
+		std::shared_ptr<Scene>				    m_Scene;
+
 
 
 		bool show_demo_window = false;
 		GLFWwindow* windowHandle;
 		std::unique_ptr<ImGuiIconManager>		m_ImguiIconManager;
+
     };
 
 }
