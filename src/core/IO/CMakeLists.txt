@@ -2,6 +2,9 @@ CORE_ADD_SOURCE(
 		FileSystem.h
 		FileSystem.cpp
 
+		ConfigManager.h
+		ConfigManager.cpp
+
 		SOIL2/common.cpp
 		SOIL2/common.hpp
 		SOIL2/image_DXT.c

@@ -5,11 +5,12 @@
  */
 #include "ImGuiFileExplorer.h"
 #include "IO/FileSystem.h"
+#include "IO/ConfigManager.h"
 #include "ImGui/ImGuiManager.hpp"
 
 namespace SPW
 {
-	void SPW::ImGuiFileExplorer::Draw()
+	void ImGuiFileExplorer::Draw()
 	{
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove;
 		bool* p_open = nullptr;
@@ -23,11 +24,12 @@ namespace SPW
 		ImGui::End();
 
 		const char* icon = ICON_FA_FOLDER"  ";
-		DisplayImGuiFileExplorer(icon, FileRoots::k_Root);
+		DisplayImGuiFileExplorer(icon, Config::k_WorkingProjectRoot);
+		DisplayImGuiFileExplorer(icon, Config::k_EngineRoot);
 		DisplayImagePanel();
 	}
 
-	void SPW::ImGuiFileExplorer::DisplayImGuiFileExplorer(const char* icon, const std::string& path)
+	void ImGuiFileExplorer::DisplayImGuiFileExplorer(const char* icon, const std::string& path)
 	{
 		for (const auto& entry: fs::directory_iterator(FilePath(path)))
 		{

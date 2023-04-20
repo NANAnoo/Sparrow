@@ -14,16 +14,16 @@ namespace SPW
 	namespace fs = std::filesystem;
 	using FilePath = std::filesystem::path;
 
-	inline namespace FileRoots
-	{
-		extern std::string k_Root;
-
-		extern std::string k_Engine;
-
-		extern std::string k_Assets;
-
-		extern std::string k_Scenes;
-	}
+	// inline namespace FileRoots
+	// {
+	// 	extern std::string k_Root;
+	//
+	// 	extern std::string k_Engine;
+	//
+	// 	extern std::string k_Assets;
+	//
+	// 	extern std::string k_Scenes;
+	// }
 
 	class FileSystem
 	{
@@ -32,7 +32,11 @@ namespace SPW
 
 		static void MountEngine();
 
+		static void MountFromConfig();
+
 		static void copy_directory(const std::filesystem::path& source, const std::filesystem::path& destination);
+
+		static std::string GetUserHomeDir();
 
 		static std::string GetProjectName();
 
@@ -42,7 +46,7 @@ namespace SPW
 
 		static std::string ToAbsolutePath(const std::string& reativepath, const std::string& basepath);
 
-		static std::string ToAbsolutePath(const std::string& reativepath);
+		static std::string ToEningeAbsolutePath(const std::string& reativepath);
 
 		static std::vector<FilePath> GetFiles(const FilePath& directory)
 		{
@@ -74,7 +78,7 @@ namespace SPW
 
 		static bool CreateDirectory(const std::string& dir_name);
 
-		static void CopyFile(const std::string& src, const std::string& dest);
+		static bool CopyFile(const std::string& src, const std::string& dest);
 	};
 
 }

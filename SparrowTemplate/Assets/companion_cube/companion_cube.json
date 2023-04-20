@@ -1,0 +1,274 @@
+{
+    "assetID": "447c3da0-435f-45b9-82c4-e60b2a5b8366",
+    "assetName": "companion_cube",
+    "assetPath": "Assets/companion_cube/companion_cube.json",
+    "meshURI": "b6bed3f8-0c59-4049-94e3-8b8b9d8fd715",
+    "materials": [
+        {
+            "id": "7fe14278-a6f2-4b6d-99db-f96db5ffcdc6",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "56523289-c736-4a5a-94b6-c2a09e640ced"
+                },
+                {
+                    "key": "Normal",
+                    "value": "edad721f-45ab-441e-9b7b-b4a860950152"
+                },
+                {
+                    "key": "Metalness",
+                    "value": "7d235558-47ef-4c1d-b919-2c6c95b48b42"
+                },
+                {
+                    "key": "Roughness",
+                    "value": "45284b27-1d33-41ca-b717-c93f88a718a4"
+                },
+                {
+                    "key": "AmbientOcclusion",
+                    "value": "28130270-a7d1-4da3-81c7-0ca1124aac06"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 1.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 0.0,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "c9d45523-0205-43bf-8ae0-ae8dfd8e9cf1",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "b2b09138-b71a-4c32-86eb-f5bc8f84556b"
+                },
+                {
+                    "key": "Normal",
+                    "value": "6220a040-7cc1-4f78-aadd-73dcee5c72ad"
+                },
+                {
+                    "key": "Metalness",
+                    "value": "21a79499-34d4-4b14-8a8c-2b2e9be9dbe4"
+                },
+                {
+                    "key": "Roughness",
+                    "value": "fbc2d1b8-a1d8-49e0-b62f-d3a7b847359e"
+                },
+                {
+                    "key": "AmbientOcclusion",
+                    "value": "aa374996-475f-40fa-b663-b6832b28cefc"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 1.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 0.0,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "99cb15f9-8162-4fde-85a7-e31234013709",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "898f588f-e2fa-44a2-9cec-6d497f257d0f"
+                },
+                {
+                    "key": "Normal",
+                    "value": "be1055e7-0853-4617-97fe-14ac189ec319"
+                },
+                {
+                    "key": "Metalness",
+                    "value": "c6c11409-5e08-45d7-b13f-bb1dbb5b845d"
+                },
+                {
+                    "key": "Roughness",
+                    "value": "29bc1c95-b748-4099-8fb6-57f2981e962d"
+                },
+                {
+                    "key": "AmbientOcclusion",
+                    "value": "2426fbe7-9e97-4664-bd9d-fcf67c72e99e"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 1.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 0.0,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        }
+    ],
+    "textures": [
+        {
+            "key": "21a79499-34d4-4b14-8a8c-2b2e9be9dbe4",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "b2b09138-b71a-4c32-86eb-f5bc8f84556b",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_baseColor.jpeg"
+        },
+        {
+            "key": "56523289-c736-4a5a-94b6-c2a09e640ced",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_baseColor.jpeg"
+        },
+        {
+            "key": "edad721f-45ab-441e-9b7b-b4a860950152",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_normal.jpeg"
+        },
+        {
+            "key": "7d235558-47ef-4c1d-b919-2c6c95b48b42",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "45284b27-1d33-41ca-b717-c93f88a718a4",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "28130270-a7d1-4da3-81c7-0ca1124aac06",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "6220a040-7cc1-4f78-aadd-73dcee5c72ad",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_normal.jpeg"
+        },
+        {
+            "key": "fbc2d1b8-a1d8-49e0-b62f-d3a7b847359e",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "aa374996-475f-40fa-b663-b6832b28cefc",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "898f588f-e2fa-44a2-9cec-6d497f257d0f",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_baseColor.jpeg"
+        },
+        {
+            "key": "be1055e7-0853-4617-97fe-14ac189ec319",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_normal.jpeg"
+        },
+        {
+            "key": "c6c11409-5e08-45d7-b13f-bb1dbb5b845d",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "29bc1c95-b748-4099-8fb6-57f2981e962d",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        },
+        {
+            "key": "2426fbe7-9e97-4664-bd9d-fcf67c72e99e",
+            "value": "Assets/companion_cube/Textures/DefaultMaterial_metallicRoughness.png"
+        }
+    ]
+}
