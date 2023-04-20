@@ -14,6 +14,7 @@ namespace SPW
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
 		(void)io;
+		//io.IniFilename = "./default.ini";
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		ImGui::StyleColorsDark();
@@ -39,7 +40,15 @@ namespace SPW
 		//const char* font_path = "./resources/fonts/fa-solid-900.ttf";
 		io.Fonts->AddFontFromFileTTF(font_path, 16.0f, &icons_config, icons_ranges);
 
+		//file dialog panel
+		file_dialog = std::make_shared<ImGuiFileDialog>();
+
+		importModel_MessageBox = std::make_unique<ImGuiMessageBox>("Import Model", "file", "Import Model Sucessed!", std::vector{ "OK" }, false);
+		textureCompression_MessageBox = std::make_unique<ImGuiMessageBox>("textureCompression_MessageBox Model", "file", "textureCompression_MessageBox Model Sucessed!", std::vector{ "OK" }, false);
+
+		m_FileDialogID = -1;
 		InitLayout();
+		
 	}
 
 
@@ -91,13 +100,13 @@ namespace SPW
 
 	void ImGuiManager::InitLayout()
 	{
+		loadDefaultLayout();
 		InitIconManager();
 		InitMenuBar();
 		InitEntityPanel();
 		InitSceneHierarchy();
 		InitInspectorPanel();
 		InitFileExplorer();
-		InitFileDialogPanel();
 		m_ProfilingPanel = std::make_shared<ImGuiProfilingPanel>();
 
 		// m_TestWindow = std::make_shared<ImGuiMessageBox>("My Window", ImVec2(200, 100), ImVec2(100, 100));
@@ -108,7 +117,6 @@ namespace SPW
 		m_DockspacePanel->AddPanel(m_HierarchyPanel);
 		m_DockspacePanel->AddPanel(m_InspectorPanel);
 		m_DockspacePanel->AddPanel(m_FileExplorer);
-		m_DockspacePanel->AddPanel(m_FileDialogPanel);
 		m_DockspacePanel->AddPanel(m_ProfilingPanel);
 	}
 
@@ -129,6 +137,12 @@ namespace SPW
 		m_MainMenuBar->AddSubMenu("About");
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {SPW::EntitySerializer::SaveScene(m_Scene); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {std::cout << "Clikecd on Export Asset"; });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() {FileDialogCallBack_1(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Asset", [&]() {FileDialogCallBack_2();  });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Image Compression", [&]() {FileDialogCallBack_3();  });
+
+		//using fileDiaglogCallback = std::function<void()>;
+
 	}
 
 	void ImGuiManager::InitEntityPanel()
@@ -158,8 +172,91 @@ namespace SPW
 		m_FileExplorer = std::make_shared<ImGuiFileExplorer>(m_ImguiIconManager.get());
 	}
 
-	void ImGuiManager::InitFileDialogPanel()
+	void ImGuiManager::FileDialogCallBack_1()
 	{
-		m_FileDialogPanel = std::make_shared<ImGuiFileDialogPanel>();
+		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
+		m_FileDialogID = 1;
+	}
+
+	void ImGuiManager::FileDialogCallBack_2()
+	{
+		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
+		m_FileDialogID = 2;
+	}
+
+	void ImGuiManager::FileDialogCallBack_3()
+	{
+		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
+		m_FileDialogID = 3;
+	}
+
+	void ImGuiManager::DisplayDialog() const
+	{
+		if (file_dialog->Display("ChooseFileDlgKey"))
+		{
+			if (file_dialog->IsOk())
+			{
+				std::string file_path = file_dialog->GetFilePathName();
+				// Do something with the file_path
+				std::string filePathName = file_dialog->GetFilePathName();
+				std::string fileName = file_dialog->GetCurrentFileName();
+
+				std::string extension = FileSystem::ToFsPath(fileName).extension().string();
+				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+
+				if(m_FileDialogID == 1)
+				{
+					if (extension == ".gltf" || extension == ".fbx" || extension == ".obj")
+					{
+						if (AssetManager::ImportModel(filePathName))
+						{
+							importModel_MessageBox->trigger_flag = true;
+						}
+					}
+				}
+
+				if(m_FileDialogID == 2)
+				{
+					if (extension == ".json" || extension == ".asset")
+					{
+						auto asset_data = AssetManager::LoadAsset(filePathName);
+						ResourceManager::getInstance()->m_AssetDataMap[asset_data.assetName] = asset_data;
+					}
+				}
+
+				if (m_FileDialogID == 3)
+				{
+					if (extension == ".png" || extension == ".jpg" || extension == ".jepg")
+					{
+						auto data = AssetManager::LoadTextureData(filePathName);
+						if (AssetManager::CompressImage(std::move(data), filePathName))
+						{
+							textureCompression_MessageBox->trigger_flag = true;
+						}
+					}
+				}
+				
+			}
+			file_dialog->Close();
+		}
+	}
+
+	void ImGuiManager::loadDefaultLayout() const{
+		std::ifstream default_ini("./default.ini");
+		std::ofstream imgui_ini("./imgui.ini");
+
+		if (!default_ini.is_open() || !imgui_ini.is_open()) {
+			std::cerr << "Error: Could not open ini files." << std::endl;
+			return;
+		}
+
+		std::string line;
+		while (std::getline(default_ini, line)) {
+			imgui_ini << line << std::endl;
+		}
+
+		default_ini.close();
+		imgui_ini.close();
 	}
 }

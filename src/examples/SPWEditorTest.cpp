@@ -251,7 +251,7 @@ public:
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+            // scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 
             //TODO
             //scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
@@ -512,33 +512,33 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand
         //----------------------------------------------------------------------------------------
         m_ImguiManager->Begin();
 
-        ImGui::Begin("Test Button Panel");
+        //ImGui::Begin("Test Button Panel");
 
         //------------------ SAVE SCENE -----------------------
-        if(ImGui::Button("Save Scene"))
-        {
-            ImGui::OpenPopup("Save Scene");
-            SPW::EntitySerializer::SaveScene(scene);
-        }
-        if (ImGui::BeginPopupModal("Save Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-        {
-            ImGui::Text("Save Scene Sucessed!");
-            if (ImGui::Button("x")) { ImGui::CloseCurrentPopup(); }
-            ImGui::EndPopup();
-        }
-        if(ImGui::Button("Load Scene"))
-        {
-            isLoading = true;
-            isPause = false;
-        }
-        if(ImGui::Button("Pause Scene")){
-            std::cout << " Clicked!\n";
-            isLoading = false;
-            isPause = true;
-        }
+        //if(ImGui::Button("Save Scene"))
+        //{
+        //    ImGui::OpenPopup("Save Scene");
+        //    SPW::EntitySerializer::SaveScene(scene);
+        //}
+        //if (ImGui::BeginPopupModal("Save Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        //{
+        //    ImGui::Text("Save Scene Sucessed!");
+        //    if (ImGui::Button("x")) { ImGui::CloseCurrentPopup(); }
+        //    ImGui::EndPopup();
+        //}
+        //if(ImGui::Button("Load Scene"))
+        //{
+        //    isLoading = true;
+        //    isPause = false;
+        //}
+        //if(ImGui::Button("Pause Scene")){
+        //    std::cout << " Clicked!\n";
+        //    isLoading = false;
+        //    isPause = true;
+        //}
 
 
-    	ImGui::End();
+    	//ImGui::End();
         //----------------------------------------------------------------------------------------
         m_ImguiManager->CreateImagePanel(renderSystem->getTextureID());
 

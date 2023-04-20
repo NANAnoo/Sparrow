@@ -14,7 +14,7 @@ namespace SPW
 	{
 	public:
 		ImGuiProfilingPanel()
-			: ImGuiPanel(ICON_FA_DATABASE"  Profiling Panel")
+			: ImGuiPanel(ICON_FA_DATABASE"  Profiling Panel",nullptr, ImGuiWindowFlags_NoMove )
 		{ }
 
 		void Draw() override

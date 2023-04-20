@@ -40,10 +40,22 @@ namespace SPW
 		void EnableViewport() const;
 		GLFWwindow* GetWindowHandle() const {return windowHandle;}
 
-		void RenderAllPanels() const { m_DockspacePanel->Render(); }
+		void RenderAllPanels() const
+		{
+			m_DockspacePanel->Render();
+			DisplayDialog();
+		}
 		void CreateImagePanel(uint64_t renderID);
 		std::shared_ptr<ImGuiEntityPanel>     GetEntityPanel() { return m_EntityPanel; }
 		std::shared_ptr<ImGuiInspectorPanel>  GetInspectorPanel() { return m_InspectorPanel; }
+
+		void FileDialogCallBack_1();
+		void FileDialogCallBack_2();
+		void FileDialogCallBack_3();
+
+
+		void DisplayDialog() const;
+		void loadDefaultLayout() const;
 
 	private:
 		void InitLayout();
@@ -53,7 +65,6 @@ namespace SPW
 		void InitSceneHierarchy();
 		void InitInspectorPanel();
 		void InitFileExplorer();
-		void InitFileDialogPanel();
 
 	private:
 		std::shared_ptr<ImGuiDockSpace>			m_DockspacePanel;
@@ -67,11 +78,16 @@ namespace SPW
 		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel;
 		std::shared_ptr<Scene>				    m_Scene;
 
+		//file dialog panel
+		SharedPtr<ImGuiFileDialog> file_dialog;
 
+		std::unique_ptr<ImGuiMessageBox> importModel_MessageBox;
+		std::unique_ptr<ImGuiMessageBox> textureCompression_MessageBox;
 
 		bool show_demo_window = false;
 		GLFWwindow* windowHandle;
 		std::unique_ptr<ImGuiIconManager>		m_ImguiIconManager;
+		std::uint32_t m_FileDialogID ;
 
     };
 

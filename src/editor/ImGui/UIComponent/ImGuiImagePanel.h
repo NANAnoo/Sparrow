@@ -6,7 +6,7 @@ namespace SPW
 	{
 	public:
 		ImGuiImagePanel(int64_t tid)
-			: ImGuiPanel(ICON_FA_IMAGE"  Image Panel")
+			: ImGuiPanel(ICON_FA_IMAGE"  Image Panel",nullptr, ImGuiWindowFlags_NoMove )
 			  , texture_id(tid)
 		{
 		}
@@ -14,7 +14,7 @@ namespace SPW
 	protected:
 		void Begin() override
 		{
-			ImGui::Begin(ImGuiPanel::m_title.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar);
+			ImGui::Begin(ImGuiPanel::m_title.c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 		}
 
 		void Draw() override

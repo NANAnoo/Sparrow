@@ -32,7 +32,7 @@ namespace SPW
 	{
 	public:
 		ImGuiInspectorPanel(std::string title, ImGuiIconManager* iconManager, bool* open = nullptr)
-			: ImGuiPanel(ICON_FA_CIRCLE_EXCLAMATION"  "+std::move(title), open)
+			: ImGuiPanel(ICON_FA_CIRCLE_EXCLAMATION"  "+std::move(title), open,ImGuiWindowFlags_NoMove )
 			, m_IconManager(iconManager)
 		{
 		}

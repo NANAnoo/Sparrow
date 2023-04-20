@@ -17,7 +17,7 @@ namespace SPW {
     void SPWRenderSystem::initial() {
         renderBackEnd->Init();
         
-        renderBackEnd->loadShaderLib(k_Engine + "shaders/baselib/");
+        renderBackEnd->loadShaderLib("./resources/shaders/baselib/");
 
         screenBuffer = renderBackEnd->createFrameBuffer();
 

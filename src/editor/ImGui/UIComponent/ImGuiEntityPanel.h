@@ -22,7 +22,7 @@ namespace SPW
 		};
 
 		ImGuiEntityPanel(const std::string& title, bool* open = nullptr)
-			: ImGuiPanel(ICON_FA_LIST"  "+title, open)
+			: ImGuiPanel(ICON_FA_LIST"  "+title, open, ImGuiWindowFlags_NoMove )
 		{	}
 
 		void UpdateMenuItemLabel(const std::string& id, const std::string& label);

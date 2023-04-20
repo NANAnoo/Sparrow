@@ -11,7 +11,9 @@ namespace SPW
 {
 	void SPW::ImGuiFileExplorer::Draw()
 	{
-		ImGui::Begin(ICON_FA_FILE "  Selected Folder");
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove;
+		bool* p_open = nullptr;
+		ImGui::Begin(ICON_FA_FILE "  Selected Folder",p_open,window_flags);
 		//ImGui::Text("%s", ); // Displays the "fa-camera" icon
 
 		if (!selected_dir.empty())

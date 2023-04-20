@@ -19,7 +19,7 @@ namespace SPW
     {
     public:
 		ImGuiFileExplorer(ImGuiIconManager* iconManager)
-			: ImGuiPanel(ICON_FA_FILE"  File Explorer Panel")
+			: ImGuiPanel(ICON_FA_FILE"  File Explorer Panel",nullptr,ImGuiWindowFlags_NoMove)
 			, m_IconManager(iconManager)
 		{ }
 

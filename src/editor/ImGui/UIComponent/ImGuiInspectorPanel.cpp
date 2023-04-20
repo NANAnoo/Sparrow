@@ -6,6 +6,7 @@ namespace SPW
 {
 	void ImGuiInspectorPanel::Draw()
 	{
+
 		if (m_Entity != nullptr)
 		{
 			// ------------- UPDATE NAME ------------- 
@@ -175,7 +176,7 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawTransformComponent(TransformComponent* component)
 	{
 		ImGui::PushID("Transform");
-		if (ImGui::TreeNode(ICON_FA_ARROW_RIGHT"		Transform")) 
+		if (ImGui::TreeNode(ICON_FA_ARROW_RIGHT"		Transform"))
 		{
 			if (ImGui::Button("delete"))
 			{
