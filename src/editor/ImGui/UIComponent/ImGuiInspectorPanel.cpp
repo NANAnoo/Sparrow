@@ -176,7 +176,7 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawTransformComponent(TransformComponent* component)
 	{
 		ImGui::PushID("Transform");
-		if (ImGui::TreeNode(ICON_FA_ARROW_RIGHT"		Transform"))
+		if (ImGui::TreeNode(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT"		Transform"))
 		{
 			if (ImGui::Button("delete"))
 			{
@@ -485,7 +485,8 @@ namespace SPW
 
 		//  PointLightComponent = 0, DirectionalLightComponent = 1;
 		const char* items[] = {"Point Light","Directional Light"};
-		if (ImGui::TreeNode(ICON_FA_SUN"		Light Source"))
+		// ImGui::LabelText();
+		if (ImGui::TreeNode(ICON_FA_LIGHTBULB"		Light Source"))
 		{
 			int orignal_lightType = m_Entity->has<PointLightComponent>() ? 0 : 1;
 
