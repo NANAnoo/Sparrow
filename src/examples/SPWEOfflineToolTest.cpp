@@ -352,7 +352,7 @@ public:
 			light3->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(2);
 			light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
-			m_ImguiManager = std::make_shared<SPW::ImGuiManager>();
+			m_ImguiManager = std::make_shared<SPW::ImGuiManager>(scene);
 			m_ImguiManager->Init(handle);
 
 

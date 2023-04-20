@@ -18,19 +18,23 @@ namespace SPW {
             locatedScene(scene) {
 
         }
-        void setPausd(bool pause) {
+
+        virtual void setPausd(bool pause)
+    	{
             isPaused = pause;
-        };
-        virtual void initial() = 0;
+        }
+
+    	virtual void initial() = 0;
         virtual void beforeUpdate() = 0;
         virtual void onUpdate(TimeDuration dt) = 0;
         virtual void afterUpdate() = 0;
         virtual void onStop() = 0;
-        bool isPaused = false;
+        
 
 
     protected:
         std::weak_ptr<Scene> locatedScene;
+        bool isPaused = false;
     };
 }
 

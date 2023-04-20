@@ -35,7 +35,7 @@ namespace SPW
 		//	FONT_ICON_FILE_NAME_FAS,
 		//	10, 16.f,
 		//	&icons_config, icons_ranges);
-		const char* font_path = "E:/gitdownload/Sparrow/resources/fonts/fa-solid-900.ttf";
+		const char* font_path = "./resources/fonts/fa-solid-900.ttf";
 		//const char* font_path = "./resources/fonts/fa-solid-900.ttf";
 		io.Fonts->AddFontFromFileTTF(font_path, 16.0f, &icons_config, icons_ranges);
 

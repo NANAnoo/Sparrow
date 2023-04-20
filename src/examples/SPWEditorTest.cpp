@@ -247,8 +247,11 @@ public:
             renderSystem = std::make_shared<SPW::SPWRenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight());
 
 			// add system
-            //scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(renderSystem);
+            scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 
             //TODO
             //scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
@@ -497,19 +500,6 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand
     void beforeAppUpdate() final
 	{
         scene->beforeUpdate();
-        if(isLoading){
-            scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
-        }else{
-            if(isPause){
-                scene->PauseSystem(std::make_shared<SPW::AudioSystem>(scene));
-                scene->PauseSystem(std::make_shared<SPW::KeyControlSystem>(scene));
-                scene->PauseSystem(std::make_shared<SPW::AnimationSystem>(scene));
-                scene->PauseSystem(std::make_shared<SPW::MouseControlSystem>(scene));
-            }
-        }
     }
     void onAppUpdate(const SPW::TimeDuration &du) final{
 

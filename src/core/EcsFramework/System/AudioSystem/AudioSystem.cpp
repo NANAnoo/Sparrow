@@ -28,7 +28,6 @@ namespace SPW {
     }
 
     void AudioSystem::onUpdate(TimeDuration dt) {
-        if(!isPaused){
             manageSound();
 
             // manage listeners
@@ -47,7 +46,6 @@ namespace SPW {
                         mFmodSystem->set3DListenerAttributes(player->Listener_id, &listenerPos, &listenerVel, &listenerForward, &listenerUp);
                     });
             mFmodSystem->update();
-        }
 
     }
 

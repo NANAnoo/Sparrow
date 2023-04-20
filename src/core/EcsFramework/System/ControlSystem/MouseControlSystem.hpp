@@ -7,105 +7,126 @@
 #include "EcsFramework/System/SystemI.h"
 #include "EcsFramework/Component/MouseComponent.hpp"
 
-namespace SPW {
-    class MouseControlSystem : public SPW::MouseEventResponder, public SPW::SystemI{
-    public:
-        MouseControlSystem(std::shared_ptr<Scene> &scene): MouseEventResponder(scene), SystemI(scene) {};
-        bool onMouseDown(SPW::MouseEvent *e) override{
+namespace SPW
+{
+	class MouseControlSystem : public SPW::MouseEventResponder, public SPW::SystemI
+	{
+	public:
+		MouseControlSystem(std::shared_ptr<Scene>& scene): MouseEventResponder(scene), SystemI(scene)
+		{
+		};
 
-            mouse_queue.push(e);
+		bool onMouseDown(SPW::MouseEvent* e) override
+		{
+			mouse_queue.push(e);
 
-            return false;
-        }
+			return false;
+		}
 
-        bool onMouseHeld(SPW::MouseEvent *e) override {
+		bool onMouseHeld(SPW::MouseEvent* e) override
+		{
+			mouse_queue.push(e);
 
-            mouse_queue.push(e);
+			return false;
+		};
 
-            return false;
-        };
+		bool onMouseReleased(MouseEvent* e) override
+		{
+			mouse_queue.push(e);
 
-        bool onMouseReleased(MouseEvent *e) override {
+			return false;
+		};
 
-            mouse_queue.push(e);
+		bool onMouseScroll(MouseEvent* e) override
+		{
+			mouse_queue.push(e);
 
-            return false;
-        };
+			return false;
+		};
 
-        bool onMouseScroll(MouseEvent *e) override {
+		bool cursorMovement(MouseEvent* e) override
+		{
+			mouse_queue.push(e);
 
-            mouse_queue.push(e);
+			return false;
+		};
 
-            return false;
-        };
+		void initial() override
+		{
+		};
 
-        bool cursorMovement(MouseEvent *e) override {
+		void beforeUpdate() override
+		{
+			while (mouse_queue.size() != 0)
+			{
+				auto e = mouse_queue.front();
 
-            mouse_queue.push(e);
+				switch (e->type())
+				{
+				case SPW::EventType::MouseDownType:
+					locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity& entity)
+					{
+						if (entity.component<MouseComponent>()->onMouseDownCallBack)
+							entity.component<MouseComponent>()->onMouseDownCallBack(entity, e->button_code);
+					});
+					break;
 
-            return false;
-        };
+				case SPW::EventType::MouseHeldType:
 
-        void initial() override {};
-        void beforeUpdate() override {
-            if(!isPaused){
-                while(mouse_queue.size() != 0){
+					locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity& entity)
+					{
+						if (entity.component<MouseComponent>()->onMouseHeldCallBack)
+							entity.component<MouseComponent>()->onMouseHeldCallBack(entity, e->button_code);
+					});
+					break;
 
-                    auto e = mouse_queue.front();
+				case SPW::EventType::MouseReleasedType:
 
-                    switch(e->type()){
+					locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity& entity)
+					{
+						if (entity.component<MouseComponent>()->onMouseReleasedCallBack)
+							entity.component<MouseComponent>()->onMouseReleasedCallBack(entity, e->button_code);
+					});
+					break;
 
-                        case SPW::EventType::MouseDownType:
-                            locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity &entity){
-                                if(entity.component<MouseComponent>()->onMouseDownCallBack)
-                                    entity.component<MouseComponent>()->onMouseDownCallBack(entity, e->button_code);
-                            });
-                            break;
+				case SPW::EventType::MouseScrollType:
 
-                        case SPW::EventType::MouseHeldType:
+					locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity& entity)
+					{
+						if (entity.component<MouseComponent>()->onMouseScrollCallBack)
+							entity.component<MouseComponent>()->onMouseScrollCallBack(entity, e->scroll_offset);
+					});
+					break;
 
-                            locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity &entity){
-                                if(entity.component<MouseComponent>()->onMouseHeldCallBack)
-                                    entity.component<MouseComponent>()->onMouseHeldCallBack(entity, e->button_code);
-                            });
-                            break;
+				case SPW::EventType::CursorMovementType:
 
-                        case SPW::EventType::MouseReleasedType:
+					locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity& entity)
+					{
+						if (entity.component<MouseComponent>()->cursorMovementCallBack)
+							entity.component<MouseComponent>()->cursorMovementCallBack(
+								entity, e->cursor_xpos, e->cursor_ypos, e->cursor_xpos_bias, e->cursor_ypos_bias);
+					});
+					break;
+				default:
+					break;
+				}
+				mouse_queue.pop();
+			}
+		};
 
-                            locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity &entity){
-                                if(entity.component<MouseComponent>()->onMouseReleasedCallBack)
-                                    entity.component<MouseComponent>()->onMouseReleasedCallBack(entity, e->button_code);
-                            });
-                            break;
+		void onUpdate(TimeDuration dt) override
+		{
+		};
 
-                        case SPW::EventType::MouseScrollType:
+		void afterUpdate() override
+		{
+		};
 
-                            locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity &entity){
-                                if(entity.component<MouseComponent>()->onMouseScrollCallBack)
-                                    entity.component<MouseComponent>()->onMouseScrollCallBack(entity, e->scroll_offset);
-                            });
-                            break;
+		void onStop() override
+		{
+		};
 
-                        case SPW::EventType::CursorMovementType:
-
-                            locatedScene.lock()->forEachEntity<MouseComponent>([&e](const Entity &entity){
-                                if(entity.component<MouseComponent>()->cursorMovementCallBack)
-                                    entity.component<MouseComponent>()->cursorMovementCallBack(entity, e->cursor_xpos, e->cursor_ypos, e->cursor_xpos_bias, e->cursor_ypos_bias);
-                            });
-                            break;
-                        default:
-                            break;
-                    }
-                    mouse_queue.pop();
-                }
-            }
-
-        };
-        void onUpdate(TimeDuration dt) override {};
-        void afterUpdate() override {};
-        void onStop() override {};
-
-private:
-        std::queue<MouseEvent *> mouse_queue;
-    };
+	private:
+		std::queue<MouseEvent*> mouse_queue;
+	};
 }

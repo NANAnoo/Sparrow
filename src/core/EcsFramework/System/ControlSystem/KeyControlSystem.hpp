@@ -7,76 +7,92 @@
 #include "EcsFramework/System/SystemI.h"
 #include "EcsFramework/Component/KeyComponent.hpp"
 
-namespace SPW {
-    class KeyControlSystem :public SPW::KeyEventResponder, public SPW::SystemI{
-    public:
-        KeyControlSystem(std::shared_ptr<Scene> &scene)
-                : KeyEventResponder(scene), SystemI(scene) {};
+namespace SPW
+{
+	class KeyControlSystem : public SPW::KeyEventResponder, public SPW::SystemI
+	{
+	public:
+		KeyControlSystem(std::shared_ptr<Scene>& scene)
+			: KeyEventResponder(scene), SystemI(scene)
+		{
+		};
 
-        bool onKeyDown(SPW::KeyEvent *e) final{
+		bool onKeyDown(SPW::KeyEvent* e) final
+		{
+			key_queue.push(e);
 
-            key_queue.push(e);
+			return false;
+		}
 
-            return false;
-        }
+		bool onKeyHeld(SPW::KeyEvent* e) final
+		{
+			key_queue.push(e);
 
-        bool onKeyHeld(SPW::KeyEvent *e) final{
+			return false;
+		}
 
-            key_queue.push(e);
+		bool onKeyReleased(SPW::KeyEvent* e) final
+		{
+			key_queue.push(e);
 
-            return false;
-        }
+			return false;
+		}
 
-        bool onKeyReleased(SPW::KeyEvent *e) final{
+		void initial() final
+		{
+		}
 
-            key_queue.push(e);
+		void beforeUpdate() final
+		{
+			while (key_queue.size() != 0)
+			{
+				auto e = key_queue.front();
 
-            return false;
-        }
+				switch (e->type())
+				{
+				case SPW::EventType::KeyDownType:
+					locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity& entity)
+					{
+						if (entity.component<KeyComponent>()->onKeyDownCallBack)
+							entity.component<KeyComponent>()->onKeyDownCallBack(entity, e->keycode);
+					});
+					break;
 
-        void initial() final{}
-        void beforeUpdate() final{
-            if(!isPaused){
-                while(key_queue.size() != 0){
+				case SPW::EventType::KeyHeldType:
+					locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity& entity)
+					{
+						if (entity.component<KeyComponent>()->onKeyHeldCallBack)
+							entity.component<KeyComponent>()->onKeyHeldCallBack(entity, e->keycode);
+					});
+					break;
 
-                    auto e = key_queue.front();
+				case SPW::EventType::KeyReleasedType:
+					locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity& entity)
+					{
+						if (entity.component<KeyComponent>()->onKeyReleasedCallBack)
+							entity.component<KeyComponent>()->onKeyReleasedCallBack(entity, e->keycode);
+					});
+					break;
+				default:
+					break;
+				}
+				key_queue.pop();
+			}
+		}
 
-                    switch (e->type()) {
+		void onUpdate(TimeDuration dt) final
+		{
+		}
 
-                        case SPW::EventType::KeyDownType:
-                            locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity &entity){
-                                if(entity.component<KeyComponent>()->onKeyDownCallBack)
-                                    entity.component<KeyComponent>()->onKeyDownCallBack(entity, e->keycode);
-                            });
-                            break;
+		void afterUpdate() final
+		{
+		}
 
-                        case SPW::EventType::KeyHeldType:
-                            locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity &entity){
-                                if(entity.component<KeyComponent>()->onKeyHeldCallBack)
-                                    entity.component<KeyComponent>()->onKeyHeldCallBack(entity, e->keycode);
-                            });
-                            break;
+		void onStop() final
+		{
+		}
 
-                        case SPW::EventType::KeyReleasedType:
-                            locatedScene.lock()->forEachEntity<SPW::KeyComponent>([&e](const Entity &entity){
-                                if(entity.component<KeyComponent>()->onKeyReleasedCallBack)
-                                    entity.component<KeyComponent>()->onKeyReleasedCallBack(entity, e->keycode);
-                            });
-                            break;
-                        default:
-                            break;
-                    }
-                    key_queue.pop();
-                }
-            }
-
-        }
-        
-        void onUpdate(TimeDuration dt) final{}
-        void afterUpdate() final{}
-        void onStop() final{}
-
-    private:
-        std::queue<KeyEvent *> key_queue;
-    };
+	private:
+		std::queue<KeyEvent*> key_queue;
+	};
 }

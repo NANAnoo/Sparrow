@@ -1,4 +1,3 @@
-
 // Created by Shawwy on 2/24/2023.
 //
 
@@ -8,79 +7,64 @@
 
 void SPW::AnimationSystem::initial()
 {
-
 }
+
 void SPW::AnimationSystem::beforeUpdate()
 {
-    if(!isPaused){
-        ComponentGroup<AnimationComponent, IDComponent, MeshComponent> animatedGroup;
-        locatedScene.lock()->forEachEntityInGroup
-                (animatedGroup,
-                 [this, &animatedGroup](const Entity& entity)
-                 {
-                     AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
-                     //Get animationComp and modelComp of this entity
-                     auto animationComp = entity.component<AnimationComponent>();
-                     auto modelComp = entity.component<MeshComponent>();
+
+		ComponentGroup<AnimationComponent, IDComponent, MeshComponent> animatedGroup;
+		locatedScene.lock()->forEachEntityInGroup
+		(animatedGroup,
+		 [this, &animatedGroup](const Entity& entity)
+		 {
+			 AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
+			 //Get animationComp and modelComp of this entity
+			 auto animationComp = entity.component<AnimationComponent>();
+			 auto modelComp = entity.component<MeshComponent>();
 
 
-                     if (!animationComp->mapInitialize)
-                     {
-                         animationComp->initializeMapping(modelComp->assetName);
-                     }
-
-                     //Binding buffer
-                     if (animationComp->SPW_AnimSSBO)
-                     {
-                         if (!animationComp->SPW_AnimSSBO->bBinding)
-                         {
-                             animationComp->SPW_AnimSSBO->bindingBuffer(modelComp);
-                             animationComp->SPW_AnimSSBO->updateStaticBuffer(animationComp->SPW_VertexMap);
-                         }
-                     }
-                 });
-    }
-
-
-				//Binding buffer
-				if (animationComp->SPW_AnimSSBO)
-				{
-					if (!animationComp->SPW_AnimSSBO->bBinding)
-					{
-						animationComp->SPW_AnimSSBO->bindingBuffer(modelComp);
-						animationComp->SPW_AnimSSBO->updateStaticBuffer(animationComp->skeleton->vertexWeightMap);
-					}
-				}
-			};
-
-
+			 //Binding buffer
+			 if (animationComp->SPW_AnimSSBO)
+			 {
+				 if (!animationComp->SPW_AnimSSBO->bBinding)
+				 {
+					 animationComp->SPW_AnimSSBO->bindingBuffer(modelComp);
+					 animationComp->SPW_AnimSSBO->updateStaticBuffer(animationComp->skeleton->vertexWeightMap);
+				 }
+			 }
+		 });
 }
+
+
 void SPW::AnimationSystem::onUpdate(TimeDuration dt)
 {
-    if(!isPaused){
-        //TICKTOCK;
-        double deltaTime = dt.toSecond();
-        ComponentGroup<SPW::AnimationComponent,SPW::IDComponent,SPW::MeshComponent> animatedGroup;
-        locatedScene.lock()->forEachEntityInGroup
-                (animatedGroup,
-                 [this,&animatedGroup,deltaTime](const Entity &entity){
 
-                     AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
+		//TICKTOCK;
+		double deltaTime = dt.toSecond();
+		ComponentGroup<SPW::AnimationComponent, SPW::IDComponent, SPW::MeshComponent> animatedGroup;
+		locatedScene.lock()->forEachEntityInGroup
+		(animatedGroup,
+		 [this,&animatedGroup,deltaTime](const Entity& entity)
+		 {
+			 AnimatedEntity animatedEntity = entity.combinedInGroup(animatedGroup);
 
-                     auto animationComp = entity.component<SPW::AnimationComponent>();
-                     auto modelComp = entity.component<SPW::MeshComponent>();
+			 auto animationComp = entity.component<SPW::AnimationComponent>();
+			 auto modelComp = entity.component<SPW::MeshComponent>();
 
-                     if (animationComp->onGoingAnim)
-                     {
-                         animationComp->onGoingAnim->update(deltaTime);
-                     }
+			 if (animationComp->onGoingAnim)
+			 {
+				 animationComp->onGoingAnim->update(deltaTime);
+			 }
 
-                     animationComp->SPW_AnimSSBO->updateDynamicBuffer(animationComp->onGoingAnim);
-                     animationComp->SPW_AnimSSBO->pushData(modelComp);
-                 });
-    }
-
+			 animationComp->SPW_AnimSSBO->updateDynamicBuffer(animationComp->onGoingAnim);
+			 animationComp->SPW_AnimSSBO->pushData(modelComp);
+		 });
 }
 
-void SPW::AnimationSystem::afterUpdate() {}
-void SPW::AnimationSystem::onStop() {}
+void SPW::AnimationSystem::afterUpdate()
+{
+}
+
+void SPW::AnimationSystem::onStop()
+{
+}

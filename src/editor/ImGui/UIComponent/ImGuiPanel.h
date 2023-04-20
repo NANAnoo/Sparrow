@@ -15,8 +15,7 @@ namespace SPW
 	public:
 		ImGuiPanel(std::string title, bool* open = nullptr)
 			: m_title(std::move(title)), m_open(open)
-		{
-		}
+		{ }
 
 		virtual ~ImGuiPanel() = default;
 
@@ -29,7 +28,7 @@ namespace SPW
 	protected:
 		virtual void Begin()
 		{
-			ImGui::Begin(m_title.c_str(), m_open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+			ImGui::Begin(m_title.c_str(), m_open/*, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize*/);
 		}
 
 		virtual void Draw() = 0;
