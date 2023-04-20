@@ -1,6 +1,7 @@
 #include "ImGuiInspectorPanel.h"
 #include "EcsFramework/Component/ComponentTypes.h"
 #include "ImGui/IconsFontAwesome6.h"
+#include "IO/ConfigManager.h"
 
 namespace SPW
 {
@@ -312,7 +313,7 @@ namespace SPW
 								for (const auto& [k, v] : active_asset_data.materials[i].m_TextureIDMap)
 								{
 									const int64_t icon_id = m_IconManager
-										->GenerateIconID(FileSystem::JoinPaths(FileRoots::k_Root,
+										->GenerateIconID(FileSystem::JoinPaths(Config::k_WorkingProjectRoot,
 										                                       active_asset_data.textures.find(v)->
 										                                       second));
 									if (k == TextureMapType::Albedo)

@@ -14,6 +14,7 @@
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "IO/FileSystem.h"
 #include "Asset/ResourceManager/ResourceManager.h"
+#include "IO/ConfigManager.h"
 
 namespace SPW
 {
@@ -46,7 +47,7 @@ namespace SPW
 			}
 			else
 			{
-				savePath = FileRoots::k_Scenes + "/scene.json";
+				savePath = Config::k_WorkingProjectScenes + "/scene.json";
 			}
 
 			std::unordered_map<std::string, CameraComponent> cameraComponents;
@@ -99,7 +100,7 @@ namespace SPW
 				const auto& asset_data = ResourceManager::getInstance()->m_AssetDataMap[v.assetName];
 				{
 					/* Save Asset Json */
-					std::ofstream file(FileSystem::ToAbsolutePath(v.assetPath));
+					std::ofstream file(FileSystem::ToEningeAbsolutePath(v.assetPath));
 					cereal::JSONOutputArchive ar(file);
 					ar(
 						cereal::make_nvp("assetID", v.assetID),
@@ -112,7 +113,7 @@ namespace SPW
 					/* Save Mesh Bin */
 					std::string dir = FileSystem::ToFsPath(v.assetPath).parent_path().string();
 					std::ofstream mesh_bin(
-						FileSystem::ToAbsolutePath(FileSystem::JoinPaths(dir, asset_data.meshURI) + ".mesh"),
+						FileSystem::ToEningeAbsolutePath(FileSystem::JoinPaths(dir, asset_data.meshURI) + ".mesh"),
 						std::ios::binary);
 					cereal::BinaryOutputArchive archive(mesh_bin);
 					archive(cereal::make_nvp(asset_data.meshURI, asset_data.meshes));

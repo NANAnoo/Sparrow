@@ -6,6 +6,7 @@
 #include "glm/gtx/euler_angles.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "IO/FileSystem.h"
+#include "IO/ConfigManager.h"
 
 
 namespace SPW {
@@ -48,32 +49,31 @@ namespace SPW {
             unsigned int slot) 
     {
 
-
-        std::string albedo_path = FileRoots::k_Root;
+        std::string albedo_path = Config::k_WorkingProjectRoot;
         auto albedo_it = material.m_TextureIDMap.find(TextureMapType::Albedo);
         if (albedo_it != material.m_TextureIDMap.end()) {
             albedo_path += textures.at(albedo_it->second);
         }
 
-        std::string normal_path = FileRoots::k_Root;
+        std::string normal_path = Config::k_WorkingProjectRoot;
         auto normal_it = material.m_TextureIDMap.find(TextureMapType::Normal);
         if (normal_it != material.m_TextureIDMap.end()) {
             normal_path += textures.at(normal_it->second);
         }
 
-        std::string metalness_path = FileRoots::k_Root;
+        std::string metalness_path = Config::k_WorkingProjectRoot;
         auto metalness_it = material.m_TextureIDMap.find(TextureMapType::Metalness);
         if (metalness_it != material.m_TextureIDMap.end()) {
             metalness_path += textures.at(metalness_it->second);
         }
 
-        std::string roughness_path = FileRoots::k_Root;
+        std::string roughness_path = Config::k_WorkingProjectRoot;
         auto roughness_it = material.m_TextureIDMap.find(TextureMapType::Roughness);
         if (roughness_it != material.m_TextureIDMap.end()) {
             roughness_path += textures.at(roughness_it->second);
         }
 
-        std::string ao_path = FileRoots::k_Root;
+        std::string ao_path = Config::k_WorkingProjectRoot;
         auto ao_it = material.m_TextureIDMap.find(TextureMapType::AmbientOcclusion);
         if (ao_it != material.m_TextureIDMap.end()) {
             ao_path += textures.at(ao_it->second);
@@ -168,13 +168,13 @@ namespace SPW {
             {
                 std::vector<std::string> cubeMapPaths =
                 {
-                    k_Engine + "texture/skybox/top.jpg",
-                    k_Engine + "texture/skybox/top.jpg",
-                    k_Engine + "texture/skybox/top.jpg",
+                    "texture/skybox/top.jpg",
+                    "texture/skybox/top.jpg",
+                    "texture/skybox/top.jpg",
 
-                    k_Engine + "texture/skybox/top.jpg",
-                    k_Engine + "texture/skybox/top.jpg",
-                    k_Engine + "texture/skybox/top.jpg",
+                	"texture/skybox/top.jpg",
+                    "texture/skybox/top.jpg",
+                    "texture/skybox/top.jpg",
                 };
 
                 // if (material->cubeMapTextures.size() == 6) 

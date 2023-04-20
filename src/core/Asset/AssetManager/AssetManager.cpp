@@ -4,6 +4,7 @@
 
 #include "AssetManager.h"
 #include "IO/FileSystem.h"
+#include "IO/ConfigManager.h"
 
 // #define STB_IMAGE_IMPLEMENTATION
 #include "IO/SOIL2/SOIL2.h"
@@ -55,7 +56,7 @@ namespace SPW
 	// save data from the model imported.
 	bool AssetManager::SaveAsset(std::unique_ptr<AssetData>&& model_data, std::string org_path)
 	{
-		std::string absolute_modelDir = FileSystem::JoinPaths(FileRoots::k_Assets, model_data->assetName);
+		std::string absolute_modelDir = FileSystem::JoinPaths(Config::k_WorkingProjectAssets, model_data->assetName);
 		FileSystem::CreateDirectory(absolute_modelDir);
 
 		// Update Model Path
@@ -84,14 +85,14 @@ namespace SPW
 				FileSystem::CopyFile(sourceFilePath, destinationFilePath);
 
 				// 3. Update Texture Path To Relative
-				v = FileSystem::ToRelativePath(destinationFilePath, FileRoots::k_Root);
+				v = FileSystem::ToRelativePath(destinationFilePath, Config::k_EngineRoot);
 			}
 		}
 
 		ar(
 			cereal::make_nvp("assetID", model_data->assetID),
 			cereal::make_nvp("assetName", model_data->assetName),
-			cereal::make_nvp("assetPath", FileSystem::ToRelativePath(model_data->path, FileRoots::k_Root)),
+			cereal::make_nvp("assetPath", FileSystem::ToRelativePath(model_data->path, Config::k_EngineRoot)),
 			cereal::make_nvp("meshURI", model_data->meshURI),
 			cereal::make_nvp("materials", model_data->materials),
 			cereal::make_nvp("textures", model_data->textures)
