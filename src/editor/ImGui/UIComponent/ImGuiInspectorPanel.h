@@ -66,6 +66,9 @@ namespace SPW
 		void DrawAudioListener(AudioListener* component) const;
 		void DrawKeyComponent(KeyComponent* component) const;
 		void DrawAnimationComponent(AnimationComponent* component) const;
+		void DrawHierarchyNode(AnimationComponent* component, const HierarchyNode& node) const;
+		void Loop();
+
 
 	private:
 		const Entity* m_Entity = nullptr;

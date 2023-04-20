@@ -606,6 +606,7 @@ cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
     std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
     std::shared_ptr<SPW::SPWRenderSystem> renderSystem;
+
     std::shared_ptr<SPW::AssetData> dragon_ptr;
     bool isLoading = false;
     bool isPause = false;

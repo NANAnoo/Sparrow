@@ -4,6 +4,57 @@
 
 namespace SPW
 {
+	void ImGuiInspectorPanel::Loop() 
+	{
+		if (m_Entity->has<TransformComponent>())
+			componentStatus.at(ComponentType::TransformComponent) = true;
+		else
+			componentStatus.at(ComponentType::TransformComponent) = false;
+
+		if (m_Entity->has<MeshComponent>())
+			componentStatus.at(ComponentType::MeshComponent) = true;
+		else
+			componentStatus.at(ComponentType::MeshComponent) = false;
+
+		if (m_Entity->has<CameraComponent>())
+			componentStatus.at(ComponentType::CameraComponent) = true;
+		else
+			componentStatus.at(ComponentType::CameraComponent) = false;
+
+		//			if (m_Entity->has<PointLightComponent>())
+		//				componentStatus.at(ComponentType::PointLightComponent) = true;
+		if (m_Entity->has<DirectionalLightComponent>() || m_Entity->has<PointLightComponent>())
+			componentStatus.at(ComponentType::DirectionalLightComponent) = true;
+		else
+			componentStatus.at(ComponentType::DirectionalLightComponent) = false;
+
+		if (m_Entity->has<AnimationComponent>())
+			componentStatus.at(ComponentType::AnimationComponent) = true;
+		else
+			componentStatus.at(ComponentType::AnimationComponent) = false;
+
+		if (m_Entity->has<AudioComponent>())
+			componentStatus.at(ComponentType::AudioComponent) = true;
+		else
+			componentStatus.at(ComponentType::AudioComponent) = false;
+
+		if (m_Entity->has<AudioListener>())
+			componentStatus.at(ComponentType::AudioListener) = true;
+		else
+			componentStatus.at(ComponentType::AudioListener) = false;
+
+		if (m_Entity->has<KeyComponent>())
+			componentStatus.at(ComponentType::KeyComponent) = true;
+		else
+			componentStatus.at(ComponentType::KeyComponent) = false;
+
+		if (m_Entity->has<MouseComponent>())
+			componentStatus.at(ComponentType::MouseComponent) = true;
+		else
+			componentStatus.at(ComponentType::MouseComponent) = false;
+
+	}
+
 	void ImGuiInspectorPanel::Draw()
 	{
 
@@ -37,27 +88,8 @@ namespace SPW
 			// ------------- LOOP COMPONENTS -------------
 			componentStatus.at(ComponentType::IDComponent) = true;
 			componentStatus.at(ComponentType::NameComponent) = true;
-			if (m_Entity->has<TransformComponent>())
-				componentStatus.at(ComponentType::TransformComponent) = true;
-			if (m_Entity->has<MeshComponent>())
-				componentStatus.at(ComponentType::MeshComponent) = true;
-			if (m_Entity->has<CameraComponent>())
-				componentStatus.at(ComponentType::CameraComponent) = true;
-			//			if (m_Entity->has<PointLightComponent>())
-			//				componentStatus.at(ComponentType::PointLightComponent) = true;
-			if (m_Entity->has<DirectionalLightComponent>() || m_Entity->has<PointLightComponent>())
-				componentStatus.at(ComponentType::DirectionalLightComponent) = true;
-			if (m_Entity->has<AnimationComponent>())
-				componentStatus.at(ComponentType::AnimationComponent) = true;
-			if (m_Entity->has<AudioComponent>())
-				componentStatus.at(ComponentType::AudioComponent) = true;
-			if (m_Entity->has<AudioListener>())
-				componentStatus.at(ComponentType::AudioListener) = true;
-			if (m_Entity->has<KeyComponent>())
-				componentStatus.at(ComponentType::KeyComponent) = true;
-			if (m_Entity->has<MouseComponent>())
-				componentStatus.at(ComponentType::MouseComponent) = true;
 			// ------------- LOOP COMPONENTS -------------
+			Loop();
 
 			// ------------- RENDER COMPONENTS -------------
 			if (m_Entity->has<TransformComponent>())
@@ -86,11 +118,13 @@ namespace SPW
 			if (ImGui::Button("Add Component", ImVec2(200, 20)))
 			{
 				show_addcomponent = true;
+				Loop();
 			}
 
 			if (show_addcomponent)
 			{
 				ImGui::Begin("Add Component");
+
 				for (const auto& [componentType, status] : componentStatus)
 				{
 					if (!status)
@@ -104,6 +138,7 @@ namespace SPW
 							{
 								std::cout << "Add TransformComponent\n";
 								m_Entity->emplace<TransformComponent>();
+								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::MeshComponent
 								/*&& componentStatus[ComponentType::CameraComponent]*/)
@@ -122,6 +157,7 @@ namespace SPW
 								model->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_shadow_desc"].uuid;
 								model->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["d_shadowmap_node"]->pass_id] = rm->m_ShaderMap["d_shadow_desc"].uuid;
 								model->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_light_shadow_desc"].uuid;
+								show_addcomponent = false;
 
 								// m_Entity->emplace<MeshComponent>();
 							}
@@ -129,39 +165,54 @@ namespace SPW
 							{
 								std::cout << "Add CameraComponent\n";
 								m_Entity->emplace<CameraComponent>();
+								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::PointLightComponent)
 							{
 								std::cout << "Add Point Light Component\n";
 								m_Entity->emplace<PointLightComponent>();
+								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::DirectionalLightComponent)
 							{
 								std::cout << "Add DirectionalLight Component\n";
 								m_Entity->emplace<DirectionalLightComponent>();
+								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::KeyComponent)
 							{
 								std::cout << "Add KeyComponent Component\n";
 								m_Entity->emplace<SPW::KeyComponent>();
+								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::MouseComponent)
 							{
+								//todo
 								std::cout << "Add MouseComponent Component\n";
 								m_Entity->emplace<SPW::MouseComponent>();
+								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::AudioComponent)
 							{
 								std::cout << "Add AudioComponent Component\n";
 								m_Entity->emplace<SPW::AudioComponent>();
+								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::AudioListener)
 							{
 								m_Entity->emplace<AudioListener>();
 								std::cout << "Add AudioListener Component\n";
+								show_addcomponent = false;
+							}
+							else if (componentType == ComponentType::AnimationComponent)
+							{
+								m_Entity->emplace<AnimationComponent>(SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].skeleton);
+								std::cout << "Add Animation Component\n";
+								show_addcomponent = false;
 							}
 
-							show_addcomponent = false;
+
+							
 						}
 					}
 				}
@@ -195,9 +246,9 @@ namespace SPW
 			if (ImGui::BeginChild("Transform", ImVec2(0, 90), true))
 			{
 				// draw component properties
-				ImGui::DragFloat3("Position", glm::value_ptr(component->position));
+				ImGui::DragFloat3("Position", glm::value_ptr(component->position),0.01f);
 				ImGui::DragFloat3("Rotation", glm::value_ptr(component->rotation));
-				ImGui::DragFloat3("Scale", glm::value_ptr(component->scale));
+				ImGui::DragFloat3("Scale", glm::value_ptr(component->scale), 0.01f);
 
 				ImGui::EndChild();
 			}
@@ -241,12 +292,6 @@ namespace SPW
 			// 	ImGui::Text("dude, It is not a valid mesh Component");
 
 			ImGui::End();
-		}
-
-		if (ImGui::Button("delete"))
-		{
-			m_Entity->remove<MeshComponent>();
-			return;
 		}
 
 
@@ -372,6 +417,12 @@ namespace SPW
 				}
 			}
 			ImGui::PopID();
+
+			if (ImGui::Button("delete"))
+			{
+				m_Entity->remove<MeshComponent>();
+				return;
+			}
 		}
 	}
 
@@ -381,15 +432,6 @@ namespace SPW
 
 		if (ImGui::TreeNode(ICON_FA_PERSON_RUNNING"		Animation")) /* TODO: add icon*/
 		{
-			if (ImGui::Button("delete"))
-			{
-				m_Entity->remove<AnimationComponent>();
-
-				ImGui::TreePop();
-				ImGui::PopID();
-				return;
-			}
-
 			if (ImGui::BeginChild("Animation", ImVec2(0, 120), true))
 			{
 				for(const auto& anim : component->skeleton->animClips)
@@ -406,10 +448,36 @@ namespace SPW
 
 				ImGui::EndChild();
 			}
+
+			DrawHierarchyNode(component, component->skeleton->hierarchy);
+
+
+			if (ImGui::Button("delete"))
+			{
+				m_Entity->remove<AnimationComponent>();
+				ImGui::TreePop();
+				ImGui::PopID();
+				return;
+			}
+
 			ImGui::TreePop();
 		}
 		ImGui::PopID();
 
+	}
+
+	void ImGuiInspectorPanel::DrawHierarchyNode(AnimationComponent* component,const HierarchyNode& node) const
+	{
+		bool node_open = ImGui::TreeNode(node.name.c_str());
+
+		if (node_open)
+		{
+			for (const HierarchyNode& child : node.children)
+			{
+				DrawHierarchyNode(component,child);
+			}
+			ImGui::TreePop();
+		}
 	}
 
 	void ImGuiInspectorPanel::DrawCameraComponent(CameraComponent* component) const
@@ -472,6 +540,8 @@ namespace SPW
 
 				ImGui::Checkbox("active", &component->whetherMainCam);
 			}
+
+
 			ImGui::TreePop();
 		}
 		ImGui::PopID();
