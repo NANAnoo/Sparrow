@@ -62,6 +62,8 @@ namespace SPW {
         res.transform_inputs[TransformType::V] = "V";
         res.transform_inputs[TransformType::P] = "P";
 
+        res.context_inputs[ContextType::RandomNumber] ="RandomSeed";
+
         res.shader = shader;
 
         return res;

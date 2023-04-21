@@ -65,7 +65,7 @@ std::shared_ptr<SPW::Model> createModel() {
 }
 std::shared_ptr<SPW::Model> createCubeModel()
 {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sand_cube/cube.obj");
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/cube.obj");
 }
 
 const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, float width, float height) {
@@ -78,7 +78,7 @@ const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, floa
     cam->fov = 60;
     cam->aspect = width / height;
     cam->near = 0.01;
-    cam->far = 100;
+    cam->far = 50;
 
     cam->whetherMainCam = true;
     //add a key component for testing, press R to rotate
@@ -255,7 +255,7 @@ public:
             defferNode->clearType = SPW::ClearType::ClearAll;
             defferNode->depthTest = true;
             defferNode->depthCompType = SPW::DepthCompType::LESS_Type;
-            auto gPosition = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGB16);
+            auto gPosition = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
             auto gNormal = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGB16);
             auto gAlbedo = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
             auto gMetalRognessAO = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
@@ -313,6 +313,11 @@ public:
                                                   "./resources/shaders/GBuffer.vert",
                                                   "./resources/shaders/GBuffer.frag"
                                           });
+            SPW::ShaderHandle GBuffer_floor({
+                                                    "drawFloorGBuffer",
+                                                    "./resources/shaders/GBuffer.vert",
+                                                    "./resources/shaders/GBuffer_floor.frag"
+            });
             SPW::ShaderHandle ani_GBuffer({
                                                   "draw_ani_GBuffer",
                                                   "./resources/shaders/ani_GBuffer.vert",
@@ -327,6 +332,7 @@ public:
             auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
             auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow_tiled);
             auto GBuffer_desc = SPW::GBuffer_desc(GBuffer);
+            auto GBuffer_floor_desc = SPW::GBuffer_desc(GBuffer_floor);
             auto ani_GBuffer_desc = SPW::ani_GBuffer_desc(ani_GBuffer);
 
             auto skybox_desc = SPW::SkyBoxShader_desc();
@@ -341,6 +347,7 @@ public:
             rendersystem->addShaderDesciptor(GBuffer_desc);
             rendersystem->addShaderDesciptor(ani_GBuffer_desc);
             rendersystem->addShaderDesciptor(pbr_depfer_shading_desc);
+            rendersystem->addShaderDesciptor(GBuffer_floor_desc);
 
             // --------------- create shader ---------------
             auto camera_id = createMaincamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
@@ -359,7 +366,7 @@ public:
             model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
             model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
             model->modelSubPassPrograms[defferNode->pass_id] = ani_GBuffer_desc.uuid;
-            model->modelSubPassPrograms[GBufferShading->pass_id] = pbr_depfer_shading_desc.uuid;
+            //model->modelSubPassPrograms[GBufferShading->pass_id] = pbr_depfer_shading_desc.uuid;
 
             model->model = createModel();
             auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
@@ -375,8 +382,8 @@ public:
             cubemodel->model = createCubeModel();
 
             cubemodel->bindRenderGraph = defferShadering->graph_id;
-            cubemodel->modelSubPassPrograms[defferNode->pass_id] = GBuffer_desc.uuid;
-            cubemodel->modelSubPassPrograms[GBufferShading->pass_id] = pbr_depfer_shading_desc.uuid;
+            cubemodel->modelSubPassPrograms[defferNode->pass_id] = GBuffer_floor_desc.uuid;
+            //cubemodel->modelSubPassPrograms[GBufferShading->pass_id] = pbr_depfer_shading_desc.uuid;
 
             // --------------------------------------------------------------------------------
             auto skybox = scene->createEntity("skybox");

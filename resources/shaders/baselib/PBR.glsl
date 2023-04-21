@@ -148,11 +148,7 @@ vec3 PBR_D(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 
 
-    // ambient lighting (note that the next IBL tutorial will replace
-    // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * albedo * ao;
-
-    vec3 color = ambient + (1.0 - shadow) * Lo;
+    vec3 color =  (1.0 - shadow) * Lo;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

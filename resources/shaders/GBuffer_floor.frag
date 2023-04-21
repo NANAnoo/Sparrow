@@ -22,15 +22,6 @@ uniform sampler2D roughnessMap;
 uniform sampler2D normalMap;
 uniform sampler2D AoMap;
 
-const float NEAR = 0.01; // 投影矩阵的近平面
-const float FAR = 50.0f; // 投影矩阵的远平面
-float LinearizeDepth(float depth)
-{
-    float z = depth * 2.0 - 1.0; // 回到NDC
-    return (2.0 * NEAR * FAR) / (FAR + NEAR - z * (FAR - NEAR));
-}
-
-
 vec3 getNormalFromMap()
 {
     vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
@@ -48,21 +39,34 @@ vec3 getNormalFromMap()
     return normalize(TBN * tangentNormal);
 }
 
+const float NEAR = 0.01; // 投影矩阵的近平面
+const float FAR = 50.0f; // 投影矩阵的远平面
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0; // 回到NDC
+    return (2.0 * NEAR * FAR) / (FAR + NEAR - z * (FAR - NEAR));
+}
 
 
 void main()
 {
     gPosition.xyz = FragPos;
     gPosition.w = LinearizeDepth(gl_FragCoord.z);
+
     if(length(texture(normalMap, TexCoords).xyz)>0.0f)
+    {
         gNormal = getNormalFromMap();
+    }
     else
+    {
         gNormal = normalize(Normal);
+    }
+
 
     gAlbedo.rgb = texture(albedoMap, TexCoords).rgb;
 
-    gMetalRognessAO.r = texture(metallicMap, TexCoords).r;
-    gMetalRognessAO.g = texture(roughnessMap, TexCoords).g;
-    gMetalRognessAO.b = texture(AoMap, TexCoords).b;
+    gMetalRognessAO.r = 0;
+    gMetalRognessAO.g = 0;
+    gMetalRognessAO.b = 0;
     gl_FragDepth = pixelPosition.z/pixelPosition.w;
 }

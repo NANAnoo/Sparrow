@@ -17,8 +17,8 @@ namespace SPW {
                 break;
             case RGBA32:
                 formatType = GL_RGBA;
-                innerFormat = GL_RGBA;
-                dataType = GL_UNSIGNED_BYTE;
+                innerFormat = GL_RGBA32F;
+                dataType = GL_FLOAT;
                 break;
             case Depth:
                 innerFormat = GL_DEPTH_COMPONENT24;

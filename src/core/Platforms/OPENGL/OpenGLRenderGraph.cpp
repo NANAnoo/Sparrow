@@ -580,6 +580,7 @@ namespace SPW {
         
         bindPlights(shader, node->shader.light_inputs, input.pLights);
         bindDlights(shader, node->shader.light_inputs, input.camera_pos, input.dLights);
+        bindMVP(shader, node->shader.transform_inputs, glm::mat4(1.f), input.view, input.projection);
         input.backend->drawInQuad();
         node->ready = true;
     }

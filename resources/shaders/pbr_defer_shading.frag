@@ -11,6 +11,9 @@ uniform sampler2D gAlbedo;
 uniform sampler2D gMetalRognessAO;
 uniform sampler2DArray shadowMap;
 
+uniform mat4 M;
+uniform mat4 V;
+uniform mat4 P;
 uniform DLight DLights[10];
 uniform int DLightCount;
 uniform PLight PLights[10];
@@ -28,6 +31,8 @@ vec3 normal;
 vec2 poissonDisk[NUM_SAMPLES];
 #include</shadow.glsl>
 
+#include </SSAO.glsl>
+
 vec3 PBR(vec3 N,vec3 position)
 {
     vec3 BP_scale = vec3(0, 0, 0);
@@ -35,7 +40,7 @@ vec3 PBR(vec3 N,vec3 position)
     vec3 albedo     = pow(texture(gAlbedo, TexCoords).rgb, vec3(2.2));
     float metallic  = texture(gMetalRognessAO, TexCoords).r;
     float roughness = texture(gMetalRognessAO, TexCoords).g;
-    float ao        = texture(gMetalRognessAO, TexCoords).b;
+    float ao        = getAO(N,position,texture(gPosition, TexCoords).w,V,P);
     vec3 V = normalize(camPos - position);
 
     for (int i = 0; i < PLightCount && i < 10; i ++) {
@@ -53,7 +58,7 @@ vec3 PBR(vec3 N,vec3 position)
         }
         BP_scale += PBR_D(albedo,metallic,roughness,ao,N,V,vec3(position),camPos,DLights[i], shadow);
     }
-    return BP_scale;
+    return BP_scale + vec3(0.03) * albedo * ao;
 }
 void main()
 {
@@ -65,5 +70,5 @@ void main()
     gl_FragDepth = texture(gDepth, TexCoords).r;
     vec3 Normal = texture(gNormal,TexCoords).rgb;
     normal = normalize(Normal);
-    FragColor = vec4(PBR(Normal,position),1.0f);
+    FragColor = vec4(PBR(normal,position),1.0f);
 }

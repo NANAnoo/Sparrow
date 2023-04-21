@@ -1,7 +1,7 @@
 #define PI 3.141592653589793
 #define PI2 6.283185307179586
 
-uniform float RandomSeed;
+ const float RandomSeed = 0.5;
 
 highp float rand_2to1(vec2 uv ) {//传入一个二维数，传出一个假随机数。
     // 0 - 1
