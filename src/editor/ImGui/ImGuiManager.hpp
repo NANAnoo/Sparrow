@@ -18,6 +18,7 @@
 #include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
 #include "Asset/ResourceManager/ResourceManager.h"
 #include "ImGui/IconsFontAwesome6.h"
+#include "UIComponent/ImGuiLog.h"
 
 namespace SPW
 {
@@ -40,7 +41,7 @@ namespace SPW
 		void EnableViewport() const;
 		GLFWwindow* GetWindowHandle() const {return windowHandle;}
 
-		void RenderAllPanels() const
+		void RenderAllPanels() 
 		{
 			m_DockspacePanel->Render();
 			DisplayDialog();
@@ -57,6 +58,8 @@ namespace SPW
 		void DisplayDialog() const;
 		void loadDefaultLayout() const;
 
+		//void SetLog(std::string log);
+
 	private:
 		void InitLayout();
 		void InitIconManager();
@@ -65,6 +68,8 @@ namespace SPW
 		void InitSceneHierarchy();
 		void InitInspectorPanel();
 		void InitFileExplorer();
+		void InitLogPanel();
+
 
 	private:
 		std::shared_ptr<ImGuiDockSpace>			m_DockspacePanel;
@@ -75,7 +80,8 @@ namespace SPW
 		std::shared_ptr<ImGuiImagePanel>	    m_ImagePanel;
 		std::shared_ptr<ImGuiFileExplorer>      m_FileExplorer;
 		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
-		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel;
+		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel; 
+		std::shared_ptr<ImGuiLog>				m_LogPanel;
 		std::shared_ptr<Scene>				    m_Scene;
 
 		//file dialog panel
@@ -88,7 +94,6 @@ namespace SPW
 		GLFWwindow* windowHandle;
 		std::unique_ptr<ImGuiIconManager>		m_ImguiIconManager;
 		std::uint32_t m_FileDialogID ;
-
     };
 
 }

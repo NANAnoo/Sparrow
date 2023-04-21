@@ -13,7 +13,7 @@ endmacro(EDITOR_ADD_SOURCE)
 
 set(EditorSourceFiles
         "${SparrowEditorDir}/SparrowEditor.h"
-        ImGui/UIComponent/ImGuiFileDialogPanel.h ImGui/UIComponent/ImGuiEntityPanel.cpp)
+        ImGui/UIComponent/ImGuiFileDialogPanel.h ImGui/UIComponent/ImGuiEntityPanel.cpp ImGui/UIComponent/ImGuiLog.h)
 
 # --------------------------- PLEASE ADD SUBMODULES HERE -------------------
 add_subdirectory(ImGui)

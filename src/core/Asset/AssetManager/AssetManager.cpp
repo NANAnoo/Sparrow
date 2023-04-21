@@ -234,4 +234,5 @@ namespace SPW
 
 		return {width, height, numChannels, data}; // return ImageData with loaded texture data
 	}
+
 } // SPW

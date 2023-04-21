@@ -61,6 +61,8 @@ namespace SPW
 		}
 		else
 		{
+			//FileSystem::CreateDirectory(config_path.parent_path().string());
+
 			std::filesystem::path absolute_engine_path = std::filesystem::absolute("./resources/");
 			std::string absolute_engine = absolute_engine_path.string();
 			FileSystem::ResolveSlash(absolute_engine);

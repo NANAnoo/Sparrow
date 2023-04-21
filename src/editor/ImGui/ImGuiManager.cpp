@@ -47,6 +47,7 @@ namespace SPW
 		textureCompression_MessageBox = std::make_unique<ImGuiMessageBox>("textureCompression_MessageBox Model", "file", "textureCompression_MessageBox Model Sucessed!", std::vector{ "OK" }, false);
 
 		m_FileDialogID = -1;
+
 		InitLayout();
 		
 	}
@@ -107,6 +108,7 @@ namespace SPW
 		InitSceneHierarchy();
 		InitInspectorPanel();
 		InitFileExplorer();
+		InitLogPanel();
 		m_ProfilingPanel = std::make_shared<ImGuiProfilingPanel>();
 
 		// m_TestWindow = std::make_shared<ImGuiMessageBox>("My Window", ImVec2(200, 100), ImVec2(100, 100));
@@ -118,6 +120,8 @@ namespace SPW
 		m_DockspacePanel->AddPanel(m_InspectorPanel);
 		m_DockspacePanel->AddPanel(m_FileExplorer);
 		m_DockspacePanel->AddPanel(m_ProfilingPanel);
+		m_DockspacePanel->AddPanel(m_LogPanel);
+
 	}
 
 	void ImGuiManager::InitIconManager()
@@ -170,6 +174,11 @@ namespace SPW
 	void ImGuiManager::InitFileExplorer()
 	{
 		m_FileExplorer = std::make_shared<ImGuiFileExplorer>(m_ImguiIconManager.get());
+	}
+
+	void ImGuiManager::InitLogPanel()
+	{
+		m_LogPanel = std::make_shared<ImGuiLog>();
 	}
 
 	void ImGuiManager::FileDialogCallBack_1()
@@ -259,4 +268,10 @@ namespace SPW
 		default_ini.close();
 		imgui_ini.close();
 	}
+
+	//void ImGuiManager::SetLog(std::string log)
+	//{
+	//	m_Log =log;
+	//}
+
 }
