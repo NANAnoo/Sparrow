@@ -18,7 +18,14 @@ namespace SPW {
             id = randomID();
             assert(!id.is_nil());
         }
-        UUID(const char *str) {
+
+        UUID(bool nil)
+        {
+	        id = uuids::uuid();
+            assert(id.is_nil());
+        }
+
+    	UUID(const char *str) {
             id = IDFromString(str);
             assert(!id.is_nil());
         }
@@ -28,6 +35,13 @@ namespace SPW {
 
         [[nodiscard]] std::string toString() const {
             return to_string(id);
+        }
+
+        bool empty() const
+        {
+            if(id.is_nil())
+                return true;
+			return false;
         }
 
         bool operator==(const UUID &other) const {

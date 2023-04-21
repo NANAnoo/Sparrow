@@ -80,6 +80,8 @@ namespace SPW {
         std::vector<Entity> cameras;
         std::vector<Entity> uiMeshes;
         Entity uiCamera = Entity::nullEntity();
+        bool onlyoneActiveCamera = false;
+        
         locatedScene.lock()->forEachEntityInGroup(cameraGroup, 
             [&cameraGroup, &cameras, &uiCamera](const Entity &en){
             if (en.component<CameraComponent>()->getType() != CameraType::UIOrthoType) {
@@ -87,20 +89,32 @@ namespace SPW {
             } else {
                 uiCamera = en;
             }
+
+            if (en.component<CameraComponent>()->whetherMainCam == true)
+            {
+	            ResourceManager::getInstance()->activeCameraID = en.component<IDComponent>()->getID();
+            }
         });
 
         // find all meshes that belong to each camera
         std::vector<std::vector<Entity>> models_by_camera(cameras.size());
         ComponentGroup<IDComponent, MeshComponent, TransformComponent> meshGroup;
         // camera loop
-        for (unsigned int i = 0; i < cameras.size(); ++ i) {
+        for (unsigned int i = 0; i < cameras.size(); ++i) {
             UUID camID = cameras[i].getUUID();
-            locatedScene.lock()->forEachEntityInGroup(meshGroup, 
-                [&meshGroup, &camID, &models_by_camera, i](const Entity &en){
-                if (en.component<MeshComponent>()->bindCamera == camID) {
-                    models_by_camera[i].push_back(en);
-                }
-            });
+            locatedScene.lock()->forEachEntityInGroup(meshGroup,
+                [&meshGroup, &camID, &models_by_camera, i](const Entity& en) 
+                {
+                	if(en.component<MeshComponent>()->bindCamera == UUID::noneID() && camID == ResourceManager::getInstance()->activeCameraID)
+                    {
+                        en.component<MeshComponent>()->bindCamera = camID;
+	                    models_by_camera[i].push_back(en);
+					}
+					else
+                    {
+                        models_by_camera[i].push_back(en);
+                    }
+                });
         }
 
         // build up render input

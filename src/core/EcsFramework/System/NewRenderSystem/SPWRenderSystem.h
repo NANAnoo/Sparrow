@@ -11,6 +11,7 @@
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Platforms/OPENGL/OpenGLAttachmentTexture.hpp"
 #include "Asset/ResourceManager/ResourceManager.h"
+#include "EcsFramework/Component/MeshComponent.hpp"
 
 namespace SPW {
 
@@ -27,6 +28,9 @@ namespace SPW {
         void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
             renderBackEnd = backEnd;
         };
+
+        using RenderableEntity = std::tuple<IDComponent*, MeshComponent*, TransformComponent*>;
+
 
         void initial() final;
         void beforeUpdate() final;

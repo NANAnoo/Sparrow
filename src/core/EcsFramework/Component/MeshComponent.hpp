@@ -21,13 +21,25 @@ namespace SPW
 	public:
 		MeshComponent() = default;
 
-		explicit MeshComponent(const UUID& id)
+		// explicit MeshComponent(const UUID& id)
+		// {
+		// 	bindCamera = id;
+		// }
+
+		explicit MeshComponent(const std::string& asset_name)
+			: bindCamera(false)
 		{
-			bindCamera = id;
+			assetName = asset_name;
+		}
+
+		void BindCamera(const UUID& camera_id)
+		{
+			bindCamera = camera_id;
 		}
 
 		void update(const std::string& key, const sol::table& value) final
 		{
+
 		}
 
 
@@ -72,6 +84,6 @@ namespace SPW
 		// -------------- NEW ASSET DATA --------------
 		std::string assetPath{};
 		std::string assetID{};
-		std::string assetName{};
+		std::string assetName;
 	};
 }

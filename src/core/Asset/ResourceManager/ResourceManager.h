@@ -7,7 +7,6 @@
 
 #include "Render/RenderGraph.hpp"
 
-
 namespace SPW
 {
 	class ResourceManager : public SingletonBase<ResourceManager>
@@ -17,8 +16,10 @@ namespace SPW
 		void LoadTextureScope(bool flip, const std::filesystem::path& filePath, const textureLoadCallback& callback);
 
 	public:
-		std::unordered_map<std::string, AssetData> m_AssetDataMap;
-		std::unordered_map<std::string, UUID> m_CameraMap;
+		std::unordered_map<std::string, AssetData>	m_AssetDataMap;
+
+		std::unordered_map<std::string, UUID>		m_CameraIDMap;
+		UUID activeCameraID;
 
 		std::unordered_map<std::string, ShaderDesc> m_ShaderMap;
 		std::unordered_map<std::string, std::shared_ptr<RenderGraph>> m_RenderGraph;
