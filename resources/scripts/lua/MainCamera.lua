@@ -1,5 +1,5 @@
 require "luaclass"
-require "PerspectiveCamera"
+require "Components/PerspectiveCamera"
 require "Scene" 
 require "Entity"
 require "Components/TransformComponent"
