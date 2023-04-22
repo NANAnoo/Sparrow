@@ -684,6 +684,8 @@ namespace SPW {
             if (port.screen_resource != UnknownScreenAttachmentType) {
                 if (port.screen_resource == ScreenColorType) {
                     slot = screen_color->use(slot);
+                } else if (port.screen_resource == ScreenDepthType) {
+                    slot = screen_depth->use(slot);
                 }
             } else if (port.resource_id >= 0) {
                 if (all_attachments.find(port) != all_attachments.end()) {

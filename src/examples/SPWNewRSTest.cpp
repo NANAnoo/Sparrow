@@ -28,6 +28,8 @@
 #include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/PhysicalComponent/RigidActor.h"
+#include "EcsFramework/Component/PhysicalComponent/Collider.h"
 
 #include "EcsFramework/Component/Audio/AudioComponent.h"
 #include "EcsFramework/Component/Audio/AudioListener.h"
@@ -39,6 +41,7 @@
 #include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
+#include "EcsFramework/System/PhysicSystem/PhysicSystem.h"
 
 #include "Model/Model.h"
 
@@ -226,11 +229,23 @@ public:
             // create render system
             auto rendersystem = std::make_shared<SPW::SPWRenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight());
             // add system
+            scene->m_renderSystem = rendersystem;
             scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
             scene->addSystem(rendersystem);
             scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
             scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
+            scene->addSystem(std::make_shared<SPW::PhysicSystem>(scene));
+
+            // create ui camera
+            scene->uiCamera = scene->createEntity("ui_camera");
+            auto ui_trans = scene->uiCamera->emplace<SPW::TransformComponent>();
+            ui_trans->position = glm::vec3(0, 0, -1);
+            auto ui_camera = scene->uiCamera->emplace<SPW::CameraComponent>(SPW::UIOrthoType);
+            ui_camera->left = 0;
+            ui_camera->right = weak_window.lock()->frameWidth();
+            ui_camera->bottom = 0;
+            ui_camera->top = weak_window.lock()->frameHeight();
 
             // ------ create main render graph ----------------
             auto pbr_with_PDshadow = rendersystem->createRenderGraph();
@@ -257,19 +272,11 @@ public:
             auto pbr_shadow_lighting_output = pbr_shadow_lighting_node->addScreenAttachment(SPW::ScreenColorType);
             // ------ create main render graph ----------------
 
-            // ------ create render graph for skybox ----------------
-            auto skyGraph = rendersystem->createRenderGraph();
-            auto skyNode = skyGraph->createRenderNode<SPW::ModelToScreenNode>();
-            skyNode->addScreenAttachment(SPW::ScreenColorType);
-            skyNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
-            // ------ create render graph for skybox ----------------
-
             // ------ create post processing graph --------------
-            auto post_processing_pass = rendersystem->createRenderGraph();
             SPW::AttachmentPort screen_color_port = {SPW::SCREEN_PORT, SPW::ScreenColorType};
-            auto fxaa_node = post_processing_pass->createRenderNode<SPW::PresentNode>(FXAA_desc(screen_color_port));
-            fxaa_node->bindInputPort(screen_color_port);
-            fxaa_node->depthTest = false;
+            rendersystem->presentNode = rendersystem->postProcessGraph->createRenderNode<SPW::PresentNode>(FXAA_desc(screen_color_port));
+            rendersystem->presentNode->bindInputPort(screen_color_port);
+            rendersystem->presentNode->depthTest = false;
             // ------ create post processing graph --------------
 
             // --------------- create shader ---------------
@@ -315,7 +322,7 @@ public:
             auto transform = obj->emplace<SPW::TransformComponent>();
             transform->scale = {0.05, 0.05, 0.05};
             transform->rotation = {0, 90, 0};
-            transform->position = {0, -0.3, 0};
+            transform->position = {0, 4, 0};
 
             // add a model to show
             auto model = obj->emplace<SPW::MeshComponent>(camera_id);
@@ -329,6 +336,16 @@ public:
             auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
             //animation->swapCurrentAnim("mixamo.com");
             animation->swapCurrentAnim("Scene");
+            auto  rigid1 = obj->emplace<SPW::RigidDynamicComponent>();
+            rigid1->rigidState=SPW::Awake;
+
+            auto  collider1 = obj->emplace<SPW::CapsuleCollider>();
+            collider1->capsule_half_height_=0.1;
+            collider1->capsule_radius_=0.1;
+            collider1->degree=PxHalfPi;
+            collider1->capsule_axis_=glm::vec3(0,0,1);
+            collider1->state = SPW::needAwake;
+            collider1->is_trigger_=false;
 
             // --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
@@ -340,6 +357,11 @@ public:
 
             cubemodel->bindRenderGraph = pbr_with_PDshadow->graph_id;
             cubemodel->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_tiled_desc.uuid;
+            auto  rigid2 = cubeObj->emplace<SPW::RigidStaticComponent>();
+            rigid2->rigidState=SPW::Awake;
+            auto  collider2 = cubeObj->emplace<SPW::BoxCollider>();
+            collider2->box_size_=glm::vec3(10,0.001,10);
+            collider2->state = SPW::needAwake;
 
             // --------------------------------------------------------------------------------
             auto skybox = scene->createEntity("skybox");
@@ -353,8 +375,8 @@ public:
                 "./resources/texture/skybox/front.jpg",
                 "./resources/texture/skybox/back.jpg"
             });
-            skyMesh->bindRenderGraph = skyGraph->graph_id;
-            skyMesh->modelSubPassPrograms[skyNode->pass_id] = skybox_desc.uuid;
+            skyMesh->bindRenderGraph = rendersystem->skyBoxGraph->graph_id;
+            skyMesh->modelSubPassPrograms[rendersystem->skyBoxNode->pass_id] = skybox_desc.uuid;
 
             auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
             auto light2 = createPlight(scene, {-1, 1, 0}, {0, 0.5, 1});
