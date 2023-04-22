@@ -175,6 +175,24 @@ namespace SPW {
         return mesh;
     }
 
+	static Mesh createSkyBoxMesh() {
+        auto mesh = Mesh{};
+        // mesh.mMaterial = std::make_shared<Material>();
+        // mesh.mMaterial->cubeMapTextures = faces;
+        // push 8 vertices on cube
+        mesh.vertices.emplace_back(Vertex{glm::vec3(1.0f,  1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(1.0f,  1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(-1.0f,  1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(-1.0f,  1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(1.0f,  -1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(1.0f,  -1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(-1.0f,  -1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(-1.0f,  -1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.indices = {0, 3, 4, 3, 7, 4, 3, 2, 7, 2, 6, 7, 2, 1, 6, 1, 5, 6, 1, 0, 5, 0, 4, 5, 0, 1, 2, 0, 2, 3, 4, 7, 6, 4, 6, 5};
+
+        return mesh;
+    }
+
 }
 
 
