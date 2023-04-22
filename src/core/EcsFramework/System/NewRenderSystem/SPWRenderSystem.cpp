@@ -80,7 +80,7 @@ namespace SPW {
         std::vector<Entity> cameras;
         std::vector<Entity> uiMeshes;
         Entity uiCamera = Entity::nullEntity();
-        bool onlyoneActiveCamera = false;
+        // bool onlyoneActiveCamera = false;
         
         locatedScene.lock()->forEachEntityInGroup(cameraGroup, 
             [&cameraGroup, &cameras, &uiCamera](const Entity &en){
@@ -94,6 +94,7 @@ namespace SPW {
             {
 	            ResourceManager::getInstance()->activeCameraID = en.component<IDComponent>()->getID();
             }
+
         });
 
         // find all meshes that belong to each camera
@@ -105,15 +106,11 @@ namespace SPW {
             locatedScene.lock()->forEachEntityInGroup(meshGroup,
                 [&meshGroup, &camID, &models_by_camera, i](const Entity& en) 
                 {
-                	if(en.component<MeshComponent>()->bindCamera == UUID::noneID() && camID == ResourceManager::getInstance()->activeCameraID)
+                	if(camID == ResourceManager::getInstance()->activeCameraID)
                     {
                         en.component<MeshComponent>()->bindCamera = camID;
 	                    models_by_camera[i].push_back(en);
 					}
-					else
-                    {
-                        models_by_camera[i].push_back(en);
-                    }
                 });
         }
 
