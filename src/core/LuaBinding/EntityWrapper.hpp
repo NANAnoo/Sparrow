@@ -1,5 +1,6 @@
 #pragma once
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
+#include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
 #include "Utils/UUID.hpp"
 #include <sol/sol.hpp>
@@ -16,7 +17,6 @@
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
-#include "EcsFramework/Component/ModelComponent.h"
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 
 namespace SPW {
@@ -59,8 +59,8 @@ namespace SPW {
             // create a component wrapper based on type
             if (type == "Transform") {
                 return ComponentWrapper::createCompWrapper<TransformComponent>(m_entity);
-            } else if (type == "Model") {
-                return ComponentWrapper::createCompWrapper<ModelComponent>(m_entity);
+            } else if (type == "MeshComponent") {
+                return ComponentWrapper::createCompWrapper<MeshComponent>(m_entity);
             } else if (type == "PerspectiveCamera") {
                 auto wrapper = ComponentWrapper::createCompWrapper<CameraComponent>(m_entity);
                 if (wrapper.isValid() && m_entity->component<CameraComponent>()->getType() != CameraType::PerspectiveType) {
@@ -93,10 +93,10 @@ namespace SPW {
             auto res = ComponentWrapper(m_entity);
             if (type == "Transform") {
                 res.setupComponent<TransformComponent>(value);
-            } else if (type == "Model") {
-                std::string camera_id = value["camera_id"];
+            } else if (type == "MeshComponent") {
+                std::string camera_id = value["cam_id"];
                 UUID cam = UUID::fromString(camera_id.c_str());
-                res.setupComponent<ModelComponent>(value, cam);
+                res.setupComponent<MeshComponent>(value, cam);
             } else if (type == "PerspectiveCamera") {
                 res.setupComponent<CameraComponent>(value, CameraType::PerspectiveType);
             } else if (type == "OrthoCamera") {

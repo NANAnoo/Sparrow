@@ -483,6 +483,35 @@ namespace SPW
 		);
 	}
 
+    unsigned int OpenGLRenderGraph::bindAttachments(
+        const std::shared_ptr<Shader> &shader, 
+        const ShaderDesc &desc,
+        const std::shared_ptr<AttachmentTexture> &screen_color, 
+        const std::shared_ptr<AttachmentTexture> &screen_depth, 
+        unsigned int slot) 
+    {
+        for (auto &[port, name] : desc.dependency_inputs) {
+            shader->setInt(name, slot);
+            if (port.screen_resource != UnknownScreenAttachmentType) {
+                if (port.screen_resource == ScreenColorType) {
+                    slot = screen_color->use(slot);
+                } else if (port.screen_resource == ScreenDepthType) {
+                    slot = screen_depth->use(slot);
+                }
+            } else if (port.resource_id >= 0) {
+                if (all_attachments.find(port) != all_attachments.end()) {
+                    slot = all_attachments.at(port)->use(slot);
+                } else if (all_attachment_arrays.find(port) != all_attachment_arrays.end()) {
+                    slot = all_attachment_arrays.at(port)->use(slot);
+                } else if (all_attachment_cubes.find(port) != all_attachment_cubes.end()) {
+                    slot = all_attachment_cubes.at(port)->use(slot);
+                } else if (all_attachment_cube_arrays.find(port) != all_attachment_cube_arrays.end()) {
+                    slot = all_attachment_cube_arrays.at(port)->use(slot);
+                }
+            }
+        }
+        return slot;
+    }
 	void OpenGLRenderGraph::render(const RenderInput& input)
 	{
 		for (auto& [idx, node] : all_nodes)
@@ -894,43 +923,43 @@ namespace SPW
 		}
 	}
 
-	unsigned int OpenGLRenderGraph::bindAttachments(
-		const std::shared_ptr<Shader>& shader,
-		const ShaderDesc& desc,
-		const std::shared_ptr<AttachmentTexture>& screen_color,
-		const std::shared_ptr<AttachmentTexture>& screen_depth,
-		unsigned int slot)
-	{
-		for (auto& [port, name] : desc.dependency_inputs)
-		{
-			shader->setInt(name, slot);
-			if (port.screen_resource != UnknownScreenAttachmentType)
-			{
-				if (port.screen_resource == ScreenColorType)
-				{
-					slot = screen_color->use(slot);
-				}
-			}
-			else if (port.resource_id >= 0)
-			{
-				if (all_attachments.find(port) != all_attachments.end())
-				{
-					slot = all_attachments.at(port)->use(slot);
-				}
-				else if (all_attachment_arrays.find(port) != all_attachment_arrays.end())
-				{
-					slot = all_attachment_arrays.at(port)->use(slot);
-				}
-				else if (all_attachment_cubes.find(port) != all_attachment_cubes.end())
-				{
-					slot = all_attachment_cubes.at(port)->use(slot);
-				}
-				else if (all_attachment_cube_arrays.find(port) != all_attachment_cube_arrays.end())
-				{
-					slot = all_attachment_cube_arrays.at(port)->use(slot);
-				}
-			}
-		}
-		return slot;
-	}
+	// unsigned int OpenGLRenderGraph::bindAttachments(
+	// 	const std::shared_ptr<Shader>& shader,
+	// 	const ShaderDesc& desc,
+	// 	const std::shared_ptr<AttachmentTexture>& screen_color,
+	// 	const std::shared_ptr<AttachmentTexture>& screen_depth,
+	// 	unsigned int slot)
+	// {
+	// 	for (auto& [port, name] : desc.dependency_inputs)
+	// 	{
+	// 		shader->setInt(name, slot);
+	// 		if (port.screen_resource != UnknownScreenAttachmentType)
+	// 		{
+	// 			if (port.screen_resource == ScreenColorType)
+	// 			{
+	// 				slot = screen_color->use(slot);
+	// 			}
+	// 		}
+	// 		else if (port.resource_id >= 0)
+	// 		{
+	// 			if (all_attachments.find(port) != all_attachments.end())
+	// 			{
+	// 				slot = all_attachments.at(port)->use(slot);
+	// 			}
+	// 			else if (all_attachment_arrays.find(port) != all_attachment_arrays.end())
+	// 			{
+	// 				slot = all_attachment_arrays.at(port)->use(slot);
+	// 			}
+	// 			else if (all_attachment_cubes.find(port) != all_attachment_cubes.end())
+	// 			{
+	// 				slot = all_attachment_cubes.at(port)->use(slot);
+	// 			}
+	// 			else if (all_attachment_cube_arrays.find(port) != all_attachment_cube_arrays.end())
+	// 			{
+	// 				slot = all_attachment_cube_arrays.at(port)->use(slot);
+	// 			}
+	// 		}
+	// 	}
+	// 	return slot;
+	// }
 }

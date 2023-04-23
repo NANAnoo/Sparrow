@@ -33,6 +33,7 @@ add_subdirectory(EcsFramework)
 add_subdirectory(Platforms)
 add_subdirectory(Render)
 add_subdirectory(IO)
+add_subdirectory(Physics)
 add_subdirectory(LuaBinding)
 add_subdirectory(Asset)
 # --------------------------- ALL SUBMODULES HERE --------------------------
