@@ -49,5 +49,4 @@ float getAO(vec3 normal,vec3 worldPos,float Depth,mat4 view, mat4 Proj)
 
     return 1.0 - occlusion;
 }
-
 #endif
