@@ -94,7 +94,6 @@ namespace SPW
 			unkown_path += textures.at(unkown_it->second);
 		}
 
-
 		for (auto& [type, name] : mat_inputs)
 		{
 			switch (type)

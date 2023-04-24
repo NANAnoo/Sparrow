@@ -90,12 +90,6 @@ namespace SPW {
             } else {
                 uiCamera = en;
             }
-
-            if (en.component<CameraComponent>()->whetherMainCam == true)
-            {
-	            ResourceManager::getInstance()->activeCameraID = en.component<IDComponent>()->getID();
-            }
-
         });
 
         if (!uiCamera.isNull()) {
@@ -112,10 +106,9 @@ namespace SPW {
             locatedScene.lock()->forEachEntityInGroup(meshGroup,
                 [&meshGroup, &camID, &models_by_camera, i](const Entity& en) 
                 {
-                	if(camID == ResourceManager::getInstance()->activeCameraID)
+                	if(en.component<MeshComponent>()->bindCamera == camID)
                     {
-                        en.component<MeshComponent>()->bindCamera = camID;
-	                    models_by_camera[i].push_back(en);
+                        models_by_camera[i].push_back(en);
 					}
                 });
         }
@@ -170,7 +163,8 @@ namespace SPW {
             std::unordered_map<unsigned int, std::unordered_map<unsigned int, std::vector<Entity>>> model_by_pass;
             for (auto mesh_en : meshes) {
                 auto mesh = mesh_en.component<MeshComponent>();
-                auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
+                const auto& tmp = mesh;
+            	auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
                 for (auto &[id, uuid] : mesh->modelSubPassPrograms) {
                     model_by_shader[id].push_back(mesh_en);
                 }
@@ -181,7 +175,7 @@ namespace SPW {
                 graphs[graph_id]->render(input);
             }
             
-            if (i == 0 && model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
+            if (model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
                 input.render_models = model_by_pass.at(skyBoxGraph->graph_id);
                 skyBoxGraph->render(input);
             }

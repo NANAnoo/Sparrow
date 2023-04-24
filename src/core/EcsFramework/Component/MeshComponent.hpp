@@ -22,10 +22,9 @@ namespace SPW
 	public:
 		MeshComponent() = default;
 
-		explicit MeshComponent(const std::string& asset_name)
-			: bindCamera(false)
+		explicit MeshComponent(const UUID& bind_camera)
 		{
-			assetName = asset_name;
+			bindCamera = bind_camera;
 		}
 
 		void update(const std::string& key, const sol::table& value) final

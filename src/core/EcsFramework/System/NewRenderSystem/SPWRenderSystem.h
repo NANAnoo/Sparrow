@@ -29,6 +29,7 @@ namespace SPW {
                 skyBoxNode = skyBoxGraph->createRenderNode<SPW::ModelToScreenNode>();
                 skyBoxNode->addScreenAttachment(SPW::ScreenColorType);
                 skyBoxNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
+                skyBoxGraph->graph_id = 666;
 
                 postProcessGraph = renderBackEnd->createRenderGraph();
 
@@ -36,6 +37,7 @@ namespace SPW {
                 uiNode = uiGraph->createRenderNode<SPW::ModelToScreenNode>();
                 uiNode->addScreenAttachment(SPW::ScreenColorType);
                 uiNode->clearType = SPW::ClearType::ClearDepth;
+                uiGraph->graph_id = 777;
 
                 UIProgram = UIShader();
                 addShaderDesciptor(*UIProgram);

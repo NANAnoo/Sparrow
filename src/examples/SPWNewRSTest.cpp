@@ -490,54 +490,66 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			dragon_transform->rotation = {0, 90, 0};
 			dragon_transform->position = {0, -0.3, 0};
 
-			auto dragon_model = dragon->emplace<SPW::MeshComponent>(
-				SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName);
+			auto dragon_model = dragon->emplace<SPW::MeshComponent>(camera_id);
 			dragon_model->bindRenderGraph = pbr_with_PDshadow->graph_id;
 			dragon_model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
 			dragon_model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
 			dragon_model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_ani_light_shadow_desc.uuid;
 
-			dragon_model->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
+			dragon_model->assetID   = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
 			dragon_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName;
 			dragon_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].path;
 
 			// add a model to show
-			auto dragon_anim = dragon->emplace<SPW::AnimationComponent>(
-				SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName);
+			auto dragon_anim = dragon->emplace<SPW::AnimationComponent>( SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName );
 			dragon_anim->swapCurrentAnim("dragon_idle");
 			// --------------------------------------------------------------------------------
 
 
-			auto obj = scene->createEntity("mantis");
-			auto transform = obj->emplace<SPW::TransformComponent>();
+			auto mantis = scene->createEntity("mantis");
+			auto transform = mantis->emplace<SPW::TransformComponent>();
 			transform->scale = {0.1, 0.1, 0.1};
 			transform->rotation = {0, 90, 0};
 			transform->position = {0, -0.3, 0};
 
 			// add a model to show
-			auto model = obj->emplace<SPW::MeshComponent>(
-				SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName);
+			auto mantis_mesh = mantis->emplace<SPW::MeshComponent>(camera_id);
+			mantis_mesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName;
+			mantis_mesh->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
+			// mantis_mesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].;
 
-			model->bindRenderGraph = pbr_with_PDshadow->graph_id;
-			model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
-			model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
-			model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
+			mantis_mesh->bindRenderGraph = pbr_with_PDshadow->graph_id;
+			mantis_mesh->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
+			mantis_mesh->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
+			mantis_mesh->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
 			// model->model = createModel();
 			/*
 			 * TODO HACK FOR SER TEST
 			 */
 
-			model->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
-			model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName;
-			model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].path;
+			// mantis_mesh->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
+			// mantis_mesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName;
+			// mantis_mesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].path;
+
+			auto  rigid1 = mantis->emplace<SPW::RigidDynamicComponent>();
+			rigid1->rigidState = SPW::Awake;
+
+			auto  collider1 = mantis->emplace<SPW::CapsuleCollider>();
+			collider1->capsule_half_height_ = 0.1;
+			collider1->capsule_radius_ = 0.1;
+			collider1->degree = PxHalfPi;
+			collider1->capsule_axis_ = glm::vec3(0, 0, 1);
+			collider1->state = SPW::needAwake;
+			collider1->is_trigger_ = false;
+
 			//
 			//            --------------------------------------------------------------------------------
 			auto cubeObj = scene->createEntity("floor");
 			auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
 			cubeTrans->scale = {5.0, 0.05, 5.0};
 			cubeTrans->position.y -= 0.35f;
-			auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(
-				SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName);
+			auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
+				// SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName);
 			cubemodel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetID;
 			cubemodel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName;
 			cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].path;
@@ -545,6 +557,11 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			cubemodel->bindRenderGraph = pbr_with_PDshadow->graph_id;
 			cubemodel->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_tiled_desc.uuid;
 
+			auto  rigid2 = cubeObj->emplace<SPW::RigidStaticComponent>();
+			rigid2->rigidState = SPW::Awake;
+			auto  collider2 = cubeObj->emplace<SPW::BoxCollider>();
+			collider2->box_size_ = glm::vec3(10, 0.001, 10);
+			collider2->state = SPW::needAwake;
 
 			// --------------------------------------------------------------------------------
 
@@ -559,9 +576,13 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 
 			auto skybox = scene->createEntity("skybox");
 			auto skyboxTrans = skybox->emplace<SPW::TransformComponent>();
-			auto skyMesh = skybox->emplace<SPW::MeshComponent>("skybox");
-			// skyMesh->bindRenderGraph = renderSystem->skyBoxGraph->graph_id;
-			// skyMesh->modelSubPassPrograms[renderSystem->skyBoxNode->pass_id] = skybox_desc.uuid;
+			auto skyMesh = skybox->emplace<SPW::MeshComponent>(camera_id);
+			skyMesh->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].assetID;
+			skyMesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].assetName;
+			skyMesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].path;
+
+			skyMesh->bindRenderGraph = rendersystem->skyBoxGraph->graph_id;
+			skyMesh->modelSubPassPrograms[rendersystem->skyBoxNode->pass_id] = skybox_desc.uuid;
 
 
 			auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
