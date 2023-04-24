@@ -11,6 +11,8 @@
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Platforms/OPENGL/OpenGLAttachmentTexture.hpp"
 #include "Asset/ResourceManager/ResourceManager.h"
+#include "EcsFramework/Component/MeshComponent.hpp"
+#include "DefaultRenderPass.hpp"
 
 namespace SPW {
 
@@ -23,10 +25,29 @@ namespace SPW {
 			{
                 width = w;
                 height = h;
+                skyBoxGraph = renderBackEnd->createRenderGraph();
+                skyBoxNode = skyBoxGraph->createRenderNode<SPW::ModelToScreenNode>();
+                skyBoxNode->addScreenAttachment(SPW::ScreenColorType);
+                skyBoxNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
+                skyBoxGraph->graph_id = 666;
+
+                postProcessGraph = renderBackEnd->createRenderGraph();
+
+                uiGraph = renderBackEnd->createRenderGraph();
+                uiNode = uiGraph->createRenderNode<SPW::ModelToScreenNode>();
+                uiNode->addScreenAttachment(SPW::ScreenColorType);
+                uiNode->clearType = SPW::ClearType::ClearDepth;
+                uiGraph->graph_id = 777;
+
+                UIProgram = UIShader();
+                addShaderDesciptor(*UIProgram);
             }
         void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
             renderBackEnd = backEnd;
         };
+
+        using RenderableEntity = std::tuple<IDComponent*, MeshComponent*, TransformComponent*>;
+
 
         void initial() final;
         void beforeUpdate() final;
@@ -48,9 +69,19 @@ namespace SPW {
         // events
         const char *getName() override {return "SPW_RENDER_SYSTEM";}
 
-        GLuint getTextureID(){
+        inline GLuint getTextureID() const {
             return std::dynamic_pointer_cast<OpenGLAttachmentTexture>(screenTexture)->m_textureID;
         }
+
+        std::shared_ptr<RenderGraph> skyBoxGraph;
+        std::shared_ptr<ModelToScreenNode> skyBoxNode;
+
+        std::shared_ptr<RenderGraph> postProcessGraph;
+        std::shared_ptr<PresentNode> presentNode;
+
+        std::shared_ptr<RenderGraph> uiGraph;
+        std::shared_ptr<ModelToScreenNode> uiNode;
+        std::shared_ptr<ShaderDesc> UIProgram;
     private:
         void findAllLights(std::vector<DLight> &dLights, std::vector<PLight> &pLights);
 

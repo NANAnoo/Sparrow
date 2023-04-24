@@ -33,7 +33,7 @@ namespace SPW
 
 		// create engine root
 		// CreateDirectory(k_Root);
-		// // copy engine files into engine
+		// // copy engine files into engine 
 		// CreateDirectory(k_Engine);
 		// // copy project asset/ resource,
 		// CreateDirectory(k_Assets);
@@ -133,20 +133,12 @@ namespace SPW
 		}
 	}
 
-	// std::string FileSystem::GetProjectName()
-	// {
-	// 	return fs::path(k_Root).filename().string();
-	// }
 
 	FilePath FileSystem::ToFsPath(const std::string& str)
 	{
 		return str;
 	}
 
-	// std::string FileSystem::GetAbsoultePath(const std::string& relative_path)
-	// {
-	// 	return "";
-	// }
 
 	std::string FileSystem::ToRelativePath(const std::string& fullpath, const std::string& basepath)
 	{

@@ -85,14 +85,14 @@ namespace SPW
 				FileSystem::CopyFile(sourceFilePath, destinationFilePath);
 
 				// 3. Update Texture Path To Relative
-				v = FileSystem::ToRelativePath(destinationFilePath, Config::k_EngineRoot);
+				v = FileSystem::ToRelativePath(destinationFilePath, Config::k_WorkingProjectRoot);
 			}
 		}
 
 		ar(
 			cereal::make_nvp("assetID", model_data->assetID),
 			cereal::make_nvp("assetName", model_data->assetName),
-			cereal::make_nvp("assetPath", FileSystem::ToRelativePath(model_data->path, Config::k_EngineRoot)),
+			cereal::make_nvp("assetPath", FileSystem::ToRelativePath(model_data->path, Config::k_WorkingProjectRoot)),
 			cereal::make_nvp("meshURI", model_data->meshURI),
 			cereal::make_nvp("materials", model_data->materials),
 			cereal::make_nvp("textures", model_data->textures)

@@ -9,6 +9,7 @@
 
 #include "EcsFramework/Entity/Entity.hpp"
 #include "System/SystemI.h"
+#include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "Component/ComponentI.h"
 #include "Component/BasicComponent/IDComponent.h"
 #include "Component/BasicComponent/NameComponent.h"
@@ -83,6 +84,14 @@ namespace SPW {
             }
         }
 
+        void onEvent(const std::shared_ptr<EventI> &e) override{
+            if (isUIMode) {
+                // uiroot.onEvent(e);
+            } else {
+                EventResponderI::onEvent(e);
+            }
+        }
+
         // for each
         // iterate components of every entity that has required components
         //
@@ -151,6 +160,25 @@ namespace SPW {
         const char *getName() override {
             return "SPWDefaultScene";
         }
+
+        // for UI
+        unsigned int getUIRenderGraphID() {
+            return m_renderSystem.lock()->uiGraph->graph_id;
+        }
+
+        unsigned int getUIRenderNodeID() {
+            return m_renderSystem.lock()->uiNode->pass_id;
+        }
+
+        UUID getUIProgramID() {
+            return m_renderSystem.lock()->UIProgram->uuid;
+        }
+
+        std::weak_ptr<SPWRenderSystem> m_renderSystem;
+
+        std::shared_ptr<Entity> uiCamera;
+
+        bool isUIMode = false;
 
     private:
         // get entity with components

@@ -152,7 +152,7 @@ namespace SPW
 
 								const auto& rm = ResourceManager::getInstance();
 								// add a model to show
-								auto model = m_Entity->emplace<MeshComponent>(rm->m_CameraMap["main"]);
+								auto model = m_Entity->emplace<MeshComponent>();
 
 								model->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
 								model->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_shadow_desc"].uuid;
@@ -207,7 +207,7 @@ namespace SPW
 							}
 							else if (componentType == ComponentType::AnimationComponent)
 							{
-								m_Entity->emplace<AnimationComponent>(SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].skeleton);
+								m_Entity->emplace<AnimationComponent>("dragon");
 								std::cout << "Add Animation Component\n";
 								show_addcomponent = false;
 							}
@@ -433,9 +433,11 @@ namespace SPW
 
 		if (ImGui::TreeNode(ICON_FA_PERSON_RUNNING"		Animation")) /* TODO: add icon*/
 		{
+			const auto& skeleton = ResourceManager::getInstance()->m_AssetDataMap[component->assetName].skeleton;
+
 			if (ImGui::BeginChild("Animation", ImVec2(0, 120), true))
 			{
-				for(const auto& anim : component->skeleton->animClips)
+				for(const auto& anim : skeleton.animClips)
 				{
 					const char* anim_name = anim.name.c_str();
 					ImGui::Text("name : %s", anim_name);
@@ -450,7 +452,7 @@ namespace SPW
 				ImGui::EndChild();
 			}
 
-			DrawHierarchyNode(component, component->skeleton->hierarchy);
+			DrawHierarchyNode(component, skeleton.hierarchy);
 
 
 			if (ImGui::Button("delete"))

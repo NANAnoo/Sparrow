@@ -175,6 +175,56 @@ namespace SPW {
         return mesh;
     }
 
+	static Mesh createSkyBoxMesh() {
+        auto mesh = Mesh{};
+        // mesh.mMaterial = std::make_shared<Material>();
+        // mesh.mMaterial->cubeMapTextures = faces;
+        // push 8 vertices on cube
+        mesh.vertices.emplace_back(Vertex{glm::vec3(1.0f,  1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(1.0f,  1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(-1.0f,  1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(-1.0f,  1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(1.0f,  -1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(1.0f,  -1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(-1.0f,  -1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(-1.0f,  -1.0f, -1.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.indices = {0, 3, 4, 3, 7, 4, 3, 2, 7, 2, 6, 7, 2, 1, 6, 1, 5, 6, 1, 0, 5, 0, 4, 5, 0, 1, 2, 0, 2, 3, 4, 7, 6, 4, 6, 5};
+
+        return mesh;
+    }
+    
+    static Mesh createUIMesh(const std::string &bg_img) {
+        auto mesh = Mesh{};
+        // mesh->mMaterial = std::make_shared<Material>();
+        // mesh->mMaterial->updateTexture(TextureType::Albedo, bg_img);
+
+        // push 8 vertices on cube
+        mesh.vertices.emplace_back(Vertex{glm::vec3(0, 0, 0), glm::vec3(0.0f), glm::vec2(0, 0), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(0, 1, 0), glm::vec3(0.0f), glm::vec2(0, 1), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(1, 1, 0), glm::vec3(0.0f), glm::vec2(1, 1), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh.vertices.emplace_back(Vertex{glm::vec3(1, 0, 0), glm::vec3(0.0f), glm::vec2(1, 0), glm::vec3(0.0f), glm::vec3(0.0f)});
+
+    	mesh.indices = {0, 2, 1, 0, 3, 2};
+
+        // auto model = std::make_shared<Model>( std::vector<std::shared_ptr<Mesh>>{mesh});
+        return mesh;
+    }
+
+    static std::shared_ptr<ShaderDesc> UIShader() {
+        auto res = std::make_shared<ShaderDesc>();
+
+        res->transform_inputs[TransformType::MVP] = "MVP";
+
+        res->mat_inputs[MaterialType::AlbedoType] = "background";
+
+        res->shader = {
+            "UI",
+            "./resources/shaders/ui.vert",
+            "./resources/shaders/ui.frag"
+        };
+        return res;
+    }
+
 }
 
 

@@ -112,6 +112,7 @@ public:
     const char *_name;
     std::shared_ptr<SimpleRender> render = nullptr;
     std::shared_ptr<SPW::Scene> scene = nullptr;
+
     FMOD::System *system = nullptr;
     FMOD::Sound *sound = nullptr;
     FMOD::Channel *channel = nullptr;

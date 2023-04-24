@@ -9,18 +9,16 @@ macro(LoadSparrow)
 
 endmacro(LoadSparrow)
 
-#add_executable(SPWTestApp "SPWTestApp.cpp")
-#add_executable(SPWSoundTest "SPWSoundTest.cpp")
+add_executable(SPWTestApp "SPWTestApp.cpp")
+add_executable(SPWSoundTest "SPWSoundTest.cpp")
+add_executable(SPWPhysicsTest "SPWPhysicsTest.cpp")
+add_executable(SPWNewRSTest "SPWNewRSTest.cpp")
 add_executable(SPWEditorTest "SPWEditorTest.cpp")
-add_executable(SPWEOfflineToolTest "SPWEOfflineToolTest.cpp")
-#add_executable(SPWNewRSTest "SPWNewRSTest.cpp")
-
 
 # add_compile_definitions("ENGINE_ROOT_DIR=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
-#LoadSparrow(SPWTestApp)
-#LoadSparrow(SPWSoundTest)
+LoadSparrow(SPWTestApp)
+LoadSparrow(SPWSoundTest)
+LoadSparrow(SPWPhysicsTest)
+LoadSparrow(SPWNewRSTest)
 LoadSparrow(SPWEditorTest)
-LoadSparrow(SPWEOfflineToolTest)
-#LoadSparrow(SPWNewRSTest)
-

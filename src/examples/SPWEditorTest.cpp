@@ -53,7 +53,7 @@ void CreateAProject()
 	
 }
 
-const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene>& scene, float width, float height)
+const SPW::UUID& CreateACamera(const std::shared_ptr<SPW::Scene>& scene, float width, float height, bool main = true)
 {
 	// add a camera entity
 	auto camera = scene->createEntity("main camera");
@@ -66,7 +66,7 @@ const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene>& scene, floa
 	cam->near = 0.01;
 	cam->far = 100;
 
-	cam->whetherMainCam = true;
+	cam->whetherMainCam = main;
 	//add a key component for testing, press R to rotate
 	auto cameraKey = camera->emplace<SPW::KeyComponent>();
 	auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode)
@@ -102,6 +102,60 @@ const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene>& scene, floa
 		transform->rotation.x -= y_pos_bias * 0.02;
 		transform->rotation.y -= x_pos_bias * 0.1;
 	};
+	cameraKey->onKeyHeldCallBack = cb;
+	cameraKey->onKeyDownCallBack = cb;
+	return camera->component<SPW::IDComponent>()->getID();
+}
+
+const SPW::UUID& CreateCamera2(const std::shared_ptr<SPW::Scene>& scene, float width, float height)
+{
+	// add a camera entity
+	auto camera = scene->createEntity("not main camera");
+	camera->emplace<SPW::AudioListener>();
+	auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
+	mainCameraTrans->position = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+	auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+	cam->fov = 60;
+	cam->aspect = width / height;
+	cam->near = 0.01;
+	cam->far = 50;
+
+	cam->whetherMainCam = false;
+	//add a key component for testing, press R to rotate
+	auto cameraKey = camera->emplace<SPW::KeyComponent>();
+	auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode)
+	{
+		auto mainCameraTrans = e.component<SPW::TransformComponent>();
+		auto rotMat = glm::eulerAngleYXZ(glm::radians(mainCameraTrans->rotation.y),
+		                                 glm::radians(mainCameraTrans->rotation.x),
+		                                 glm::radians(mainCameraTrans->rotation.z));
+		glm::vec4 front = {0, 0, -1, 0};
+		front = rotMat * front;
+		glm::vec3 forward = {front.x, 0, front.z};
+		forward = glm::normalize(forward);
+		glm::vec3 up = {0, 1, 0};
+		glm::vec3 right = glm::normalize(glm::cross(forward, up));
+		if (keycode == SPW::Key::W)
+			mainCameraTrans->position += 0.01f * forward;
+		if (keycode == SPW::Key::S)
+			mainCameraTrans->position -= 0.01f * forward;
+		if (keycode == SPW::Key::A)
+			mainCameraTrans->position -= 0.01f * right;
+		if (keycode == SPW::Key::D)
+			mainCameraTrans->position += 0.01f * right;
+		if (keycode == SPW::Key::Q)
+			mainCameraTrans->position -= 0.01f * up;
+		if (keycode == SPW::Key::E)
+			mainCameraTrans->position += 0.01f * up;
+	};
+	// auto mouse = camera->emplace<SPW::MouseComponent>();
+	// mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias,
+	//                                    double y_pos_bias)
+	// {
+	// 	auto transform = e.component<SPW::TransformComponent>();
+	// 	transform->rotation.x -= y_pos_bias * 0.02;
+	// 	transform->rotation.y -= x_pos_bias * 0.1;
+	// };
 	cameraKey->onKeyHeldCallBack = cb;
 	cameraKey->onKeyDownCallBack = cb;
 	return camera->component<SPW::IDComponent>()->getID();
@@ -356,9 +410,13 @@ public:
 			renderSystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
 
 			// --------------- create shader ---------------
-			auto camera_id = createMaincamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
+
+			auto camera_id = CreateACamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
+			auto camera2 = CreateCamera2(scene, weak_window.lock()->width(), weak_window.lock()->height());
+
 			// --------------------------------------------------------------------------------
-			SPW::ResourceManager::getInstance()->m_CameraMap["main"] = camera_id;
+			SPW::ResourceManager::getInstance()->m_CameraIDMap["main"] = camera_id;
+			SPW::ResourceManager::getInstance()->m_CameraIDMap["not main"] = camera2;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["p_shadow_desc"] = p_shadow_desc;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["d_shadow_desc"] = d_shadow_desc;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["pbr_light_shadow_desc"] = pbr_light_shadow_desc;
@@ -370,13 +428,13 @@ public:
 
 			// --------------- dragon ---------------
 
-			auto dragon = scene->createEntity("dragon");
+			auto dragon = scene->createEntity("anim dragon");
 			auto dragon_transform = dragon->emplace<SPW::TransformComponent>();
 			dragon_transform->scale = {0.05, 0.05, 0.05};
 			dragon_transform->rotation = {0, 90, 0};
 			dragon_transform->position = {0, -0.3, 0};
 
-			auto dragon_model = dragon->emplace<SPW::MeshComponent>(camera_id);
+			auto dragon_model = dragon->emplace<SPW::MeshComponent>(SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName);
 			dragon_model->bindRenderGraph = pbr_with_PDshadow->graph_id;
 			dragon_model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
 			dragon_model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
@@ -386,13 +444,8 @@ public:
 			dragon_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName;
 			dragon_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].path;
 
-			auto data = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"];
-
-			// std::shared_ptr<SPW::Skeleton> skeleton = std::make_shared<SPW::Skeleton>(SPW::ModelLoader::LoadModel("./resources/models/dragon/dragon.gltf")->skeleton);
-
 			// add a model to show
-			auto dragon_anim = dragon->emplace<SPW::AnimationComponent>(
-				SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].skeleton);
+			auto dragon_anim = dragon->emplace<SPW::AnimationComponent>(SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName);
 			dragon_anim->swapCurrentAnim("dragon_idle");
 			// --------------------------------------------------------------------------------
 
@@ -404,7 +457,7 @@ public:
 			transform->position = {0, -0.3, 0};
 
 			// add a model to show
-			auto model = obj->emplace<SPW::MeshComponent>(camera_id);
+			auto model = obj->emplace<SPW::MeshComponent>(SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName);
 
 			model->bindRenderGraph = pbr_with_PDshadow->graph_id;
 			model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
@@ -424,7 +477,7 @@ public:
 			auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
 			cubeTrans->scale = {5.0, 0.05, 5.0};
 			cubeTrans->position.y -= 0.35f;
-			auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
+			auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName);
 			cubemodel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetID;
 			cubemodel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName;
 			cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].path;

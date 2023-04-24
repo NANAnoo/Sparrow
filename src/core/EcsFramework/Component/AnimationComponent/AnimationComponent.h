@@ -151,16 +151,17 @@ namespace SPW
 		//Constructor
 		AnimationComponent() = default;
 
-		explicit AnimationComponent(Skeleton& data)
+		explicit AnimationComponent(const std::string& asset_name)
 		{
-			for (auto& animClip : data.animClips)
+			assetName = asset_name;
+			const auto skeleton = ResourceManager::getInstance()->m_AssetDataMap[assetName].skeleton;
+
+			for (auto& animClip : skeleton.animClips)
 			{
 				allAnimations.insert({animClip.name , animClip});
 			}
 
-			skeleton = &data;
-
-			SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(skeleton->vertexWeightMap);
+			SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(skeleton.vertexWeightMap);
 		}
 
 		~AnimationComponent() { onGoingAnim = nullptr; }
@@ -214,10 +215,10 @@ namespace SPW
 
 		void addAnimation(AnimationClip clip)
 		{
-			if (!skeleton && !clip.name.empty())
-			{
-				allAnimations.insert({clip.name, clip});
-			}
+			// if (!skeleton && !clip.name.empty())
+			// {
+			// 	allAnimations.insert({clip.name, clip});
+			// }
 		}
 
 		void setLoop(bool enable)
@@ -237,7 +238,9 @@ namespace SPW
 		AnimationClip* onGoingAnim = nullptr;
 
 		//Original data
-		Skeleton* skeleton;
+		// Skeleton* skeleton;
+
+		std::string assetName;
 	};
 }
 

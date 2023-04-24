@@ -1,6 +1,6 @@
 require "Scene" 
 require "Components/TransformComponent"
-require "Components/ModelComponent"
+require "Components/MeshComponent"
 require "Components/AudioComponent"
 require "Components/KeyEventHandler"
 
@@ -13,12 +13,11 @@ function CreateMonaModel(scene, camera_id)
     trans:setScale(glm.vec3(0.5, 0.5, 0.5))
     
     -- render model
-    local model = MonaModel:addComponent(Model, camera_id, "resources/models/mona2/mona.fbx")
-    local handle = SPW.ShaderHandle("main", "./resources/shaders/simpleVs.vert", "./resources/shaders/bPhongShadow.frag")
-    model:setObjectHandle(handle)
-
-    local shadow = SPW.ShaderHandle("shadow", "./resources/shaders/shadowMap.vert", "./resources/shaders/shadowMap.frag")
-    model:setShadowHandle(shadow)
+    local model = MonaModel:addComponent(MeshComponent, camera_id, "resources/models/mona2/mona.fbx")
+    model:setGraphId(scene:getGraphID(DefaultGraph.PBRShadowGraph))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.PointShadowNode), scene:getShaderID(DefaultShader.PointShadowShader))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.DirectionalShadowNode), scene:getShaderID(DefaultShader.DirectionalShadowShader))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.PBRShadowLightingNode), scene:getShaderID(DefaultShader.PBRShadowShader))
 
     -- add audio component
     local audio = MonaModel:addComponent(AudioComponent, { "resources/sounds/test.wav" })

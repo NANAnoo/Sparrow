@@ -43,6 +43,8 @@ namespace SPW {
         for (auto &graph : graphs) {
             graph->init();
         }
+        skyBoxGraph->init();
+        postProcessGraph->init();
     }
 
     void SPWRenderSystem::beforeUpdate() 
@@ -78,8 +80,9 @@ namespace SPW {
         // find all cameras
         ComponentGroup<IDComponent, CameraComponent, TransformComponent> cameraGroup;
         std::vector<Entity> cameras;
-        std::vector<Entity> uiMeshes;
         Entity uiCamera = Entity::nullEntity();
+        // bool onlyoneActiveCamera = false;
+        
         locatedScene.lock()->forEachEntityInGroup(cameraGroup, 
             [&cameraGroup, &cameras, &uiCamera](const Entity &en){
             if (en.component<CameraComponent>()->getType() != CameraType::UIOrthoType) {
@@ -89,18 +92,25 @@ namespace SPW {
             }
         });
 
+        if (!uiCamera.isNull()) {
+            // make sure ui camera is the last one
+            cameras.push_back(uiCamera);
+        }
+
         // find all meshes that belong to each camera
         std::vector<std::vector<Entity>> models_by_camera(cameras.size());
         ComponentGroup<IDComponent, MeshComponent, TransformComponent> meshGroup;
         // camera loop
-        for (unsigned int i = 0; i < cameras.size(); ++ i) {
+        for (unsigned int i = 0; i < cameras.size(); ++i) {
             UUID camID = cameras[i].getUUID();
-            locatedScene.lock()->forEachEntityInGroup(meshGroup, 
-                [&meshGroup, &camID, &models_by_camera, i](const Entity &en){
-                if (en.component<MeshComponent>()->bindCamera == camID) {
-                    models_by_camera[i].push_back(en);
-                }
-            });
+            locatedScene.lock()->forEachEntityInGroup(meshGroup,
+                [&meshGroup, &camID, &models_by_camera, i](const Entity& en) 
+                {
+                	if(en.component<MeshComponent>()->bindCamera == camID)
+                    {
+                        models_by_camera[i].push_back(en);
+					}
+                });
         }
 
         // build up render input
@@ -153,7 +163,8 @@ namespace SPW {
             std::unordered_map<unsigned int, std::unordered_map<unsigned int, std::vector<Entity>>> model_by_pass;
             for (auto mesh_en : meshes) {
                 auto mesh = mesh_en.component<MeshComponent>();
-                auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
+                const auto& tmp = mesh;
+            	auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
                 for (auto &[id, uuid] : mesh->modelSubPassPrograms) {
                     model_by_shader[id].push_back(mesh_en);
                 }
@@ -163,7 +174,20 @@ namespace SPW {
                     input.render_models = model_by_pass.at(graph_id);
                 graphs[graph_id]->render(input);
             }
+            
+            if (model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
+                input.render_models = model_by_pass.at(skyBoxGraph->graph_id);
+                skyBoxGraph->render(input);
+            }
+
+            if (cameraCom->getType() == SPW::UIOrthoType && model_by_pass.find(uiGraph->graph_id) != model_by_pass.end()) {
+                // draw ui
+                input.render_models = model_by_pass.at(uiGraph->graph_id);
+                uiGraph->render(input);
+            }
         }
+
+        postProcessGraph->render(input);
 
         locatedScene.lock()->forEach(
         [this](MeshComponent *mesh){
