@@ -35,11 +35,6 @@ if (NOT TARGET cereal)
     set_target_properties(cereal PROPERTIES FOLDER ${ExternalFolder}/cereal)
 endif()
 
-#if(NOT TARGET ImGuizmo)
-#    include(ImGuizmo.cmake)
-#    set_target_properties(ImGuizmo PROPERTIES FOLDER ${ExternalFolder}/ImGuizmo)
-#endif()
-
 if(NOT TARGET glm)
     set(BUILD_STATIC_LIBS ON)
     set(BUILD_TESTING OFF)
