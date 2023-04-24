@@ -67,10 +67,9 @@ namespace SPW
         float emissiveIntensity{};
         VolumeProperties volumeProperties;
         float transmissionFactor{};
-
     };
 
-
+		
     enum class TextureType
     {
         Albedo = 0,
@@ -92,7 +91,7 @@ namespace SPW
 
         void updateTexture(TextureType type,std::string texturePath)
         {
-            if(texturePath=="")
+            if(texturePath == " " )
             {
                 TextureMap.erase(type);
                 return;
@@ -100,7 +99,6 @@ namespace SPW
 
             TextureMap[type] = texturePath;
         }
-
     };
 }
 

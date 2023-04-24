@@ -1,7 +1,7 @@
 #include "Platforms/OPENGL/OpenGLAttachmentTexture.hpp"
 #include "Platforms/OPENGL/OpenGLFrameBuffer.h"
 #include "Render/RenderGraph.hpp"
-
+#include "Asset/ResourceManager/ResourceManager.h"
 
 namespace SPW {
     class OpenGLRenderGraph : public RenderGraph {

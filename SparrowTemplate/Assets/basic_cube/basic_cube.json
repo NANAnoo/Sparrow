@@ -1,0 +1,56 @@
+{
+    "assetID": "85e4449c-51b2-4589-bbd9-caeaf00a14a0",
+    "assetName": "basic_cube",
+    "assetPath": "Assets/basic_cube/basic_cube.json",
+    "meshURI": "827f2166-0c3c-4d3a-9ead-8b833858714f",
+    "materials": [
+        {
+            "id": "22bf5028-0270-42bf-99dc-55c1ceb74fb8",
+            "textureMap": [],
+            "property": {
+                "albedoConstant": {
+                    "x": 0.800000011920929,
+                    "y": 0.800000011920929,
+                    "z": 0.800000011920929
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 0.800000011920929,
+                    "y": 0.800000011920929,
+                    "z": 0.800000011920929
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 250.0,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        }
+    ],
+    "textures": []
+}

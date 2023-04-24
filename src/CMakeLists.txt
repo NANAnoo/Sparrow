@@ -21,3 +21,4 @@ file(COPY ${SparrowLuaLib}
 add_subdirectory(core)
 add_subdirectory(examples)
 add_subdirectory(ScriptableGame)
+add_subdirectory(editor)

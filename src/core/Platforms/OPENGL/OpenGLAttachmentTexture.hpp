@@ -115,8 +115,11 @@ namespace SPW {
                 glBindTexture(GL_TEXTURE_2D, 0);
                 glDeleteTextures(1, &m_textureID);
             }
-        private:
+
+
             unsigned int m_textureID = 0;
+        private:
+
             unsigned int formatType = 0;
             unsigned int dataType = 0;
     };

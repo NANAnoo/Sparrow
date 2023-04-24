@@ -6,7 +6,10 @@
 
 #include <unordered_map>
 #include <iostream>
+
+#include "imgui.h"
 #include "ApplicationFramework/WindowI/WindowEvent.h"
+#include "backends/imgui_impl_glfw.h"
 #include "Control/KeyEvent.hpp"
 #include "Control/MouseCodes.h"
 #include "Control/MouseEvent.hpp"
@@ -39,7 +42,7 @@ namespace SPW {
             if (windowCreatedCallback) {
                 windowCreatedCallback(window);
             }
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         } else {
             std::cout << "Window create failed !" << std::endl;
         }
@@ -71,7 +74,14 @@ namespace SPW {
         });
 
         glfwSetKeyCallback(window, [](GLFWwindow *win, int key, int scancode, int action, int mods) {
-            auto realWindow = all_windows[win];
+
+            // ImGuiIO& io = ImGui::GetIO();
+            // if (action == GLFW_PRESS)
+            //     io.KeysDown[key] = true;
+            // else if (action == GLFW_RELEASE)
+            //     io.KeysDown[key] = false;
+
+        	auto realWindow = all_windows[win];
             auto keyCode = static_cast<KeyCode>(key);
             if(action == GLFW_RELEASE){
                 realWindow->downKeys.erase(key);
@@ -87,6 +97,14 @@ namespace SPW {
 
 
         glfwSetMouseButtonCallback(window, [](GLFWwindow* win, int button, int action, int mods){
+
+            // ImGui_ImplGlfw_MouseButtonCallback(win, button, action, mods);
+
+            ImGuiIO& io = ImGui::GetIO();
+            if (action == GLFW_PRESS)
+                io.MouseDown[button] = true;
+            else if (action == GLFW_RELEASE)
+                io.MouseDown[button] = false;
 
             auto realWindow = all_windows[win];
             auto mouseCode = static_cast<MouseCode>(button);
@@ -105,9 +123,24 @@ namespace SPW {
         });
 
         glfwSetScrollCallback(window, [](GLFWwindow* win, double x_offset, double y_offset){
-            auto realWindow = all_windows[win];
+
+            ImGuiIO& io = ImGui::GetIO();
+            io.MouseWheel += static_cast<float>(y_offset);
+
+        	auto realWindow = all_windows[win];
             realWindow->data.handler(std::make_shared<MouseEvent>(
                     MouseScrollType, MouseCode::ButtonMiddle, y_offset));
+        });
+
+        // glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
+        //     ImGuiIO& io = ImGui::GetIO();
+        //     io.MousePos = ImVec2(static_cast<float>(xpos), static_cast<float>(ypos));
+        // });
+        
+        glfwSetCharCallback(window, [](GLFWwindow* window, unsigned int codepoint)
+        {
+            ImGuiIO& io = ImGui::GetIO();
+            io.AddInputCharacter(codepoint);
         });
     }
 

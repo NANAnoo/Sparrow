@@ -12,6 +12,7 @@
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
 #include "EcsFramework/Component/Audio/AudioComponent.h"
+#include <string>
 
 namespace SPW
 {
@@ -19,7 +20,6 @@ namespace SPW
     class AudioSystem : public SystemI, public SPWSoundDelegateI {
 
     public:
-
         explicit AudioSystem(std::shared_ptr<Scene> &scene);
         virtual ~AudioSystem() = default;
 

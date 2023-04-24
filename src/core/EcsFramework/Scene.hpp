@@ -35,9 +35,15 @@ namespace SPW {
         }
 
         void addSystem(std::shared_ptr<SystemI> &&system) {
+
             systems.push_back(system);
         }
 
+        void PauseSystem(std::shared_ptr<SystemI> &&system){
+            for(auto s : systems){
+                if(typeid(s) == typeid(system)) s->setPausd(true);
+            }
+        }
         // create new entity in scene
         std::shared_ptr<Entity> createEntity(const std::string &name,
                                               const UUID &uid)  {
@@ -54,6 +60,11 @@ namespace SPW {
 
         // delete entity
         void deleteEntity(const std::shared_ptr<Entity> &entity) {
+            registry->destroy(entity->entity);
+            all_entities.erase(entity->getUUID().toString());
+        }
+
+        void deleteEntity(const Entity* entity) {
             registry->destroy(entity->entity);
             all_entities.erase(entity->getUUID().toString());
         }
@@ -136,7 +147,7 @@ namespace SPW {
         };
         virtual void afterUpdate() {
             for (auto &system : systems) {
-                system->afterUpdate();
+                 system->afterUpdate();
             }
         };
         virtual void onStop() {

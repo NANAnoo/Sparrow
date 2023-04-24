@@ -11,11 +11,13 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 #include <string>
+#include "IO/FileSystem.h"
 
 namespace SPW {
     void SPWRenderSystem::initial() {
         renderBackEnd->Init();
-        renderBackEnd->loadShaderLib("./resources/shaders/baselib");
+        
+        renderBackEnd->loadShaderLib("./resources/shaders/baselib/");
 
         screenBuffer = renderBackEnd->createFrameBuffer();
 
@@ -48,18 +50,21 @@ namespace SPW {
     void SPWRenderSystem::beforeUpdate() 
     {
         locatedScene.lock()->forEach(
-        [this](MeshComponent *mesh){
-            if (!mesh->ready) {
-                mesh->model->setUpModel(renderBackEnd);
-                mesh->ready = true;
+        [this](MeshComponent *meshComponent){
+            if (!meshComponent->ready)  
+			{
+				auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[meshComponent->assetName].meshes;
+				for (auto& mesh : meshes)
+					mesh.setupMesh(renderBackEnd);
+				meshComponent->ready = true;
             }
             
-            if (mesh->beforeDraw) {
+            if (meshComponent->beforeDraw) {
                 RenderCommandsQueue<RenderBackEndI> queue;
-                mesh->beforeDraw(queue);
+				meshComponent->beforeDraw(queue);
                 queue.executeWithAPI(renderBackEnd);
             }
-            mesh->beforeDraw = nullptr;
+			meshComponent->beforeDraw = nullptr;
         }, MeshComponent);
     }
 
@@ -76,6 +81,8 @@ namespace SPW {
         ComponentGroup<IDComponent, CameraComponent, TransformComponent> cameraGroup;
         std::vector<Entity> cameras;
         Entity uiCamera = Entity::nullEntity();
+        // bool onlyoneActiveCamera = false;
+        
         locatedScene.lock()->forEachEntityInGroup(cameraGroup, 
             [&cameraGroup, &cameras, &uiCamera](const Entity &en){
             if (en.component<CameraComponent>()->getType() != CameraType::UIOrthoType) {
@@ -94,14 +101,16 @@ namespace SPW {
         std::vector<std::vector<Entity>> models_by_camera(cameras.size());
         ComponentGroup<IDComponent, MeshComponent, TransformComponent> meshGroup;
         // camera loop
-        for (unsigned int i = 0; i < cameras.size(); ++ i) {
+        for (unsigned int i = 0; i < cameras.size(); ++i) {
             UUID camID = cameras[i].getUUID();
-            locatedScene.lock()->forEachEntityInGroup(meshGroup, 
-                [&meshGroup, &camID, &models_by_camera, i](const Entity &en){
-                if (en.component<MeshComponent>()->bindCamera == camID) {
-                    models_by_camera[i].push_back(en);
-                }
-            });
+            locatedScene.lock()->forEachEntityInGroup(meshGroup,
+                [&meshGroup, &camID, &models_by_camera, i](const Entity& en) 
+                {
+                	if(en.component<MeshComponent>()->bindCamera == camID)
+                    {
+                        models_by_camera[i].push_back(en);
+					}
+                });
         }
 
         // build up render input
@@ -154,7 +163,8 @@ namespace SPW {
             std::unordered_map<unsigned int, std::unordered_map<unsigned int, std::vector<Entity>>> model_by_pass;
             for (auto mesh_en : meshes) {
                 auto mesh = mesh_en.component<MeshComponent>();
-                auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
+                const auto& tmp = mesh;
+            	auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
                 for (auto &[id, uuid] : mesh->modelSubPassPrograms) {
                     model_by_shader[id].push_back(mesh_en);
                 }
@@ -165,7 +175,7 @@ namespace SPW {
                 graphs[graph_id]->render(input);
             }
             
-            if (i == 0 && model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
+            if (model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
                 input.render_models = model_by_pass.at(skyBoxGraph->graph_id);
                 skyBoxGraph->render(input);
             }

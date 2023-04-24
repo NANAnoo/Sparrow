@@ -11,6 +11,8 @@ namespace SPW {
 
     class KeyComponent : public ComponentI {
     public:
+        bool keyEnable = true;
+
         std::function<void(const SPW::Entity& e, KeyCode keycode)> onKeyDownCallBack;
         std::function<void(const SPW::Entity& e, KeyCode keycode)> onKeyHeldCallBack;
         std::function<void(const SPW::Entity& e, KeyCode keycode)> onKeyReleasedCallBack;

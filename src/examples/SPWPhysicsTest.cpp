@@ -4,9 +4,9 @@
 #include <memory>
 #include <sol/sol.hpp>
 
-#include "EcsFramework/Component/LightComponent.hpp"
+// #include "EcsFramework/Component/LightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
-#include "Model/Mesh.h"
+// #include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include <glad/glad.h>
@@ -41,7 +41,7 @@
 
 
 
-#include "Model/Model.h"
+// #include "Model/Model.h"
 
 #include "Utils/UUID.hpp"
 
@@ -54,14 +54,14 @@
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
-#include "IO/ResourceManager.h"
-#include "Model/Model.h"
+// #include "IO/ResourceManager.h"
+// #include "Model/Model.h"
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
 
-std::shared_ptr<SPW::Model> createModel() {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-}
+// std::shared_ptr<SPW::Model> createModel() {
+//     return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
+// }
 
 // test usage
 class Transformer :
@@ -300,34 +300,34 @@ public:
             };
 
             // add a model to show
-            auto model = obj->emplace<SPW::ModelComponent>(camera_id);
-            //model->bindCameras.insert(camera_id_2);
-            SPW::ShaderHandle shaderHandle({
-                                                   "basic",
-                                                   "./resources/shaders/simpleVs.vert",
-                                                   "./resources/shaders/simplefrag.frag"
-                                           });
-
-            model->modelProgram = shaderHandle;
-            model->model = createModel();
-
-            // add light 1
-            auto light = scene->createEntity("light");
-            auto lightTrans =light->emplace<SPW::TransformComponent>();
-            auto lightCom = light->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
-            lightCom->ambient = {0.2, 0.2, 0.2};
-            lightCom->diffuse = {1, 1, 0};
-            lightCom->specular = {1, 1, 0};
-            lightTrans->rotation = {0, 60, 0};
-
-            // add light 2
-            auto light2 = scene->createEntity("light2");
-            auto lightTrans2 =light2->emplace<SPW::TransformComponent>();
-            auto lightCom2 = light2->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
-            lightCom2->ambient = {0.2, 0.2, 0.2};
-            lightCom2->diffuse = {0, 1, 1};
-            lightCom2->specular = {0, 1, 1};
-            lightTrans2->rotation = {0, -60, 0};
+            // auto model = obj->emplace<SPW::ModelComponent>(camera_id);
+            // //model->bindCameras.insert(camera_id_2);
+            // SPW::ShaderHandle shaderHandle({
+            //                                        "basic",
+            //                                        "./resources/shaders/simpleVs.vert",
+            //                                        "./resources/shaders/simplefrag.frag"
+            //                                });
+            // //
+            // model->modelProgram = shaderHandle;
+            // model->model = createModel();
+            //
+            // // add light 1
+            // auto light = scene->createEntity("light");
+            // auto lightTrans =light->emplace<SPW::TransformComponent>();
+            // auto lightCom = light->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            // lightCom->ambient = {0.2, 0.2, 0.2};
+            // lightCom->diffuse = {1, 1, 0};
+            // lightCom->specular = {1, 1, 0};
+            // lightTrans->rotation = {0, 60, 0};
+            //
+            // // add light 2
+            // auto light2 = scene->createEntity("light2");
+            // auto lightTrans2 =light2->emplace<SPW::TransformComponent>();
+            // auto lightCom2 = light2->emplace<SPW::LightComponent>(SPW::DirectionalLightType);
+            // lightCom2->ambient = {0.2, 0.2, 0.2};
+            // lightCom2->diffuse = {0, 1, 1};
+            // lightCom2->specular = {0, 1, 1};
+            // lightTrans2->rotation = {0, -60, 0};
 
 
 

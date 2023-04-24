@@ -4,9 +4,9 @@
 
 #ifndef SPARROW_OPENGLVERTEXBUFFER_H
 #define SPARROW_OPENGLVERTEXBUFFER_H
+#include "Asset/AssetData/Vertex.h"
 #include <Render/VertexBuffer.h>
 #include <glad/glad.h>
-#include "Model/Vertex.h"
 
 namespace SPW
 {

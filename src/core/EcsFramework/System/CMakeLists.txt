@@ -1,5 +1,4 @@
 add_subdirectory(AudioSystem)
-add_subdirectory(RenderSystem)
 add_subdirectory(NewRenderSystem)
 add_subdirectory(ControlSystem)
 add_subdirectory(PhysicSystem)
