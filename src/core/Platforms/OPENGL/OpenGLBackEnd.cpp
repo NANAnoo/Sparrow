@@ -371,6 +371,12 @@ namespace SPW
         glBindVertexArray(0);
     }
 
+    void OpenGLBackEnd::dispatchCompute(unsigned int x, unsigned int y, unsigned int z)
+    {
+        glDispatchCompute(x, y, z);
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    }
+
     // create attachment texture
     std::shared_ptr<AttachmentTexture> OpenGLBackEnd::createAttachmentTexture() {
         return std::make_shared<OpenGLAttachmentTexture>();

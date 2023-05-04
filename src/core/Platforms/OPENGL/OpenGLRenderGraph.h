@@ -32,6 +32,9 @@ namespace SPW {
             // create resource for model repeat node
             void createResourceForModelRepeatNode(const std::shared_ptr<ModelRepeatPassNode> &node);
 
+            // create resource for compute node
+            void createResourceForComputeNode(const std::shared_ptr<ComputeNode> &node);
+
             // bind required attachments
             unsigned int bindAttachments(
                 const std::shared_ptr<Shader> &shader, 
@@ -56,6 +59,9 @@ namespace SPW {
 
             // render on present node
             void renderOnPresentNode(const std::shared_ptr<PresentNode> &node, const RenderInput &input);
+
+            // execute compute node
+            void executeComputeNode(const std::shared_ptr<ComputeNode> &node, const RenderInput &input);
 
             // drawWithModels
             void drawWithModels(const RenderInput &input, const std::unordered_map<UUID, std::vector<Entity>, UUID::hash> &models, RepeatType type, unsigned int repeat_id, int face);

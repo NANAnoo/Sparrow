@@ -257,14 +257,24 @@ namespace SPW {
         ShaderDesc shader;  
     };
 
-    // TODO : operate an image, work with a shader [frag / compute shader]
-    // class ImagePassNode : public PresentNode {
-    // public:
-    //     ImagePassNode() = delete;
-    //     ImagePassNode(ShaderDesc shader) : PresentNode(shader) {}
-    //     virtual ~ImagePassNode() = default;
-    
-    // };
+    //  compute shader node
+    class ComputeNode : public PresentNode {
+    public:
+        ComputeNode() = delete;
+        ComputeNode(ShaderDesc shader) : PresentNode(shader) {}
+        virtual ~ComputeNode() = default;
+        AttachmentPort addOutPut(ColorAttachmentFormat format) {
+            outputs.push_back(format);
+            return {pass_id, int(outputs.size() - 1)};
+        }
+        unsigned int width = 0;
+        unsigned int height = 0;
+
+        unsigned int dispatch_x = 1;
+        unsigned int dispatch_y = 1;
+        unsigned int dispatch_z = 1;
+        std::vector<ColorAttachmentFormat> outputs;
+    };
 
     // operate on screen buffer
     class ScreenPassNode : public PresentNode {

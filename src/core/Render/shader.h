@@ -67,20 +67,33 @@ namespace SPW
         std::string name;
         std::string vertex_shader_path;
         std::string frag_shader_path;
+        std::string compute_shader_path;
         ShaderHandle()= default;
         ShaderHandle(std::string aName,
                               std::string vert,
                               std::string frag):
-            name(std::move(aName)), vertex_shader_path(std::move(vert)), frag_shader_path(std::move(frag))
+            name(std::move(aName)),
+            vertex_shader_path(std::move(vert)), 
+            frag_shader_path(std::move(frag)),
+            compute_shader_path("")
         {}
+
+        ShaderHandle(std::string aName,
+                              std::string comp):
+                name(std::move(aName)), 
+                vertex_shader_path(""), 
+                frag_shader_path(""), 
+                compute_shader_path(std::move(comp))
+        {}
+
         [[nodiscard]] bool isValid() const {
-            return !vertex_shader_path.empty() && !frag_shader_path.empty();
+            return (!vertex_shader_path.empty() && !frag_shader_path.empty()) || !compute_shader_path.empty();
         }
 
         bool operator==(const ShaderHandle& other) const
         {
             return vertex_shader_path == other.vertex_shader_path &&
-                   frag_shader_path == other.frag_shader_path;
+                   frag_shader_path == other.frag_shader_path && compute_shader_path == other.compute_shader_path;
         }
     };
 

@@ -104,6 +104,11 @@ namespace SPW {
                     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, m_textureID, 0);
                 }
             }
+
+            void attachToCompute(unsigned int binding) override
+            {
+                glBindImageTexture(binding, m_textureID, 0, GL_FALSE, 0, GL_READ_WRITE, innerFormat);
+            }
             // bind to slot in shader
             unsigned int use(unsigned int slot) override
             {

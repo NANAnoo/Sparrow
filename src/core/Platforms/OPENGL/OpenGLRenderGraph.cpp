@@ -320,6 +320,8 @@ namespace SPW {
                 createResourceForModelRepeatNode(std::dynamic_pointer_cast<ModelRepeatPassNode>(node));
             } else if (std::dynamic_pointer_cast<ModelPassNode>(node)) {
                 createResourceForModelNode(std::dynamic_pointer_cast<ModelPassNode>(node));
+            } else if (std::dynamic_pointer_cast<ComputeNode>(node)) {
+                createResourceForComputeNode(std::dynamic_pointer_cast<ComputeNode>(node));
             }
         }
 
@@ -400,6 +402,7 @@ namespace SPW {
         renderOnModelPassNode(std::dynamic_pointer_cast<ModelPassNode>(node), map, input);
         renderOnModelToScreenNode(std::dynamic_pointer_cast<ModelToScreenNode>(node), map, input);
         renderOnScreenPassNode(std::dynamic_pointer_cast<ScreenPassNode>(node), input);
+        executeComputeNode(std::dynamic_pointer_cast<ComputeNode>(node), input);
         renderOnPresentNode(std::dynamic_pointer_cast<PresentNode>(node), input);
     }
 
@@ -585,6 +588,25 @@ namespace SPW {
         node->ready = true;
     }
 
+    // execute compute pass node
+    void OpenGLRenderGraph::executeComputeNode(const std::shared_ptr<ComputeNode> &node, const RenderInput &input) {
+        if (!node || node->ready) {
+            return;
+        }
+        auto shader = input.backend->getShader(node->shader.shader);
+        shader->Bind();
+        bindContext(shader, node->shader.context_inputs, node->width, node->height, input.camera_pos);
+        bindAttachments(shader, node->shader, input.screen_texture, input.depth_texture, 0);
+        bindPlights(shader, node->shader.light_inputs, input.pLights);
+        bindDlights(shader, node->shader.light_inputs, input.camera_pos, input.dLights);
+        bindMVP(shader, node->shader.transform_inputs, glm::mat4(1.f), input.view, input.projection);
+        for (int idx = 0; idx < node->outputs.size(); idx ++) {
+            all_attachments[{node->pass_id, idx}]->attachToCompute(idx);
+        }
+        input.backend->dispatchCompute(node->dispatch_x, node->dispatch_y, node->dispatch_z);
+        node->ready = true;
+    }
+
     // create resource for model node
     void OpenGLRenderGraph::createResourceForModelNode(const std::shared_ptr<ModelPassNode> &node) {
         if (!node || node->attachment_formats.size() == 0) {
@@ -670,6 +692,20 @@ namespace SPW {
                 all_attachment_cube_arrays.insert({{node->pass_id, resources_id},cube_array});
             }
             resources_id ++;
+        }
+    }
+
+    void OpenGLRenderGraph::createResourceForComputeNode(const std::shared_ptr<ComputeNode> &node)
+    {
+        if (!node || node->outputs.size() == 0) {
+            return;
+        }
+
+        for (int idx = 0; idx < node->outputs.size(); idx ++) {
+            auto &format = node->outputs[idx];
+            auto tex = std::make_shared<OpenGLAttachmentTexture>();
+            tex->genTexture(node->width, node->height, format);
+            all_attachments.insert({{node->pass_id, idx}, tex});
         }
     }
 

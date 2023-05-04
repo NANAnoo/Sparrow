@@ -11,6 +11,7 @@ namespace SPW {
                                     unsigned int height,
                                     ColorAttachmentFormat format) = 0;
             virtual void attach(unsigned int index) = 0;
+            virtual void attachToCompute(unsigned int binding) = 0;
             virtual unsigned int use(unsigned int slot)=0;
             virtual void unbind()=0;
             virtual void deleteTexture()=0;

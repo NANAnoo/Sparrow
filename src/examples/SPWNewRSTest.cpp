@@ -267,6 +267,8 @@ public:
                 "./resources/shaders/pbr_defer_shading.frag"
             });
 
+            //pbr_depfer_shading_desc.dependency_inputs[] = ""
+
             auto GBufferShading = defferShadering->createRenderNode<SPW::ScreenPassNode>(pbr_depfer_shading_desc);
             GBufferShading->bindInputPort(gPosition);
             GBufferShading->bindInputPort(gNormal);

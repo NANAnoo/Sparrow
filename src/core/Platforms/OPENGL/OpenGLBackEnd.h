@@ -67,6 +67,8 @@ namespace SPW
             return std::make_shared<OpenGLShader>(handle);
         }
 
+        void dispatchCompute(unsigned int x, unsigned int y, unsigned int z) override;
+
         std::shared_ptr<FrameBuffer> createFrameBuffer() final;
         std::shared_ptr<FrameBuffer> creatSenceFrameBuffer() final;
         void creatShadowFrameBuffer(unsigned int num) final;

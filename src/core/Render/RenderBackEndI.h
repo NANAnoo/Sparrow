@@ -84,6 +84,8 @@ namespace SPW
         virtual void drawInTexture(SPW::PostProcessingEffects effect = SPW::PostProcessingEffects::None)=0;
         virtual void drawInQuad() = 0;
 
+        virtual void dispatchCompute(unsigned int x, unsigned int y, unsigned int z) = 0;
+
         //creat structure;
         virtual std::shared_ptr<IndexBuffer> createIndexBuffer(std::vector<unsigned int> indices) = 0;
         virtual std::shared_ptr<VertexBufferI> createVertexBuffer() = 0;
