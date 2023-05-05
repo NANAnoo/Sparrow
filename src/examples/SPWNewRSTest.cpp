@@ -549,7 +549,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			cubeTrans->scale = {5.0, 0.05, 5.0};
 			cubeTrans->position.y -= 0.35f;
 			auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
-				// SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName);
 			cubemodel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetID;
 			cubemodel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName;
 			cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].path;
@@ -564,16 +563,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			collider2->state = SPW::needAwake;
 
 			// --------------------------------------------------------------------------------
-
-			// ------ create render graph for skybox ----------------
-
-			// auto skyGraph = renderSystem->createRenderGraph();
-			// auto skyNode = skyGraph->createRenderNode<SPW::ModelToScreenNode>();
-			// auto skybox_desc = SPW::SkyBoxShader_desc();
-			// skyNode->addScreenAttachment(SPW::ScreenColorType);
-			// skyNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
-			// ------ create render graph for skybox ----------------
-
 			auto skybox = scene->createEntity("skybox");
 			auto skyboxTrans = skybox->emplace<SPW::TransformComponent>();
 			auto skyMesh = skybox->emplace<SPW::MeshComponent>(camera_id);
@@ -658,10 +647,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			light3->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(2);
 			light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
-			m_ImguiManager = std::make_shared<SPW::ImGuiManager>(scene);
-			m_ImguiManager->Init(handle);
-
-
 			std::cout << "ImGui" << IMGUI_VERSION << std::endl;
 #ifdef IMGUI_HAS_VIEWPORT
 			std::cout << " +viewport";
@@ -690,29 +675,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 	void afterAppUpdate() final
 	{
 		scene->afterUpdate();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->Begin();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->CreateImagePanel(scene->m_renderSystem.lock()->getTextureID());
-
-		m_ImguiManager->RenderAllPanels();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->GetInspectorPanel()->SetActiveScene(scene);
-		m_ImguiManager->GetEntityPanel()->SetActiveScene(scene);
-		scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
-		{
-			const auto component_name = e.component<SPW::NameComponent>()->getName();
-			const auto component_id = e.component<SPW::IDComponent>()->getID().toString();
-			m_ImguiManager->GetEntityPanel()->AddMenuItem(component_id, component_name, [&, e]()
-			{
-				m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
-			});
-		});
-
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->End();
-		m_ImguiManager->EnableViewport();
-		//-------------------------------------------------------------------------
 	}
 
 	void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>>& events) final
@@ -758,6 +720,17 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 				app->stop();
 				return true;
 			});
+		e->dispatch<SPW::MouseDownType, SPW::MouseEvent>(
+			[this](SPW::MouseEvent* e)
+			{
+				static bool enabled = false;
+				if (e->button_code == SPW::MouseCode::ButtonRight) {
+					enabled = !enabled;
+					app->window->enableCursor(enabled);
+				}
+				return true;
+			}
+		);
 		SPW::EventResponderI::solveEvent(e);
 	}
 
@@ -767,7 +740,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 	std::shared_ptr<SimpleRender> render;
 	std::shared_ptr<SPW::Scene> scene;
 	std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
-	std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
 };
 
 // main entrance

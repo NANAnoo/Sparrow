@@ -1,10 +1,13 @@
 #pragma once
+
+#include "Utils/UUID.hpp"
+
 #include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
 #include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "EntityWrapper.hpp"
 #include "EcsFramework/Scene.hpp"
 #include "LuaBinding/RenderWrapper.hpp"
-#include "Utils/UUID.hpp"
+
 
 #include <string>
 #include <unordered_map>
@@ -215,29 +218,10 @@ namespace SPW {
                 return pointShadowAniShaderID.toString();
             } else if (name == "DirectionalShadowAniShader") {
                 return dirShadowAniShaderID.toString();
+            } else if (name == "SkyBoxShader") {
+                return skyboxShaderID.toString();
             }
             return "";
-        }
-
-        // right, left, top, bottom, front, back
-        void setSkyBox(
-            const std::string &cam_id,
-            const std::string &right, 
-            const std::string &left,
-            const std::string &top,
-            const std::string &bottom,
-            const std::string &front,
-            const std::string &back) 
-        {
-            auto skybox = m_scene->createEntity("skybox");
-            auto skyboxTrans = skybox->emplace<SPW::TransformComponent>();
-            auto skyMesh = skybox->emplace<SPW::MeshComponent>(UUID::fromString(cam_id.c_str()));
-            skyMesh->bindRenderGraph = skyboxGraphID;
-            skyMesh->modelSubPassPrograms[skyboxNodeID] = skyboxShaderID;
-
-            skyMesh->model = SPW::createSkyBoxModel({
-                right, left, top, bottom, front, back
-            });
         }
 
         RenderGraphWrapper createRenderGraph() {
@@ -262,7 +246,6 @@ namespace SPW {
                 "getGraphID", &SceneWrapper::getGraphID,
                 "getRenderNodeID", &SceneWrapper::getRenderNodeID,
                 "getShaderID", &SceneWrapper::getShaderID,
-                "setSkyBox", &SceneWrapper::setSkyBox,
                 "createRenderGraph", &SceneWrapper::createRenderGraph,
                 "registerShader", &SceneWrapper::registerShader
             );

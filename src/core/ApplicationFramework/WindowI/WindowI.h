@@ -27,6 +27,7 @@ namespace SPW {
         virtual int frameHeight() = 0;
         virtual void setSize(int w, int h) = 0;
         virtual std::shared_ptr<GraphicsContext> getGraphicsContext() = 0;
+        virtual void enableCursor(bool enabled) = 0;
     };
 }
 

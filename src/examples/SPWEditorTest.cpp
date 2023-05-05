@@ -293,6 +293,8 @@ public:
 		app->window->setSize(1280, 720);
 		app->window->setTitle("Editor Test");
 
+		std::make_shared<EventWrapper>(app->delegate.lock());
+
 		transformer = std::make_shared<Transformer>(app->delegate.lock());
 		transformer->window = window;
 
