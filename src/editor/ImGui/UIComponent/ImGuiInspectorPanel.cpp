@@ -280,6 +280,7 @@ namespace SPW
 					{
 						if (ImGui::Button(k.c_str()))
 						{
+							component->bindCamera = ResourceManager::getInstance()->activeCameraID;
 							component->assetID = v.assetID;
 							component->assetName = v.assetName;
 							component->assetPath = v.path;
@@ -294,7 +295,7 @@ namespace SPW
 
 			ImGui::End();
 		}
-
+		  
 
 		// ------------------------- DISPLAY LOGIC -------------------------
 		if (!component->assetName.empty())

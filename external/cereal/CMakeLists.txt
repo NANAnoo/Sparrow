@@ -104,26 +104,3 @@ endif()
 if(JUST_INSTALL_CEREAL)
     return()
 endif()
-
-
-#if(NOT SKIP_PERFORMANCE_COMPARISON)
-#    # Boost serialization for performance sandbox
-#    find_package(Boost REQUIRED COMPONENTS serialization)
-#endif()
-
-
-option(BUILD_TESTS "Build tests" ${CEREAL_MASTER_PROJECT})
-if(BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(unittests)
-endif()
-
-
-if(BUILD_SANDBOX)
-    add_subdirectory(sandbox)
-endif()
-
-
-if(BUILD_DOC)
-    add_subdirectory(doc)
-endif()
