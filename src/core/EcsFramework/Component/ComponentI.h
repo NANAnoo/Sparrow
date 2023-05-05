@@ -7,7 +7,7 @@
 
 #include <type_traits>
 #include <sol/sol.hpp>
-
+#include "Asset/Asset.hpp"
 namespace SPW {
     class ComponentI {
         public:

@@ -20,6 +20,14 @@ namespace SPW {
         glm::vec3 rotation = {0, 0, 0};
         glm::vec3 scale = {1, 1, 1};
 
+        template<class Archive>
+        void serialize(Archive& ar)
+        {
+            ar(cereal::make_nvp("position", position),
+               cereal::make_nvp("rotation", rotation),
+               cereal::make_nvp("scale", scale));
+        }
+
         // update from lua
         void update(const std::string &key, const sol::table &value) final {
             if (key == "position" && value["value"].valid()) {

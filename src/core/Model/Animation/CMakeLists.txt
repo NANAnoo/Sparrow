@@ -1,1 +1,0 @@
-CORE_ADD_SOURCE(AnimDefinitions.h Skeleton.h)

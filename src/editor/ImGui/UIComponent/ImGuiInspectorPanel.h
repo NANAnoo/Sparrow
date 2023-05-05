@@ -5,166 +5,91 @@
  */
 #pragma once
 #include "ImGuiPanel.h"
-#include "assimp/code/Common/Win32DebugLogStream.h"
+#include "EcsFramework/Scene.hpp"
+#include "EcsFramework/Component/ComponentTypes.h"
 #include "EcsFramework/Component/CameraComponent.hpp"
+#include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/Audio/AudioComponent.h"
+#include "EcsFramework/Component/Audio/AudioListener.h"
+#include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
+#include "EcsFramework/Component/KeyComponent.hpp"
+#include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
+#include "stb_image.h"
 
-namespace SPW {
+#include "ImGui/ImGuiIconManager.hpp"
+#include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
+#include "Asset/ResourceManager/ResourceManager.h"
+#include "ImGui/IconsFontAwesome6.h"
+#include "IO/FileSystem.h"
 
-class ImGuiInspectorPanel : public ImGuiPanel {
-public:
-  ImGuiInspectorPanel(std::string title, bool *open = nullptr)
-      : ImGuiPanel(std::move(title), open)
-	{}
+namespace SPW
+{
+	class ImGuiInspectorPanel : public ImGuiPanel
+	{
+	public:
+		ImGuiInspectorPanel(std::string title, ImGuiIconManager* iconManager, bool* open = nullptr)
+			: ImGuiPanel(ICON_FA_CIRCLE_EXCLAMATION"  "+std::move(title), open,ImGuiWindowFlags_NoMove )
+			, m_IconManager(iconManager)
+		{
+		}
 
-  void SetSelectedGameObject(const Entity& e) {m_Entity = &e;}
+		void SetActiveScene(const std::shared_ptr<Scene>& scene)
+		{
+			scene_ptr = scene.get();
+		}
 
-protected:
-	void Draw() override {
-        if (m_Entity != nullptr) 
-        {
-            ImGui::Text("Name: %s", m_Entity->component<SPW::NameComponent>()->getName().c_str());
-            if (m_Entity->has<SPW::TransformComponent>()) 
-                DrawTransformComponent(m_Entity->component<SPW::TransformComponent>());
-            if (m_Entity->has<SPW::CameraComponent>())
-                DrawCameraComponent(m_Entity->component<SPW::CameraComponent>());
-            if (m_Entity->has<SPW::PointLightComponent>())
-                DrawPointLightComponent(m_Entity->component<SPW::PointLightComponent>());
-            if (m_Entity->has<SPW::DirectionalLightComponent>()) {
-                ImGui::Text("Name: %s", m_Entity->component<SPW::NameComponent>()->getName().c_str());
-            }
-            else {
-                ImGui::Text("Unknown");
-            }
-        }
-	  
-	  // ;
-    // DrawComponents(std::forward<std::shared_ptr<Entity>>(m_Entity));
-  }
+		void SetSelectedGameObject(const Entity& e)
+		{
+			m_Entity = &e;
 
-private:
+			for (int i = static_cast<int>(ComponentType::IDComponent);
+				 i <= static_cast<int>(ComponentType::AudioListener); ++i)
+			{
+				auto componentType = static_cast<ComponentType>(i);
+				componentStatus[componentType] = false;
+			}
+		}
 
-    void DrawTransformComponent(SPW::TransformComponent* component) const
-    {
-        ImGui::PushID("Transform"); 
-        if (ImGui::TreeNode("Transform")) /* TODO: add icon*/
-        {
-            if (ImGui::BeginChild("Transform", ImVec2(0, 90), true)) {
-                // draw component properties
-                ImGui::InputFloat3("Position", glm::value_ptr(component->position));
-                ImGui::InputFloat3("Rotation", glm::value_ptr(component->rotation));
-                ImGui::InputFloat3("Scale", glm::value_ptr(component->scale));
+	protected:
+		void Draw() override;
 
-                ImGui::EndChild();
-            }
-            ImGui::TreePop();
-        }
-        ImGui::PopID();
-    }
+	private:
+		void DrawTransformComponent(TransformComponent* component);
+		void DrawMeshComponent(MeshComponent* component);
+		void DrawCameraComponent(CameraComponent* component) const;
+		void DrawLightComponent() const;
+		void DrawAudioComponent(AudioComponent* component) const;
+		void DrawAudioListener(AudioListener* component) const;
+		void DrawKeyComponent(KeyComponent* component) const;
+		void DrawAnimationComponent(AnimationComponent* component) const;
+		void DrawHierarchyNode(AnimationComponent* component, const HierarchyNode& node) const;
+		void Loop();
 
-	void DrawCameraComponent(SPW::CameraComponent* component) const
-    {
-        // ImGui::PushID("Camera"); 
-        // if (ImGui::TreeNode("Camera")) /* TODO: add icon*/
-        // {
-        //     if (ImGui::BeginChild("Camera", ImVec2(0, 120), true)) 
-        //     {
-        //         if(component->getType() == CameraType::PerspectiveType)
-        //         {
-        //             // draw component properties
-        //             ImGui::InputFloat("FOV", &component->fov);
-        //             ImGui::InputFloat("Aspect", &component->aspect);
-        //             // ImGui::InputFloat("Near", &component->near);
-        //             // ImGui::InputFloat("far", &component->far);
-        //         }
-        //         else if(component->getType() == CameraType::OrthoType)
-        //         {
-        //             // draw component properties
-        //             ImGui::InputFloat("Left", &component->left);
-        //             ImGui::InputFloat("Right", &component->right);
-        //             ImGui::InputFloat("Bottom", &component->bottom);
-        //             ImGui::InputFloat("Top", &component->top);
-        //         }
-        //         ImGui::EndChild();
-        //     }
-        //     ImGui::TreePop();
-        // }
-        // ImGui::PopID();
-    }
 
-    void DrawPointLightComponent(SPW::PointLightComponent* component) const
-    {
-        ImGui::PushID("Point Light"); 
-        if (ImGui::TreeNode("Point Light")) /* TODO: add icon*/
-        {
-            if (ImGui::BeginChild("Point Light", ImVec2(0, 180), true)) 
-            {
-                // draw component properties
-                ImGui::InputFloat("Constant", &component->constant);
-                ImGui::InputFloat("Linear", &component->linear);
-                ImGui::InputFloat("Quadratic", &component->quadratic);
-                ImGui::InputFloat3("Ambient", glm::value_ptr(component->ambient));
-                ImGui::InputFloat3("Diffuse", glm::value_ptr(component->diffuse));
-                ImGui::InputFloat3("Specular", glm::value_ptr(component->specular));
- 
-                ImGui::EndChild();
-            }
-            ImGui::TreePop();
-        }
-        ImGui::PopID();
-    }
+	private:
+		const Entity* m_Entity = nullptr;
+		Scene* scene_ptr = nullptr;
+		std::unordered_map<ComponentType, bool> componentStatus;
 
-	// template <>
-	// void DrawComponentByType<EntityComponentType::Transform>(ComponentI& component)
-	// {
+		ImGuiIconManager* m_IconManager;
+		ImVec2 k_DefalutImageSize = ImVec2(20, 20);
+		std::unique_ptr<ImGuiMessageBox> msgBox_Inspector;
 
-	// }
+		bool show_selectingMesh = false;
+		bool show_naming = false;
+		bool show_addcomponent = false;
+		char m_PendingName[256] = "";
 
-  // template <>
-  // void DrawComponentByType<EntityComponentType::Camera>(SPW::CameraComponent& component) {
-  //   ImGui::PushID("Camera");
-  //   // Draw the Camera component
-  //   ImGui::PopID();
-  // }
-  //
-  // template <>
-  // void DrawComponentByType<EntityComponentType::Light>(
-  //     GameOjbectComponent &component) {
-  //   // Get the Transform component data
-  //   auto &lgihtData =
-  //       std::get<ComponentData<EntityComponentType::Light>>(component.data);
-  //
-  //   ImGui::PushID("Light");
-  //   if (ImGui::TreeNode("Light")) /* Enable Tree View */
-  //   {
-  //     if (ImGui::BeginChild("Light", ImVec2(0, 35), true)) {
-  //       // Draw the Transform component properties
-  //       ImGui::InputFloat3("Position", glm::value_ptr(lgihtData.position));
-  //
-  //       // ImGui::Text("Component: %s", component.name.c_str());
-  //       if (component.callback && ImGui::IsItemClicked()) {
-  //         component.callback();
-  //       }
-  //       ImGui::EndChild();
-  //     }
-  //     ImGui::TreePop();
-  //   }
-  //
-  //   ImGui::PopID();
-  // }
-  //
-  // template <>
-  // void DrawComponentByType<EntityComponentType::Renderer>(
-  //     GameOjbectComponent &component) {
-  //   ImGui::PushID("Renderer");
-  //   // Draw the Camera component
-  //   ImGui::PopID();
-  // }
-
-  const SPW::Entity* m_Entity = nullptr;
-};
+		std::string convertToString(char* array)
+		{
+			std::stringstream ss;
+			ss << array;
+			return ss.str();
+		}
+	};
 
 }
