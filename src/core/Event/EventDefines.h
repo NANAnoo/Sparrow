@@ -22,6 +22,7 @@ namespace SPW {
         KeyDownType,
         KeyHeldType,
         KeyReleasedType,
+        KeyInputType,
         MouseDownType,
         MouseHeldType,
         MouseReleasedType,
@@ -38,6 +39,7 @@ namespace SPW {
             case KeyDownType: return "KeyDownEvent";
             case KeyHeldType: return "KeyHeldEvent";
             case KeyReleasedType: return "KeyReleasedEvent";
+            case KeyInputType: return "KeyInputEvent";
             case MouseDownType: return "MouseDownEvent";
             case MouseHeldType: return "MouseHeldEvent";
             case MouseReleasedType: return "MouseReleasedEvent";

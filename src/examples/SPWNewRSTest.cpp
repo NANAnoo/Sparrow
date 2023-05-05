@@ -45,11 +45,13 @@
 #include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "IO/FileSystem.h"
-#include "ImGui/ImGuiManager.hpp"
 #include "Asset/Serializer/EntitySerializer.h"
 #include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
 #include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
 #include "IO/ConfigManager.h"
+
+#include "ImGui/ImGuiEvent.hpp"
+#include "ImGui/ImGuiManager.hpp"
 
 auto CreateEmptyNode(const std::shared_ptr<SPW::Scene>& scene) -> std::shared_ptr<SPW::Entity>
 {
@@ -347,9 +349,12 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 		app->window = window;
 		app->window->setSize(1280, 720);
 		app->window->setTitle("Editor Test");
+//		std::shared_ptr<EventResponderI> ptr = std::shared_ptr<EventResponderI>(app);
+//
+//		transformer = std::make_shared<SPW::ImGuiMouseEventResponder>(ptr);
+//		key_transformer = std::make_shared<SPW::ImGuiKeyEventResponder>(ptr);
 
-		transformer = std::make_shared<Transformer>(app->delegate.lock());
-		transformer->window = window;
+		// transformer->window = window;
 
 
 		// weak strong dance
@@ -657,9 +662,8 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			light3->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(2);
 			light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
-			m_ImguiManager = std::make_shared<SPW::ImGuiManager>(scene);
-			m_ImguiManager->Init(handle);
-
+			auto ptr = std::shared_ptr<EventResponderI>(app);
+			m_ImguiManager = std::make_shared<SPW::ImGuiManager>(handle, scene, ptr);
 
 			std::cout << "ImGui" << IMGUI_VERSION << std::endl;
 #ifdef IMGUI_HAS_VIEWPORT
@@ -671,7 +675,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 
 			// init scene
 			scene->initial();
-			transformer->scene = scene;
 		});
 	}
 
@@ -689,29 +692,8 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 	void afterAppUpdate() final
 	{
 		scene->afterUpdate();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->Begin();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->CreateImagePanel(scene->m_renderSystem.lock()->getTextureID());
-
-		m_ImguiManager->RenderAllPanels();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->GetInspectorPanel()->SetActiveScene(scene);
-		m_ImguiManager->GetEntityPanel()->SetActiveScene(scene);
-		scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
-		{
-			const auto component_name = e.component<SPW::NameComponent>()->getName();
-			const auto component_id = e.component<SPW::IDComponent>()->getID().toString();
-			m_ImguiManager->GetEntityPanel()->AddMenuItem(component_id, component_name, [&, e]()
-			{
-				m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
-			});
-		});
-
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->End();
-		m_ImguiManager->EnableViewport();
-		//-------------------------------------------------------------------------
+		// ----------------------------------------------------------------------------------------
+		m_ImguiManager->Render();
 	}
 
 	void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>>& events) final
@@ -762,7 +744,8 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 
 	const char* getName() final { return _name; }
 	const char* _name;
-	std::shared_ptr<Transformer> transformer;
+	std::shared_ptr<SPW::ImGuiMouseEventResponder> transformer;
+	std::shared_ptr<SPW::ImGuiKeyEventResponder> key_transformer;
 	std::shared_ptr<SimpleRender> render;
 	std::shared_ptr<SPW::Scene> scene;
 	std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;

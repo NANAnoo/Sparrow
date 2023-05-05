@@ -49,7 +49,9 @@ namespace SPW
 		m_FileDialogID = -1;
 
 		InitLayout();
-		
+
+  //      m_KeyResponder = new ImGuiKeyEventResponder(eventResponder);
+		//m_MouseResponder = new  ImGuiMouseEventResponder(eventResponder);
 	}
 
 

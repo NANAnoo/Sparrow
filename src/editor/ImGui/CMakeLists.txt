@@ -35,4 +35,6 @@ EDITOR_ADD_SOURCE(
 
         ImGuiMessageBox/ImGuiMessageBox.h
         ImGuiMessageBox/ImGuiMessageBox.cpp
+
+        ImGuiEvent.hpp
         )

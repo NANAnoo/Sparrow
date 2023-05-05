@@ -5,6 +5,7 @@
 */
 #pragma once
 #include "ImGuiDefinitions.h"
+#include "ImGuiEvent.hpp"
 #include "UIComponent/ImGuiDockSpace.h"
 #include "UIComponent/ImGuiPanel.h"
 #include "UIComponent/ImGuiMenuBar.h"
@@ -24,14 +25,23 @@ namespace SPW
 {
 	class ImGuiImagePanel;
 
-	class ImGuiManager
+	class ImGuiManager : public EventResponderI
 	{
 	public:
-		ImGuiManager(std::shared_ptr<Scene> scene)
+		ImGuiManager(GLFWwindow* window, std::shared_ptr<Scene> scene, const std::shared_ptr<EventResponderI>& eventResponder)
+					: windowHandle(window)
+			        , m_Scene (scene)
+					, EventResponderI(eventResponder)
 		{
-			m_Scene = scene;
+			Init(windowHandle);
 		}
-			
+
+		~ImGuiManager()
+		{
+			//delete m_KeyResponder;
+			//delete m_MouseResponder;
+
+		}
 
 		void Init(GLFWwindow* window);
 		void Begin();
@@ -58,7 +68,93 @@ namespace SPW
 		void DisplayDialog() const;
 		void loadDefaultLayout() const;
 
-		//void SetLog(std::string log);
+		void Render()
+		{
+			Begin();
+			//----------------------------------------------------------------------------------------
+			CreateImagePanel(m_Scene->m_renderSystem.lock()->getTextureID());
+
+			RenderAllPanels();
+			//----------------------------------------------------------------------------------------
+			GetInspectorPanel()->SetActiveScene(m_Scene);
+			GetEntityPanel()->SetActiveScene(m_Scene);
+			m_Scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
+				{
+					const auto component_name = e.component<SPW::NameComponent>()->getName();
+					const auto component_id = e.component<SPW::IDComponent>()->getID().toString();
+					GetEntityPanel()->AddMenuItem(component_id, component_name, [&, e]()
+						{
+							GetInspectorPanel()->SetSelectedGameObject(e);
+						});
+				});
+
+			////----------------------------------------------------------------------------------------
+			End();
+			EnableViewport();
+		}
+
+		void solveEvent(const std::shared_ptr<EventI>& e)
+		{
+
+			ImGuiIO& io = ImGui::GetIO();
+
+//			if (e->type() == MouseDownType)
+//			{
+//				 std::cout << "Mouse Down" << std::endl;
+//				io.MouseDown[(int)MouseCode::ButtonLeft] = true;
+//			}
+//
+//			if (e->type() == MouseReleasedType)
+//			{
+//				 std::cout << "Mouse Released" << std::endl;
+//				io.MouseDown[(int)MouseCode::ButtonLeft] = false;
+//			}
+//
+//			if (e->type() == MouseReleasedType)
+//			{
+//				 std::cout << "Mouse Released" << std::endl;
+//				io.MouseDown[(int)MouseCode::ButtonLeft] = false;
+//			}
+
+			//if (e->category() == MouseCategory && e->type() == MouseScrollType)
+			//{
+			//	io.MouseWheel += (float)(e->scroll_offset);
+			//}
+
+			// bool ret = false;
+
+			e->dispatch<MouseScrollType, MouseEvent>([&io](const MouseEvent* e)
+			{
+
+				io.MouseWheel += (float)(e->scroll_offset);
+				//if (e->category() == MouseCategory && e->type() == MouseScrollType)
+				//{
+				//	io.MouseWheel += (float)(e->scroll_offset);
+				//}
+				return false;
+			});
+
+			e->dispatch<MouseDownType, MouseEvent>([&io](const MouseEvent* e)
+			{
+				io.MouseDown[(int)MouseCode::ButtonLeft] = true;
+
+				return false;
+			});
+
+			e->dispatch<MouseReleasedType, MouseEvent>([&io](const MouseEvent* e)
+				{
+					io.MouseDown[(int)MouseCode::ButtonLeft] = false;
+
+					return false;
+				});
+
+			e->dispatch<KeyInputType, KeyEvent>([&io](const KeyEvent* e)
+			{
+				io.AddInputCharacter((int)e->keycode);
+
+				return false;
+			});
+		}
 
 	private:
 		void InitLayout();
