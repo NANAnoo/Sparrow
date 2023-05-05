@@ -21,7 +21,7 @@ namespace SPW
 	//Start: Start an animation from 'Stopped' state or 'Paused' state
 	//Reset the current time and change to OnPlaying
 	//Stopped: Animation is stopped at time: 0
-	//OnPlaying -> stop: bUpdate = false; (AnimComponent to                           animation)
+	//OnPlaying -> stop: bUpdate = false; (AnimComponent to animation)
 	//Paused: Animation is stopped during playing
 	//Onplaying: Animation is playing and keeps updating
 	class SPWAnimationDelegateI
@@ -190,6 +190,15 @@ namespace SPW
 		}
 
 
+        void setState(AnimationState state)
+        {
+            if (onGoingAnim)
+            {
+                onGoingAnim->setState(state);
+            }
+        }
+
+
 		//swap animation
 		void swapCurrentAnim(const std::string& name)
 		{
@@ -208,7 +217,6 @@ namespace SPW
 				{
 					onGoingAnim = &result->second;
 				}
-
 				onGoingAnim->play();
 			}
 		}
@@ -233,7 +241,63 @@ namespace SPW
 		}
 
 
-		std::unordered_map<std::string, AnimationClip> allAnimations;
+        void initFromLua(const sol::table& value) override
+        {
+            if (!value["animFilePath"].valid())
+                return;
+            std::string assetPath = value["animFilePath"];
+
+            assetName = assetPath;
+
+            const auto skeleton = ResourceManager::getInstance()->m_AssetDataMap[assetName].skeleton;
+
+            for (auto& animClip : skeleton.animClips)
+            {
+                allAnimations.insert({animClip.name , animClip});
+            }
+            SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(skeleton.vertexWeightMap);
+        }
+
+
+        void update(const std::string& key, const sol::table& value) override
+        {
+
+            if (key == "enableLoop" && value["value"].valid())
+            {
+                bool isLoop = value["value"];
+                setLoop(isLoop);
+            }
+            else if (key == "disableLoop" && value["value"].valid())
+            {
+                bool isLoop = value["value"];
+                setLoop(isLoop);
+            }
+            else if(key == "swapAnimation" && value["value"].valid())
+            {
+                string name  = value["value"];
+                swapCurrentAnim(name);
+
+            }else if (key == "setState" && value["value"].valid())
+            {
+                int state =  value["value"];
+                setState((AnimationState)state);
+            }
+        }
+
+        virtual sol::object getLuaValue(const sol::table& value, const std::string& key) override
+        {
+            if (key == "animFiles")
+            {
+                sol::table animFiles = sol::state_view(value.lua_state()).create_table();
+                animFiles[onGoingAnim->name] = onGoingAnim->state;
+                return animFiles;
+            }
+            return sol::nil;
+        }
+
+
+
+        std::unordered_map<std::string, AnimationClip> allAnimations;
 		std::shared_ptr<SPWAnimSSBO> SPW_AnimSSBO;
 		AnimationClip* onGoingAnim = nullptr;
 
@@ -242,6 +306,13 @@ namespace SPW
 
 		std::string assetName;
 	};
+
+
+
+
+
+
+
 }
 
 #endif //SPARROW_ANIMATIONCOMPONENT_H

@@ -3,7 +3,7 @@ require "Components/TransformComponent"
 require "Components/MeshComponent"
 require "Components/AudioComponent"
 require "Components/KeyEventHandler"
-
+require "Components/AnimationComponent"
 require "Render/RenderDefines"
 
 -- create model from resources/models/mantis
@@ -20,6 +20,11 @@ function CreateMantisModel(scene, camera_id)
     model:setRenderProgram(scene:getRenderNodeID(DefaultNode.PointShadowNode), scene:getShaderID(DefaultShader.PointShadowShader))
     model:setRenderProgram(scene:getRenderNodeID(DefaultNode.DirectionalShadowNode), scene:getShaderID(DefaultShader.DirectionalShadowShader))
     model:setRenderProgram(scene:getRenderNodeID(DefaultNode.PBRShadowLightingNode), scene:getShaderID(DefaultShader.PBRShadowShader))
+
+    --render animation
+    local animation = MantisModel:addComponent(AnimationComponent,"resources/models/mantis/scene.gltf")
+
+
 
     print("Mantis Model id : ", MantisModel.id)
     
