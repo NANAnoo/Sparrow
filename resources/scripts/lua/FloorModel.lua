@@ -13,7 +13,7 @@ function CreateFloor(scene, camera_id)
     trans:setRotation(glm.vec3(0, 0, 0))
     trans:setScale(glm.vec3(5.0, 0.05, 5.0))
 
-    local model = floor:addComponent(MeshComponent, camera_id, "./resources/models/sand_cube/cube.obj")
+    local model = floor:addComponent(MeshComponent, camera_id, "sand_cube")
 
     -- custom shader example
     local tiledPBRShader = ShaderDesc.new()

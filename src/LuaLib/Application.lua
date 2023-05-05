@@ -32,3 +32,7 @@ end
 function App(app)
     global.app = Application:new(nil, app.name, app.width, app.height, app.onInit, app.beforeUpdate, app.onUpdate, app.afterUpdate, app.onStop, app.onWindowResize)
 end
+
+function Application:loadAsset(path)
+    SPW.LoadAsset(path)
+end

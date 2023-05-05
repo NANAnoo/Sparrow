@@ -151,4 +151,5 @@ DefaultShader = {
     DirectionalShadowShader = "DirectionalShadowShader",
     PointShadowAniShader = "PointShadowAniShader",
     DirectionalShadowAniShader = "DirectionalShadowAniShader",
+    SkyBoxShader = "SkyBoxShader",
 };

@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "SparrowCore.h"
+#include "Asset/ResourceManager/ResourceManager.h"
+#include "IO/ConfigManager.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Event/Event.h"
@@ -106,6 +108,10 @@ namespace SPW {
                 scene.setUpDefaultRenderGraph(renderSystem);
                 scene.m_scene->addSystem(renderSystem);
                 return scene;
+            };
+            cpp_table["LoadAsset"] = [this, weak_window](const std::string &name) {
+                auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + name);
+			    SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
             };
         }
         void beforeAppUpdate() final{
