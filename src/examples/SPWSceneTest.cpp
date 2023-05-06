@@ -389,8 +389,8 @@ public:
 
 			auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
 
-			m_ImguiManager = std::make_shared<SPW::ImGuiManager>(scene);
-			m_ImguiManager->Init(handle);
+			auto ptr = std::shared_ptr<EventResponderI>(app);
+			m_ImguiManager = std::make_shared<SPW::ImGuiManager>(handle, scene, ptr);
 
 
 			std::cout << "ImGui" << IMGUI_VERSION << std::endl;
@@ -422,27 +422,7 @@ public:
 	{
 		scene->afterUpdate();
 		//----------------------------------------------------------------------------------------
-		m_ImguiManager->Begin();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->CreateImagePanel(scene->m_renderSystem.lock()->getTextureID());
-
-		m_ImguiManager->RenderAllPanels();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->GetInspectorPanel()->SetActiveScene(scene);
-		m_ImguiManager->GetEntityPanel()->SetActiveScene(scene);
-		scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
-		{
-			const auto component_name = e.component<SPW::NameComponent>()->getName();
-			const auto component_id = e.component<SPW::IDComponent>()->getID().toString();
-			m_ImguiManager->GetEntityPanel()->AddMenuItem(component_id, component_name, [&, e]()
-			{
-				m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
-			});
-		});
-
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->End();
-		m_ImguiManager->EnableViewport();
+		m_ImguiManager->Render();
 		//-------------------------------------------------------------------------
 	}
 

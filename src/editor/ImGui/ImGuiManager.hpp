@@ -18,6 +18,7 @@
 #include "UIComponent/ImGuiProfilingPanel.h"
 #include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
 #include "Asset/ResourceManager/ResourceManager.h"
+#include "Asset/Serializer/EntitySerializer.h"
 #include "ImGui/IconsFontAwesome6.h"
 #include "UIComponent/ImGuiLog.h"
 
@@ -87,6 +88,21 @@ namespace SPW
 							GetInspectorPanel()->SetSelectedGameObject(e);
 						});
 				});
+
+
+			ImGui::Begin("Debug");
+			if (ImGui::Button("Save Scene"))
+			{
+				// save scene logic 
+				EntitySerializer::SaveScene(m_Scene);
+			}
+			if (ImGui::Button("Load Scene"))
+			{
+				// save scene logic 
+				EntitySerializer::LoadScene(m_Scene);
+			}
+			ImGui::End();
+
 
 			////----------------------------------------------------------------------------------------
 			End();

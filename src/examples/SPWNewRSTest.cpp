@@ -348,11 +348,7 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 		std::shared_ptr<SPW::GlfwWindow> window = std::make_shared<SPW::GlfwWindow>();
 		app->window = window;
 		app->window->setSize(1280, 720);
-		app->window->setTitle("Editor Test");
-//		std::shared_ptr<EventResponderI> ptr = std::shared_ptr<EventResponderI>(app);
-//
-//		transformer = std::make_shared<SPW::ImGuiMouseEventResponder>(ptr);
-//		key_transformer = std::make_shared<SPW::ImGuiKeyEventResponder>(ptr);
+		app->window->setTitle("New Render System Test");
 
 		// transformer->window = window;
 
@@ -526,14 +522,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			mantis_mesh->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
 			mantis_mesh->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
 			mantis_mesh->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
-			// model->model = createModel();
-			/*
-			 * TODO HACK FOR SER TEST
-			 */
-
-			// mantis_mesh->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
-			// mantis_mesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName;
-			// mantis_mesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].path;
 
 			auto  rigid1 = mantis->emplace<SPW::RigidDynamicComponent>();
 			rigid1->rigidState = SPW::Awake;
@@ -546,8 +534,7 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			collider1->state = SPW::needAwake;
 			collider1->is_trigger_ = false;
 
-			//
-			//            --------------------------------------------------------------------------------
+			// --------------------------------------------------------------------------------
 			auto cubeObj = scene->createEntity("floor");
 			auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
 			cubeTrans->scale = {5.0, 0.05, 5.0};
@@ -569,13 +556,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 
 			// --------------------------------------------------------------------------------
 
-			// ------ create render graph for skybox ----------------
-
-			// auto skyGraph = renderSystem->createRenderGraph();
-			// auto skyNode = skyGraph->createRenderNode<SPW::ModelToScreenNode>();
-			// auto skybox_desc = SPW::SkyBoxShader_desc();
-			// skyNode->addScreenAttachment(SPW::ScreenColorType);
-			// skyNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
 			// ------ create render graph for skybox ----------------
 
 			auto skybox = scene->createEntity("skybox");
@@ -662,16 +642,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			light3->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(2);
 			light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
-			auto ptr = std::shared_ptr<EventResponderI>(app);
-			m_ImguiManager = std::make_shared<SPW::ImGuiManager>(handle, scene, ptr);
-
-			std::cout << "ImGui" << IMGUI_VERSION << std::endl;
-#ifdef IMGUI_HAS_VIEWPORT
-			std::cout << " +viewport";
-#endif
-#ifdef IMGUI_HAS_DOCK
-			std::cout << " +docking" << std::endl;
-#endif
 
 			// init scene
 			scene->initial();
@@ -692,8 +662,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 	void afterAppUpdate() final
 	{
 		scene->afterUpdate();
-		// ----------------------------------------------------------------------------------------
-		m_ImguiManager->Render();
 	}
 
 	void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>>& events) final
@@ -749,7 +717,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 	std::shared_ptr<SimpleRender> render;
 	std::shared_ptr<SPW::Scene> scene;
 	std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
-	std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
 };
 
 // main entrance

@@ -122,7 +122,7 @@ namespace SPW
 		m_DockspacePanel->AddPanel(m_InspectorPanel);
 		m_DockspacePanel->AddPanel(m_FileExplorer);
 		m_DockspacePanel->AddPanel(m_ProfilingPanel);
-		m_DockspacePanel->AddPanel(m_LogPanel);
+//		m_DockspacePanel->AddPanel(m_LogPanel);
 
 	}
 

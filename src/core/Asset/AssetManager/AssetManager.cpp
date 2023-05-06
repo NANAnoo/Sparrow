@@ -105,9 +105,9 @@ namespace SPW
 			archive(cereal::make_nvp(model_data->meshURI, model_data->meshes));
 		}
 
+		if( !model_data->skeleton.animClips.empty() )
 		{
-			std::ofstream
-				mesh_bin(FileSystem::JoinPaths(absolute_modelDir, model_data->meshURI) + ".anim", std::ios::binary);
+			std::ofstream mesh_bin(FileSystem::JoinPaths(absolute_modelDir, model_data->meshURI) + ".anim", std::ios::binary);
 			cereal::BinaryOutputArchive archive(mesh_bin);
 			archive(cereal::make_nvp(model_data->meshURI + "anim", model_data->skeleton));
 		}

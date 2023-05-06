@@ -94,31 +94,96 @@ namespace SPW
 			ar(cereal::make_nvp("transformComponents", transformComponents));
 			ar(cereal::make_nvp("meshComponents", meshComponents));
 
-			// extra operation for resource and asset data 
-			for (auto& [k, v] : meshComponents)
+			return true;
+		}
+
+
+		static bool LoadScene(std::shared_ptr<Scene>& scene, const std::string& path = "")
+		{
+			// Read from .json
+			std::ifstream is_Scene(Config::k_WorkingProjectScenes + "/scene.json"); // TODO: Select the asset file to Load by GUI operations
+			cereal::JSONInputArchive ar(is_Scene);
+
+
+			std::unordered_map<std::string, TransformComponent> transformComponents;
+			std::unordered_map<std::string, CameraComponent> cameraComponents;
+			std::unordered_map<std::string, PointLightComponent> pointLightComponents;
+			std::unordered_map<std::string, DirectionalLightComponent> directionalLightComponents;
+			std::unordered_map<std::string, MeshComponent> meshComponents;
+			std::vector<EntityNode> entityNodes;
+
+			ar(cereal::make_nvp("transformComponents", transformComponents));
+			ar(cereal::make_nvp("entityNodes", entityNodes));
+			ar(cereal::make_nvp("cameraComponents", cameraComponents));
+			ar(cereal::make_nvp("pointLightComponents", pointLightComponents));
+			ar(cereal::make_nvp("directionalComponents", directionalLightComponents));
+			ar(cereal::make_nvp("meshComponents", meshComponents));
+
+
+			// std::vector<EntityNode> entityNodes;
+			for (auto& node : entityNodes)
 			{
-				const auto& asset_data = ResourceManager::getInstance()->m_AssetDataMap[v.assetName];
+				auto e = scene->createEntity(node.name, UUID(node.uuid));
+				for(auto&[id, data] : transformComponents)
 				{
-					/* Save Asset Json */
-					std::ofstream file(FileSystem::ToEningeAbsolutePath(v.assetPath));
-					cereal::JSONOutputArchive ar(file);
-					ar(
-						cereal::make_nvp("assetID", v.assetID),
-						cereal::make_nvp("assetName", v.assetName),
-						cereal::make_nvp("assetPath", v.assetPath)
-					);
+					if (node.uuid == id)
+					{
+						e->emplace<TransformComponent>(data);
+					}
 				}
 
+				for(auto&[id, data] : pointLightComponents)
 				{
-					/* Save Mesh Bin */
-					std::string dir = FileSystem::ToFsPath(v.assetPath).parent_path().string();
-					std::ofstream mesh_bin(
-						FileSystem::ToEningeAbsolutePath(FileSystem::JoinPaths(dir, asset_data.meshURI) + ".mesh"),
-						std::ios::binary);
-					cereal::BinaryOutputArchive archive(mesh_bin);
-					archive(cereal::make_nvp(asset_data.meshURI, asset_data.meshes));
+					if (node.uuid == id)
+					{
+						e->emplace<PointLightComponent>(data);
+					}
+				}
+
+				for(auto&[id, data] : directionalLightComponents)
+				{
+					if (node.uuid == id)
+					{
+						e->emplace<DirectionalLightComponent>(data);
+					}
+				}
+
+				for(auto&[id, data] : cameraComponents)
+				{
+					if (node.uuid == id)
+					{
+						e->emplace<CameraComponent>(data);
+					}
+				}
+
+				for(auto&[id, data] : meshComponents)
+				{
+					if (node.uuid == id)
+					{
+						const auto& rm = ResourceManager::getInstance();
+
+						{
+							auto assetData = AssetManager::LoadAsset(Config::k_TempalteProjectRoot + data.assetPath);
+							rm->m_AssetDataMap.emplace(assetData.assetName, assetData);
+						}
+
+						auto mesh = e->emplace<MeshComponent>(data);
+
+						std::cout << rm->activeCameraID.toString() << std::endl;
+						mesh->bindCamera = (rm->activeCameraID);
+						mesh->assetName = data.assetName;
+						mesh->assetID = data.assetID;
+						mesh->assetPath = data.assetPath;
+						mesh->ready = false;
+
+						mesh->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
+						mesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_shadow_desc"].uuid;
+						mesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["d_shadowmap_node"]->pass_id] = rm->m_ShaderMap["d_shadow_desc"].uuid;
+						mesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_light_shadow_desc"].uuid;
+					}
 				}
 			}
+
 
 			return true;
 		}
