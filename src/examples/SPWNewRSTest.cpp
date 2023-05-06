@@ -355,7 +355,7 @@ public:
 
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
-            transform->scale = {0.05, 0.05, 0.05};
+            transform->scale = {0.1, 0.1, 0.1};
             transform->rotation = {0, 90, 0};
             transform->position = {0, -0.3, 0};
 

@@ -76,14 +76,8 @@ void main()
     }
     gl_FragDepth = texture(gDepth, TexCoords).r;
     vec3 PBRColor = PBR(normal,position);
-    vec3 R = SSR();
-    if(length(R)>0.05f)
-    {
-        FragColor = vec4(mix(PBRColor,R,0.8),1.0f);
-    }
-    else
-    {
-        FragColor = vec4(PBRColor,1.0f);
-    }
+    vec3 R = (1.0f - texture(gMetalRognessAO, TexCoords).g) * SSR();
 
+    FragColor = vec4(PBRColor + R,1.0f);
+    FragColor = FragColor/(FragColor + vec4(1.0f));
 }

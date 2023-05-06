@@ -53,7 +53,7 @@ void main()
     gPosition.xyz = FragPos;
     gPosition.w = LinearizeDepth(gl_FragCoord.z);
 
-    if(length(texture(normalMap, TexCoords).xyz)>0.0f)
+    if(length(texture(normalMap, TexCoords).xyz)>0.03f)
     {
         gNormal = getNormalFromMap();
     }

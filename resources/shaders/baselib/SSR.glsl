@@ -1,51 +1,121 @@
 #ifndef SSR_GLSL
 #define SSR_GLSL
 
-mat4 dither = mat4(
-        0,       0.5,    0.125,  0.625,
-        0.75,    0.25,   0.875,  0.375,
-        0.1875,  0.6875, 0.0625, 0.5625,
-        0.9375,  0.4375, 0.8125, 0.3125
-);
 
-vec3 SSR()
-{
-    vec3 reflectDir = reflect(-VDir, normal);
-    reflectDir = normalize(reflectDir);
+bool rayIsOutofScreen(vec2 ray){
+    return (ray.x > 1 || ray.y > 1 || ray.x < 0 || ray.y < 0) ? true : false;
+}
 
-    int sampleCoordX = int(mod((textureSize(gPosition,0).x * TexCoords.x),4));
-    int sampleCoordY = int(mod((textureSize(gPosition,0).y * TexCoords.y),4));
-    float offset = dither[sampleCoordX][sampleCoordY];
+vec3 TraceRay(vec3 rayPos, vec3 dir, int iterationCount){
+    float sampleDepth;
+    vec3 hitColor = vec3(0);
+    bool hit = false;
 
-    float step = 0.001f;
-//int stepNum = int(distance(farPos - viewPos) / step);
-    int stepNum = 1000;
-
-    vec3 SSRColor = vec3(0.0f,0.0f,0.0f);
-
-    for(int i = 1;i <= stepNum;i++)
+    for(int i = 0; i < iterationCount; i++)
     {
-        float delta = step * i + offset;
-        vec4 ScreenPos = P*V*vec4((position + (reflectDir * delta)),1.0f);
-        vec3 Pos = ScreenPos.xyz/ScreenPos.w;
-        float d = Pos.z;
-        Pos = Pos * 0.5 + vec3(0.5f,0.5f,0.5f);
-        vec2 uv = Pos.xy;
-
-        if(uv.x > 0 && uv.x < 1 && uv.y > 0 && uv.y < 1)
+        rayPos += dir;
+        if(rayIsOutofScreen(rayPos.xy))
         {
-            float depth = texture2D(gDepth, uv).r;
-            if(d > depth)
-            {
-                if(abs(d - depth) < 0.000005)
-                {
-                    SSRColor = texture2D(gAlbedo, uv).xyz;
-                }
-                break; // 深度比较无论通不通过，都跳出查找反射颜色
-            }
+            return vec3(0,0,0);
+            break;
+        }
+
+        sampleDepth = texture(gDepth, rayPos.xy).r;
+        float depthDif = rayPos.z - sampleDepth;
+        if(depthDif >= 0 && depthDif < 0.00002){ //we have a hit
+            hit = true;
+            hitColor = texture(gAlbedo, rayPos.xy).rgb;
+            break;
         }
     }
-    return SSRColor;
+    return hitColor;
 }
+
+vec3 SSR(){
+    const int SCR_WIDTH = textureSize(gPosition,0).x;
+    const int SCR_HEIGHT = textureSize(gPosition,0).y;
+    float maxRayDistance = 100.0f;
+
+    //View Space ray calculation
+    vec3 pixelPositionTexture;
+    pixelPositionTexture.xy = TexCoords;
+    vec3 normalView = normalize(vec3(V * vec4(texture(gNormal, pixelPositionTexture.xy).rgb,0.0f)));
+    float pixelDepth = texture(gDepth, pixelPositionTexture.xy).r;	// 0< <1
+    pixelPositionTexture.z = pixelDepth;
+
+    vec4 positionView = inverse(P) * vec4(pixelPositionTexture.xyz * 2 - vec3(1), 1);
+    positionView /= positionView.w;
+    vec3 reflectionView = normalize(reflect(positionView.xyz, normalView));
+
+    if(reflectionView.z > 0)
+    {
+        return vec3(0,0,0);
+    }
+
+    vec3 rayEndPositionView = positionView.xyz + reflectionView * maxRayDistance;
+
+
+    //Texture Space ray calculation
+    vec4 rayEndPositionTexture = P * vec4(rayEndPositionView,1);
+    rayEndPositionTexture /= rayEndPositionTexture.w;
+    //rayEndPositionTexture.xyz = vec3(rayEndPositionTexture.xy*0.5f,rayEndPositionTexture.z)+vec3(0.5f,0.5f, 0);
+    rayEndPositionTexture.xyz = (rayEndPositionTexture.xyz + vec3(1)) / 2.0f;
+    vec3 rayDirectionTexture = rayEndPositionTexture.xyz - pixelPositionTexture;
+
+    ivec2 screenSpaceStartPosition = ivec2(pixelPositionTexture.x * SCR_WIDTH, pixelPositionTexture.y * SCR_HEIGHT);
+    ivec2 screenSpaceEndPosition = ivec2(rayEndPositionTexture.x * SCR_WIDTH, rayEndPositionTexture.y * SCR_HEIGHT);
+    ivec2 screenSpaceDistance = screenSpaceEndPosition - screenSpaceStartPosition;
+    int screenSpaceMaxDistance = max(abs(screenSpaceDistance.x), abs(screenSpaceDistance.y)) / 2;
+    rayDirectionTexture /= max(screenSpaceMaxDistance, 0.001f);
+
+
+    //trace the ray
+    vec3 outColor = TraceRay(pixelPositionTexture, rayDirectionTexture, screenSpaceMaxDistance);
+    return outColor;
+}
+/*
+vec3 SSR()
+{
+    vec3 Screen0 = vec3(0,0,0);
+    Screen0.xy = TexCoords;
+    Screen0.z = texture(gDepth,TexCoords).r;
+
+    vec3 reflectDir = normalize(reflect(-VDir, normal));
+
+    vec4 temp = P*V*vec4(position + reflectDir,1.0f);
+    vec3 Screen1 = vec3(temp.xy*0.5f,temp.z)/temp.w +vec3(0.5f,0.5f, 0);
+
+    vec3 StepDir_Screen = normalize(Screen1 - Screen0);
+    //Screen0.x = Screen0.x * textureSize(gPosition,0).x;
+    //Screen0.y = Screen0.x * textureSize(gPosition,0).y;
+
+    ivec2 screenSpaceStartPosition = ivec2(Screen0.x * 1280, Screen0.y * 726);
+    ivec2 screenSpaceEndPosition = ivec2(Screen1.x * 1280, Screen1.y * 726);
+    ivec2 screenSpaceDistance = screenSpaceEndPosition - screenSpaceStartPosition;
+    int screenSpaceMaxDistance = max(abs(screenSpaceDistance.x), abs(screenSpaceDistance.y)) / 2;
+    StepDir_Screen /= max(screenSpaceMaxDistance, 0.001f);
+
+    vec3 outColor = TraceRay(Screen0, StepDir_Screen, screenSpaceMaxDistance);
+    return outColor;
+
+    /*
+    for (int i = 1; i < 10000; ++i) {
+        vec3 result = Screen0 + (StepDir_Screen * 1.0 / 5000.0f) * float(i);
+        if (result.z < 0.0f || result.z > 1.0f || result.x < 0.0f || result.x > 1.0f || result.y < 0.0f ||
+            result.y > 1.0f)
+            return vec3(0, 0, 0);
+
+        float depth = texture2D(gDepth, result.xy).r;
+
+        if (result.z > depth) {
+            if (abs(result.z - depth) < 0.000005) {
+                return texture2D(gAlbedo, result.xy).xyz;
+            }
+            break; // 深度比较无论通不通过，都跳出查找反射颜色
+        }
+
+    }
+    */
+//}
 #endif
 
