@@ -386,6 +386,9 @@ public:
 			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["d_shadowmap_node"] = d_shadowmap_node;
 			SPW::ResourceManager::getInstance()->m_ModelToScreenNodes["pbr_shadow_lighting_node"] = pbr_shadow_lighting_node;
 
+			SPW::ResourceManager::getInstance()->m_ShaderMap["p_ani_shadow_desc"] = p_ani_shadow_desc;
+			SPW::ResourceManager::getInstance()->m_ShaderMap["d_ani_shadow_desc"] = d_ani_shadow_desc;
+			SPW::ResourceManager::getInstance()->m_ShaderMap["pbr_ani_light_shadow_desc"] = pbr_ani_light_shadow_desc;
 
 			auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
 

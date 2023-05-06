@@ -12,6 +12,7 @@
 #include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
+#include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
 #include "IO/FileSystem.h"
 #include "Asset/ResourceManager/ResourceManager.h"
 #include "IO/ConfigManager.h"
@@ -55,6 +56,7 @@ namespace SPW
 			std::unordered_map<std::string, DirectionalLightComponent> directionalLightComponents;
 			std::unordered_map<std::string, TransformComponent> transformComponents;
 			std::unordered_map<std::string, MeshComponent> meshComponents;
+			std::unordered_map<std::string, AnimationComponent> animationComponents;
 			std::vector<EntityNode> entityNodes;
 
 			scene->forEachEntity<IDComponent>([&](const Entity& e)
@@ -83,16 +85,21 @@ namespace SPW
 				{
 					meshComponents[uuid_str] = *e.component<MeshComponent>();
 				}
+				if (e.has<AnimationComponent>())
+				{
+					animationComponents[uuid_str] = *e.component<AnimationComponent>();
+				}
 			});
 
 			std::ofstream of_file(savePath);
 			cereal::JSONOutputArchive ar(of_file);
-			ar(cereal::make_nvp("entityNodes", entityNodes));
-			ar(cereal::make_nvp("cameraComponents", cameraComponents));
-			ar(cereal::make_nvp("pointLightComponents", pointLightComponents));
-			ar(cereal::make_nvp("directionalComponents", directionalLightComponents));
-			ar(cereal::make_nvp("transformComponents", transformComponents));
-			ar(cereal::make_nvp("meshComponents", meshComponents));
+			ar( cereal::make_nvp("entityNodes", entityNodes ));
+			ar( cereal::make_nvp("cameraComponents", cameraComponents ));
+			ar( cereal::make_nvp("pointLightComponents", pointLightComponents ));
+			ar( cereal::make_nvp("directionalComponents", directionalLightComponents ));
+			ar( cereal::make_nvp("transformComponents", transformComponents ));
+			ar( cereal::make_nvp("meshComponents", meshComponents ));
+			ar( cereal::make_nvp("animationComponents", animationComponents ));
 
 			return true;
 		}
@@ -110,6 +117,7 @@ namespace SPW
 			std::unordered_map<std::string, PointLightComponent> pointLightComponents;
 			std::unordered_map<std::string, DirectionalLightComponent> directionalLightComponents;
 			std::unordered_map<std::string, MeshComponent> meshComponents;
+			std::unordered_map<std::string, AnimationComponent> animationComponents;
 			std::vector<EntityNode> entityNodes;
 
 			ar(cereal::make_nvp("transformComponents", transformComponents));
@@ -118,6 +126,7 @@ namespace SPW
 			ar(cereal::make_nvp("pointLightComponents", pointLightComponents));
 			ar(cereal::make_nvp("directionalComponents", directionalLightComponents));
 			ar(cereal::make_nvp("meshComponents", meshComponents));
+			ar(cereal::make_nvp("animationComponents", animationComponents));
 
 
 			// std::vector<EntityNode> entityNodes;
@@ -180,6 +189,25 @@ namespace SPW
 						mesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_shadow_desc"].uuid;
 						mesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["d_shadowmap_node"]->pass_id] = rm->m_ShaderMap["d_shadow_desc"].uuid;
 						mesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_light_shadow_desc"].uuid;
+					}
+				}
+
+				for(auto&[id, data] : animationComponents)
+				{
+					if (node.uuid == id)
+					{
+						const auto& rm = ResourceManager::getInstance();
+
+						auto anim = e->emplace<AnimationComponent>(data.assetName);
+
+						anim->swapCurrentAnim("dragon_idle");
+
+						auto animMesh = e->component<MeshComponent>();
+
+						animMesh->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
+						animMesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_ani_shadow_desc"].uuid;
+						animMesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["d_shadowmap_node"]->pass_id] = rm->m_ShaderMap["d_ani_shadow_desc"].uuid;
+						animMesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_ani_light_shadow_desc"].uuid;
 					}
 				}
 			}
