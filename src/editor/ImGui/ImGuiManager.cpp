@@ -141,8 +141,8 @@ namespace SPW
 		m_MainMenuBar->AddSubMenu("Tool");
 		m_MainMenuBar->AddSubMenu("Help");
 		m_MainMenuBar->AddSubMenu("About");
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {SPW::EntitySerializer::SaveScene(m_Scene); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {std::cout << "Clikecd on Export Asset"; });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {EntitySerializer::SaveScene(m_Scene);});
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {EntitySerializer::LoadScene(m_Scene); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() {FileDialogCallBack_1(); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Asset", [&]() {FileDialogCallBack_2();  });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Image Compression", [&]() {FileDialogCallBack_3();  });

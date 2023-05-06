@@ -738,7 +738,7 @@ public:
 	std::shared_ptr<SimpleRender> render;
 	std::shared_ptr<SPW::Scene> scene;
 	std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
-	std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
+	std::shared_ptr<SPW::ImGuiMan ager> m_ImguiManager;
 };
 
 // main entrance

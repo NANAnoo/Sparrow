@@ -89,21 +89,6 @@ namespace SPW
 						});
 				});
 
-
-			ImGui::Begin("Debug");
-			if (ImGui::Button("Save Scene"))
-			{
-				// save scene logic 
-				EntitySerializer::SaveScene(m_Scene);
-			}
-			if (ImGui::Button("Load Scene"))
-			{
-				// save scene logic 
-				EntitySerializer::LoadScene(m_Scene);
-			}
-			ImGui::End();
-
-
 			////----------------------------------------------------------------------------------------
 			End();
 			EnableViewport();
