@@ -39,7 +39,7 @@ namespace SPW {
         renderBackEnd->SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 
         for (auto &graph : graphs) {
-            graph->init();
+            graph->init(width, height);
         }
     }
 
@@ -193,6 +193,11 @@ namespace SPW {
 
             screenBuffer->CheckFramebufferStatus();
             screenBuffer->unbind();
+
+            for (auto &graph : graphs) {
+                graph->onFrameChanged(width, height);
+            }
+
         }, 100);
 
         updateFrame();

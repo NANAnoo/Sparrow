@@ -32,7 +32,10 @@ vec2 poissonDisk[NUM_SAMPLES];
 
 vec3 normal = texture(gNormal,TexCoords).rgb;
 vec3 position = texture(gPosition, TexCoords).rgb;
+float roughness = texture(gMetalRognessAO, TexCoords).g;
 vec3 VDir = normalize(camPos - position);
+vec3 albedo     = pow(texture(gAlbedo, TexCoords).rgb, vec3(2.2));
+float metallic  = texture(gMetalRognessAO, TexCoords).r;
 
 #include</shadow.glsl>
 
@@ -43,9 +46,7 @@ vec3 PBR(vec3 N,vec3 position)
 {
     vec3 BP_scale = vec3(0, 0, 0);
 
-    vec3 albedo     = pow(texture(gAlbedo, TexCoords).rgb, vec3(2.2));
-    float metallic  = texture(gMetalRognessAO, TexCoords).r;
-    float roughness = texture(gMetalRognessAO, TexCoords).g;
+
     float ao        = getAO(N,position,texture(gPosition, TexCoords).w,V,P);
 
 
@@ -76,8 +77,9 @@ void main()
     }
     gl_FragDepth = texture(gDepth, TexCoords).r;
     vec3 PBRColor = PBR(normal,position);
-    vec3 R = (1.0f - texture(gMetalRognessAO, TexCoords).g) * SSR();
 
-    FragColor = vec4(PBRColor + R,1.0f);
-    FragColor = FragColor/(FragColor + vec4(1.0f));
+
+    //vec3 R = (1.0f - texture(gMetalRognessAO, TexCoords).g) * SSR(roughness,albedo,metallic,gAlbedo);
+
+    FragColor = vec4(PBRColor,1.0f);
 }

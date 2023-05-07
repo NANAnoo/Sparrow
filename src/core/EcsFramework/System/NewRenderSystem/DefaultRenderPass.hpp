@@ -31,6 +31,56 @@ namespace SPW {
         return res;
     }
 
+    static ShaderDesc SSR(const AttachmentPort &gMetalRognessAO,
+                          const AttachmentPort &gDepth,
+                          const AttachmentPort &gNormal,
+                          const AttachmentPort &gPosition,
+                          const AttachmentPort &ScreenColor)
+    {
+        ShaderDesc res{};
+
+        res.dependency_inputs[gNormal] = "gNormal";
+        res.dependency_inputs[gMetalRognessAO] = "gMetalRognessAO";
+        res.dependency_inputs[gDepth] = "gDepth";
+        res.dependency_inputs[ScreenColor] = "Screen";
+        res.dependency_inputs[gPosition] = "gPosition";
+
+
+        res.transform_inputs[TransformType::V] = "V";
+        res.transform_inputs[TransformType::P] = "P";
+
+
+        res.shader = {
+            "SSR Shader",
+            "./resources/shaders/screen.vert",
+            "./resources/shaders/SSR.frag"
+        };
+
+        return res;
+    }
+
+    static ShaderDesc SSR_blur(const AttachmentPort &ssr_input,
+                               const AttachmentPort &gDepth,
+                               const AttachmentPort &ScreenColor)
+    {
+        ShaderDesc res{};
+
+        res.dependency_inputs[ssr_input] = "reflection";
+        res.dependency_inputs[gDepth] = "gDepth";
+        res.dependency_inputs[ScreenColor] = "Screen";
+
+
+
+        res.shader = {
+                "SSR Shader",
+                "./resources/shaders/screen.vert",
+                "./resources/shaders/SSR_blur.frag"
+        };
+
+        return res;
+    }
+
+
     static ShaderDesc defferPBR(const AttachmentPort &p_shaodw, const AttachmentPort &d_shaodw,
                                 const AttachmentPort &gPosition,
                                 const AttachmentPort &gNormal,

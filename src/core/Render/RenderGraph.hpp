@@ -252,19 +252,35 @@ namespace SPW {
             return *this;
         }
 
+        unsigned int width = 0;
+        unsigned int height = 0;
+
         virtual ~PresentNode() = default;
 
         ShaderDesc shader;  
     };
 
-    // TODO : operate an image, work with a shader [frag / compute shader]
-    // class ImagePassNode : public PresentNode {
-    // public:
-    //     ImagePassNode() = delete;
-    //     ImagePassNode(ShaderDesc shader) : PresentNode(shader) {}
-    //     virtual ~ImagePassNode() = default;
-    
-    // };
+    // operate an image, work with a shader
+     class ImagePassNode : public PresentNode {
+     public:
+         ImagePassNode() = delete;
+         ImagePassNode(ShaderDesc shader) : PresentNode(shader) {}
+         virtual ~ImagePassNode() = default;
+
+         // move constructor
+         ImagePassNode(ImagePassNode &&other) : PresentNode(std::move(other)) {
+             attachment_formats = std::move(other.attachment_formats);
+             frame_buffer_ref = other.frame_buffer_ref;
+         }
+
+         AttachmentPort addAttachment(ColorAttachmentFormat format) {
+             attachment_formats.emplace_back(format);
+             return {pass_id, static_cast<int>(attachment_formats.size() - 1)};
+         }
+
+         std::vector<ColorAttachmentFormat> attachment_formats;
+          int frame_buffer_ref = -1;
+     };
 
     // operate on screen buffer
     class ScreenPassNode : public PresentNode {
@@ -328,7 +344,9 @@ namespace SPW {
         }
 
         // init with a backend
-        virtual void init() = 0; 
+        virtual void init(unsigned int s_width, unsigned int s_height) = 0;
+
+        virtual void onFrameChanged(unsigned int s_width, unsigned int s_height) = 0;
 
         // render
         virtual void render(const RenderInput &input) = 0;

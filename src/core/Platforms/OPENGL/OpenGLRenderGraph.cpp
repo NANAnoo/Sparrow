@@ -217,13 +217,13 @@ namespace SPW {
 
     // bind lights
     void bindDlightMat(const std::shared_ptr<Shader> &shader, const glm::vec3 &cam_center, const std::string &name, const DLight& light) {
-        glm::vec3 lightPos = cam_center - light.direction*5.0f;
+        glm::vec3 lightPos = cam_center - light.direction*50.0f;
 
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
 
-        float near_plane = 1.0f, far_plane = 10.5f;
-        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+        float near_plane = 1.0f, far_plane = 100.5f;
+        lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
         lightView = glm::lookAt(lightPos, cam_center, glm::vec3(0.0, 1.0, 0.0));
         lightSpaceMatrix = lightProjection * lightView;
 
@@ -313,13 +313,15 @@ namespace SPW {
         }
     }
     using ModelNodeMap = std::unordered_map<unsigned int, std::unordered_map<UUID, std::vector<Entity>, UUID::hash>>;
-    void OpenGLRenderGraph::init() {
+    void OpenGLRenderGraph::init(unsigned int s_width, unsigned int s_height) {
         // create all required resources
         for (auto &[idx, node] : all_nodes) {
             if (std::dynamic_pointer_cast<ModelRepeatPassNode>(node)) {
                 createResourceForModelRepeatNode(std::dynamic_pointer_cast<ModelRepeatPassNode>(node));
             } else if (std::dynamic_pointer_cast<ModelPassNode>(node)) {
                 createResourceForModelNode(std::dynamic_pointer_cast<ModelPassNode>(node));
+            } else if (std::dynamic_pointer_cast<ImagePassNode>(node)) {
+                createResourceForImagePassNode(std::dynamic_pointer_cast<ImagePassNode>(node), s_width, s_height);
             }
         }
 
@@ -350,6 +352,15 @@ namespace SPW {
             std::dynamic_pointer_cast<ModelToScreenNode>(node)!= nullptr || 
             std::dynamic_pointer_cast<ScreenPassNode>(node)!= nullptr
         );
+    }
+
+    void OpenGLRenderGraph::onFrameChanged(unsigned int s_width, unsigned int s_height)
+    {
+        for (auto &[idx, node] : all_nodes) {
+            if (std::dynamic_pointer_cast<ImagePassNode>(node)) {
+                createResourceForImagePassNode(std::dynamic_pointer_cast<ImagePassNode>(node), s_width, s_height);
+            }
+        }
     }
 
     void OpenGLRenderGraph::render(const RenderInput &input) {
@@ -400,6 +411,7 @@ namespace SPW {
         renderOnModelPassNode(std::dynamic_pointer_cast<ModelPassNode>(node), map, input);
         renderOnModelToScreenNode(std::dynamic_pointer_cast<ModelToScreenNode>(node), map, input);
         renderOnScreenPassNode(std::dynamic_pointer_cast<ScreenPassNode>(node), input);
+        renderOnImagePassNode(std::dynamic_pointer_cast<ImagePassNode>(node), input);
         renderOnPresentNode(std::dynamic_pointer_cast<PresentNode>(node), input);
     }
 
@@ -566,12 +578,24 @@ namespace SPW {
         node->ready = true;
     }
 
+    void OpenGLRenderGraph::renderOnImagePassNode(const std::shared_ptr<ImagePassNode> &node, const RenderInput &input) {
+        if (!node || node->ready) {
+            return;
+        }
+        auto &fb = all_frame_buffers[node->frame_buffer_ref];
+        fb->bind();
+        renderOnPresentNode(node, input);
+        fb->unbind();
+        node->ready = true;
+    }
+
     // render on present node
     void OpenGLRenderGraph::renderOnPresentNode(const std::shared_ptr<PresentNode> &node, const RenderInput &input) {
         if (!node || node->ready) {
             return;
         }
-        input.backend->SetViewport(0, 0, input.screen_width, input.screen_height);
+        // TODO : view port may change
+        input.backend->SetViewport(0, 0, node->width > 0 ? node->width : input.screen_width, node->height > 0 ? node->height : input.screen_height);
         // draw screen quad
         auto shader = input.backend->getShader(node->shader.shader);
         shader->Bind();
@@ -617,6 +641,58 @@ namespace SPW {
                 // attach while rendering
                 all_attachment_cubes.insert({{node->pass_id, resources_id}, cube});
             }
+            resources_id ++;
+        }
+        fb->CheckFramebufferStatus();
+        fb->unbind();
+    }
+
+    void OpenGLRenderGraph::createResourceForImagePassNode(const std::shared_ptr<ImagePassNode> &node, unsigned int s_width, unsigned int s_height)
+    {
+        if (!node || node->attachment_formats.size() == 0) {
+            return;
+        }
+        std::shared_ptr<OpenGLFrameBuffer> fb = nullptr;
+        bool isRecreate = false;
+        if (node->frame_buffer_ref < 0) {
+            // create resource for image pass
+            node->frame_buffer_ref = all_frame_buffers.size();
+            fb = std::make_shared<OpenGLFrameBuffer>();
+            all_frame_buffers.push_back(fb);
+        } else {
+            isRecreate = true;
+            if (node->width > 0 && node->height > 0) {
+                return; // no need recreate
+            }
+            fb = all_frame_buffers[node->frame_buffer_ref];
+        }
+
+        fb->genFrameBuffer();
+        fb->bind();
+        unsigned int index = 0;
+        int resources_id = 0;
+        unsigned int w = s_width, h = s_height;
+        if (node->width > 0 && node->height > 0) {
+            w = node->width;
+            h = node->height;
+        }
+        for (auto &format : node->attachment_formats) {
+            std::shared_ptr<OpenGLAttachmentTexture> tex = nullptr;
+            if (isRecreate) {
+                tex = all_attachments.at({node->pass_id, resources_id});
+                tex->deleteTexture();
+            } else {
+                tex = std::make_shared<OpenGLAttachmentTexture>();
+            }
+            tex->genTexture(w, h, format);
+            tex->attach(index);
+            if (format != ColorAttachmentFormat::Depth) {
+                fb->AttachColorRenderBuffer(w, h, index++);
+            } else {
+                //fb->AttachDepthRenderBuffer(w, h);
+            }
+            tex->unbind();
+            all_attachments.insert({{node->pass_id, resources_id}, tex});
             resources_id ++;
         }
         fb->CheckFramebufferStatus();

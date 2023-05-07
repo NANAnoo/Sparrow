@@ -67,6 +67,10 @@ std::shared_ptr<SPW::Model> createCubeModel()
 {
     return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/cube.obj");
 }
+std::shared_ptr<SPW::Model> createCompanionCubeModel()
+{
+    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/cube.obj");
+}
 
 const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, float width, float height) {
     // add a camera entity
@@ -277,6 +281,29 @@ public:
             GBufferShading->bindInputPort(gDepth);
             GBufferShading->depthCompType = SPW::DepthCompType::LESS_Type;
 
+            SPW::AttachmentPort screen_color_port = GBufferShading->addScreenAttachment(SPW::ScreenColorType);
+
+            auto SSR_desc = SPW::SSR(gMetalRognessAO,gDepth,gNormal,gPosition,screen_color_port);
+            auto SSR_node = defferShadering->createRenderNode<SPW::ImagePassNode>(SSR_desc);
+            SSR_node->clearType = SPW::ClearColor;
+            SSR_node->depthTest = false;
+
+            SSR_node->bindInputPort(gPosition);
+            SSR_node->bindInputPort(gNormal);
+            SSR_node->bindInputPort(gMetalRognessAO);
+            SSR_node->bindInputPort(gDepth);
+            SSR_node->bindInputPort(screen_color_port);
+            auto reflect_port = SSR_node->addAttachment(SPW::RGBA32);
+
+            auto SSR_blur_desc = SPW::SSR_blur(reflect_port,gDepth,screen_color_port);
+            auto SSR_blur_node = defferShadering->createRenderNode<SPW::ScreenPassNode>(SSR_blur_desc);
+            SSR_blur_node->clearType = SPW::ClearColor;
+            SSR_blur_node->depthTest = false;
+
+            SSR_blur_node->bindInputPort(reflect_port);
+            SSR_blur_node->bindInputPort(gDepth);
+            SSR_blur_node->bindInputPort(screen_color_port);
+
             // ------ create render graph for skybox ----------------
             auto skyGraph = rendersystem->createRenderGraph();
             auto skyNode = skyGraph->createRenderNode<SPW::ModelToScreenNode>();
@@ -286,9 +313,8 @@ public:
 
             // ------ create post processing graph --------------
             auto post_processing_pass = rendersystem->createRenderGraph();
-            SPW::AttachmentPort screen_color_port = {SPW::SCREEN_PORT, SPW::ScreenColorType};
-            auto fxaa_node = post_processing_pass->createRenderNode<SPW::PresentNode>(FXAA_desc(screen_color_port));
-            fxaa_node->bindInputPort(screen_color_port);
+            auto fxaa_node = post_processing_pass->createRenderNode<SPW::PresentNode>(SPW::FXAA_desc({SPW::SCREEN_PORT, SPW::ScreenColorType}));
+            fxaa_node->bindInputPort({SPW::SCREEN_PORT, SPW::ScreenColorType});
             fxaa_node->depthTest = false;
             // ------ create post processing graph --------------
 
@@ -348,6 +374,8 @@ public:
             rendersystem->addShaderDesciptor(ani_GBuffer_desc);
             rendersystem->addShaderDesciptor(pbr_depfer_shading_desc);
             rendersystem->addShaderDesciptor(GBuffer_floor_desc);
+            rendersystem->addShaderDesciptor(SSR_desc);
+            rendersystem->addShaderDesciptor(SSR_blur_desc);
 
             // --------------- create shader ---------------
             auto camera_id = createMaincamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
@@ -355,7 +383,7 @@ public:
 
             auto obj = scene->createEntity("test");
             auto transform = obj->emplace<SPW::TransformComponent>();
-            transform->scale = {0.1, 0.1, 0.1};
+            transform->scale = {1, 1, 1};
             transform->rotation = {0, 90, 0};
             transform->position = {0, -0.3, 0};
 
@@ -376,7 +404,7 @@ public:
             // --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
             auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
-            cubeTrans->scale = {5.0, 0.05, 5.0};
+            cubeTrans->scale = {50.0, 0.05, 50.0};
             cubeTrans->position.y-=0.35f;
             auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
             cubemodel->model = createCubeModel();
@@ -386,6 +414,17 @@ public:
             //cubemodel->modelSubPassPrograms[GBufferShading->pass_id] = pbr_depfer_shading_desc.uuid;
 
             // --------------------------------------------------------------------------------
+            auto OthercubeObj = scene->createEntity("Othercube");
+            auto OthercubeTrans = OthercubeObj->emplace<SPW::TransformComponent>();
+            OthercubeTrans->scale = {1, 1, 1};
+            OthercubeTrans->position.y+=0.65f;
+            OthercubeTrans->position.x+=10.0f;
+            auto Othercubemodel = OthercubeObj->emplace<SPW::MeshComponent>(camera_id);
+            Othercubemodel->model = createCompanionCubeModel();
+
+            Othercubemodel->bindRenderGraph = defferShadering->graph_id;
+            Othercubemodel->modelSubPassPrograms[defferNode->pass_id] = GBuffer_desc.uuid;
+            //---------------------------------------------------------------------------------
             auto skybox = scene->createEntity("skybox");
             auto skyboxTrans = skybox->emplace<SPW::TransformComponent>();
             auto skyMesh = skybox->emplace<SPW::MeshComponent>(camera_id);

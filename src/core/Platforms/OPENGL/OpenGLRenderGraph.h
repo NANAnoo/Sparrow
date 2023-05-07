@@ -9,7 +9,8 @@ namespace SPW {
             explicit OpenGLRenderGraph()=default;
 
             // create resource for pass node
-            void init() override;
+            void init(unsigned int s_width, unsigned int s_height) override;
+            void onFrameChanged(unsigned int s_width, unsigned int s_height) override;
             void render(const RenderInput &input) override;
 
         private:
@@ -32,6 +33,9 @@ namespace SPW {
             // create resource for model repeat node
             void createResourceForModelRepeatNode(const std::shared_ptr<ModelRepeatPassNode> &node);
 
+            // create resource for image pass node
+            void createResourceForImagePassNode(const std::shared_ptr<ImagePassNode> &node, unsigned int s_width, unsigned int s_height);
+
             // bind required attachments
             unsigned int bindAttachments(
                 const std::shared_ptr<Shader> &shader, 
@@ -53,6 +57,9 @@ namespace SPW {
 
             // render on screen pass node
             void renderOnScreenPassNode(const std::shared_ptr<ScreenPassNode> &node, const RenderInput &input);
+
+            // render on image pass node
+            void renderOnImagePassNode(const std::shared_ptr<ImagePassNode> &node, const RenderInput &input);
 
             // render on present node
             void renderOnPresentNode(const std::shared_ptr<PresentNode> &node, const RenderInput &input);

@@ -1,20 +1,40 @@
 #ifndef SSR_GLSL
 #define SSR_GLSL
 
+#define Scale vec3(.8, .8, .8)
+#define K 19.19
 
-bool rayIsOutofScreen(vec2 ray){
-    return (ray.x > 1 || ray.y > 1 || ray.x < 0 || ray.y < 0) ? true : false;
+vec3 hash(vec3 vec)
+{
+    vec = fract(vec * Scale);
+    vec += dot(vec, vec.yxz + K);
+    return fract((vec.xxy + vec.yxx) * vec.zyx) * 2 - 1;
 }
 
-vec3 TraceRay(vec3 rayPos, vec3 dir, int iterationCount){
+vec3 fresnelSchlickSSR(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+float eps = 0.000002;
+
+bool rayIsOutofScreen(vec3 ray)
+{
+    return (ray.x > 1 || ray.y > 1 || ray.x < 0 || ray.y < 0||ray.z>1.0f||ray.z<0) ? true : false;
+}
+
+vec3 TraceRay(vec3 rayPos, vec3 dir, sampler2D Screen, int iterationCount)
+{
     float sampleDepth;
     vec3 hitColor = vec3(0);
     bool hit = false;
 
+    vec3 lastPos = rayPos;
     for(int i = 0; i < iterationCount; i++)
     {
-        rayPos += dir;
-        if(rayIsOutofScreen(rayPos.xy))
+        rayPos = rayPos + dir;
+
+        if(rayIsOutofScreen(rayPos))
         {
             return vec3(0,0,0);
             break;
@@ -22,18 +42,29 @@ vec3 TraceRay(vec3 rayPos, vec3 dir, int iterationCount){
 
         sampleDepth = texture(gDepth, rayPos.xy).r;
         float depthDif = rayPos.z - sampleDepth;
-        if(depthDif >= 0 && depthDif < 0.00002){ //we have a hit
-            hit = true;
-            hitColor = texture(gAlbedo, rayPos.xy).rgb;
-            break;
+        if(depthDif >= 0)
+        { //we have a hit
+            if(depthDif < eps)
+            {
+                hit = true;
+                hitColor = texture(Screen, rayPos.xy).rgb;
+                break;
+            }
+
+
         }
     }
     return hitColor;
 }
 
-vec3 SSR(){
-    const int SCR_WIDTH = textureSize(gPosition,0).x;
-    const int SCR_HEIGHT = textureSize(gPosition,0).y;
+vec3 SSR(float roughness,vec3 albedo,float metallic, sampler2D Screen)
+{
+    if(roughness>0.3) return vec3(0);
+
+    vec3 outColor;
+
+    const int SCR_WIDTH = textureSize(Screen,0).x;
+    const int SCR_HEIGHT = textureSize(Screen,0).y;
     float maxRayDistance = 100.0f;
 
     //View Space ray calculation
@@ -43,23 +74,28 @@ vec3 SSR(){
     float pixelDepth = texture(gDepth, pixelPositionTexture.xy).r;	// 0< <1
     pixelPositionTexture.z = pixelDepth;
 
-    vec4 positionView = inverse(P) * vec4(pixelPositionTexture.xyz * 2 - vec3(1), 1);
+    vec4 positionView = inverse(P) * vec4(pixelPositionTexture.xy * 2 - vec2(1), pixelPositionTexture.z,1);
+    vec4 wp = inverse(V) * positionView;
     positionView /= positionView.w;
+    wp /= wp.w;
     vec3 reflectionView = normalize(reflect(positionView.xyz, normalView));
 
-    if(reflectionView.z > 0)
+    vec3 jitter = mix(vec3(0), hash(wp.xyz), roughness * 0.5);
+
+    reflectionView = normalize(reflectionView + jitter);
+
+    if(reflectionView.z>0)
     {
         return vec3(0,0,0);
     }
-
     vec3 rayEndPositionView = positionView.xyz + reflectionView * maxRayDistance;
-
+    eps = max(eps* (1.0 - abs(dot(reflectionView,normalView))) * 10,eps);
 
     //Texture Space ray calculation
     vec4 rayEndPositionTexture = P * vec4(rayEndPositionView,1);
     rayEndPositionTexture /= rayEndPositionTexture.w;
-    //rayEndPositionTexture.xyz = vec3(rayEndPositionTexture.xy*0.5f,rayEndPositionTexture.z)+vec3(0.5f,0.5f, 0);
-    rayEndPositionTexture.xyz = (rayEndPositionTexture.xyz + vec3(1)) / 2.0f;
+    rayEndPositionTexture.xyz = vec3(rayEndPositionTexture.xy*0.5f,rayEndPositionTexture.z)+vec3(0.5f,0.5f, 0);
+
     vec3 rayDirectionTexture = rayEndPositionTexture.xyz - pixelPositionTexture;
 
     ivec2 screenSpaceStartPosition = ivec2(pixelPositionTexture.x * SCR_WIDTH, pixelPositionTexture.y * SCR_HEIGHT);
@@ -67,11 +103,15 @@ vec3 SSR(){
     ivec2 screenSpaceDistance = screenSpaceEndPosition - screenSpaceStartPosition;
     int screenSpaceMaxDistance = max(abs(screenSpaceDistance.x), abs(screenSpaceDistance.y)) / 2;
     rayDirectionTexture /= max(screenSpaceMaxDistance, 0.001f);
-
+    outColor = TraceRay(pixelPositionTexture, rayDirectionTexture, Screen, screenSpaceMaxDistance);
 
     //trace the ray
-    vec3 outColor = TraceRay(pixelPositionTexture, rayDirectionTexture, screenSpaceMaxDistance);
-    return outColor;
+
+    vec3 F0 = vec3(0.04);
+    F0      = mix(F0, albedo, metallic);
+    vec3 Fresnel = fresnelSchlickSSR(max(dot(normalize(normalView), normalize(positionView.xyz)), 0.0), F0);
+
+    return outColor * Fresnel;
 }
 /*
 vec3 SSR()
