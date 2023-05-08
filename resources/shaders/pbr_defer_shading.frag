@@ -10,6 +10,7 @@ uniform sampler2D gNormal;
 uniform sampler2D gAlbedo;
 uniform sampler2D gMetalRognessAO;
 uniform sampler2DArray shadowMap;
+uniform samplerCubeArray P_shadowMap;
 
 uniform mat4 M;
 uniform mat4 V;
@@ -42,13 +43,31 @@ float metallic  = texture(gMetalRognessAO, TexCoords).r;
 #include </SSAO.glsl>
 #include </SSR.glsl>
 
+float ShadowCalculation(int slot)
+{
+    // get vector between fragment position and light position
+    vec3 fragToLight = vec3(position) - PLights[slot].position;
+    // use the light to fragment vector to sample from the depth map
+    float closestDepth = texture(P_shadowMap, vec4(normalize(fragToLight),float(slot))).r;
+    // it is currently in linear range between [0,1]. Re-transform back to original value
+    closestDepth *= 100.f;
+    // now get current linear depth as the length between the fragment and light position
+    float currentDepth = length(fragToLight);
+    // now test for shadows
+    float bias = 0.00001;
+    float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+}
+
 vec3 PBR(vec3 N,vec3 position)
 {
     vec3 lighting = vec3(0, 0, 0);
 
     float ao        = getAO(N,position,-texture(gPosition, TexCoords).w,V,P);
     for (int i = 0; i < PLightCount && i < 10; i ++) {
-        lighting += PBR_P(albedo,metallic,roughness,N,VDir,position,camPos,PLights[i],0);
+        float shadow = ShadowCalculation(i);
+        lighting += PBR_P(albedo,metallic,roughness,N,VDir,position,camPos,PLights[i],shadow);
     }
     for (int i = 0; i < DLightCount && i < 10; i ++)
     {

@@ -477,7 +477,7 @@ public:
 			// --------------------------------------------------------------------------------
 			auto mantis = scene->createEntity("mantis");
 			auto transform = mantis->emplace<SPW::TransformComponent>();
-			transform->scale = {0.1, 0.1, 0.1};
+			transform->scale = {0.2, 0.2, 0.2};
 			transform->rotation = {0, 90, 0};
 			transform->position = {5, 10, 0};
 
@@ -499,7 +499,7 @@ public:
 			collider1->capsule_half_height_ = 0.1;
 			collider1->capsule_radius_ = 0.1;
 			collider1->degree = PxHalfPi;
-			collider1->capsule_axis_ = glm::vec3(0, 0, 1);
+			collider1->capsule_axis_ = glm::vec3(0, 1, 0);
 			collider1->state = SPW::needAwake;
 			collider1->is_trigger_ = false;
 
@@ -518,7 +518,7 @@ public:
 			auto  rigid2 = cubeObj->emplace<SPW::RigidStaticComponent>();
 			rigid2->rigidState = SPW::Awake;
 			auto  collider2 = cubeObj->emplace<SPW::BoxCollider>();
-			collider2->box_size_ = glm::vec3(50, 0.05, 50);
+			collider2->box_size_ = glm::vec3(50, 0.1, 50);
 			collider2->state = SPW::needAwake;
 
 			// --------------------------------------------------------------------------------
@@ -532,8 +532,8 @@ public:
 			skyMesh->bindRenderGraph = renderSystem->skyBoxGraph->graph_id;
 			skyMesh->modelSubPassPrograms[renderSystem->skyBoxNode->pass_id] = skybox_desc.uuid;
 
-			auto light1 = createPlight(scene, {10, 10, 0}, {1, 0.5, 0});
-			auto light2 = createPlight(scene, {-10, 10, 0}, {0, 0.5, 1});
+			auto light1 = createPlight(scene, {5, 1, 1}, {10, 5, 0});
+			auto light2 = createPlight(scene, {5, 1, -1}, {0, 5, 10});
 			auto light3 = createDirectionalLight(scene, {30, 60, 0}, {0.5, 0, 1});
 			auto light4 = createDirectionalLight(scene, {30, -60, 0}, {0.5, 1, 0});
 			static int control_id = 0;
