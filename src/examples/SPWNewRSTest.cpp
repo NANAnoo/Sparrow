@@ -54,14 +54,15 @@ const SPW::UUID& CreateACamera(const std::shared_ptr<SPW::Scene>& scene, float w
 	auto camera = scene->createEntity("main camera");
 	camera->emplace<SPW::AudioListener>();
 	auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
-	mainCameraTrans->position = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+	mainCameraTrans->position = glm::vec4(4.0f, 3.0f, 1.0f, 1.0f);
 	auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
 	cam->fov = 60;
 	cam->aspect = width / height;
-	cam->near = 0.01;
+	cam->near = 0.1;
 	cam->far = 100;
 
 	cam->whetherMainCam = main;
+    static bool speed_up = false;
 	//add a key component for testing, press R to rotate
 	auto cameraKey = camera->emplace<SPW::KeyComponent>();
 	auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode)
@@ -77,28 +78,34 @@ const SPW::UUID& CreateACamera(const std::shared_ptr<SPW::Scene>& scene, float w
 		glm::vec3 up = {0, 1, 0};
 		glm::vec3 right = glm::normalize(glm::cross(forward, up));
 		if (keycode == SPW::Key::W)
-			mainCameraTrans->position += 0.01f * forward;
+			mainCameraTrans->position += (speed_up ? 0.1f : 0.01f) * forward;
 		if (keycode == SPW::Key::S)
-			mainCameraTrans->position -= 0.01f * forward;
+			mainCameraTrans->position -= (speed_up ? 0.1f : 0.01f) * forward;
 		if (keycode == SPW::Key::A)
-			mainCameraTrans->position -= 0.01f * right;
+			mainCameraTrans->position -= (speed_up ? 0.1f : 0.01f) * right;
 		if (keycode == SPW::Key::D)
-			mainCameraTrans->position += 0.01f * right;
+			mainCameraTrans->position += (speed_up ? 0.1f : 0.01f) * right;
 		if (keycode == SPW::Key::Q)
-			mainCameraTrans->position -= 0.01f * up;
+			mainCameraTrans->position -= (speed_up ? 0.1f : 0.01f) * up;
 		if (keycode == SPW::Key::E)
-			mainCameraTrans->position += 0.01f * up;
+			mainCameraTrans->position += (speed_up ? 0.1f : 0.01f) * up;
+        if (keycode == SPW::Key::LeftShift)
+            speed_up = true;
 	};
 	auto mouse = camera->emplace<SPW::MouseComponent>();
 	mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias,
 	                                   double y_pos_bias)
 	{
 		auto transform = e.component<SPW::TransformComponent>();
-		transform->rotation.x -= y_pos_bias * 0.1;
-		transform->rotation.y -= x_pos_bias * 0.1;
+		transform->rotation.x -= float(y_pos_bias * 0.1);
+		transform->rotation.y -= float(x_pos_bias * 0.1);
 	};
 	cameraKey->onKeyHeldCallBack = cb;
 	cameraKey->onKeyDownCallBack = cb;
+    cameraKey->onKeyReleasedCallBack = [](const SPW::Entity& e, SPW::KeyCode keycode) {
+        if (keycode == SPW::Key::LeftShift)
+            speed_up = false;
+    };
 	return camera->component<SPW::IDComponent>()->getID();
 }
 
@@ -112,7 +119,7 @@ std::shared_ptr<SPW::Entity> createPlight(const std::shared_ptr<SPW::Scene>& sce
 	return light;
 }
 
-std::shared_ptr<SPW::Entity> createDlight(const std::shared_ptr<SPW::Scene>& scene, glm::vec3 rotation, glm::vec3 color)
+std::shared_ptr<SPW::Entity> createDirectionalLight(const std::shared_ptr<SPW::Scene>& scene, glm::vec3 rotation, glm::vec3 color)
 {
 	auto light = scene->createEntity("light");
 	auto lightTrans = light->emplace<SPW::TransformComponent>();
@@ -288,13 +295,13 @@ public:
 			scene = SPW::Scene::create(app->delegate.lock());
 
 			// create render system
-			auto rendersystem = std::make_shared<SPW::SPWRenderSystem>(scene, renderBackEnd,
-			                                                           weak_window.lock()->frameWidth(),
-			                                                           weak_window.lock()->frameHeight());
+			auto renderSystem = std::make_shared<SPW::SPWRenderSystem>(scene, renderBackEnd,
+                                                                       weak_window.lock()->frameWidth(),
+                                                                       weak_window.lock()->frameHeight());
 			// add system
-			scene->m_renderSystem = rendersystem;
+			scene->m_renderSystem = renderSystem;
 			scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
-			scene->addSystem(rendersystem);
+			scene->addSystem(renderSystem);
 			scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
 			scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
 			scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
@@ -312,65 +319,64 @@ public:
 
             // ------ create main render graph ----------------
 
-            auto defferShadering = rendersystem->createRenderGraph();
+            auto defferShading = renderSystem->createRenderGraph();
 
-            auto p_shadowmap_node = defferShadering->createRenderNode<SPW::ModelRepeatPassNode>(SPW::CubeMapType, SPW::RepeatForPLights, 10);
-            p_shadowmap_node->width = 256;
-            p_shadowmap_node->height = 256;
-            p_shadowmap_node->clearType = SPW::ClearDepth;
+            auto p_shadowMap_node = defferShading->createRenderNode<SPW::ModelRepeatPassNode>(SPW::CubeMapType, SPW::RepeatForPLights, 10);
+            p_shadowMap_node->width = 256;
+            p_shadowMap_node->height = 256;
+            p_shadowMap_node->clearType = SPW::ClearDepth;
 
-            auto d_shadowmap_node = defferShadering->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
-            d_shadowmap_node->width = 4096;
-            d_shadowmap_node->height = 4096;
-            d_shadowmap_node->clearType = SPW::ClearDepth;
+            auto d_shadowMap_node = defferShading->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
+            d_shadowMap_node->width = 4096;
+            d_shadowMap_node->height = 4096;
+            d_shadowMap_node->clearType = SPW::ClearDepth;
 
-            auto p_shadowmap_output = p_shadowmap_node->addAttachment(SPW::Depth);
-            auto d_shadowmap_output = d_shadowmap_node->addAttachment(SPW::Depth);
+            auto p_shadowMap_output = p_shadowMap_node->addAttachment(SPW::Depth);
+            auto d_shadowMap_output = d_shadowMap_node->addAttachment(SPW::Depth);
 
-            auto defferNode = defferShadering->createRenderNode<SPW::ModelPassNode>(SPW::ColorType);
+            auto defferNode = defferShading->createRenderNode<SPW::ModelPassNode>(SPW::ColorType);
             defferNode->clearType = SPW::ClearType::ClearAll;
             defferNode->depthTest = true;
             defferNode->depthCompType = SPW::DepthCompType::LESS_Type;
             auto gPosition = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
             auto gNormal = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGB16);
             auto gAlbedo = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
-            auto gMetalRognessAO = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
+            auto gMetalRoughnessAO = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
             auto gDepth = defferNode->addAttachment(SPW::ColorAttachmentFormat::Depth);
 
-            auto pbr_deffer_shading_desc = SPW::defferPBR(p_shadowmap_output, d_shadowmap_output, gPosition, gNormal, gAlbedo, gMetalRognessAO, gDepth, {
+            auto pbr_deffer_shading_desc = SPW::defferPBR(p_shadowMap_output, d_shadowMap_output, gPosition, gNormal, gAlbedo, gMetalRoughnessAO, gDepth, {
                 "defferPBR",
                 "./resources/shaders/pbr_defer_shading.vert",
                 "./resources/shaders/pbr_defer_shading.frag"
             });
 
-            auto GBufferShading = defferShadering->createRenderNode<SPW::ImagePassNode>(pbr_deffer_shading_desc);
-            defferNode->width = weak_window.lock()->frameWidth();
-            defferNode->height = weak_window.lock()->frameHeight();
+            auto GBufferShading = defferShading->createRenderNode<SPW::ImagePassNode>(pbr_deffer_shading_desc);
             GBufferShading->bindInputPort(gPosition);
             GBufferShading->bindInputPort(gNormal);
             GBufferShading->bindInputPort(gAlbedo);
-            GBufferShading->bindInputPort(gMetalRognessAO);
-            GBufferShading->bindInputPort(p_shadowmap_output);
-            GBufferShading->bindInputPort(d_shadowmap_output);
+            GBufferShading->bindInputPort(gMetalRoughnessAO);
+            GBufferShading->bindInputPort(p_shadowMap_output);
+            GBufferShading->bindInputPort(d_shadowMap_output);
             GBufferShading->bindInputPort(gDepth);
             GBufferShading->depthCompType = SPW::DepthCompType::LESS_Type;
 
             SPW::AttachmentPort shading_result = GBufferShading->addAttachment(SPW::RGBA32);
 
-            auto SSR_desc = SPW::SSR(gMetalRognessAO,gDepth,gNormal,gPosition,shading_result);
-            auto SSR_node = defferShadering->createRenderNode<SPW::ImagePassNode>(SSR_desc);
+            auto SSR_desc = SPW::SSR(gAlbedo, gMetalRoughnessAO, gDepth, gNormal, gPosition, shading_result);
+            auto SSR_node = defferShading->createRenderNode<SPW::ImagePassNode>(SSR_desc);
             SSR_node->clearType = SPW::ClearColor;
             SSR_node->depthTest = false;
 
             SSR_node->bindInputPort(gPosition);
             SSR_node->bindInputPort(gNormal);
-            SSR_node->bindInputPort(gMetalRognessAO);
+            SSR_node->bindInputPort(gAlbedo);
+            SSR_node->bindInputPort(gMetalRoughnessAO);
             SSR_node->bindInputPort(gDepth);
             SSR_node->bindInputPort(shading_result);
             auto reflect_port = SSR_node->addAttachment(SPW::RGBA32);
 
             auto SSR_blur_desc = SPW::SSR_blur(reflect_port,gDepth,shading_result);
-            auto SSR_blur_node = defferShadering->createRenderNode<SPW::ScreenPassNode>(SSR_blur_desc);
+            auto SSR_blur_node = defferShading->createRenderNode<SPW::ScreenPassNode>(SSR_blur_desc);
             SSR_blur_node->clearType = SPW::ClearAll;
             SSR_blur_node->depthTest = true;
 
@@ -414,38 +420,38 @@ public:
             auto p_ani_shadow_desc = SPW::P_ani_shadowmap_desc();
             auto d_ani_shadow_desc = SPW::D_ani_shadowmap_desc();
 
-            auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_ani_light_shadow);
-            auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
-            auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow_tiled);
+            auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowMap_output, d_shadowMap_output, pbr_ani_light_shadow);
+            auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowMap_output, d_shadowMap_output, pbr_light_shadow);
+            auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc(p_shadowMap_output, d_shadowMap_output, pbr_light_shadow_tiled);
             auto GBuffer_desc = SPW::GBuffer_desc(GBuffer);
             auto GBuffer_floor_desc = SPW::GBuffer_desc(GBuffer_floor);
             auto ani_GBuffer_desc = SPW::ani_GBuffer_desc(ani_GBuffer);
 
             auto skybox_desc = SPW::SkyBoxShader_desc();
-            rendersystem->addShaderDescriptor(pbr_light_shadow_desc);
-            rendersystem->addShaderDescriptor(pbr_light_shadow_tiled_desc);
-            rendersystem->addShaderDescriptor(p_shadow_desc);
-            rendersystem->addShaderDescriptor(d_shadow_desc);
-            rendersystem->addShaderDescriptor(skybox_desc);
-            rendersystem->addShaderDescriptor(p_ani_shadow_desc);
-            rendersystem->addShaderDescriptor(d_ani_shadow_desc);
-            rendersystem->addShaderDescriptor(pbr_ani_light_shadow_desc);
-            rendersystem->addShaderDescriptor(GBuffer_desc);
-            rendersystem->addShaderDescriptor(ani_GBuffer_desc);
-            rendersystem->addShaderDescriptor(pbr_deffer_shading_desc);
-            rendersystem->addShaderDescriptor(GBuffer_floor_desc);
-            rendersystem->addShaderDescriptor(SSR_desc);
-            rendersystem->addShaderDescriptor(SSR_blur_desc);
+            renderSystem->addShaderDescriptor(pbr_light_shadow_desc);
+            renderSystem->addShaderDescriptor(pbr_light_shadow_tiled_desc);
+            renderSystem->addShaderDescriptor(p_shadow_desc);
+            renderSystem->addShaderDescriptor(d_shadow_desc);
+            renderSystem->addShaderDescriptor(skybox_desc);
+            renderSystem->addShaderDescriptor(p_ani_shadow_desc);
+            renderSystem->addShaderDescriptor(d_ani_shadow_desc);
+            renderSystem->addShaderDescriptor(pbr_ani_light_shadow_desc);
+            renderSystem->addShaderDescriptor(GBuffer_desc);
+            renderSystem->addShaderDescriptor(ani_GBuffer_desc);
+            renderSystem->addShaderDescriptor(pbr_deffer_shading_desc);
+            renderSystem->addShaderDescriptor(GBuffer_floor_desc);
+            renderSystem->addShaderDescriptor(SSR_desc);
+            renderSystem->addShaderDescriptor(SSR_blur_desc);
 			// --------------- create shader ---------------
 
-			auto camera_id = CreateACamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
+			auto camera_id = CreateACamera(scene, float(weak_window.lock()->width()), float(weak_window.lock()->height()));
 			// --------------------------------------------------------------------------------
 			SPW::ResourceManager::getInstance()->m_CameraIDMap["main"] = camera_id;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["p_shadow_desc"] = p_shadow_desc;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["d_shadow_desc"] = d_shadow_desc;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["pbr_light_shadow_desc"] = pbr_light_shadow_desc;
-			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["p_shadowmap_node"] = p_shadowmap_node;
-			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["d_shadowmap_node"] = d_shadowmap_node;
+			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["p_shadowMap_node"] = p_shadowMap_node;
+			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["d_shadowMap_node"] = d_shadowMap_node;
 
 			// --------------- dragon ---------------
 			auto dragon = scene->createEntity("anim dragon");
@@ -455,9 +461,9 @@ public:
 			dragon_transform->position = {0, 0, 0};
 
 			auto dragon_model = dragon->emplace<SPW::MeshComponent>(camera_id);
-			dragon_model->bindRenderGraph = defferShadering->graph_id;
-			dragon_model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
-			dragon_model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
+			dragon_model->bindRenderGraph = defferShading->graph_id;
+			dragon_model->modelSubPassPrograms[p_shadowMap_node->pass_id] = p_ani_shadow_desc.uuid;
+			dragon_model->modelSubPassPrograms[d_shadowMap_node->pass_id] = d_ani_shadow_desc.uuid;
 			dragon_model->modelSubPassPrograms[defferNode->pass_id] = ani_GBuffer_desc.uuid;
 
 			dragon_model->assetID   = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
@@ -473,7 +479,7 @@ public:
 			auto transform = mantis->emplace<SPW::TransformComponent>();
 			transform->scale = {0.1, 0.1, 0.1};
 			transform->rotation = {0, 90, 0};
-			transform->position = {5, 0, 0};
+			transform->position = {5, 10, 0};
 
 			// add a model to show
 			auto mantis_mesh = mantis->emplace<SPW::MeshComponent>(camera_id);
@@ -481,9 +487,9 @@ public:
 			mantis_mesh->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
 			mantis_mesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].path;
 
-			mantis_mesh->bindRenderGraph = defferShadering->graph_id;
-			mantis_mesh->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
-			mantis_mesh->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
+			mantis_mesh->bindRenderGraph = defferShading->graph_id;
+			mantis_mesh->modelSubPassPrograms[p_shadowMap_node->pass_id] = p_shadow_desc.uuid;
+			mantis_mesh->modelSubPassPrograms[d_shadowMap_node->pass_id] = d_shadow_desc.uuid;
 			mantis_mesh->modelSubPassPrograms[defferNode->pass_id] = GBuffer_desc.uuid;
 
 			auto  rigid1 = mantis->emplace<SPW::RigidDynamicComponent>();
@@ -501,14 +507,13 @@ public:
 			auto cubeObj = scene->createEntity("floor");
 			auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
 			cubeTrans->scale = {50.0, 0.05, 50.0};
-			cubeTrans->position.y -= 0.35f;
-			auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
-			cubemodel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetID;
-			cubemodel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetName;
-			cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].path;
+			auto floorModel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
+            floorModel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetID;
+            floorModel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetName;
+            floorModel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].path;
 
-			cubemodel->bindRenderGraph = defferShadering->graph_id;
-			cubemodel->modelSubPassPrograms[defferNode->pass_id] = GBuffer_floor_desc.uuid;
+            floorModel->bindRenderGraph = defferShading->graph_id;
+            floorModel->modelSubPassPrograms[defferNode->pass_id] = GBuffer_floor_desc.uuid;
 
 			auto  rigid2 = cubeObj->emplace<SPW::RigidStaticComponent>();
 			rigid2->rigidState = SPW::Awake;
@@ -524,13 +529,13 @@ public:
 			skyMesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].assetName;
 			skyMesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].path;
 
-			skyMesh->bindRenderGraph = rendersystem->skyBoxGraph->graph_id;
-			skyMesh->modelSubPassPrograms[rendersystem->skyBoxNode->pass_id] = skybox_desc.uuid;
+			skyMesh->bindRenderGraph = renderSystem->skyBoxGraph->graph_id;
+			skyMesh->modelSubPassPrograms[renderSystem->skyBoxNode->pass_id] = skybox_desc.uuid;
 
-			auto light1 = createPlight(scene, {10, 10, 0}, {1, 1, 1});
-			auto light2 = createPlight(scene, {-10, 10, 0}, {1, 1, 1});
-			auto light3 = createDlight(scene, {30, 60, 0}, {1, 1, 1});
-			auto light4 = createDlight(scene, {30, -60, 0}, {1, 1, 1});
+			auto light1 = createPlight(scene, {10, 10, 0}, {1, 0.5, 0});
+			auto light2 = createPlight(scene, {-10, 10, 0}, {0, 0.5, 1});
+			auto light3 = createDirectionalLight(scene, {30, 60, 0}, {0.5, 0, 1});
+			auto light4 = createDirectionalLight(scene, {30, -60, 0}, {0.5, 1, 0});
 			static int control_id = 0;
 			auto light_controller = [](int idx)
 			{

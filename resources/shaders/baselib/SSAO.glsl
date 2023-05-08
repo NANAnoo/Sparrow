@@ -6,23 +6,28 @@
 
 int kernelSize = 32;
 
+float radius = 2.0;
 
 vec3 randomDirection(vec4 temp)
 {
     float u = rand_2to1(temp.xy);
     float v = rand_2to1(temp.zw);
 
-    float theta = 2.0 * 3.14159265359 * u;
-    float phi = acos(2.0 * v - 1.0);
+    float theta = PI2 * u;
+    float phi = PI2 * v;
 
     float x = sin(phi) * cos(theta);
-    float y = sin(phi) * sin(theta);
-    float z = cos(phi);
+    float z = cos(phi) * cos(theta);
+    float y = sin(theta);
 
-    return vec3(x, y, z) * (rand_2to1(temp.xz) * 0.5  + 0.5) * 0.01;
+    return vec3(x, y, z) * (rand_2to1(temp.xz));
 }
 
-float getAO(vec3 normal,vec3 worldPos,float Depth,mat4 view, mat4 Proj)
+vec3 lerp(float a, float b, vec3 v) {
+    return v * (b - a) + a;
+}
+
+float getAO(vec3 normal,vec3 worldPos,float Depth,mat4 view, mat4 proj)
 {
     float occlusion = 0.0;
     for(int i = 0;i < kernelSize; i++)
@@ -34,16 +39,15 @@ float getAO(vec3 normal,vec3 worldPos,float Depth,mat4 view, mat4 Proj)
         vec3 randomVec3 = randomDirection(vec4(x,y,z,w));
         if(dot(randomVec3,normal)<0)
             randomVec3 = - randomVec3;
-        vec3 pos = worldPos + randomVec3;
-
-        vec4 tmp = view * vec4(pos, 1.0f);
-        tmp = Proj * tmp;
-        vec3 screenPos = tmp.xyz / tmp.w; // [-1,1]
+        vec3 samp = worldPos + lerp(0.1, 1.0, randomVec3) * Depth / 100.0 * radius;
+        samp = (view * vec4(samp, 1.0f)).xyz;
+        vec4 offset = proj * vec4(samp, 1.0f);
+        vec3 screenPos = offset.xyz / offset.w; // [-1,1]
         vec2 uv = (screenPos.xy + 1.0f) / 2.0f;
 
         float sampleDepth = texture(gPosition, uv).a;
 
-        occlusion += Depth - 0.01 <sampleDepth ? 0.0 : 1.0;
+        occlusion += ((samp.z - 0.00001 <= sampleDepth && sampleDepth < 0) ? 1.0 : 0.0);
     }
     occlusion = occlusion/kernelSize;
 

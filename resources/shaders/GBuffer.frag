@@ -22,8 +22,8 @@ uniform sampler2D roughnessMap;
 uniform sampler2D normalMap;
 uniform sampler2D AoMap;
 
-const float NEAR = 0.01; // 投影矩阵的近平面
-const float FAR = 50.0f; // 投影矩阵的远平面
+const float NEAR = 0.1; // 投影矩阵的近平面
+const float FAR = 100.0f; // 投影矩阵的远平面
 float LinearizeDepth(float depth)
 {
     float z = depth * 2.0 - 1.0; // 回到NDC
@@ -53,7 +53,7 @@ vec3 getNormalFromMap()
 void main()
 {
     gPosition.xyz = FragPos;
-    gPosition.w = LinearizeDepth(gl_FragCoord.z);
+    gPosition.w = -LinearizeDepth(gl_FragCoord.z);
     if(length(texture(normalMap, TexCoords).xyz)>0.0f)
         gNormal = getNormalFromMap();
     else

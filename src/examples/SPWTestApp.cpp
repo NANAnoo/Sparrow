@@ -170,7 +170,7 @@ std::shared_ptr<SPW::Entity> createPlight(const std::shared_ptr<SPW::Scene>& sce
 	return light;
 }
 
-std::shared_ptr<SPW::Entity> createDlight(const std::shared_ptr<SPW::Scene>& scene, glm::vec3 rotation, glm::vec3 color)
+std::shared_ptr<SPW::Entity> createDirectionalLight(const std::shared_ptr<SPW::Scene>& scene, glm::vec3 rotation, glm::vec3 color)
 {
 	auto light = scene->createEntity("light");
 	auto lightTrans = light->emplace<SPW::TransformComponent>();
@@ -512,8 +512,8 @@ public:
 
 				auto light1 = createPlight(scene, { 1, 1, 0 }, { 1, 0.5, 0 });
 				auto light2 = createPlight(scene, { -1, 1, 0 }, { 0, 0.5, 1 });
-				auto light3 = createDlight(scene, { 30, 60, 0 }, { 0.5, 0, 1 });
-				auto light4 = createDlight(scene, { 30, -60, 0 }, { 0.5, 1, 0 });
+				auto light3 = createDirectionalLight(scene, {30, 60, 0}, {0.5, 0, 1});
+				auto light4 = createDirectionalLight(scene, {30, -60, 0}, {0.5, 1, 0});
 				static int control_id = 0;
 				auto light_controller = [](int idx)
 				{

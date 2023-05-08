@@ -119,7 +119,6 @@ namespace SPW {
                     slot++;
                     break;
                 }
-                    // TODO, temporary from these properties
                 case AlbedoConstantType: {
                     shader->setVec3(name, material.m_Properties.ambient);
                     break;
@@ -298,7 +297,7 @@ namespace SPW {
 
         if (light_inputs.find(LightType::DLightArraySize) != light_inputs.end()) {
             std::string name = light_inputs.at(LightType::DLightArraySize);
-            shader->setInt(name, dLights.size());
+            shader->setInt(name, int(dLights.size()));
         }
     }
 
@@ -351,7 +350,7 @@ namespace SPW {
 
         if (light_inputs.find(LightType::PLightArraySize) != light_inputs.end()) {
             std::string name = light_inputs.at(LightType::PLightArraySize);
-            shader->setInt(name, pLights.size());
+            shader->setInt(name, int(pLights.size()));
         }
     }
 
@@ -366,14 +365,13 @@ namespace SPW {
     }
 
     using ModelNodeMap = std::unordered_map<unsigned int, std::unordered_map<UUID, std::vector<Entity>, UUID::hash>>;
-
     void OpenGLRenderGraph::init(unsigned int s_width, unsigned int s_height) {
         // create all required resources
         for (auto &[idx, node]: all_nodes) {
             if (std::dynamic_pointer_cast<ModelRepeatPassNode>(node)) {
                 createResourceForModelRepeatNode(std::dynamic_pointer_cast<ModelRepeatPassNode>(node));
             } else if (std::dynamic_pointer_cast<ModelPassNode>(node)) {
-                createResourceForModelNode(std::dynamic_pointer_cast<ModelPassNode>(node));
+                createResourceForModelNode(std::dynamic_pointer_cast<ModelPassNode>(node), s_width, s_height);
             } else if (std::dynamic_pointer_cast<ImagePassNode>(node)) {
                 createResourceForImagePassNode(std::dynamic_pointer_cast<ImagePassNode>(node), s_width, s_height);
             }
@@ -409,7 +407,10 @@ namespace SPW {
 
     void OpenGLRenderGraph::onFrameChanged(unsigned int s_width, unsigned int s_height) {
         for (auto &[idx, node]: all_nodes) {
-            if (std::dynamic_pointer_cast<ImagePassNode>(node)) {
+            if ( !std::dynamic_pointer_cast<ModelRepeatPassNode>(node) &&
+                    std::dynamic_pointer_cast<ModelPassNode>(node)) {
+                createResourceForModelNode(std::dynamic_pointer_cast<ModelPassNode>(node), s_width, s_height);
+            } else if (std::dynamic_pointer_cast<ImagePassNode>(node)) {
                 createResourceForImagePassNode(std::dynamic_pointer_cast<ImagePassNode>(node), s_width, s_height);
             }
         }
@@ -539,7 +540,8 @@ namespace SPW {
             return;
         }
         all_frame_buffers[node->frame_buffer_ref]->bind();
-        input.backend->SetViewport(0, 0, node->width, node->height);
+        input.backend->SetViewport(0, 0, node->width > 0 ? node->width : input.screen_width,
+                                   node->height > 0 ? node->height : input.screen_height);
         if (node->output_type == ColorType) {
             clearHelper(node, input.backend);
             drawWithModels(input, map.at(node->pass_id), NoRepeat, 0, -1);
@@ -677,36 +679,62 @@ namespace SPW {
     }
 
     // create resource for model node
-    void OpenGLRenderGraph::createResourceForModelNode(const std::shared_ptr<ModelPassNode> &node) {
-        if (!node || node->attachment_formats.size() == 0) {
+    void OpenGLRenderGraph::createResourceForModelNode(const std::shared_ptr<ModelPassNode> &node, unsigned int s_width, unsigned int s_height) {
+        if (!node || node->attachment_formats.empty()) {
             return;
         }
+        // get width and height
+        unsigned int w = node->width == 0 ? s_width : node->width;
+        unsigned int h = node->height == 0 ? s_height : node->height;
         // create resource for model
-        node->frame_buffer_ref = all_frame_buffers.size();
-        auto fb = std::make_shared<OpenGLFrameBuffer>();
-        all_frame_buffers.push_back(fb);
+        bool isReCreate = node->frame_buffer_ref >= 0;
+        std::shared_ptr<OpenGLFrameBuffer> fb = nullptr;
+        if (isReCreate) {
+            fb = all_frame_buffers[node->frame_buffer_ref];
+            // no need recreate
+            if (node->width != 0 && node->height != 0)
+                return;
+            fb->deleteFrameBuffer();
+        } else {
+            fb = std::make_shared<OpenGLFrameBuffer>();
+            node->frame_buffer_ref = int(all_frame_buffers.size());
+            all_frame_buffers.push_back(fb);
+        }
         fb->genFrameBuffer();
         fb->bind();
         unsigned int index = 0;
         int resources_id = 0;
         for (auto &format: node->attachment_formats) {
             if (node->output_type == ColorType) {
-                auto tex = std::make_shared<OpenGLAttachmentTexture>();
-                tex->genTexture(node->width, node->height, format);
+                std::shared_ptr<OpenGLAttachmentTexture> tex = nullptr;
+                if (isReCreate) {
+                    tex = all_attachments.at({node->pass_id, resources_id});
+                    tex->deleteTexture();
+                } else {
+                    tex = std::make_shared<OpenGLAttachmentTexture>();
+                    all_attachments.insert({{node->pass_id, resources_id}, tex});
+                }
+                tex->genTexture(w, h, format);
                 tex->attach(index);
                 if (format != ColorAttachmentFormat::Depth) {
-                    fb->AttachColorRenderBuffer(node->width, node->height, index++);
+                    fb->AttachColorRenderBuffer(w, h, index++);
                 } else {
-                    //fb->AttachDepthRenderBuffer(node->width, node->height);
+                    // fb->AttachDepthRenderBuffer(w, h);
                 }
                 tex->unbind();
-                all_attachments.insert({{node->pass_id, resources_id}, tex});
+
             } else {
-                auto cube = std::make_shared<OpenGLAttachmentTextureCube>();
-                cube->genTexture(node->width, node->height, format);
+                std::shared_ptr<OpenGLAttachmentTextureCube> cube = nullptr;
+                if (isReCreate) {
+                    cube = all_attachment_cubes.at({node->pass_id, resources_id});
+                    cube->deleteTexture();
+                } else {
+                    cube = std::make_shared<OpenGLAttachmentTextureCube>();
+                    all_attachment_cubes.insert({{node->pass_id, resources_id}, cube});
+                }
+                cube->genTexture(w, h, format);
                 cube->unbind();
                 // attach while rendering
-                all_attachment_cubes.insert({{node->pass_id, resources_id}, cube});
             }
             resources_id++;
         }
@@ -739,11 +767,8 @@ namespace SPW {
         fb->bind();
         unsigned int index = 0;
         int resources_id = 0;
-        unsigned int w = s_width, h = s_height;
-        if (node->width > 0 && node->height > 0) {
-            w = node->width;
-            h = node->height;
-        }
+        unsigned int w = node->width > 0 ? node->width : s_width;
+        unsigned int h = node->height > 0 ? node->height : s_height;
         for (auto &format: node->attachment_formats) {
             std::shared_ptr<OpenGLAttachmentTexture> tex = nullptr;
             if (isRecreate) {

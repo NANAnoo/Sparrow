@@ -32,24 +32,23 @@ namespace SPW {
         return res;
     }
 
-    static ShaderDesc SSR(const AttachmentPort &gMetalRognessAO,
+    static ShaderDesc SSR(const AttachmentPort &gAlbedo,
+                          const AttachmentPort &gMetalRognessAO,
                           const AttachmentPort &gDepth,
                           const AttachmentPort &gNormal,
                           const AttachmentPort &gPosition,
                           const AttachmentPort &ScreenColor)
     {
         ShaderDesc res{};
-
+        res.dependency_inputs[gAlbedo] = "gAlbedo";
         res.dependency_inputs[gNormal] = "gNormal";
         res.dependency_inputs[gMetalRognessAO] = "gMetalRognessAO";
         res.dependency_inputs[gDepth] = "gDepth";
         res.dependency_inputs[ScreenColor] = "Screen";
         res.dependency_inputs[gPosition] = "gPosition";
 
-
         res.transform_inputs[TransformType::V] = "V";
         res.transform_inputs[TransformType::P] = "P";
-
 
         res.shader = {
             "SSR Shader",

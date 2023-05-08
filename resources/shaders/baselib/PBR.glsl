@@ -46,7 +46,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-vec3 PBR_P(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec3 pos,vec3 camPos,PLight light, float shadow)
+vec3 PBR_P(vec3 albedo,float metallic,float roughness,vec3 N,vec3 V,vec3 pos,vec3 camPos,PLight light, float shadow)
 {
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
@@ -93,7 +93,7 @@ vec3 PBR_P(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec
     return color;
 }
 
-vec3 PBR_D(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec3 pos,vec3 camPos,DLight light, float shadow)
+vec3 PBR_D(vec3 albedo,float metallic,float roughness,vec3 N,vec3 V,vec3 pos,vec3 camPos,DLight light, float shadow)
 {
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)

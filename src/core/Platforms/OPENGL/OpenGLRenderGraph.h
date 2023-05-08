@@ -28,7 +28,7 @@ namespace SPW {
             // attachment map
 
             // create resource for model node
-            void createResourceForModelNode(const std::shared_ptr<ModelPassNode> &node);
+            void createResourceForModelNode(const std::shared_ptr<ModelPassNode> &node, unsigned int s_width, unsigned int s_height);
 
             // create resource for model repeat node
             void createResourceForModelRepeatNode(const std::shared_ptr<ModelRepeatPassNode> &node);

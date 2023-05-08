@@ -46,11 +46,9 @@ vec3 PBR(vec3 N,vec3 position)
 {
     vec3 lighting = vec3(0, 0, 0);
 
-    float ao        = getAO(N,position,texture(gPosition, TexCoords).w,V,P);
-
-
+    float ao        = getAO(N,position,-texture(gPosition, TexCoords).w,V,P);
     for (int i = 0; i < PLightCount && i < 10; i ++) {
-        lighting += PBR_P(albedo,metallic,roughness,ao,N,VDir,position,camPos,PLights[i],0);
+        lighting += PBR_P(albedo,metallic,roughness,N,VDir,position,camPos,PLights[i],0);
     }
     for (int i = 0; i < DLightCount && i < 10; i ++)
     {
@@ -62,9 +60,9 @@ vec3 PBR(vec3 N,vec3 position)
             poissonDiskSamples(projCoords.xy);
             shadow = PCSS(projCoords,i);
         }
-        lighting += PBR_D(albedo,metallic,roughness,ao,N,VDir,vec3(position),camPos,DLights[i], shadow);
+        lighting += PBR_D(albedo,metallic,roughness,N,VDir,vec3(position),camPos,DLights[i], shadow);
     }
-    return lighting + vec3(0.03) * albedo * ao;
+    return (lighting + vec3(0.03) * albedo) * ao;
 }
 
 void main()

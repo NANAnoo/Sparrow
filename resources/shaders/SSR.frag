@@ -9,6 +9,7 @@ in vec2 TexCoords;
 uniform sampler2D Screen;
 uniform sampler2D gPosition;
 uniform sampler2D gDepth;
+uniform sampler2D gAlbedo;
 uniform sampler2D gNormal;
 uniform sampler2D gMetalRognessAO;
 
@@ -19,6 +20,6 @@ uniform mat4 P;
 
 void main()
 {
-    vec3 color = SSR(texture(gMetalRognessAO, TexCoords).g,texture(Screen, TexCoords).xyz,texture(gMetalRognessAO, TexCoords).r, Screen);
+    vec3 color = SSR(texture(gMetalRognessAO, TexCoords).g,texture(gAlbedo, TexCoords).xyz,texture(gMetalRognessAO, TexCoords).r, Screen);
     FragColor = vec4(color, 1.0);
 }

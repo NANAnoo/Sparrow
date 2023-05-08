@@ -100,7 +100,7 @@ namespace SPW {
             pass_id = self_increment_id++;
         };
 
-        RenderPassNodeI(RenderPassNodeI &&other) {
+        RenderPassNodeI(RenderPassNodeI &&other)  noexcept {
             pass_id = other.pass_id;
             other.pass_id = 0;
             clearType = other.clearType;
@@ -110,7 +110,7 @@ namespace SPW {
             input_ports = std::move(other.input_ports);
         }
 
-        RenderPassNodeI&operator=(RenderPassNodeI &&other) {
+        RenderPassNodeI&operator=(RenderPassNodeI &&other)  noexcept {
             pass_id = other.pass_id;
             other.pass_id = 0;
             clearType = other.clearType;
@@ -153,7 +153,7 @@ namespace SPW {
         virtual ~ModelPassNode() = default;
 
         // move constructor
-        ModelPassNode(ModelPassNode &&other) : RenderPassNodeI(std::move(other)) {
+        ModelPassNode(ModelPassNode &&other)  noexcept : RenderPassNodeI(std::move(other)) {
             output_type = other.output_type;
             attachment_formats = std::move(other.attachment_formats);
             frame_buffer_ref = other.frame_buffer_ref;
@@ -162,7 +162,7 @@ namespace SPW {
         }
 
         // move assignment
-        ModelPassNode&operator=(ModelPassNode &&other) {
+        ModelPassNode&operator=(ModelPassNode &&other)  noexcept {
             RenderPassNodeI::operator=(std::move(other));
             output_type = other.output_type;
             attachment_formats = std::move(other.attachment_formats);
@@ -196,7 +196,7 @@ namespace SPW {
         AttachmentType output_type;
         std::vector<ColorAttachmentFormat> attachment_formats;
 
-        unsigned int frame_buffer_ref = 0;     
+        int frame_buffer_ref = -1;
     };
 
     // execute multiple times to produce a texture array
@@ -223,9 +223,9 @@ namespace SPW {
         }
 
         void updateFromLua(const std::string &key, const sol::table &table) override {
-            if ("repeat_type") {
+            if (key == "repeat_type") {
                 repeat_type = RepeatType(table.as<int>());
-            } else if ("repeat_count") {
+            } else if (key == "repeat_count") {
                 repeat_count = table.as<unsigned int>();
             } else {
                 ModelPassNode::updateFromLua(key, table);
@@ -252,12 +252,12 @@ namespace SPW {
         }
 
         // move constructor
-        ModelToScreenNode(ModelToScreenNode &&other) : RenderPassNodeI(std::move(other)) {
+        ModelToScreenNode(ModelToScreenNode &&other)  noexcept : RenderPassNodeI(std::move(other)) {
             screen_output_type = other.screen_output_type;
         }
 
         // move assignment
-        ModelToScreenNode&operator=(ModelToScreenNode &&other) {
+        ModelToScreenNode&operator=(ModelToScreenNode &&other)  noexcept {
             RenderPassNodeI::operator=(std::move(other));
             screen_output_type = other.screen_output_type;
             return *this;
@@ -270,15 +270,15 @@ namespace SPW {
     class PresentNode : public RenderPassNodeI {
     public:
         PresentNode() = delete;
-        PresentNode(ShaderDesc shader) : shader(shader) {}
+        explicit PresentNode(const ShaderDesc& shader) : shader(shader) {}
 
         // move constructor
-        PresentNode(PresentNode &&other) : RenderPassNodeI(std::move(other)) {
+        PresentNode(PresentNode &&other)  noexcept : RenderPassNodeI(std::move(other)) {
             shader = other.shader;
         }
 
         // move assignment
-        PresentNode&operator=(PresentNode &&other) {
+        PresentNode&operator=(PresentNode &&other)  noexcept {
             RenderPassNodeI::operator=(std::move(other));
             shader = other.shader;
             return *this;
@@ -296,11 +296,11 @@ namespace SPW {
      class ImagePassNode : public PresentNode {
      public:
          ImagePassNode() = delete;
-         ImagePassNode(ShaderDesc shader) : PresentNode(shader) {}
-         virtual ~ImagePassNode() = default;
+         explicit ImagePassNode(ShaderDesc shader) : PresentNode(shader) {}
+         ~ImagePassNode() override = default;
 
          // move constructor
-         ImagePassNode(ImagePassNode &&other) : PresentNode(std::move(other)) {
+         ImagePassNode(ImagePassNode &&other)  noexcept : PresentNode(std::move(other)) {
              attachment_formats = std::move(other.attachment_formats);
              frame_buffer_ref = other.frame_buffer_ref;
          }
@@ -318,11 +318,11 @@ namespace SPW {
     class ScreenPassNode : public PresentNode {
     public:
         ScreenPassNode() = delete;
-        ScreenPassNode(ShaderDesc shader) : PresentNode(shader) {}
-        virtual ~ScreenPassNode() = default;
+        explicit ScreenPassNode(const ShaderDesc& shader) : PresentNode(shader) {}
+        ~ScreenPassNode() override = default;
 
         // move constructor
-        ScreenPassNode(ScreenPassNode &&other) : PresentNode(std::move(other)) {
+        ScreenPassNode(ScreenPassNode &&other)  noexcept : PresentNode(std::move(other)) {
             screen_output_type = other.screen_output_type;
         }
 
