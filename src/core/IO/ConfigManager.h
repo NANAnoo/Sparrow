@@ -13,6 +13,9 @@ namespace SPW
 	namespace Config
 	{
 		extern std::string k_EngineRoot;
+		extern std::string k_EngineShaderLib;
+		extern std::string k_EngineLualib;
+
 		// engine shaders // copy 
 		// engine scripts // ref
 

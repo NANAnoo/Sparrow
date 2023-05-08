@@ -61,7 +61,7 @@ namespace SPW
 
 				// FIXME button position: ImGui::SameLine();
 				if(ImGui::Button("Delete It"))
-				{
+				{						  
 					scene_ptr->deleteEntity(scene_ptr->getEntityByID(item_pair.first));
 					RemoveMenuItem(item_pair.first);
 				}

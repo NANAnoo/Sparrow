@@ -277,6 +277,9 @@ namespace SPW
 
 		{
 			material->GetTexture(aiTextureType_BASE_COLOR, 0, &texturePath);
+			if (texturePath.length == 0)
+				material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath);
+
 			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 			if (texturePath.length != 0)
 			{

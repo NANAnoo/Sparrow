@@ -9,6 +9,10 @@ namespace SPW
 	namespace Config
 	{
 		std::string k_EngineRoot;
+		std::string k_EngineShaderLib;
+		std::string k_EngineLualib;
+
+
 		std::string k_TempalteProjectRoot;
 		std::string k_WorkingProjectRoot;
 		std::string k_WorkingProjectAssets;
@@ -27,6 +31,7 @@ namespace SPW
 			std::cout << "Boost Sparrow Eninge: " << config["Sparrow"] << std::endl;
 
 			Config::k_EngineRoot = std::string(*config["Engine"]["RootPath"].as<std::string>());
+//			Config::k_EngineShaderLib = Config::k_EngineRoot + "/";
 			Config::k_TempalteProjectRoot = std::string(*config["Engine"]["SparrowTemplate"].as<std::string>());
 
 			std::unordered_map<std::string, std::string> project_paths;
