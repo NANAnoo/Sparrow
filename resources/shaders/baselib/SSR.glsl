@@ -16,7 +16,7 @@ vec3 fresnelSchlickSSR(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-float eps = 0.000002;
+float eps = 0.001;
 
 bool rayIsOutofScreen(vec3 ray)
 {
@@ -89,10 +89,11 @@ vec3 SSR(float roughness,vec3 albedo,float metallic, sampler2D Screen)
 
         if(reflectionView.z>0)
         {
-            return vec3(0,0,0);
+           continue;
         }
         vec3 rayEndPositionView = positionView.xyz + reflectionView * maxRayDistance;
-        eps = max(eps* (1.0 - abs(dot(reflectionView,normalView))) * 10,eps);
+        eps = 0.000005;
+        eps = max(eps* (1.0 - abs(dot(reflectionView,normalView))) * 50,eps);
 
         //Texture Space ray calculation
         vec4 rayEndPositionTexture = P * vec4(rayEndPositionView,1);
