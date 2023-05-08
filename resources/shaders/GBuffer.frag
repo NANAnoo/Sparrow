@@ -64,5 +64,4 @@ void main()
     gMetalRognessAO.r = texture(metallicMap, TexCoords).r;
     gMetalRognessAO.g = texture(roughnessMap, TexCoords).g;
     gMetalRognessAO.b = texture(AoMap, TexCoords).b;
-    gl_FragDepth = pixelPosition.z/pixelPosition.w;
 }

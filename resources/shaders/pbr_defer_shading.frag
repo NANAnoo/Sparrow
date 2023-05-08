@@ -34,7 +34,7 @@ vec3 normal = texture(gNormal,TexCoords).rgb;
 vec3 position = texture(gPosition, TexCoords).rgb;
 float roughness = texture(gMetalRognessAO, TexCoords).g;
 vec3 VDir = normalize(camPos - position);
-vec3 albedo     = pow(texture(gAlbedo, TexCoords).rgb, vec3(2.2));
+vec3 albedo     = texture(gAlbedo, TexCoords).rgb;
 float metallic  = texture(gMetalRognessAO, TexCoords).r;
 
 #include</shadow.glsl>
@@ -44,14 +44,13 @@ float metallic  = texture(gMetalRognessAO, TexCoords).r;
 
 vec3 PBR(vec3 N,vec3 position)
 {
-    vec3 BP_scale = vec3(0, 0, 0);
-
+    vec3 lighting = vec3(0, 0, 0);
 
     float ao        = getAO(N,position,texture(gPosition, TexCoords).w,V,P);
 
 
     for (int i = 0; i < PLightCount && i < 10; i ++) {
-        BP_scale += PBR_P(albedo,metallic,roughness,ao,N,VDir,position,camPos,PLights[i],0);
+        lighting += PBR_P(albedo,metallic,roughness,ao,N,VDir,position,camPos,PLights[i],0);
     }
     for (int i = 0; i < DLightCount && i < 10; i ++)
     {
@@ -63,9 +62,9 @@ vec3 PBR(vec3 N,vec3 position)
             poissonDiskSamples(projCoords.xy);
             shadow = PCSS(projCoords,i);
         }
-        BP_scale += PBR_D(albedo,metallic,roughness,ao,N,VDir,vec3(position),camPos,DLights[i], shadow);
+        lighting += PBR_D(albedo,metallic,roughness,ao,N,VDir,vec3(position),camPos,DLights[i], shadow);
     }
-    return BP_scale + vec3(0.03) * albedo * ao;
+    return lighting + vec3(0.03) * albedo * ao;
 }
 
 void main()
@@ -77,9 +76,6 @@ void main()
     }
     gl_FragDepth = texture(gDepth, TexCoords).r;
     vec3 PBRColor = PBR(normal,position);
-
-
-    //vec3 R = (1.0f - texture(gMetalRognessAO, TexCoords).g) * SSR(roughness,albedo,metallic,gAlbedo);
 
     FragColor = vec4(PBRColor,1.0f);
 }

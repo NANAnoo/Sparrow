@@ -246,7 +246,7 @@ public:
 		}
 
 		{
-			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "sand_cube/sand_cube.json");
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "cube/cube.json");
 			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
 		}
 		{
@@ -328,8 +328,6 @@ public:
             auto d_shadowmap_output = d_shadowmap_node->addAttachment(SPW::Depth);
 
             auto defferNode = defferShadering->createRenderNode<SPW::ModelPassNode>(SPW::ColorType);
-            defferNode->width = weak_window.lock()->frameWidth();
-            defferNode->height = weak_window.lock()->frameHeight();
             defferNode->clearType = SPW::ClearType::ClearAll;
             defferNode->depthTest = true;
             defferNode->depthCompType = SPW::DepthCompType::LESS_Type;
@@ -345,7 +343,9 @@ public:
                 "./resources/shaders/pbr_defer_shading.frag"
             });
 
-            auto GBufferShading = defferShadering->createRenderNode<SPW::ScreenPassNode>(pbr_deffer_shading_desc);
+            auto GBufferShading = defferShadering->createRenderNode<SPW::ImagePassNode>(pbr_deffer_shading_desc);
+            defferNode->width = weak_window.lock()->frameWidth();
+            defferNode->height = weak_window.lock()->frameHeight();
             GBufferShading->bindInputPort(gPosition);
             GBufferShading->bindInputPort(gNormal);
             GBufferShading->bindInputPort(gAlbedo);
@@ -355,9 +355,9 @@ public:
             GBufferShading->bindInputPort(gDepth);
             GBufferShading->depthCompType = SPW::DepthCompType::LESS_Type;
 
-            SPW::AttachmentPort screen_color_port = GBufferShading->addScreenAttachment(SPW::ScreenColorType);
+            SPW::AttachmentPort shading_result = GBufferShading->addAttachment(SPW::RGBA32);
 
-            auto SSR_desc = SPW::SSR(gMetalRognessAO,gDepth,gNormal,gPosition,screen_color_port);
+            auto SSR_desc = SPW::SSR(gMetalRognessAO,gDepth,gNormal,gPosition,shading_result);
             auto SSR_node = defferShadering->createRenderNode<SPW::ImagePassNode>(SSR_desc);
             SSR_node->clearType = SPW::ClearColor;
             SSR_node->depthTest = false;
@@ -366,17 +366,17 @@ public:
             SSR_node->bindInputPort(gNormal);
             SSR_node->bindInputPort(gMetalRognessAO);
             SSR_node->bindInputPort(gDepth);
-            SSR_node->bindInputPort(screen_color_port);
+            SSR_node->bindInputPort(shading_result);
             auto reflect_port = SSR_node->addAttachment(SPW::RGBA32);
 
-            auto SSR_blur_desc = SPW::SSR_blur(reflect_port,gDepth,screen_color_port);
+            auto SSR_blur_desc = SPW::SSR_blur(reflect_port,gDepth,shading_result);
             auto SSR_blur_node = defferShadering->createRenderNode<SPW::ScreenPassNode>(SSR_blur_desc);
-            SSR_blur_node->clearType = SPW::ClearColor;
-            SSR_blur_node->depthTest = false;
+            SSR_blur_node->clearType = SPW::ClearAll;
+            SSR_blur_node->depthTest = true;
 
             SSR_blur_node->bindInputPort(reflect_port);
             SSR_blur_node->bindInputPort(gDepth);
-            SSR_blur_node->bindInputPort(screen_color_port);
+            SSR_blur_node->bindInputPort(shading_result);
 
             // --------------- create shader ---------------
             SPW::ShaderHandle pbr_light_shadow({
@@ -503,12 +503,12 @@ public:
 			cubeTrans->scale = {50.0, 0.05, 50.0};
 			cubeTrans->position.y -= 0.35f;
 			auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
-			cubemodel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetID;
-			cubemodel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName;
-			cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].path;
+			cubemodel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetID;
+			cubemodel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetName;
+			cubemodel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].path;
 
 			cubemodel->bindRenderGraph = defferShadering->graph_id;
-			cubemodel->modelSubPassPrograms[defferNode->pass_id] = GBuffer_desc.uuid;
+			cubemodel->modelSubPassPrograms[defferNode->pass_id] = GBuffer_floor_desc.uuid;
 
 			auto  rigid2 = cubeObj->emplace<SPW::RigidStaticComponent>();
 			rigid2->rigidState = SPW::Awake;
@@ -527,10 +527,10 @@ public:
 			skyMesh->bindRenderGraph = rendersystem->skyBoxGraph->graph_id;
 			skyMesh->modelSubPassPrograms[rendersystem->skyBoxNode->pass_id] = skybox_desc.uuid;
 
-			auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
-			auto light2 = createPlight(scene, {-1, 1, 0}, {0, 0.5, 1});
-			auto light3 = createDlight(scene, {30, 60, 0}, {0.5, 0, 1});
-			auto light4 = createDlight(scene, {30, -60, 0}, {0.5, 1, 0});
+			auto light1 = createPlight(scene, {10, 10, 0}, {1, 1, 1});
+			auto light2 = createPlight(scene, {-10, 10, 0}, {1, 1, 1});
+			auto light3 = createDlight(scene, {30, 60, 0}, {1, 1, 1});
+			auto light4 = createDlight(scene, {30, -60, 0}, {1, 1, 1});
 			static int control_id = 0;
 			auto light_controller = [](int idx)
 			{

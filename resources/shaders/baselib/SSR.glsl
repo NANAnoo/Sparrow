@@ -111,7 +111,7 @@ vec3 SSR(float roughness,vec3 albedo,float metallic, sampler2D Screen)
     F0      = mix(F0, albedo, metallic);
     vec3 Fresnel = fresnelSchlickSSR(max(dot(normalize(normalView), normalize(positionView.xyz)), 0.0), F0);
 
-    return outColor * Fresnel;
+    return outColor; //* Fresnel;
 }
 /*
 vec3 SSR()

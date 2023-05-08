@@ -89,19 +89,7 @@ vec3 PBR_P(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec
     // add to outgoing radiance Lo
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 
-
-
-    // ambient lighting (note that the next IBL tutorial will replace
-    // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * albedo * ao;
-
-    vec3 color = ambient + (1.0 - shadow) * Lo;
-
-    // HDR tonemapping
-    color = color / (color + vec3(1.0));
-    // gamma correct
-    color = pow(color, vec3(1.0/2.2));
-
+    vec3 color = (1.0 - shadow) * Lo;
     return color;
 }
 
@@ -147,14 +135,7 @@ vec3 PBR_D(vec3 albedo,float metallic,float roughness,float ao,vec3 N,vec3 V,vec
     // add to outgoing radiance Lo
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 
-
     vec3 color =  (1.0 - shadow) * Lo;
-
-    // HDR tonemapping
-    color = color / (color + vec3(1.0));
-    // gamma correct
-    color = pow(color, vec3(1.0/2.2));
-
     return color;
 }
 #endif

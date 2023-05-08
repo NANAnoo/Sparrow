@@ -378,7 +378,7 @@ namespace SPW {
                 createResourceForImagePassNode(std::dynamic_pointer_cast<ImagePassNode>(node), s_width, s_height);
             }
         }
-        // fina the node index that no node depend on it, which is the output node
+        // find the node index that no node depend on it, which is the output node
         std::set<unsigned int> all_node_idx;
         std::set<unsigned int> node_is_depended;
         std::set<unsigned int> outputs;

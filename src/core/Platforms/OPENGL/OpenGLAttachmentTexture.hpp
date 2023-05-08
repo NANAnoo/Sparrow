@@ -52,7 +52,8 @@ namespace SPW {
                 break;
             case R32:
                 formatType = GL_R;
-                dataType = GL_UNSIGNED_BYTE;
+                innerFormat = GL_R32F;
+                dataType = GL_FLOAT;
                 break;
             case RG32:
                 formatType = GL_RG;

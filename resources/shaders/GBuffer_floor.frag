@@ -68,5 +68,4 @@ void main()
     gMetalRognessAO.r = 0;
     gMetalRognessAO.g = 0.05;
     gMetalRognessAO.b = 0;
-    gl_FragDepth = pixelPosition.z/pixelPosition.w;
 }
