@@ -17,7 +17,7 @@ project(glm VERSION ${GLM_VERSION} LANGUAGES CXX)
 message(STATUS "GLM: Version " ${GLM_VERSION})
 
 add_subdirectory(glm)
-add_library(glm::glm ALIAS glm)
+add_library(glm::glm ALIAS glm )
 
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
 

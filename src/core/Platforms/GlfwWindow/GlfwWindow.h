@@ -47,6 +47,8 @@ namespace SPW {
             windowCreatedCallback = callback;
         }
         std::shared_ptr<GraphicsContext> graphicsContext;
+
+        void enableCursor(bool enabled) final;
     private:
         GLFWwindow *window = nullptr;
         int fWidth;

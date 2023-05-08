@@ -2,6 +2,10 @@
 -- cpp_object : Scene wrapper
 require("luaclass")
 require("Entity")
+require("Render/RenderDefines")
+require("Render/RenderGraph")
+require("Render/ShaderDesc")
+
 
 Scene = class("Scene")
 
@@ -76,4 +80,30 @@ function Scene:forEach(component_type, callback)
             callback(ent)
         end
     end
+end
+
+function Scene:createRenderGraph()
+    local cpp_graph = self.cpp_object:createRenderGraph()
+    local graph = RenderGraph.new(cpp_graph)
+    return graph
+end
+
+function Scene:registerShader(shader)
+    self.cpp_object:registerShader(shader.cpp_object)
+end
+
+function Scene:getGraphID(graph_name)
+    return self.cpp_object:getGraphID(graph_name)
+end
+
+function Scene:getRenderNodeID(node_name)
+    return self.cpp_object:getRenderNodeID(node_name)
+end
+
+function Scene:getShaderID(shader_name)
+    return self.cpp_object:getShaderID(shader_name)
+end
+
+function Scene:setSkyBox(cam_id, right, left, top, bottom, front, back)
+    self.cpp_object:setSkyBox(cam_id, right, left, top, bottom, front, back)
 end

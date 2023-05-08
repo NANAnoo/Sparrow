@@ -4,18 +4,18 @@
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/MeshComponent.hpp"
-#include "glm/fwd.hpp"
+
 #include "Render/Light.h"
 #include "Utils/Debounce.hpp"
 
-#include <glm/glm/ext.hpp>
 #include <glm/glm/gtx/euler_angles.hpp>
-#include <string>
+#include "IO/FileSystem.h"
 
 namespace SPW {
     void SPWRenderSystem::initial() {
         renderBackEnd->Init();
-        renderBackEnd->loadShaderLib("./resources/shaders/baselib");
+        
+        renderBackEnd->loadShaderLib("./resources/shaders/baselib/");
 
         screenBuffer = renderBackEnd->createFrameBuffer();
 
@@ -41,29 +41,34 @@ namespace SPW {
         for (auto &graph : graphs) {
             graph->init(width, height);
         }
+        skyBoxGraph->init(width, height);
+        postProcessGraph->init(width, height);
     }
 
     void SPWRenderSystem::beforeUpdate() 
     {
         locatedScene.lock()->forEach(
-        [this](MeshComponent *mesh){
-            if (!mesh->ready) {
-                mesh->model->setUpModel(renderBackEnd);
-                mesh->ready = true;
+        [this](MeshComponent *meshComponent){
+            if (!meshComponent->ready)  
+			{
+				auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[meshComponent->assetName].meshes;
+				for (auto& mesh : meshes)
+					mesh.setupMesh(renderBackEnd);
+				meshComponent->ready = true;
             }
             
-            if (mesh->beforeDraw) {
+            if (meshComponent->beforeDraw) {
                 RenderCommandsQueue<RenderBackEndI> queue;
-                mesh->beforeDraw(queue);
+				meshComponent->beforeDraw(queue);
                 queue.executeWithAPI(renderBackEnd);
             }
-            mesh->beforeDraw = nullptr;
+			meshComponent->beforeDraw = nullptr;
         }, MeshComponent);
     }
 
     void SPWRenderSystem::afterUpdate()
     {
-        TICKTOCK;
+        //TICKTOCK;
         // clear screen and clear screen buffer
         screenBuffer->bind();
         renderBackEnd->Clear();
@@ -73,10 +78,10 @@ namespace SPW {
         // find all cameras
         ComponentGroup<IDComponent, CameraComponent, TransformComponent> cameraGroup;
         std::vector<Entity> cameras;
-        std::vector<Entity> uiMeshes;
         Entity uiCamera = Entity::nullEntity();
+
         locatedScene.lock()->forEachEntityInGroup(cameraGroup, 
-            [&cameraGroup, &cameras, &uiCamera](const Entity &en){
+            [&cameras, &uiCamera](const Entity &en){
             if (en.component<CameraComponent>()->getType() != CameraType::UIOrthoType) {
                 cameras.push_back(en);
             } else {
@@ -84,18 +89,26 @@ namespace SPW {
             }
         });
 
+        if (!uiCamera.isNull()) {
+            // make sure ui camera is the last one
+            cameras.push_back(uiCamera);
+        }
+
         // find all meshes that belong to each camera
         std::vector<std::vector<Entity>> models_by_camera(cameras.size());
         ComponentGroup<IDComponent, MeshComponent, TransformComponent> meshGroup;
         // camera loop
-        for (unsigned int i = 0; i < cameras.size(); ++ i) {
+        for (unsigned int i = 0; i < cameras.size(); ++i) {
             UUID camID = cameras[i].getUUID();
-            locatedScene.lock()->forEachEntityInGroup(meshGroup, 
-                [&meshGroup, &camID, &models_by_camera, i](const Entity &en){
-                if (en.component<MeshComponent>()->bindCamera == camID) {
-                    models_by_camera[i].push_back(en);
-                }
-            });
+            locatedScene.lock()->forEachEntityInGroup(meshGroup,
+                [&camID, &models_by_camera, i](const Entity& en)
+                {
+                    auto mesh = en.component<MeshComponent>();
+                	if(mesh->bindCamera == camID)
+                    {
+                        models_by_camera[i].push_back(en);
+					}
+                });
         }
 
         // build up render input
@@ -144,13 +157,13 @@ namespace SPW {
             input.camera_dir = cam_center - camPos;
             input.view = V;
             input.projection = P;
-            // map meshes by shaderdesc
+            // map meshes by shader desc
             std::unordered_map<unsigned int, std::unordered_map<unsigned int, std::vector<Entity>>> model_by_pass;
-            for (auto mesh_en : meshes) {
-                auto mesh = mesh_en.component<MeshComponent>();
-                auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
+            for (const auto& mesh_entity : meshes) {
+                auto mesh = mesh_entity.component<MeshComponent>();
+            	auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
                 for (auto &[id, uuid] : mesh->modelSubPassPrograms) {
-                    model_by_shader[id].push_back(mesh_en);
+                    model_by_shader[id].push_back(mesh_entity);
                 }
             }
             for (unsigned int graph_id = 0; graph_id < graphs.size(); graph_id ++) {
@@ -158,10 +171,23 @@ namespace SPW {
                     input.render_models = model_by_pass.at(graph_id);
                 graphs[graph_id]->render(input);
             }
+            
+            if (model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
+                input.render_models = model_by_pass.at(skyBoxGraph->graph_id);
+                skyBoxGraph->render(input);
+            }
+
+            if (cameraCom->getType() == SPW::UIOrthoType && model_by_pass.find(uiGraph->graph_id) != model_by_pass.end()) {
+                // draw ui
+                input.render_models = model_by_pass.at(uiGraph->graph_id);
+                uiGraph->render(input);
+            }
         }
 
+        postProcessGraph->render(input);
+
         locatedScene.lock()->forEach(
-        [this](MeshComponent *mesh){
+        [](MeshComponent *mesh){
             mesh->onDraw = nullptr;
         }, MeshComponent);
     }
@@ -197,6 +223,8 @@ namespace SPW {
             for (auto &graph : graphs) {
                 graph->onFrameChanged(width, height);
             }
+            uiGraph->onFrameChanged(width, height);
+            postProcessGraph->onFrameChanged(width, height);
 
         }, 100);
 

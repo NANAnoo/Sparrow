@@ -18,8 +18,8 @@
 #include <glm/glm/gtx/euler_angles.hpp>
 
 
-#include "Model/Animation/Skeleton.h"
-#include "Model/Animation/AnimDefinitions.h"
+#include "Asset/AssetData/AssetData.h"
+#include "Asset/AssetData/AnimationData.h"
 
 #include <tuple>
 #include <vector>
@@ -46,15 +46,15 @@ namespace SPW{
         void stopAnimation(AnimationComponent& animationComponent);
 
         //TODO: bone is actually aiNode
-        void calculateBoneTransform(const AssimpNodeData* node,
+        void calculateBoneTransform(const HierarchyNode* node,
                                     glm::mat4 parrentTransform,
                                     AnimationComponent& animationComponent,
                                     float currentTime);
 
         void initializeComponent(AnimationComponent& animationComponent,MeshComponent& MeshComponent);
         void changeMap(AnimationComponent& animationComponent, MeshComponent& MeshComponent);
-        void vertexBoneMapping(AnimationComponent &animationComponent, MeshComponent &MeshComponent,
-                               std::vector<VerMapBone> map);
+        // void vertexBoneMapping(AnimationComponent &animationComponent, MeshComponent &MeshComponent,
+        //                        std::vector<VerMapBone> map);
 
         AnimationNode findAnimationNode(std::string name,std::weak_ptr<AnimationClip> currentAnimation);
         std::shared_ptr<AnimationClip> findAnimation(std::string name,AnimationComponent& animationComponent);

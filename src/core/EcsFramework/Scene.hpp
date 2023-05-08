@@ -9,6 +9,7 @@
 
 #include "EcsFramework/Entity/Entity.hpp"
 #include "System/SystemI.h"
+#include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "Component/ComponentI.h"
 #include "Component/BasicComponent/IDComponent.h"
 #include "Component/BasicComponent/NameComponent.h"
@@ -34,9 +35,15 @@ namespace SPW {
         }
 
         void addSystem(std::shared_ptr<SystemI> &&system) {
+
             systems.push_back(system);
         }
 
+        void PauseSystem(std::shared_ptr<SystemI> &&system){
+            for(auto s : systems){
+                if(typeid(s) == typeid(system)) s->setPausd(true);
+            }
+        }
         // create new entity in scene
         std::shared_ptr<Entity> createEntity(const std::string &name,
                                               const UUID &uid)  {
@@ -57,6 +64,11 @@ namespace SPW {
             all_entities.erase(entity->getUUID().toString());
         }
 
+        void deleteEntity(const Entity* entity) {
+            registry->destroy(entity->entity);
+            all_entities.erase(entity->getUUID().toString());
+        }
+
         // get entity by id
         std::shared_ptr<Entity> getEntityByID(const std::string &uuid) {
             if (all_entities.find(uuid) != all_entities.end()) {
@@ -69,6 +81,14 @@ namespace SPW {
         void removeEntityByID(const std::string &uuid) {
             if (all_entities.find(uuid) != all_entities.end()) {
                 deleteEntity(all_entities[uuid]);
+            }
+        }
+
+        void onEvent(const std::shared_ptr<EventI> &e) override{
+            if (isUIMode) {
+                // uiroot.onEvent(e);
+            } else {
+                EventResponderI::onEvent(e);
             }
         }
 
@@ -127,7 +147,7 @@ namespace SPW {
         };
         virtual void afterUpdate() {
             for (auto &system : systems) {
-                system->afterUpdate();
+                 system->afterUpdate();
             }
         };
         virtual void onStop() {
@@ -140,6 +160,25 @@ namespace SPW {
         const char *getName() override {
             return "SPWDefaultScene";
         }
+
+        // for UI
+        unsigned int getUIRenderGraphID() {
+            return m_renderSystem.lock()->uiGraph->graph_id;
+        }
+
+        unsigned int getUIRenderNodeID() {
+            return m_renderSystem.lock()->uiNode->pass_id;
+        }
+
+        UUID getUIProgramID() {
+            return m_renderSystem.lock()->UIProgram->uuid;
+        }
+
+        std::weak_ptr<SPWRenderSystem> m_renderSystem;
+
+        std::shared_ptr<Entity> uiCamera;
+
+        bool isUIMode = false;
 
     private:
         // get entity with components
