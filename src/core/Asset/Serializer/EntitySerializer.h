@@ -185,10 +185,24 @@ namespace SPW
 						mesh->assetPath = data.assetPath;
 						mesh->ready = false;
 
-						mesh->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
-						mesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_shadow_desc"].uuid;
-						mesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["d_shadowmap_node"]->pass_id] = rm->m_ShaderMap["d_shadow_desc"].uuid;
-						mesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_light_shadow_desc"].uuid;
+						if (mesh->assetName == "sand_cube")
+						{
+							mesh->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
+							mesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_light_shadow_tiled_desc"].uuid;
+						}
+						else
+						{
+							mesh->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
+							mesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_shadow_desc"].uuid;
+							mesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["d_shadowmap_node"]->pass_id] = rm->m_ShaderMap["d_shadow_desc"].uuid;
+							mesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_light_shadow_desc"].uuid;
+						}
+
+						if(mesh->assetName == "skybox")
+						{
+							mesh->bindRenderGraph = rm->m_RenderGraph["skybox"]->graph_id;
+							mesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["skybox"]->pass_id] = rm->m_ShaderMap["skybox"].uuid;
+						}
 					}
 				}
 

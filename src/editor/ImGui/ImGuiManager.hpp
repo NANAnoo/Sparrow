@@ -75,10 +75,15 @@ namespace SPW
 			//----------------------------------------------------------------------------------------
 			CreateImagePanel(m_Scene->m_renderSystem.lock()->getTextureID());
 
+//			GetEntityPanel()->ClearItems();
+
 			RenderAllPanels();
 			//----------------------------------------------------------------------------------------
-			GetInspectorPanel()->SetActiveScene(m_Scene);
 			GetEntityPanel()->SetActiveScene(m_Scene);
+			GetInspectorPanel()->SetActiveScene(m_Scene);
+
+// 			m_EntityPanel->RemoveMenuItem();
+
 			m_Scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
 				{
 					const auto component_name = e.component<SPW::NameComponent>()->getName();

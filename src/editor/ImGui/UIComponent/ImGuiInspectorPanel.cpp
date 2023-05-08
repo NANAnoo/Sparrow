@@ -58,7 +58,6 @@ namespace SPW
 
 	void ImGuiInspectorPanel::Draw()
 	{
-
 		if (m_Entity != nullptr)
 		{
 			// ------------- UPDATE NAME ------------- 
@@ -94,24 +93,31 @@ namespace SPW
 
 			// ------------- RENDER COMPONENTS -------------
 			if (m_Entity->has<TransformComponent>())
+			{
 				DrawTransformComponent(m_Entity->component<TransformComponent>());
-			if (m_Entity->has<MeshComponent>())
+				// if (m_Entity == nullptr)
+				// {
+				// 	deleteEntity = true;
+				// 	return;
+				// }
+			}
+			if (m_Entity->has<MeshComponent>() )
 				DrawMeshComponent(m_Entity->component<MeshComponent>());
-			if (m_Entity->has<CameraComponent>())
+			if (m_Entity->has<CameraComponent>() )
 				DrawCameraComponent(m_Entity->component<CameraComponent>());
 			//			if (m_Entity->has<PointLightComponent>())
 			//				DrawPointLightComponent(m_Entity->component<PointLightComponent>());
 			//			if (m_Entity->has<DirectionalLightComponent>())
 			//				DrawDirectionalLightComponent(m_Entity->component<DirectionalLightComponent>());
-			if (m_Entity->has<PointLightComponent>() || m_Entity->has<DirectionalLightComponent>())
+			if ((m_Entity->has<PointLightComponent>() || m_Entity->has<DirectionalLightComponent>()) )
 				DrawLightComponent();
-			if (m_Entity->has<AnimationComponent>())
+			if (m_Entity->has<AnimationComponent>()  )
 				DrawAnimationComponent(m_Entity->component<AnimationComponent>());
-			if (m_Entity->has<AudioComponent>())
+			if (m_Entity->has<AudioComponent>()  )
 				DrawAudioComponent(m_Entity->component<AudioComponent>());
-			if (m_Entity->has<AudioListener>())
+			if (m_Entity->has<AudioListener>() )
 				DrawAudioListener(m_Entity->component<AudioListener>());
-			if (m_Entity->has<KeyComponent>() || m_Entity->has<MouseComponent>())
+			if ((m_Entity->has<KeyComponent>() || m_Entity->has<MouseComponent>()) )
 				DrawKeyComponent(m_Entity->component<KeyComponent>());
 			// ------------- RENDER COMPONENTS -------------
 
@@ -207,13 +213,11 @@ namespace SPW
 							}
 							else if (componentType == ComponentType::AnimationComponent)
 							{
+								// FIXME: read from a fixed name?
 								m_Entity->emplace<AnimationComponent>("dragon");
 								std::cout << "Add Animation Component\n";
 								show_addcomponent = false;
 							}
-
-
-							
 						}
 					}
 				}
@@ -234,10 +238,11 @@ namespace SPW
 			{
 
 				//TODO To delete the entity
-//				m_Entity->remove<TransformComponent>();
-//				scene_ptr->deleteEntity(m_Entity);
+				m_Entity->remove<TransformComponent>();
 
-//				m_Entity = nullptr;
+				// scene_ptr->deleteEntity(m_Entity);
+				// m_Entity = nullptr;
+
 				ImGui::TreePop();
 				ImGui::PopID();
 				return;

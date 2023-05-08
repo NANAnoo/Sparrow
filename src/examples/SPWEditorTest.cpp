@@ -551,8 +551,7 @@ public:
 			collider1->state = SPW::needAwake;
 			collider1->is_trigger_ = false;
 
-			//
-			//            --------------------------------------------------------------------------------
+			// --------------------------------------------------------------------------------
 			auto cubeObj = scene->createEntity("floor");
 			auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
 			cubeTrans->scale = {5.0, 0.05, 5.0};
@@ -573,8 +572,6 @@ public:
 			collider2->state = SPW::needAwake;
 
 			// --------------------------------------------------------------------------------
-
-			// ------ create render graph for skybox ----------------
 
 			// ------ create render graph for skybox ----------------
 
@@ -749,7 +746,7 @@ public:
 	std::shared_ptr<SimpleRender> render;
 	std::shared_ptr<SPW::Scene> scene;
 	std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
-	std::shared_ptr<SPW::ImGuiMan ager> m_ImguiManager;
+	std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
 };
 
 // main entrance

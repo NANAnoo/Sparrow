@@ -54,6 +54,8 @@ namespace SPW
 			}
 		}
 
+		bool deleteEntity = false;
+
 	protected:
 		void Draw() override;
 

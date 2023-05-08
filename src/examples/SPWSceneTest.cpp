@@ -355,6 +355,7 @@ public:
 			auto d_shadow_desc = SPW::D_shadowmap_desc();
 			auto p_ani_shadow_desc = SPW::P_ani_shadowmap_desc();
 			auto d_ani_shadow_desc = SPW::D_ani_shadowmap_desc();
+			// auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc( p_shadowmap_output, d_shadowmap_output, pbr_light_shadow_tiled);
 
 			auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_ani_light_shadow);
 			auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
@@ -378,17 +379,29 @@ public:
 			// --------------------------------------------------------------------------------
 			SPW::ResourceManager::getInstance()->activeCameraID = camera_id;
 			SPW::ResourceManager::getInstance()->m_CameraIDMap["main"] = camera_id;
+
 			SPW::ResourceManager::getInstance()->m_ShaderMap["p_shadow_desc"] = p_shadow_desc;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["d_shadow_desc"] = d_shadow_desc;
+			SPW::ResourceManager::getInstance()->m_ShaderMap["pbr_light_shadow_tiled_desc"] = pbr_light_shadow_tiled_desc;
+
 			SPW::ResourceManager::getInstance()->m_ShaderMap["pbr_light_shadow_desc"] = pbr_light_shadow_desc;
+
 			SPW::ResourceManager::getInstance()->m_RenderGraph["pbr_with_PDshadow"] = pbr_with_PDshadow;
+
+			SPW::ResourceManager::getInstance()->m_RenderGraph["skybox"] = rendersystem->skyBoxGraph;
+//			skyMesh->modelSubPassPrograms[rendersystem->skyBoxNode->pass_id] = skybox_desc.uuid;
+
+
 			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["p_shadowmap_node"] = p_shadowmap_node;
 			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["d_shadowmap_node"] = d_shadowmap_node;
+
 			SPW::ResourceManager::getInstance()->m_ModelToScreenNodes["pbr_shadow_lighting_node"] = pbr_shadow_lighting_node;
+			SPW::ResourceManager::getInstance()->m_ModelToScreenNodes["skybox"] = rendersystem->skyBoxNode;
 
 			SPW::ResourceManager::getInstance()->m_ShaderMap["p_ani_shadow_desc"] = p_ani_shadow_desc;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["d_ani_shadow_desc"] = d_ani_shadow_desc;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["pbr_ani_light_shadow_desc"] = pbr_ani_light_shadow_desc;
+			SPW::ResourceManager::getInstance()->m_ShaderMap["skybox"] = skybox_desc;
 
 			auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
 

@@ -13,15 +13,25 @@ namespace SPW
 	namespace Config
 	{
 		extern std::string k_EngineRoot;
+		// engine shaders // copy 
+		// engine scripts // ref
+
 		extern std::string k_TempalteProjectRoot;
+
+
+		// Project
 		extern std::string k_WorkingProjectRoot;
 		extern std::string k_WorkingProjectAssets;
 		extern std::string k_WorkingProjectScenes;
 
-		//
-		// extern std::string k_Assets;
-		//
-		// extern std::string k_Scenes;
+		// sounds copy
+		// / shaders copy/
+		// scritps copy
+
+		// engine entrence script
+		// proj   entrence script
+
+		// 
 	}
 
 
