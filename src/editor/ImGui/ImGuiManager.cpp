@@ -22,7 +22,7 @@ namespace SPW
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(nullptr);
 
-		windowHandle = window;
+		m_Window = window;
 
 		ImFont* default_font = io.Fonts->AddFontDefault();
 		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
@@ -38,10 +38,10 @@ namespace SPW
 		io.Fonts->AddFontFromFileTTF(font_path, 16.0f, &icons_config, icons_ranges);
 
 		//file dialog panel
-		file_dialog = std::make_shared<ImGuiFileDialog>();
+		m_FileDialog = std::make_shared<ImGuiFileDialog>();
 
-		importModel_MessageBox = std::make_unique<ImGuiMessageBox>("Import Model", "file", "Import Model Sucessed!", std::vector{ "OK" }, false);
-		textureCompression_MessageBox = std::make_unique<ImGuiMessageBox>("textureCompression_MessageBox Model", "file", "textureCompression_MessageBox Model Sucessed!", std::vector{ "OK" }, false);
+		m_ImportModelMessageBox = std::make_unique<ImGuiMessageBox>("Import Model", "file", "Import Model Sucessed!", std::vector{ "OK" }, false);
+		m_TextureCompressionMessageBox = std::make_unique<ImGuiMessageBox>("m_TextureCompressionMessageBox Model", "file", "m_TextureCompressionMessageBox Model Sucessed!", std::vector{ "OK" }, false);
 
 // 		m_FileDialogID = -1;
 
@@ -82,7 +82,7 @@ namespace SPW
 		{
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(windowHandle);
+			glfwMakeContextCurrent(m_Window);
 		}
 	}
 
@@ -164,42 +164,42 @@ namespace SPW
 
 	void ImGuiManager::ImportModelCallback()
 	{
-		file_dialog->OpenDialog("Universal_FileDialog", "Import Model", "*.*", ".");
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Import Model", "*.*", ".");
 		m_Feature = FeatureType::ImportModel;
 //		m_FileDialogID = 1;
 	}
 
 	void ImGuiManager::LoadAssetCallback()
 	{
-		file_dialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
 		m_Feature = FeatureType::LoadAsset;
 		// m_FileDialogID = 2;
 	}
 
 	void ImGuiManager::ImageCompressedCallback()
 	{
-		file_dialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
 		m_Feature = FeatureType::ImageCompression;
 //		m_FileDialogID = 3;
 	}
 
 	void ImGuiManager::ImportAudioCallback()
 	{
-		file_dialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
 		m_Feature = FeatureType::ImportAudio;
 //		m_FileDialogID = 4;
 	}
 
 	void ImGuiManager::DisplayDialog() const
 	{
-		if (file_dialog->Display("Universal_FileDialog"))
+		if (m_FileDialog->Display("Universal_FileDialog"))
 		{
-			if (file_dialog->IsOk())
+			if (m_FileDialog->IsOk())
 			{
-				std::string file_path = file_dialog->GetFilePathName();
+				std::string file_path = m_FileDialog->GetFilePathName();
 				// Do something with the file_path
-				std::string filePathName = file_dialog->GetFilePathName();
-				std::string fileName = file_dialog->GetCurrentFileName();
+				std::string filePathName = m_FileDialog->GetFilePathName();
+				std::string fileName = m_FileDialog->GetCurrentFileName();
 
 				std::string extension = FileSystem::ToFsPath(fileName).extension().string();
 				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
@@ -211,7 +211,7 @@ namespace SPW
 					{
 						if (AssetManager::ImportModel(filePathName))
 						{
-							importModel_MessageBox->trigger_flag = true;
+							m_ImportModelMessageBox->trigger_flag = true;
 						}
 					}
 					else
@@ -241,7 +241,7 @@ namespace SPW
 						auto data = AssetManager::LoadTextureData(filePathName);
 						if (AssetManager::CompressImage(std::move(data), filePathName))
 						{
-							textureCompression_MessageBox->trigger_flag = true;
+							m_TextureCompressionMessageBox->trigger_flag = true;
 						}
 					}
 					else
@@ -258,7 +258,7 @@ namespace SPW
 						// auto data = AssetManager::ImportAudio(filePathName);
 						if (AssetManager::ImportAudio(filePathName))
 						{
-							textureCompression_MessageBox->trigger_flag = true;
+							m_TextureCompressionMessageBox->trigger_flag = true;
 						}
 					}
 					else
@@ -268,7 +268,7 @@ namespace SPW
 				}
 				
 			}
-			file_dialog->Close();
+			m_FileDialog->Close();
 		}
 	}
 
