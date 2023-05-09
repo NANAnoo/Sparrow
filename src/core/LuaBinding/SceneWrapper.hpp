@@ -2,7 +2,7 @@
 
 #include "Utils/UUID.hpp"
 
-#include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
+#include "Render/DefaultRenderPass.hpp"
 #include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "EntityWrapper.hpp"
 #include "EcsFramework/Scene.hpp"

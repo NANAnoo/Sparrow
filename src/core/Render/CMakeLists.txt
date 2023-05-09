@@ -17,4 +17,7 @@ CORE_ADD_SOURCE(
         Pipeline.hpp
         AttachmentTexture.h
         RenderGraph.hpp
+        RenderGraphManager.h
+        RenderGraphManager.cpp
+        DefaultRenderPass.hpp
 )

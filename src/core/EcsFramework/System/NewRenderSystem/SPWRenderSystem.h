@@ -12,7 +12,7 @@
 #include "Platforms/OPENGL/OpenGLAttachmentTexture.hpp"
 #include "Asset/ResourceManager/ResourceManager.h"
 #include "EcsFramework/Component/MeshComponent.hpp"
-#include "DefaultRenderPass.hpp"
+#include "Render/DefaultRenderPass.hpp"
 
 namespace SPW {
 
@@ -57,13 +57,6 @@ namespace SPW {
         void onStop() final;
         bool onFrameResize(int w, int h) override;
 
-        std::shared_ptr<RenderGraph> createRenderGraph() {
-            auto res = renderBackEnd->createRenderGraph();
-            res->graph_id = graphs.size();
-            graphs.push_back(res);
-            return res;
-        }
-
         void addShaderDescriptor(const ShaderDesc& desc) {
             shader_storage.insert({desc.uuid, desc});
         }
@@ -89,8 +82,6 @@ namespace SPW {
         std::shared_ptr<FrameBuffer> screenBuffer;
         std::shared_ptr<AttachmentTexture> screenTexture;
         std::shared_ptr<AttachmentTexture> screenDepthTexture;
-
-        std::vector<std::shared_ptr<RenderGraph>> graphs;
         
         std::shared_ptr<RenderBackEndI> renderBackEnd;
 

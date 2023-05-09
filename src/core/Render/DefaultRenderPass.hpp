@@ -318,7 +318,7 @@ namespace SPW {
 
         return mesh;
     }
-    
+
     static Mesh createUIMesh(const std::string &bg_img) {
         auto mesh = Mesh{};
         // mesh->mMaterial = std::make_shared<Material>();

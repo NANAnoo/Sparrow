@@ -8,6 +8,8 @@
 #include "Render/Light.h"
 #include "Utils/Debounce.hpp"
 
+#include "Render/RenderGraphManager.h"
+
 #include <glm/glm/gtx/euler_angles.hpp>
 #include "IO/FileSystem.h"
 
@@ -38,9 +40,7 @@ namespace SPW {
 
         renderBackEnd->SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 
-        for (auto &graph : graphs) {
-            graph->init(width, height);
-        }
+        RenderGraphManager::getInstance()->initializeGraph(width, height);
         skyBoxGraph->init(width, height);
         postProcessGraph->init(width, height);
     }
@@ -166,12 +166,15 @@ namespace SPW {
                     model_by_shader[id].push_back(mesh_entity);
                 }
             }
-            for (unsigned int graph_id = 0; graph_id < graphs.size(); graph_id ++) {
+
+            RenderGraphManager::getInstance()->forEachGraph(
+                    [&model_by_pass, &input](const std::shared_ptr<RenderGraph> &graph){
+                auto graph_id = graph->graph_id;
                 if (model_by_pass.find(graph_id) != model_by_pass.end())
                     input.render_models = model_by_pass.at(graph_id);
-                graphs[graph_id]->render(input);
-            }
-            
+                graph->render(input);
+            });
+
             if (model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
                 input.render_models = model_by_pass.at(skyBoxGraph->graph_id);
                 skyBoxGraph->render(input);
@@ -220,9 +223,7 @@ namespace SPW {
             screenBuffer->CheckFramebufferStatus();
             screenBuffer->unbind();
 
-            for (auto &graph : graphs) {
-                graph->onFrameChanged(width, height);
-            }
+            RenderGraphManager::getInstance()->onFrameChanged(width, height);
             uiGraph->onFrameChanged(width, height);
             postProcessGraph->onFrameChanged(width, height);
 

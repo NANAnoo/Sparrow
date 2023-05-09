@@ -25,8 +25,8 @@
 #include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
-#include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
 #include "EcsFramework/System/PhysicSystem/PhysicSystem.h"
+#include "Render/RenderGraphManager.h"
 
 #include "Utils/UUID.hpp"
 
@@ -317,142 +317,19 @@ public:
 			ui_camera->bottom = 0;
 			ui_camera->top = float(weak_window.lock()->frameHeight());
 
-            // ------ create main render graph ----------------
+            // create main camera
+            auto camera_id = CreateACamera(scene, float(weak_window.lock()->width()), float(weak_window.lock()->height()));
 
-            auto defferShading = renderSystem->createRenderGraph();
-
-            auto p_shadowMap_node = defferShading->createRenderNode<SPW::ModelRepeatPassNode>(SPW::CubeMapType, SPW::RepeatForPLights, 10);
-            p_shadowMap_node->width = 256;
-            p_shadowMap_node->height = 256;
-            p_shadowMap_node->clearType = SPW::ClearDepth;
-
-            auto d_shadowMap_node = defferShading->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
-            d_shadowMap_node->width = 4096;
-            d_shadowMap_node->height = 4096;
-            d_shadowMap_node->clearType = SPW::ClearDepth;
-
-            auto p_shadowMap_output = p_shadowMap_node->addAttachment(SPW::Depth);
-            auto d_shadowMap_output = d_shadowMap_node->addAttachment(SPW::Depth);
-
-            auto defferNode = defferShading->createRenderNode<SPW::ModelPassNode>(SPW::ColorType);
-            defferNode->clearType = SPW::ClearType::ClearAll;
-            defferNode->depthTest = true;
-            defferNode->depthCompType = SPW::DepthCompType::LESS_Type;
-            auto gPosition = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
-            auto gNormal = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGB16);
-            auto gAlbedo = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
-            auto gMetalRoughnessAO = defferNode->addAttachment(SPW::ColorAttachmentFormat::RGBA32);
-            auto gDepth = defferNode->addAttachment(SPW::ColorAttachmentFormat::Depth);
-
-            auto pbr_deffer_shading_desc = SPW::defferPBR(p_shadowMap_output, d_shadowMap_output, gPosition, gNormal, gAlbedo, gMetalRoughnessAO, gDepth, {
-                "defferPBR",
-                "./resources/shaders/pbr_defer_shading.vert",
-                "./resources/shaders/pbr_defer_shading.frag"
+            // ------ create render graph ----------------
+            SPW::RenderGraphManager::getInstance()->createRenderGraph(renderBackEnd, SPW::kDefferShadingGraph);
+            SPW::RenderGraphManager::getInstance()->forEachShader([&renderSystem](const SPW::ShaderDesc &shader){
+                renderSystem->addShaderDescriptor(shader);
             });
 
-            auto GBufferShading = defferShading->createRenderNode<SPW::ImagePassNode>(pbr_deffer_shading_desc);
-            GBufferShading->bindInputPort(gPosition);
-            GBufferShading->bindInputPort(gNormal);
-            GBufferShading->bindInputPort(gAlbedo);
-            GBufferShading->bindInputPort(gMetalRoughnessAO);
-            GBufferShading->bindInputPort(p_shadowMap_output);
-            GBufferShading->bindInputPort(d_shadowMap_output);
-            GBufferShading->bindInputPort(gDepth);
-            GBufferShading->depthCompType = SPW::DepthCompType::LESS_Type;
-
-            SPW::AttachmentPort shading_result = GBufferShading->addAttachment(SPW::RGBA32);
-
-            auto SSR_desc = SPW::SSR(gAlbedo, gMetalRoughnessAO, gDepth, gNormal, gPosition, shading_result);
-            auto SSR_node = defferShading->createRenderNode<SPW::ImagePassNode>(SSR_desc);
-            SSR_node->clearType = SPW::ClearColor;
-            SSR_node->depthTest = false;
-
-            SSR_node->bindInputPort(gPosition);
-            SSR_node->bindInputPort(gNormal);
-            SSR_node->bindInputPort(gAlbedo);
-            SSR_node->bindInputPort(gMetalRoughnessAO);
-            SSR_node->bindInputPort(gDepth);
-            SSR_node->bindInputPort(shading_result);
-            auto reflect_port = SSR_node->addAttachment(SPW::RGBA32);
-
-            auto SSR_blur_desc = SPW::SSR_blur(reflect_port,gDepth,shading_result);
-            auto SSR_blur_node = defferShading->createRenderNode<SPW::ScreenPassNode>(SSR_blur_desc);
-            SSR_blur_node->clearType = SPW::ClearAll;
-            SSR_blur_node->depthTest = true;
-
-            SSR_blur_node->bindInputPort(reflect_port);
-            SSR_blur_node->bindInputPort(gDepth);
-            SSR_blur_node->bindInputPort(shading_result);
-
-            // --------------- create shader ---------------
-            SPW::ShaderHandle pbr_light_shadow({
-                                                       "pbr_light_shadow",
-                                                       "./resources/shaders/simpleVs.vert",
-                                                       "./resources/shaders/pbrShadow.frag"
-                                               });
-            SPW::ShaderHandle pbr_ani_light_shadow({
-                                                           "pbr_light_shadow",
-                                                           "./resources/shaders/ani_model.vert",
-                                                           "./resources/shaders/pbrShadow.frag"
-                                                   });
-            SPW::ShaderHandle pbr_light_shadow_tiled({
-                                                             "pbr_light_shadow_tiled",
-                                                             "./resources/shaders/simpleVs.vert",
-                                                             "./resources/shaders/pbrShadowTiled.frag"
-                                                     });
-            SPW::ShaderHandle GBuffer({
-                                              "drawGBuffer",
-                                              "./resources/shaders/GBuffer.vert",
-                                              "./resources/shaders/GBuffer.frag"
-                                      });
-            SPW::ShaderHandle GBuffer_floor({
-                                                    "drawFloorGBuffer",
-                                                    "./resources/shaders/GBuffer.vert",
-                                                    "./resources/shaders/GBuffer_floor.frag"
-                                            });
-            SPW::ShaderHandle ani_GBuffer({
-                                                  "draw_ani_GBuffer",
-                                                  "./resources/shaders/ani_GBuffer.vert",
-                                                  "./resources/shaders/GBuffer.frag"
-                                          });
-            auto p_shadow_desc = SPW::P_shadowmap_desc();
-            auto d_shadow_desc = SPW::D_shadowmap_desc();
-            auto p_ani_shadow_desc = SPW::P_ani_shadowmap_desc();
-            auto d_ani_shadow_desc = SPW::D_ani_shadowmap_desc();
-
-            auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowMap_output, d_shadowMap_output, pbr_ani_light_shadow);
-            auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowMap_output, d_shadowMap_output, pbr_light_shadow);
-            auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc(p_shadowMap_output, d_shadowMap_output, pbr_light_shadow_tiled);
-            auto GBuffer_desc = SPW::GBuffer_desc(GBuffer);
-            auto GBuffer_floor_desc = SPW::GBuffer_desc(GBuffer_floor);
-            auto ani_GBuffer_desc = SPW::ani_GBuffer_desc(ani_GBuffer);
-
             auto skybox_desc = SPW::SkyBoxShader_desc();
-            renderSystem->addShaderDescriptor(pbr_light_shadow_desc);
-            renderSystem->addShaderDescriptor(pbr_light_shadow_tiled_desc);
-            renderSystem->addShaderDescriptor(p_shadow_desc);
-            renderSystem->addShaderDescriptor(d_shadow_desc);
             renderSystem->addShaderDescriptor(skybox_desc);
-            renderSystem->addShaderDescriptor(p_ani_shadow_desc);
-            renderSystem->addShaderDescriptor(d_ani_shadow_desc);
-            renderSystem->addShaderDescriptor(pbr_ani_light_shadow_desc);
-            renderSystem->addShaderDescriptor(GBuffer_desc);
-            renderSystem->addShaderDescriptor(ani_GBuffer_desc);
-            renderSystem->addShaderDescriptor(pbr_deffer_shading_desc);
-            renderSystem->addShaderDescriptor(GBuffer_floor_desc);
-            renderSystem->addShaderDescriptor(SSR_desc);
-            renderSystem->addShaderDescriptor(SSR_blur_desc);
-			// --------------- create shader ---------------
 
-			auto camera_id = CreateACamera(scene, float(weak_window.lock()->width()), float(weak_window.lock()->height()));
-			// --------------------------------------------------------------------------------
-			SPW::ResourceManager::getInstance()->m_CameraIDMap["main"] = camera_id;
-			SPW::ResourceManager::getInstance()->m_ShaderMap["p_shadow_desc"] = p_shadow_desc;
-			SPW::ResourceManager::getInstance()->m_ShaderMap["d_shadow_desc"] = d_shadow_desc;
-			SPW::ResourceManager::getInstance()->m_ShaderMap["pbr_light_shadow_desc"] = pbr_light_shadow_desc;
-			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["p_shadowMap_node"] = p_shadowMap_node;
-			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["d_shadowMap_node"] = d_shadowMap_node;
-
+			// game objects
 			// --------------- dragon ---------------
 			auto dragon = scene->createEntity("anim dragon");
 			auto dragon_transform = dragon->emplace<SPW::TransformComponent>();
@@ -461,10 +338,10 @@ public:
 			dragon_transform->position = {0, 0, 0};
 
 			auto dragon_model = dragon->emplace<SPW::MeshComponent>(camera_id);
-			dragon_model->bindRenderGraph = defferShading->graph_id;
-			dragon_model->modelSubPassPrograms[p_shadowMap_node->pass_id] = p_ani_shadow_desc.uuid;
-			dragon_model->modelSubPassPrograms[d_shadowMap_node->pass_id] = d_ani_shadow_desc.uuid;
-			dragon_model->modelSubPassPrograms[defferNode->pass_id] = ani_GBuffer_desc.uuid;
+			dragon_model->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+			dragon_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kAniPointShadowShader).uuid;
+			dragon_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kAniDirectionalShadowShader).uuid;
+			dragon_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kAniGBufferShader).uuid;
 
 			dragon_model->assetID   = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
 			dragon_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName;
@@ -487,10 +364,10 @@ public:
 			mantis_mesh->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
 			mantis_mesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].path;
 
-			mantis_mesh->bindRenderGraph = defferShading->graph_id;
-			mantis_mesh->modelSubPassPrograms[p_shadowMap_node->pass_id] = p_shadow_desc.uuid;
-			mantis_mesh->modelSubPassPrograms[d_shadowMap_node->pass_id] = d_shadow_desc.uuid;
-			mantis_mesh->modelSubPassPrograms[defferNode->pass_id] = GBuffer_desc.uuid;
+			mantis_mesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+			mantis_mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kPointShadowShader).uuid;
+            mantis_mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kDirectionalShadowShader).uuid;
+            mantis_mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kGBufferShader).uuid;
 
 			auto  rigid1 = mantis->emplace<SPW::RigidDynamicComponent>();
 			rigid1->rigidState = SPW::Awake;
@@ -512,8 +389,8 @@ public:
             floorModel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetName;
             floorModel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].path;
 
-            floorModel->bindRenderGraph = defferShading->graph_id;
-            floorModel->modelSubPassPrograms[defferNode->pass_id] = GBuffer_floor_desc.uuid;
+            floorModel->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+            floorModel->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kFloorGBufferShader).uuid;
 
 			auto  rigid2 = cubeObj->emplace<SPW::RigidStaticComponent>();
 			rigid2->rigidState = SPW::Awake;

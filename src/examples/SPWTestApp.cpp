@@ -20,7 +20,7 @@
 #include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
-#include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
+#include "Render/DefaultRenderPass.hpp"
 
 #include "Utils/UUID.hpp"
 
