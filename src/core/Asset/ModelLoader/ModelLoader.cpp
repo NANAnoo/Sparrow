@@ -399,17 +399,11 @@ namespace SPW
 
 	void ProcessHierarchyTransforms(glm::mat4 sumTransform, AssetData* data, const aiNode* node, const aiScene* scene)
 	{
-		// HierarchyNode ret;
-		// ret.name = node->mName.data;
 		auto transformation = glm::toMat4(node->mTransformation);
 		sumTransform = sumTransform * transformation;
 
-		// Process Mesh & Material At first
 		for (size_t idx = 0; idx < node->mNumMeshes; ++idx)
 		{
-			// aiMesh* subMesh = scene->mMeshes[node->mMeshes[idx]];
-			// aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-			// auto meshIndex = node->mMeshes[idx];
 			auto& mesh = data->meshes[node->mMeshes[idx]];
 			for(auto& vert : mesh.vertices)
 			{
@@ -418,18 +412,12 @@ namespace SPW
 
 				vert.Position = glm::vec3(postion4D);
 			}
-
-//			.emplace_back(ProcessMeshNode(data, subMesh, scene));
-			// Process Mesh
-			// ret.meshIndices.emplace_back(node->mMeshes[idx]);
 		}
 
 		for (size_t child_node = 0; child_node < node->mNumChildren; child_node++)
 		{
 			ProcessHierarchyTransforms(sumTransform, data, node->mChildren[child_node], scene);
 		}
-
-		// return ret;
 	}
 
 	void ProcessNodes(AssetData* modelData, aiNode* node, const aiScene* scene)
