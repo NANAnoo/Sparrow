@@ -21,7 +21,7 @@
 #include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
-#include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
+#include "Render/DefaultRenderPass.hpp"
 
 #include "Utils/UUID.hpp"
 
@@ -171,7 +171,7 @@ std::shared_ptr<SPW::Entity> createPlight(const std::shared_ptr<SPW::Scene>& sce
 	return light;
 }
 
-std::shared_ptr<SPW::Entity> createDlight(const std::shared_ptr<SPW::Scene>& scene, glm::vec3 rotation, glm::vec3 color)
+std::shared_ptr<SPW::Entity> createDirectionalLight(const std::shared_ptr<SPW::Scene>& scene, glm::vec3 rotation, glm::vec3 color)
 {
 	auto light = scene->createEntity("light");
 	auto lightTrans = light->emplace<SPW::TransformComponent>();
@@ -403,13 +403,13 @@ public:
 			                                                     pbr_ani_light_shadow);
 
 
-			renderSystem->addShaderDesciptor(pbr_light_shadow_desc);
-			renderSystem->addShaderDesciptor(pbr_light_shadow_tiled_desc);
-			renderSystem->addShaderDesciptor(p_shadow_desc);
-			renderSystem->addShaderDesciptor(d_shadow_desc);
-			renderSystem->addShaderDesciptor(p_ani_shadow_desc);
-			renderSystem->addShaderDesciptor(d_ani_shadow_desc);
-			renderSystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
+            renderSystem->addShaderDescriptor(pbr_light_shadow_desc);
+            renderSystem->addShaderDescriptor(pbr_light_shadow_tiled_desc);
+            renderSystem->addShaderDescriptor(p_shadow_desc);
+            renderSystem->addShaderDescriptor(d_shadow_desc);
+            renderSystem->addShaderDescriptor(p_ani_shadow_desc);
+            renderSystem->addShaderDescriptor(d_ani_shadow_desc);
+            renderSystem->addShaderDescriptor(pbr_ani_light_shadow_desc);
 
 			// --------------- create shader ---------------
 
@@ -515,8 +515,8 @@ public:
 
 			auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
 			auto light2 = createPlight(scene, {-1, 1, 0}, {0, 0.5, 1});
-			auto light3 = createDlight(scene, {30, 60, 0}, {0.5, 0, 1});
-			auto light4 = createDlight(scene, {30, -60, 0}, {0.5, 1, 0});
+			auto light3 = createDirectionalLight(scene, {30, 60, 0}, {0.5, 0, 1});
+			auto light4 = createDirectionalLight(scene, {30, -60, 0}, {0.5, 1, 0});
 			static int control_id = 0;
 			auto light_controller = [](int idx)
 			{

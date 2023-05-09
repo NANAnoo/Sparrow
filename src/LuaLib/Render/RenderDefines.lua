@@ -133,23 +133,34 @@ RepeatType = {
 };
 
 DefaultGraph = {
-    PBRShadowGraph = "PBRShadowGraph",
+    kDefferShadingGraph = "kDefferShadingGraph",
     SkyBoxGraph = "SkyBoxGraph",
 };
 
 DefaultNode = {
-    PointShadowNode = "PointShadowNode",
-    DirectionalShadowNode = "DirectionalShadowNode",
-    PBRShadowLightingNode = "PBRShadowLightingNode",
+    kPointShadowNode = "kPointShadowNode",
+    kDirectionalShadowNode = "kDirectionalShadowNode",
+    kGBufferNode = "kGBufferNode",
     SkyBoxNode = "SkyBoxNode",
 };
 
+DefaultRenderPort = {
+    kPointShadowPort = "kPointShadowPort",
+    kDirectionalShadowPort = "kDirectionalShadowPort",
+    kGPositionPort = "kGPositionPort",
+    kGAlbedoPort = "kGAlbedoPort",
+    kGNormalPort = "kGNormalPort",
+    kGMetalRoughnessPort = "kGMetalRoughnessPort",
+    kGDepthPort = "kGDepthPort"
+}
+
 DefaultShader = {
-    PBRShadowShader = "PBRShadowShader",
-    PBRShadowAniShader = "PBRShadowAniShader",
-    PointShadowShader = "PointShadowShader",
-    DirectionalShadowShader = "DirectionalShadowShader",
-    PointShadowAniShader = "PointShadowAniShader",
-    DirectionalShadowAniShader = "DirectionalShadowAniShader",
-    SkyBoxShader = "SkyBoxShader",
+    kPointShadowShader = "kPointShadowShader",
+    kDirectionalShadowShader = "kDirectionalShadowShader",
+    kAniPointShadowShader = "kAniPointShadowShader",
+    kAniDirectionalShadowShader = "kAniDirectionalShadowShader",
+    kGBufferShader = "kGBufferShader",
+    kFloorGBufferShader = "kFloorGBufferShader",
+    kAniGBufferShader = "kAniGBufferShader",
+    kSkyBoxShader = "kSkyBoxShader"
 };

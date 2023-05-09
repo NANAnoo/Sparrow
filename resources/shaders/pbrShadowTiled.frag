@@ -84,7 +84,7 @@ vec3 PBR(vec3 N){
 
     vec3 albedo     = pow(texture(albedoMap, texCoord).rgb, vec3(2.2));
     float metallic  = texture(metallicMap, texCoord).r;
-    float roughness = texture(roughnessMap, texCoord).r;
+    float roughness = texture(roughnessMap, texCoord).g;
     float ao        = texture(AoMap, texCoord).r;
     vec3 V = normalize(camPos - position.xyz);
 
@@ -93,7 +93,8 @@ vec3 PBR(vec3 N){
         BP_scale += PBR_P(albedo,metallic,roughness,ao,N,V,vec3(position),camPos,PLights[i], shadow);
     }
 
-    for (int i = 0; i < DLightCount && i < 10; i ++) {
+    for (int i = 0; i < DLightCount && i < 10; i ++)
+    {
         float shadow = 0.f;
         vec3 projCoords = FragPosLightSpace[i].xyz / FragPosLightSpace[i].w;
         if (abs(projCoords.x) < 1.0 && abs(projCoords.y) < 1) {

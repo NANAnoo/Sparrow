@@ -82,9 +82,9 @@ function Scene:forEach(component_type, callback)
     end
 end
 
-function Scene:createRenderGraph()
-    local cpp_graph = self.cpp_object:createRenderGraph()
-    local graph = RenderGraph.new(cpp_graph)
+function Scene:createRenderGraph(name)
+    local cpp_graph = self.cpp_object:createRenderGraph(name)
+    local graph = RenderGraph.new(cpp_graph, name)
     return graph
 end
 
@@ -98,6 +98,10 @@ end
 
 function Scene:getRenderNodeID(node_name)
     return self.cpp_object:getRenderNodeID(node_name)
+end
+
+function Scene:getRenderPort(port_name)
+    return self.cpp_object:getRenderPort(port_name)
 end
 
 function Scene:getShaderID(shader_name)
