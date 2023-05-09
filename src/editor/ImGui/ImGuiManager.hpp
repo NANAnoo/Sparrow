@@ -24,24 +24,40 @@
 
 namespace SPW
 {
+	enum class FeatureType
+	{
+		None,
+
+		ImportModel,
+		ImportAudio,
+		ImageCompression,
+
+		SaveAsset,
+		LoadAsset,
+
+		SaveScene,
+		LoadScene,
+
+		Max,
+	};
+
 	class ImGuiImagePanel;
 
 	class ImGuiManager : public EventResponderI
 	{
 	public:
 		ImGuiManager(GLFWwindow* window, std::shared_ptr<Scene> scene, const std::shared_ptr<EventResponderI>& eventResponder)
-					: windowHandle(window)
+					: m_Window(window)
 			        , m_Scene (scene)
 					, EventResponderI(eventResponder)
 		{
-			Init(windowHandle);
+			Init(m_Window);
 		}
 
 		~ImGuiManager()
 		{
 			//delete m_KeyResponder;
 			//delete m_MouseResponder;
-
 		}
 
 		void Init(GLFWwindow* window);
@@ -50,7 +66,7 @@ namespace SPW
 		void CleanUp();
 		void ShowDemoWindow(bool show_demo_window);
 		void EnableViewport() const;
-		GLFWwindow* GetWindowHandle() const {return windowHandle;}
+		GLFWwindow* GetWindowHandle() const {return m_Window;}
 
 		void RenderAllPanels() 
 		{
@@ -61,14 +77,13 @@ namespace SPW
 		std::shared_ptr<ImGuiEntityPanel>     GetEntityPanel() { return m_EntityPanel; }
 		std::shared_ptr<ImGuiInspectorPanel>  GetInspectorPanel() { return m_InspectorPanel; }
 
-		void FileDialogCallBack_1();
-		void FileDialogCallBack_2();
-		void FileDialogCallBack_3();
-		void FileDialogCallBack_4();
-
+		void ImportModelCallback();
+		void LoadAssetCallback();
+		void ImageCompressedCallback();
+		void ImportAudioCallback();
 
 		void DisplayDialog() const;
-		void loadDefaultLayout() const;
+		void LoadDefaultLayout() const;
 
 		void Render()
 		{
@@ -143,7 +158,7 @@ namespace SPW
 		void InitEntityPanel();
 		void InitInspectorPanel();
 		void InitFileExplorer();
-		void InitLogPanel();
+//		void InitLogPanel();
 
 
 	private:
@@ -156,21 +171,19 @@ namespace SPW
 		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
 		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel;
 		//to do:delete
-		std::shared_ptr<ImGuiLog>				m_LogPanel;
+//		std::shared_ptr<ImGuiLog>				m_LogPanel;
 
 		std::shared_ptr<Scene>				    m_Scene;
+		GLFWwindow* m_Window;
 
-		//file dialog panel
-		SharedPtr<ImGuiFileDialog> file_dialog;
+		// file dialog panel
+		std::shared_ptr<ImGuiFileDialog> m_FileDialog;
+		FeatureType m_Feature = FeatureType::None;
 
-		std::unique_ptr<ImGuiMessageBox> importModel_MessageBox;
-		std::unique_ptr<ImGuiMessageBox> textureCompression_MessageBox;
+		std::unique_ptr<ImGuiMessageBox> m_ImportModelMessageBox;
+		std::unique_ptr<ImGuiMessageBox> m_TextureCompressionMessageBox;
 
-		bool show_demo_window = false;
-		GLFWwindow* windowHandle;
-		std::unique_ptr<ImGuiIconManager>		m_ImguiIconManager;
-		std::uint32_t m_FileDialogID ;
-		ImFont* font = nullptr;
+		std::unique_ptr<ImGuiIconManager> m_ImguiIconManager;
     };
 
 }

@@ -43,7 +43,7 @@ namespace SPW
 		importModel_MessageBox = std::make_unique<ImGuiMessageBox>("Import Model", "file", "Import Model Sucessed!", std::vector{ "OK" }, false);
 		textureCompression_MessageBox = std::make_unique<ImGuiMessageBox>("textureCompression_MessageBox Model", "file", "textureCompression_MessageBox Model Sucessed!", std::vector{ "OK" }, false);
 
-		m_FileDialogID = -1;
+// 		m_FileDialogID = -1;
 
 		InitLayout();
 
@@ -98,7 +98,7 @@ namespace SPW
 
 	void ImGuiManager::InitLayout()
 	{
-		loadDefaultLayout();
+		LoadDefaultLayout();
 		InitIconManager();
 		InitMenuBar();
 		InitEntityPanel();
@@ -135,13 +135,10 @@ namespace SPW
 		m_MainMenuBar->AddSubMenu("About");
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {EntitySerializer::SaveScene(m_Scene);});
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {EntitySerializer::LoadScene(m_Scene); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() {FileDialogCallBack_1(); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Audio", [&]() {FileDialogCallBack_4(); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Asset", [&]() {FileDialogCallBack_2();  });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Image Compression", [&]() {FileDialogCallBack_3();  });
-
-		//using fileDiaglogCallback = std::function<void()>;
-
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() {ImportModelCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Audio", [&]() {ImportAudioCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Asset", [&]() {LoadAssetCallback();  });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Image Compression", [&]() {ImageCompressedCallback();  });
 	}
 
 	void ImGuiManager::InitEntityPanel()
@@ -160,38 +157,42 @@ namespace SPW
 		m_FileExplorer = std::make_shared<ImGuiFileExplorer>(m_ImguiIconManager.get());
 	}
 
-	void ImGuiManager::InitLogPanel()
+	// void ImGuiManager::InitLogPanel()
+	// {
+	// 	m_LogPanel = std::make_shared<ImGuiLog>();
+	// }
+
+	void ImGuiManager::ImportModelCallback()
 	{
-		m_LogPanel = std::make_shared<ImGuiLog>();
+		file_dialog->OpenDialog("Universal_FileDialog", "Import Model", "*.*", ".");
+		m_Feature = FeatureType::ImportModel;
+//		m_FileDialogID = 1;
 	}
 
-	void ImGuiManager::FileDialogCallBack_1()
+	void ImGuiManager::LoadAssetCallback()
 	{
-		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
-		m_FileDialogID = 1;
+		file_dialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		m_Feature = FeatureType::LoadAsset;
+		// m_FileDialogID = 2;
 	}
 
-	void ImGuiManager::FileDialogCallBack_2()
+	void ImGuiManager::ImageCompressedCallback()
 	{
-		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
-		m_FileDialogID = 2;
+		file_dialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		m_Feature = FeatureType::ImageCompression;
+//		m_FileDialogID = 3;
 	}
 
-	void ImGuiManager::FileDialogCallBack_3()
+	void ImGuiManager::ImportAudioCallback()
 	{
-		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
-		m_FileDialogID = 3;
-	}
-
-	void ImGuiManager::FileDialogCallBack_4()
-	{
-		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
-		m_FileDialogID = 4;
+		file_dialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		m_Feature = FeatureType::ImportAudio;
+//		m_FileDialogID = 4;
 	}
 
 	void ImGuiManager::DisplayDialog() const
 	{
-		if (file_dialog->Display("ChooseFileDlgKey"))
+		if (file_dialog->Display("Universal_FileDialog"))
 		{
 			if (file_dialog->IsOk())
 			{
@@ -204,7 +205,7 @@ namespace SPW
 				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
 
-				if(m_FileDialogID == 1)
+				if ( m_Feature == FeatureType::ImportModel )
 				{
 					if (extension == ".gltf" || extension == ".fbx" || extension == ".obj")
 					{
@@ -213,18 +214,27 @@ namespace SPW
 							importModel_MessageBox->trigger_flag = true;
 						}
 					}
+					else
+					{
+						std::cout << "Not Support ! \n";
+					}
 				}
 
-				if(m_FileDialogID == 2)
+				if ( m_Feature == FeatureType::LoadAsset )
 				{
 					if (extension == ".json" || extension == ".asset")
 					{
 						auto asset_data = AssetManager::LoadAsset(filePathName);
 						ResourceManager::getInstance()->m_AssetDataMap[asset_data.assetName] = asset_data;
 					}
+					else
+					{
+						std::cout << "Not Support ! \n";
+					}
+
 				}
 
-				if (m_FileDialogID == 3)
+				if (m_Feature == FeatureType::ImageCompression )
 				{
 					if (extension == ".png" || extension == ".jpg" || extension == ".jepg")
 					{
@@ -234,9 +244,14 @@ namespace SPW
 							textureCompression_MessageBox->trigger_flag = true;
 						}
 					}
+					else
+					{
+						std::cout << "Not Support ! \n";
+					}
+
 				}
 
-				if (m_FileDialogID == 4)
+				if (m_Feature == FeatureType::ImportAudio)
 				{
 					if (extension == ".wav" || extension == ".mp3")
 					{
@@ -246,6 +261,10 @@ namespace SPW
 							textureCompression_MessageBox->trigger_flag = true;
 						}
 					}
+					else
+					{
+						std::cout << "Not Support ! \n";
+					}
 				}
 				
 			}
@@ -253,7 +272,8 @@ namespace SPW
 		}
 	}
 
-	void ImGuiManager::loadDefaultLayout() const{
+	void ImGuiManager::LoadDefaultLayout() const
+	{
 		std::ifstream default_ini("./default.ini");
 		std::ofstream imgui_ini("./imgui.ini");
 
