@@ -61,7 +61,10 @@ namespace SPW
 		if (m_Entity != nullptr)
 		{
 			// ------------- UPDATE NAME ------------- 
-			std::string name = m_Entity->component<SPW::NameComponent>()->getName();
+			if (m_Entity->component<NameComponent>()->getName().length() < 1)
+				return;
+			std::string name = m_Entity->component<NameComponent>()->getName();
+
 			ImGui::Text("Name: %s", name.c_str());
 			// bool show_naming = false;
 			if (ImGui::Button("Update Name"))

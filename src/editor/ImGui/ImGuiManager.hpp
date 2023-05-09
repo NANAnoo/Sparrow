@@ -75,26 +75,27 @@ namespace SPW
 			//----------------------------------------------------------------------------------------
 			CreateImagePanel(m_Scene->m_renderSystem.lock()->getTextureID());
 
-//			GetEntityPanel()->ClearItems();
-
 			RenderAllPanels();
 			//----------------------------------------------------------------------------------------
-			GetEntityPanel()->SetActiveScene(m_Scene);
-			GetInspectorPanel()->SetActiveScene(m_Scene);
+			m_EntityPanel->SetActiveScene(m_Scene);
+			m_InspectorPanel->SetActiveScene(m_Scene);
 
-// 			m_EntityPanel->RemoveMenuItem();
-
-			m_Scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
+			m_Scene->forEachEntity<IDComponent>([this](const Entity& e)
+			{
+				const auto component_name = e.component<NameComponent>()->getName();
+				const auto component_id = e.component<IDComponent>()->getID().toString();
+				m_EntityPanel->AddMenuItem(component_id, component_name, [&, e]()
 				{
-					const auto component_name = e.component<SPW::NameComponent>()->getName();
-					const auto component_id = e.component<SPW::IDComponent>()->getID().toString();
-					GetEntityPanel()->AddMenuItem(component_id, component_name, [&, e]()
-						{
-							GetInspectorPanel()->SetSelectedGameObject(e);
-						});
-				});
+					m_InspectorPanel->SetSelectedGameObject(e);
+					// if(ImGui::Button("xxxx"))
+					// {
+					// 	m_InspectorPanel->SetNoneSelectedGameObject();
+					// }
+				}
+				);
+			});
 
-			////----------------------------------------------------------------------------------------
+			//----------------------------------------------------------------------------------------
 			End();
 			EnableViewport();
 		}
@@ -104,39 +105,11 @@ namespace SPW
 
 			ImGuiIO& io = ImGui::GetIO();
 
-//			if (e->type() == MouseDownType)
-//			{
-//				 std::cout << "Mouse Down" << std::endl;
-//				io.MouseDown[(int)MouseCode::ButtonLeft] = true;
-//			}
-//
-//			if (e->type() == MouseReleasedType)
-//			{
-//				 std::cout << "Mouse Released" << std::endl;
-//				io.MouseDown[(int)MouseCode::ButtonLeft] = false;
-//			}
-//
-//			if (e->type() == MouseReleasedType)
-//			{
-//				 std::cout << "Mouse Released" << std::endl;
-//				io.MouseDown[(int)MouseCode::ButtonLeft] = false;
-//			}
-
-			//if (e->category() == MouseCategory && e->type() == MouseScrollType)
-			//{
-			//	io.MouseWheel += (float)(e->scroll_offset);
-			//}
-
-			// bool ret = false;
-
 			e->dispatch<MouseScrollType, MouseEvent>([&io](const MouseEvent* e)
 			{
 
 				io.MouseWheel += (float)(e->scroll_offset);
-				//if (e->category() == MouseCategory && e->type() == MouseScrollType)
-				//{
-				//	io.MouseWheel += (float)(e->scroll_offset);
-				//}
+
 				return false;
 			});
 
@@ -148,11 +121,11 @@ namespace SPW
 			});
 
 			e->dispatch<MouseReleasedType, MouseEvent>([&io](const MouseEvent* e)
-				{
-					io.MouseDown[(int)MouseCode::ButtonLeft] = false;
+			{
+				io.MouseDown[(int)MouseCode::ButtonLeft] = false;
 
-					return false;
-				});
+				return false;
+			});
 
 			e->dispatch<KeyInputType, KeyEvent>([&io](const KeyEvent* e)
 			{
@@ -196,6 +169,7 @@ namespace SPW
 		GLFWwindow* windowHandle;
 		std::unique_ptr<ImGuiIconManager>		m_ImguiIconManager;
 		std::uint32_t m_FileDialogID ;
+		ImFont* font = nullptr;
     };
 
 }

@@ -13,12 +13,15 @@ namespace SPW
 	{
 	public:
 		using MenuItemCallback = std::function<void()>;
+		using ButtonCallback = std::function<void()>;
 
 		struct MenuItem
 		{
 			std::string ID;
 			std::string name;
-			MenuItemCallback callback;
+			MenuItemCallback itemCallback;
+//			ButtonCallback   buttonCallback;
+			bool selected = false;
 		};
 
 		ImGuiEntityPanel(const std::string& title, bool* open = nullptr)
@@ -26,7 +29,7 @@ namespace SPW
 		{	}
 
 		void UpdateMenuItemLabel(const std::string& id, const std::string& label);
-		void AddMenuItem(const std::string& id, const std::string& label, MenuItemCallback callback);
+		void AddMenuItem(const std::string& id, const std::string& label, MenuItemCallback callback, bool selected = false);
 
 		void ClearItems()
 		{
@@ -49,27 +52,50 @@ namespace SPW
 		}
 
 	protected:
+
 		void Draw() override
 		{
-			for (const auto& item_pair : m_Items)
+			for (auto& item_pair : m_Items)
 			{
-				const auto& item = item_pair.second;
-				if (ImGui::Button("x"))
+				auto& item = item_pair.second;
+
+// 				if(item.selected)
+// 				{
+// 					if (ImGui::Button(" x  "))
+// 					{
+// //						ImGui::SameLine();
+// 						scene_ptr->deleteEntity(scene_ptr->getEntityByID(item_pair.first));
+// 						RemoveMenuItem(item_pair.first);
+// 						std::cout << " Entity Removed! " << std::endl;
+// 						item.selected = false;
+//
+// 						return;
+// 					}
+// 				}
+
+				if (ImGui::Button(" x  "))
 				{
 					scene_ptr->deleteEntity(scene_ptr->getEntityByID(item_pair.first));
 					RemoveMenuItem(item_pair.first);
+					std::cout << " Entity Removed! " << std::endl;
+					item.selected = false;
+
+					return;
 				}
+
 				ImGui::SameLine();
-				ImGui::BeginGroup();
-				bool is_selected = false;
-				ImVec2 item_min = ImGui::GetItemRectMin();
-				ImVec2 item_max = ImGui::GetItemRectMax();
-				ImGui::Selectable((ICON_FA_CUBE"		"+item.name).c_str(), &is_selected, ImGuiSelectableFlags_None, ImVec2(0, item_max.y - item_min.y));
-				if (ImGui::IsItemClicked())
+
+				std::string itemLabel = ICON_FA_CUBE" " + item.name;
+				if ( ImGui::MenuItem( itemLabel.c_str(), " "))
 				{
-					item.callback();
+					item.selected = true;
+					// if (ImGui::Button(" ---  "))
+					// 	{
+					// 		item.buttonCallback();
+					// 	}
+
+					item.itemCallback();
 				}
-				ImGui::EndGroup();
 			}
 
 
@@ -80,10 +106,17 @@ namespace SPW
 				auto new_gameObject = scene_ptr->createEntity("NewGameObject");
 				new_gameObject->emplace<TransformComponent>();
 			}
+
+			if(showDele)
+			{
+				ImGui::Button("  ----- ");
+			}
 		}
 
 	private:
 		std::unordered_map<std::string, MenuItem> m_Items;
 		Scene* scene_ptr;
+	public:
+		bool showDele = false;
 	};
 }

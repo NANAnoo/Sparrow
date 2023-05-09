@@ -9,7 +9,8 @@
 
 namespace SPW
 {
-	void ImGuiManager::Init(GLFWwindow* window) {
+	void ImGuiManager::Init(GLFWwindow* window)
+	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
@@ -32,12 +33,8 @@ namespace SPW
 		icons_config.GlyphMinAdvanceX = 4.0f;
 		icons_config.SizePixels = 16.f;
 		icons_config.GlyphOffset = ImVec2(0.0f,3.0f);
-		//io.Fonts->AddFontFromMemoryCompressedTTF(
-		//	FONT_ICON_FILE_NAME_FAS,
-		//	10, 16.f,
-		//	&icons_config, icons_ranges);
+
 		const char* font_path = "./resources/fonts/fa-solid-900.ttf";
-		//const char* font_path = "./resources/fonts/fa-solid-900.ttf";
 		io.Fonts->AddFontFromFileTTF(font_path, 16.0f, &icons_config, icons_ranges);
 
 		//file dialog panel
@@ -50,8 +47,6 @@ namespace SPW
 
 		InitLayout();
 
-  //      m_KeyResponder = new ImGuiKeyEventResponder(eventResponder);
-		//m_MouseResponder = new  ImGuiMouseEventResponder(eventResponder);
 	}
 
 
@@ -113,13 +108,11 @@ namespace SPW
 		InitLogPanel();
 		m_ProfilingPanel = std::make_shared<ImGuiProfilingPanel>();
 
-		// m_TestWindow = std::make_shared<ImGuiMessageBox>("My Window", ImVec2(200, 100), ImVec2(100, 100));
-
 		m_DockspacePanel = std::make_shared<ImGuiDockSpace>();
 		m_DockspacePanel->AddPanel(m_MainMenuBar);
 		m_DockspacePanel->AddPanel(m_EntityPanel);
-		m_DockspacePanel->AddPanel(m_HierarchyPanel);
 		m_DockspacePanel->AddPanel(m_InspectorPanel);
+		m_DockspacePanel->AddPanel(m_HierarchyPanel);
 		m_DockspacePanel->AddPanel(m_FileExplorer);
 		m_DockspacePanel->AddPanel(m_ProfilingPanel);
 //		m_DockspacePanel->AddPanel(m_LogPanel);

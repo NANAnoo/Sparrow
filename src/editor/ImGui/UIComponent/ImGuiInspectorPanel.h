@@ -42,12 +42,16 @@ namespace SPW
 			scene_ptr = scene.get();
 		}
 
+		void SetNoneSelectedGameObject()
+		{
+			m_Entity = nullptr;
+		}
+
 		void SetSelectedGameObject(const Entity& e)
 		{
 			m_Entity = &e;
 
-			for (int i = static_cast<int>(ComponentType::IDComponent);
-				 i <= static_cast<int>(ComponentType::AudioListener); ++i)
+			for (int i = static_cast<int>(ComponentType::IDComponent); i <= static_cast<int>(ComponentType::AudioListener); ++i)
 			{
 				auto componentType = static_cast<ComponentType>(i);
 				componentStatus[componentType] = false;
@@ -70,7 +74,6 @@ namespace SPW
 		void DrawAnimationComponent(AnimationComponent* component) const;
 		void DrawHierarchyNode(AnimationComponent* component, const HierarchyNode& node) const;
 		void Loop();
-
 
 	private:
 		const Entity* m_Entity = nullptr;
