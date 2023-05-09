@@ -13,15 +13,12 @@ namespace SPW
 	{
 	public:
 		using MenuItemCallback = std::function<void()>;
-		using ButtonCallback = std::function<void()>;
 
 		struct MenuItem
 		{
 			std::string ID;
 			std::string name;
-			MenuItemCallback itemCallback;
-//			ButtonCallback   buttonCallback;
-			bool selected = false;
+			MenuItemCallback callback;
 		};
 
 		ImGuiEntityPanel(const std::string& title, bool* open = nullptr)
@@ -29,7 +26,7 @@ namespace SPW
 		{	}
 
 		void UpdateMenuItemLabel(const std::string& id, const std::string& label);
-		void AddMenuItem(const std::string& id, const std::string& label, MenuItemCallback callback, bool selected = false);
+		void AddMenuItem(const std::string& id, const std::string& label, MenuItemCallback callback);
 
 		void ClearItems()
 		{
@@ -52,10 +49,9 @@ namespace SPW
 		}
 
 	protected:
-
 		void Draw() override
 		{
-			for (auto& item_pair : m_Items)
+			for (const auto& item_pair : m_Items)
 			{
 				const auto& item = item_pair.second;
 				std::stringstream ss;
@@ -65,12 +61,7 @@ namespace SPW
 				{
 					scene_ptr->deleteEntity(scene_ptr->getEntityByID(item_pair.first));
 					RemoveMenuItem(item_pair.first);
-					std::cout << " Entity Removed! " << std::endl;
-					item.selected = false;
-
-					return;
 				}
-
 				ImGui::SameLine();
 				bool is_selected = false;
 				ImVec2 item_min = ImGui::GetItemRectMin();
@@ -78,13 +69,7 @@ namespace SPW
 				ImGui::Selectable((ICON_FA_CUBE"		"+item.name).c_str(), &is_selected, ImGuiSelectableFlags_None, ImVec2(0, item_max.y - item_min.y));
 				if (ImGui::IsItemClicked())
 				{
-					item.selected = true;
-					// if (ImGui::Button(" ---  "))
-					// 	{
-					// 		item.buttonCallback();
-					// 	}
-
-					item.itemCallback();
+					item.callback();
 				}
 			}
 
@@ -96,17 +81,10 @@ namespace SPW
 				auto new_gameObject = scene_ptr->createEntity("NewGameObject");
 				new_gameObject->emplace<TransformComponent>();
 			}
-
-			if(showDele)
-			{
-				ImGui::Button("  ----- ");
-			}
 		}
 
 	private:
 		std::unordered_map<std::string, MenuItem> m_Items;
 		Scene* scene_ptr;
-	public:
-		bool showDele = false;
 	};
 }

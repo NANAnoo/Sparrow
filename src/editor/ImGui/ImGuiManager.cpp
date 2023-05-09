@@ -111,7 +111,7 @@ namespace SPW
 		m_DockspacePanel->AddPanel(m_MainMenuBar);
 		m_DockspacePanel->AddPanel(m_EntityPanel);
 		m_DockspacePanel->AddPanel(m_InspectorPanel);
-		m_DockspacePanel->AddPanel(m_HierarchyPanel);
+		//m_DockspacePanel->AddPanel(m_HierarchyPanel);
 		m_DockspacePanel->AddPanel(m_FileExplorer);
 		m_DockspacePanel->AddPanel(m_ProfilingPanel);
 //		m_DockspacePanel->AddPanel(m_LogPanel);

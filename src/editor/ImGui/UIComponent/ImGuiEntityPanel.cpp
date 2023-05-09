@@ -16,12 +16,12 @@ namespace SPW
 		}
 	}
 
-	void ImGuiEntityPanel::AddMenuItem(const std::string& id, const std::string& label, MenuItemCallback callback, bool selected)
+	void ImGuiEntityPanel::AddMenuItem(const std::string& id, const std::string& label, MenuItemCallback callback)
 	{
 		UpdateMenuItemLabel(id, label);
 		if (!m_Items.contains(id))
 		{
-			m_Items[id] = { id, label, std::move(callback), selected};
+			m_Items[id] = { id, label, std::move(callback)};
 		}
 	}
 }
