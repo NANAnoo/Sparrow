@@ -12,29 +12,32 @@ namespace SPW
 
 	namespace Config
 	{
+		// engine resource location
 		extern std::string k_EngineRoot;
+		// engine resource/shaders location
 		extern std::string k_EngineShaderLib;
+		// source code src/LuaLib location
 		extern std::string k_EngineLualib;
 
-		// engine shaders // copy 
-		// engine scripts // ref
-
+		// SparrowTemplate
 		extern std::string k_TempalteProjectRoot;
 
 
 		// Project
 		extern std::string k_WorkingProjectRoot;
+		// Project/Assets
 		extern std::string k_WorkingProjectAssets;
+		// Project/Sounds
+		extern std::string k_WorkingProjectSounds;
+		// Project/Scenes
 		extern std::string k_WorkingProjectScenes;
-
-		// sounds copy
-		// / shaders copy/
-		// scritps copy
+		// Project/Shaders
+		extern std::string k_WorkingProjectShaders;
+		// Project/Scripts
+		extern std::string k_WorkingProjectScripts;
 
 		// engine entrence script
 		// proj   entrence script
-
-		// 
 	}
 
 

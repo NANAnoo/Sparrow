@@ -503,10 +503,26 @@ int main(int argc, char** argv)
 	if (SPW::ConfigManager::ReadConfig())
 		std::cout << "Successfully read config file" << std::endl;
 
-	SPW::FileSystem::MountFromConfig();
+	// copy engine shaders
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineShaderLib, SPW::Config::k_WorkingProjectShaders);
+
+	// copy template project root with default asset
+	SPW::FileSystem::MountPath(SPW::Config::k_TempalteProjectRoot, SPW::Config::k_WorkingProjectRoot);
+
+	// copy sounds
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "sounds/", SPW::Config::k_WorkingProjectSounds);
+
+	// copy scripts
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
+
+	// reference source code lualib
+	if(std::filesystem::exists(SPW::Config::k_EngineLualib))
+		std::cout << "\033[31m [CONFIG]::lualib exsits! \033[31m \n";
 
 	// app test
 	auto appProxy =
 		SPW::Application::create<SPWTestApp>("SPWTestApp");
 	return appProxy->app->run(argc, argv);
+
+//	SPW::ConfigManager::WriteConfig();
 }

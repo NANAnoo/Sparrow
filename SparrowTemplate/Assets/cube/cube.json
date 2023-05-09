@@ -1,0 +1,66 @@
+{
+    "assetID": "def66e16-7f5e-4dfe-beb8-7999269ce633",
+    "assetName": "cube",
+    "assetPath": "Assets/cube/cube.json",
+    "meshURI": "4462531a-ed0e-4a21-ad68-32c556a49c5b",
+    "materials": [
+        {
+            "id": "0f9071f1-5a2a-4fb9-8a0b-8e2a85da2d92",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "5407a8f7-1298-4682-8e30-cf999098bcb6"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 0.800000011920929,
+                    "y": 0.800000011920929,
+                    "z": 0.800000011920929
+                },
+                "specular": {
+                    "x": 0.5,
+                    "y": 0.5,
+                    "z": 0.5
+                },
+                "ambient": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "emissive": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "transparent": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 250.0,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 1.4500000476837159
+            }
+        }
+    ],
+    "textures": [
+        {
+            "key": "5407a8f7-1298-4682-8e30-cf999098bcb6",
+            "value": "Assets/cube/Textures/white.png"
+        }
+    ]
+}

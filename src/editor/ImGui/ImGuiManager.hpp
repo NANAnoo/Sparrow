@@ -157,6 +157,7 @@ namespace SPW
 		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
 		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel; 
 		std::shared_ptr<ImGuiLog>				m_LogPanel;
+
 		std::shared_ptr<Scene>				    m_Scene;
 
 		//file dialog panel

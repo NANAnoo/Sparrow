@@ -273,9 +273,9 @@ namespace SPW
 
 
 		const auto& basepath = FileSystem::ToFsPath(modelData->path).parent_path();
-		aiString texturePath;
 
 		{
+			aiString texturePath;
 			material->GetTexture(aiTextureType_BASE_COLOR, 0, &texturePath);
 			if (texturePath.length == 0)
 				material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath);
@@ -290,6 +290,7 @@ namespace SPW
 		}
 
 		{
+			aiString texturePath;
 			material->GetTexture(aiTextureType_NORMALS, 0, &texturePath);
 			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 			if (texturePath.length != 0)
@@ -301,6 +302,7 @@ namespace SPW
 		}
 
 		{
+			aiString texturePath;
 			material->GetTexture(aiTextureType_METALNESS, 0, &texturePath);
 			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 			if (texturePath.length != 0)
@@ -312,6 +314,7 @@ namespace SPW
 		}
 
 		{
+			aiString texturePath;
 			material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath);
 			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 
@@ -324,6 +327,7 @@ namespace SPW
 		}
 
 		{
+			aiString texturePath;
 			material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath);
 			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 

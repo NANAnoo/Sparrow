@@ -756,6 +756,9 @@ int main(int argc, char** argv)
 		std::cout << "Successfully read config file" << std::endl;
 
 	SPW::FileSystem::MountFromConfig();
+	std::cout << "Engine Shaders" << SPW::Config::k_EngineShaderLib << std::endl;
+	std::cout << "Proj Shaders" << SPW::Config::k_WorkingProjectShaders << std::endl;
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineShaderLib, SPW::Config::k_WorkingProjectShaders);
 
 	// app test
 	auto appProxy =
