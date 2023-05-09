@@ -57,23 +57,11 @@ namespace SPW
 		{
 			for (auto& item_pair : m_Items)
 			{
-				auto& item = item_pair.second;
-
-// 				if(item.selected)
-// 				{
-// 					if (ImGui::Button(" x  "))
-// 					{
-// //						ImGui::SameLine();
-// 						scene_ptr->deleteEntity(scene_ptr->getEntityByID(item_pair.first));
-// 						RemoveMenuItem(item_pair.first);
-// 						std::cout << " Entity Removed! " << std::endl;
-// 						item.selected = false;
-//
-// 						return;
-// 					}
-// 				}
-
-				if (ImGui::Button(" x  "))
+				const auto& item = item_pair.second;
+				std::stringstream ss;
+				ss << "x##" << item_pair.first;
+				std::string button_label = ss.str();
+				if (ImGui::Button(button_label.c_str()))
 				{
 					scene_ptr->deleteEntity(scene_ptr->getEntityByID(item_pair.first));
 					RemoveMenuItem(item_pair.first);
@@ -84,9 +72,11 @@ namespace SPW
 				}
 
 				ImGui::SameLine();
-
-				std::string itemLabel = ICON_FA_CUBE" " + item.name;
-				if ( ImGui::MenuItem( itemLabel.c_str(), " "))
+				bool is_selected = false;
+				ImVec2 item_min = ImGui::GetItemRectMin();
+				ImVec2 item_max = ImGui::GetItemRectMax();
+				ImGui::Selectable((ICON_FA_CUBE"		"+item.name).c_str(), &is_selected, ImGuiSelectableFlags_None, ImVec2(0, item_max.y - item_min.y));
+				if (ImGui::IsItemClicked())
 				{
 					item.selected = true;
 					// if (ImGui::Button(" ---  "))

@@ -102,10 +102,9 @@ namespace SPW
 		InitIconManager();
 		InitMenuBar();
 		InitEntityPanel();
-		InitSceneHierarchy();
 		InitInspectorPanel();
 		InitFileExplorer();
-		InitLogPanel();
+		//InitLogPanel();
 		m_ProfilingPanel = std::make_shared<ImGuiProfilingPanel>();
 
 		m_DockspacePanel = std::make_shared<ImGuiDockSpace>();
@@ -149,17 +148,6 @@ namespace SPW
 		m_EntityPanel = std::make_shared<ImGuiEntityPanel>("Entity Panel");
 	}
 
-	void ImGuiManager::InitSceneHierarchy()
-	{
-		m_HierarchyPanel = std::make_shared<ImGuiTreeNodePanel>(ICON_FA_LIST"  Hierarchy Panel");
-
-		m_HierarchyPanel->AddTreeNode("Root", [] { std::cout << "Clicked on Root" << std::endl; });
-		m_HierarchyPanel->AddChildTreeNode("Root", "FolderA", [] { std::cout << "Clicked on FolderA" << std::endl; });
-		m_HierarchyPanel->AddChildTreeNode("FolderA", "SubfolderA1", [] { std::cout << "Clicked on SubfolderA1" << std::endl; });
-		m_HierarchyPanel->AddChildTreeNode("Root", "FolderB", [] { std::cout << "Clicked on FolderB" << std::endl; });
-		m_HierarchyPanel->AddChildTreeNode("FolderB", "FileB1", [] { std::cout << "Clicked on FileB1" << std::endl; });
-		m_HierarchyPanel->AddChildTreeNode("Root", "File1", [] { std::cout << "Clicked on File1" << std::endl; });
-	}
 
 	void ImGuiManager::InitInspectorPanel()
 	{

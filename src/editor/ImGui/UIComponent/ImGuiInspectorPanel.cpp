@@ -720,7 +720,8 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawKeyComponent(KeyComponent* component) const
 	{
 		ImGui::PushID("Event System");
-		if (ImGui::TreeNode(ICON_FA_BULLHORN"			Event System")) /* TODO: add icon*/
+
+		if (ImGui::TreeNode(ICON_FA_BULLHORN"			Event System"))
 		{
 			if (ImGui::Button("delete"))
 			{

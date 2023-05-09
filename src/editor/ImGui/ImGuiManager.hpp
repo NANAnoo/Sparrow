@@ -140,7 +140,6 @@ namespace SPW
 		void InitIconManager();
 		void InitMenuBar();
 		void InitEntityPanel();
-		void InitSceneHierarchy();
 		void InitInspectorPanel();
 		void InitFileExplorer();
 		void InitLogPanel();
@@ -150,12 +149,12 @@ namespace SPW
 		std::shared_ptr<ImGuiDockSpace>			m_DockspacePanel;
 		std::shared_ptr<ImGuiEntityPanel>		m_EntityPanel;
 		std::shared_ptr<ImGuiMenuBar>			m_MainMenuBar;
-		std::shared_ptr<ImGuiTreeNodePanel>		m_HierarchyPanel;
 		std::shared_ptr<ImGuiInspectorPanel>	m_InspectorPanel;
 		std::shared_ptr<ImGuiImagePanel>	    m_ImagePanel;
 		std::shared_ptr<ImGuiFileExplorer>      m_FileExplorer;
 		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
-		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel; 
+		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel;
+		//to do:delete
 		std::shared_ptr<ImGuiLog>				m_LogPanel;
 
 		std::shared_ptr<Scene>				    m_Scene;
