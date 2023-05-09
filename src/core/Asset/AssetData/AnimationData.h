@@ -6,6 +6,7 @@
 #pragma once
 
 #include "AnimationClip.h"
+// #include "Mesh.h"
 
 namespace SPW
 {
@@ -31,6 +32,7 @@ namespace SPW
 		glm::mat4 transformation;
 		std::string name;
 		std::vector<HierarchyNode> children;
+		// std::vector<uint32_t> meshIndices;
 
 		template <class Archive>
 		inline void serialize(Archive& ar)

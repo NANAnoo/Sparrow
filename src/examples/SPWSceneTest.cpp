@@ -514,6 +514,8 @@ int main(int argc, char** argv)
 	// copy scripts
 	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
 
+	SPW::AssetManager::ImportModel("C:/Users/dudu/Downloads/wine_cellar/cellar.gltf");
+
 	// reference source code lualib
 	if(std::filesystem::exists(SPW::Config::k_EngineLualib))
 		std::cout << "\033[31m [CONFIG]::lualib exsits! \033[31m \n";
