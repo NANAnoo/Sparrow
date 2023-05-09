@@ -16,42 +16,42 @@ function CreateFloor(scene, camera_id)
     local model = floor:addComponent(MeshComponent, camera_id, "sand_cube")
 
     -- custom shader example
-    local tiledPBRShader = ShaderDesc.new()
-    local a_shader = SPW.ShaderHandle("tiledPBRShader", "./resources/shaders/simpleVs.vert", "./resources/shaders/pbrShadowTiled.frag")
-    tiledPBRShader:setShader(a_shader)
-    tiledPBRShader:setMatInput(MaterialUniform.AlbedoType, "albedoMap")
-    tiledPBRShader:setMatInput(MaterialUniform.NormalType, "normalMap")
-    tiledPBRShader:setMatInput(MaterialUniform.MetallicType, "metallicMap")
-    tiledPBRShader:setMatInput(MaterialUniform.RoughnessType, "roughnessMap")
-    tiledPBRShader:setMatInput(MaterialUniform.AOType, "AoMap")
+    -- local tiledPBRShader = ShaderDesc.new()
+    -- local a_shader = SPW.ShaderHandle("tiledPBRShader", "./resources/shaders/simpleVs.vert", "./resources/shaders/pbrShadowTiled.frag")
+    -- tiledPBRShader:setShader(a_shader)
+    -- tiledPBRShader:setMatInput(MaterialUniform.AlbedoType, "albedoMap")
+    -- tiledPBRShader:setMatInput(MaterialUniform.NormalType, "normalMap")
+    -- tiledPBRShader:setMatInput(MaterialUniform.MetallicType, "metallicMap")
+    -- tiledPBRShader:setMatInput(MaterialUniform.RoughnessType, "roughnessMap")
+    -- tiledPBRShader:setMatInput(MaterialUniform.AOType, "AoMap")
 
-    tiledPBRShader:setContextInput(ContextUniform.CameraPosition, "camPos")
-    tiledPBRShader:setContextInput(ContextUniform.RandomNumber, "RandomSeed")
+    -- tiledPBRShader:setContextInput(ContextUniform.CameraPosition, "camPos")
+    -- tiledPBRShader:setContextInput(ContextUniform.RandomNumber, "RandomSeed")
 
-    tiledPBRShader:setLightInput(LightUniform.PointLight, "PLights")
-    tiledPBRShader:setLightInput(LightUniform.DirectionalLight, "DLights")
-    tiledPBRShader:setLightInput(LightUniform.DLightArraySize, "DLightCount")
-    tiledPBRShader:setLightInput(LightUniform.PLightArraySize, "PLightCount")
-    tiledPBRShader:setLightInput(LightUniform.DLightTransform, "lightSpaceMatrix")
+    -- tiledPBRShader:setLightInput(LightUniform.PointLight, "PLights")
+    -- tiledPBRShader:setLightInput(LightUniform.DirectionalLight, "DLights")
+    -- tiledPBRShader:setLightInput(LightUniform.DLightArraySize, "DLightCount")
+    -- tiledPBRShader:setLightInput(LightUniform.PLightArraySize, "PLightCount")
+    -- tiledPBRShader:setLightInput(LightUniform.DLightTransform, "lightSpaceMatrix")
 
-    tiledPBRShader:setTransformInput(TransformUniform.M, "M")
-    tiledPBRShader:setTransformInput(TransformUniform.V, "V")
-    tiledPBRShader:setTransformInput(TransformUniform.P, "P")
+    -- tiledPBRShader:setTransformInput(TransformUniform.M, "M")
+    -- tiledPBRShader:setTransformInput(TransformUniform.V, "V")
+    -- tiledPBRShader:setTransformInput(TransformUniform.P, "P")
 
-    tiledPBRShader:setDependencyInput(
-        SPW.AttachmentPort(scene:getRenderNodeID(DefaultNode.PointShadowNode), 0),
-        "P_shadowMap"
-    )
+    -- tiledPBRShader:setDependencyInput(
+    --     SPW.AttachmentPort(scene:getRenderNodeID(DefaultNode.PointShadowNode), 0),
+    --     "P_shadowMap"
+    -- )
 
-    tiledPBRShader:setDependencyInput(
-        SPW.AttachmentPort(scene:getRenderNodeID(DefaultNode.DirectionalShadowNode), 0),
-        "shadowMap"
-    )
+    -- tiledPBRShader:setDependencyInput(
+    --     SPW.AttachmentPort(scene:getRenderNodeID(DefaultNode.DirectionalShadowNode), 0),
+    --     "shadowMap"
+    -- )
 
-    scene:registerShader(tiledPBRShader)
+    -- scene:registerShader(tiledPBRShader)
 
-    model:setGraphId(scene:getGraphID(DefaultGraph.PBRShadowGraph))
-    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.PBRShadowLightingNode), tiledPBRShader:getID())
+    model:setGraphId(scene:getGraphID(DefaultGraph.kDefferShadingGraph))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.kGBufferNode), scene:getShaderID(DefaultShader.kGBufferShader))
     
     print("floor id : ", floor.id)
     

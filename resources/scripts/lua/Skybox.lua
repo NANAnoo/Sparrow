@@ -11,7 +11,7 @@ function CreateSkyBox(scene, camera_id)
     -- render model
     local model = MantisModel:addComponent(MeshComponent, camera_id, "skybox")
     model:setGraphId(scene:getGraphID(DefaultGraph.SkyBoxGraph))
-    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.SkyBoxNode), scene:getShaderID(DefaultShader.SkyBoxShader))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.SkyBoxNode), scene:getShaderID(DefaultShader.kSkyBoxShader))
 
     print("Mantis Model id : ", MantisModel.id)
     

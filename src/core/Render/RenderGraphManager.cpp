@@ -4,6 +4,10 @@
 #include "RenderGraphManager.h"
 #include "DefaultRenderPass.hpp"
 
+SPW::RenderGraphManager::RenderGraphManager() {
+    shaders.insert({kSkyBoxShader, SPW::SkyBoxShader_desc()});
+}
+
 unsigned int SPW::RenderGraphManager::getRenderGraph(const RenderGraphKey &type) {
     if (graphs.contains(type)) {
         return graphs.at(type)->graph_id;
@@ -37,7 +41,7 @@ SPW::ShaderDesc SPW::RenderGraphManager::getShaderDesc(const SPW::ShaderDescKey 
     return SPW::ShaderDesc({});
 }
 
-void
+std::shared_ptr<SPW::RenderGraph>
 SPW::RenderGraphManager::createRenderGraph(const std::shared_ptr<RenderBackEndI> &backend, const RenderGraphKey &type) {
     if (type == kDefferShadingGraph) {
         auto defferShading = backend->createRenderGraph();
@@ -147,6 +151,11 @@ SPW::RenderGraphManager::createRenderGraph(const std::shared_ptr<RenderBackEndI>
         shaders.insert({kDefferShadingShader, pbr_deffer_shading_desc});
         shaders.insert({kSSRShader, SSR_desc});
         shaders.insert({kSSRBlurShader, SSR_blur_desc});
+        return defferShading;
+    } else {
+        auto graph = backend->createRenderGraph();
+        graph->graph_id = (unsigned int)(graphs.size());
+        return graph;
     }
 }
 

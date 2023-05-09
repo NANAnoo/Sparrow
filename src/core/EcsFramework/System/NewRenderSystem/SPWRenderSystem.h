@@ -76,14 +76,14 @@ namespace SPW {
         std::shared_ptr<RenderGraph> uiGraph;
         std::shared_ptr<ModelToScreenNode> uiNode;
         std::shared_ptr<ShaderDesc> UIProgram;
+
+        std::shared_ptr<RenderBackEndI> renderBackEnd;
     private:
         void findAllLights(std::vector<DLight> &dLights, std::vector<PLight> &pLights);
 
         std::shared_ptr<FrameBuffer> screenBuffer;
         std::shared_ptr<AttachmentTexture> screenTexture;
         std::shared_ptr<AttachmentTexture> screenDepthTexture;
-        
-        std::shared_ptr<RenderBackEndI> renderBackEnd;
 
         std::unordered_map<UUID, ShaderDesc, UUID::hash> shader_storage;
 

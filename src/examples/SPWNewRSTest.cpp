@@ -326,9 +326,6 @@ public:
                 renderSystem->addShaderDescriptor(shader);
             });
 
-            auto skybox_desc = SPW::SkyBoxShader_desc();
-            renderSystem->addShaderDescriptor(skybox_desc);
-
 			// game objects
 			// --------------- dragon ---------------
 			auto dragon = scene->createEntity("anim dragon");
@@ -407,7 +404,7 @@ public:
 			skyMesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].path;
 
 			skyMesh->bindRenderGraph = renderSystem->skyBoxGraph->graph_id;
-			skyMesh->modelSubPassPrograms[renderSystem->skyBoxNode->pass_id] = skybox_desc.uuid;
+			skyMesh->modelSubPassPrograms[renderSystem->skyBoxNode->pass_id] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
 
 			auto light1 = createPlight(scene, {5, 2, 2}, {10, 5, 0});
 			auto light2 = createPlight(scene, {5, 2, -2}, {0, 5, 10});

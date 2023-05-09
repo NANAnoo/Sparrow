@@ -41,11 +41,12 @@ namespace SPW {
     const ShaderDescKey kDefferShadingShader = "kDefferShadingShader";
     const ShaderDescKey kSSRShader = "kSSRShader";
     const ShaderDescKey kSSRBlurShader = "kSSRBlurShader";
+    const ShaderDescKey kSkyBoxShader = "kSkyBoxShader";
 
     class RenderGraphManager : public SingletonBase<RenderGraphManager> {
     public:
-        RenderGraphManager() = default;
-        void createRenderGraph(const std::shared_ptr<RenderBackEndI> &backend, const RenderGraphKey &type);
+        RenderGraphManager();
+        std::shared_ptr<SPW::RenderGraph> createRenderGraph(const std::shared_ptr<RenderBackEndI> &backend, const RenderGraphKey &type);
         unsigned int getRenderGraph(const RenderGraphKey &type);
         unsigned int getRenderNode(const RenderNodeKey &type);
         AttachmentPort getRenderNodeOutput(const RenderNodeOutputKey &type);
