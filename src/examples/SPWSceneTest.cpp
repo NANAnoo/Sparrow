@@ -371,7 +371,6 @@ public:
 			rendersystem->addShaderDesciptor(d_ani_shadow_desc);
 			rendersystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
 
-
 			// --------------- create shader ---------------
 
 			auto camera_id = CreateACamera(scene, weak_window.lock()->width(), weak_window.lock()->height());

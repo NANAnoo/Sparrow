@@ -1,31 +1,27 @@
 {
-    "assetID": "00121886-537a-478a-91a1-9be112a86029",
+    "assetID": "8594c362-fbad-49d4-b186-2ff41f2e9a0b",
     "assetName": "mantis",
     "assetPath": "Assets/mantis/mantis.json",
-    "meshURI": "92566ee9-7b6d-46fa-bd6f-0f2a46a5e1c5",
+    "meshURI": "aa1f4287-9af3-41a1-bb5b-8c2e3d4b1f75",
     "materials": [
         {
-            "id": "ceec1bd5-d72a-46f5-92e1-234d4f7c0092",
+            "id": "fa8179d3-24c1-4f8d-a40f-e580f76a80bf",
             "textureMap": [
                 {
                     "key": "Albedo",
-                    "value": "780eb95c-af0f-4a82-aced-8c1c9d955e52"
+                    "value": "43885de2-8946-4f04-a475-3524ee290755"
                 },
                 {
                     "key": "Normal",
-                    "value": "d760271a-b0fc-4f4d-bc17-fee88cdc623b"
+                    "value": "4876f08e-af0d-44b0-8e6e-7ccedccfcdbf"
                 },
                 {
                     "key": "Metalness",
-                    "value": "69b693c1-5817-4a3b-9d14-3dd384f2db79"
+                    "value": "83a664b8-15d2-429f-b90f-8f4d9506dbf8"
                 },
                 {
                     "key": "Roughness",
-                    "value": "748eb16e-e2e4-4adf-9afb-c4f714d597ed"
-                },
-                {
-                    "key": "AmbientOcclusion",
-                    "value": "c5e5445c-9984-431a-b616-969c865d4ed2"
+                    "value": "cfa51840-8097-4da0-8a5b-2b8e826257c9"
                 }
             ],
             "property": {
@@ -75,23 +71,19 @@
     ],
     "textures": [
         {
-            "key": "c5e5445c-9984-431a-b616-969c865d4ed2",
-            "value": "Assets/mantis/Textures/lambert1_metallicRoughness.png"
-        },
-        {
-            "key": "d760271a-b0fc-4f4d-bc17-fee88cdc623b",
-            "value": "Assets/mantis/Textures/lambert1_normal.png"
-        },
-        {
-            "key": "780eb95c-af0f-4a82-aced-8c1c9d955e52",
+            "key": "43885de2-8946-4f04-a475-3524ee290755",
             "value": "Assets/mantis/Textures/lambert1_baseColor.jpeg"
         },
         {
-            "key": "69b693c1-5817-4a3b-9d14-3dd384f2db79",
+            "key": "83a664b8-15d2-429f-b90f-8f4d9506dbf8",
             "value": "Assets/mantis/Textures/lambert1_metallicRoughness.png"
         },
         {
-            "key": "748eb16e-e2e4-4adf-9afb-c4f714d597ed",
+            "key": "4876f08e-af0d-44b0-8e6e-7ccedccfcdbf",
+            "value": "Assets/mantis/Textures/lambert1_normal.png"
+        },
+        {
+            "key": "cfa51840-8097-4da0-8a5b-2b8e826257c9",
             "value": "Assets/mantis/Textures/lambert1_metallicRoughness.png"
         }
     ]

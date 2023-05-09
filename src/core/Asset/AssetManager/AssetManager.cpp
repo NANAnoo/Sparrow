@@ -131,6 +131,23 @@ namespace SPW
 		return SaveAsset(std::move(model_data), path) ? true : false;
 	}
 
+	bool AssetManager::ImportAudio(const std::string& path)
+	{
+		try
+		{
+			if (std::filesystem::path(path).extension() == ".wav" || std::filesystem::path(path).extension() == ".mp3")
+			{
+				fs::copy(path, Config::k_WorkingProjectSounds);
+			}
+		}
+		catch (std::exception& e)
+		{
+			std::cerr << "Error: " << e.what() << std::endl;
+		}
+
+		return false;
+	}
+
 	int64_t AssetManager::LoadCompressedImage(const std::string& filename)
 	{
 		int64_t ret = 0;

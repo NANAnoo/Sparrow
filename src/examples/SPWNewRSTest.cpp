@@ -568,7 +568,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			skyMesh->bindRenderGraph = rendersystem->skyBoxGraph->graph_id;
 			skyMesh->modelSubPassPrograms[rendersystem->skyBoxNode->pass_id] = skybox_desc.uuid;
 
-
 			auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
 			auto light2 = createPlight(scene, {-1, 1, 0}, {0, 0.5, 1});
 			auto light3 = createDlight(scene, {30, 60, 0}, {0.5, 0, 1});
