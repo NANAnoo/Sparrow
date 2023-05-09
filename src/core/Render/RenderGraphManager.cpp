@@ -88,6 +88,8 @@ SPW::RenderGraphManager::createRenderGraph(const std::shared_ptr<RenderBackEndI>
         auto SSR_node = defferShading->createRenderNode<SPW::ImagePassNode>(SSR_desc);
         SSR_node->clearType = SPW::ClearColor;
         SSR_node->depthTest = false;
+        SSR_node->width = 1024;
+        SSR_node->height = 1024;
 
         SSR_node->bindInputPort(gPosition);
         SSR_node->bindInputPort(gNormal);

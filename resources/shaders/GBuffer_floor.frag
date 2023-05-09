@@ -66,6 +66,6 @@ void main()
     gAlbedo.rgb = texture(albedoMap, TexCoords).rgb;
 
     gMetalRognessAO.r = 0;
-    gMetalRognessAO.g = 0.05;
+    gMetalRognessAO.g = 0.01;
     gMetalRognessAO.b = 0;
 }
