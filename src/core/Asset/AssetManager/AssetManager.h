@@ -40,6 +40,7 @@ namespace SPW
 		static bool SaveAsset(std::unique_ptr<AssetData>&& model_data, std::string org_path);
 
 		static bool ImportModel(const std::string& path);
+		static bool ImportAudio(const std::string& path);
 
 		static bool CompressImage(ImageData&& imageData, const std::string& filename);
 

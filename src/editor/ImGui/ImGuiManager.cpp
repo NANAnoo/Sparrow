@@ -136,7 +136,8 @@ namespace SPW
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {EntitySerializer::SaveScene(m_Scene);});
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {EntitySerializer::LoadScene(m_Scene); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() {FileDialogCallBack_1(); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Asset", [&]() {FileDialogCallBack_2();  });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Audio", [&]() {FileDialogCallBack_4(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Asset", [&]() {FileDialogCallBack_2();  });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Image Compression", [&]() {FileDialogCallBack_3();  });
 
 		//using fileDiaglogCallback = std::function<void()>;
@@ -182,6 +183,12 @@ namespace SPW
 		m_FileDialogID = 3;
 	}
 
+	void ImGuiManager::FileDialogCallBack_4()
+	{
+		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
+		m_FileDialogID = 4;
+	}
+
 	void ImGuiManager::DisplayDialog() const
 	{
 		if (file_dialog->Display("ChooseFileDlgKey"))
@@ -223,6 +230,18 @@ namespace SPW
 					{
 						auto data = AssetManager::LoadTextureData(filePathName);
 						if (AssetManager::CompressImage(std::move(data), filePathName))
+						{
+							textureCompression_MessageBox->trigger_flag = true;
+						}
+					}
+				}
+
+				if (m_FileDialogID == 4)
+				{
+					if (extension == ".wav" || extension == ".mp3")
+					{
+						// auto data = AssetManager::ImportAudio(filePathName);
+						if (AssetManager::ImportAudio(filePathName))
 						{
 							textureCompression_MessageBox->trigger_flag = true;
 						}

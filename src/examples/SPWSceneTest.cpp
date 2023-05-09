@@ -371,7 +371,6 @@ public:
 			rendersystem->addShaderDesciptor(d_ani_shadow_desc);
 			rendersystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
 
-
 			// --------------- create shader ---------------
 
 			auto camera_id = CreateACamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
@@ -514,6 +513,8 @@ int main(int argc, char** argv)
 
 	// copy scripts
 	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
+
+	SPW::AssetManager::ImportModel("C:/Users/dudu/Downloads/wine_cellar/cellar.gltf");
 
 	// reference source code lualib
 	if(std::filesystem::exists(SPW::Config::k_EngineLualib))

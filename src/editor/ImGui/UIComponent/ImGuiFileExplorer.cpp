@@ -100,7 +100,7 @@ namespace SPW
 			{
 				if (entryPath.extension() == ".obj")
 					icon_id = m_IconManager->GetLibIcon("obj");
-				else if (entryPath.extension() == ".wav")
+				else if (entryPath.extension() == ".wav" || entryPath.extension() == ".mp3")
 					icon_id = m_IconManager->GetLibIcon("music");
 				else if (entryPath.extension() == ".png" || entryPath.extension() == ".jpg"
 					|| entryPath.extension() == ".jpeg" || entryPath.extension() == ".dds")

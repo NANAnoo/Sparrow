@@ -163,6 +163,12 @@ namespace SPW
 			}
 		};
 
+		void AddAudioClip(const std::string& path)
+		{
+			auto sound = std::make_shared<SPWSound>(path);
+			allSounds.insert({ path, sound });
+		}
+
 		void set3D(const std::string& path, bool enable)
 		{
 			if (allSounds.find(path) != allSounds.end())

@@ -178,6 +178,8 @@ namespace SPW
 		return ret;
 	}
 
+
+
 	std::unordered_map<std::string, BoneInfo> GetUniqueBoneMap(const std::vector<BoneInfo>& repeatedBones)
 	{
 		std::unordered_map<std::string, BoneInfo> bone_map;
@@ -395,6 +397,41 @@ namespace SPW
 		return (std::move(tmpMesh));
 	}
 
+	void ProcessHierarchyTransforms(glm::mat4 sumTransform, AssetData* data, const aiNode* node, const aiScene* scene)
+	{
+		// HierarchyNode ret;
+		// ret.name = node->mName.data;
+		auto transformation = glm::toMat4(node->mTransformation);
+		sumTransform = sumTransform * transformation;
+
+		// Process Mesh & Material At first
+		for (size_t idx = 0; idx < node->mNumMeshes; ++idx)
+		{
+			// aiMesh* subMesh = scene->mMeshes[node->mMeshes[idx]];
+			// aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+			// auto meshIndex = node->mMeshes[idx];
+			auto& mesh = data->meshes[node->mMeshes[idx]];
+			for(auto& vert : mesh.vertices)
+			{
+				glm::vec4 postion4D = glm::vec4(vert.Position, 1.0f);
+				postion4D = sumTransform * postion4D;
+
+				vert.Position = glm::vec3(postion4D);
+			}
+
+//			.emplace_back(ProcessMeshNode(data, subMesh, scene));
+			// Process Mesh
+			// ret.meshIndices.emplace_back(node->mMeshes[idx]);
+		}
+
+		for (size_t child_node = 0; child_node < node->mNumChildren; child_node++)
+		{
+			ProcessHierarchyTransforms(sumTransform, data, node->mChildren[child_node], scene);
+		}
+
+		// return ret;
+	}
+
 	void ProcessNodes(AssetData* modelData, aiNode* node, const aiScene* scene)
 	{
 		for (uint32_t i = 0; i < node->mNumMeshes; i++)
@@ -444,15 +481,14 @@ namespace SPW
 			offset += mesh->mNumVertices;
 		}
 
+		// Fill the meta information
+		ret->assetName = FileSystem::GetCleanFilename(filepath.string());
+		ret->path = filepath.string();
+		ret->meshURI = FileSystem::GenerateRandomUUID();
+		ret->assetID = FileSystem::GenerateRandomUUID();
+
 		// ------- LOAD ANIMATION --------------------------------
 		const bool hasAnimations = scene->HasAnimations();
-
-		// Fill the meta information
-		ret->assetName	= FileSystem::GetCleanFilename(filepath.string());
-		ret->path		= filepath.string();
-		ret->meshURI	= FileSystem::GenerateRandomUUID();
-		ret->assetID	= FileSystem::GenerateRandomUUID();
-
 		if (hasAnimations)
 		{
 			// ----- ANIMATIONCLIP ----
@@ -601,7 +637,10 @@ namespace SPW
 
 		}
 		else
+		{
 			std::cout << "No AnimationClips Exist! Only Return Static Data! \n";
+			ProcessHierarchyTransforms(glm::mat4(1.f), ret.get(), scene->mRootNode, scene);
+		}
 
 		return std::move(ret);
 	}

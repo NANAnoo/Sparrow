@@ -64,6 +64,7 @@ namespace SPW
 		void FileDialogCallBack_1();
 		void FileDialogCallBack_2();
 		void FileDialogCallBack_3();
+		void FileDialogCallBack_4();
 
 
 		void DisplayDialog() const;
