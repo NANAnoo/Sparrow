@@ -42,6 +42,7 @@ namespace SPW {
         }
 
         void initFromLua(const sol::table &value) {
+
             if (value["position"].valid()) {
                 position = value["position"];
             }
