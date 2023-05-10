@@ -399,7 +399,7 @@ public:
 int main(int argc, char** argv)
 {
 
-//	SPW::ConfigManager::WriteConfig();
+//	SPW::ConfigManager::WriteDefaultConfig();
 
 	if (SPW::ConfigManager::Boost())
 		std::cout << "Boost" << std::endl;

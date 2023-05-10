@@ -399,6 +399,15 @@ public:
 			auto camera_id = CreateACamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
 			auto camera2 = CreateCamera2(scene, weak_window.lock()->width(), weak_window.lock()->height());
 
+			// -- AUDIO ----------------------------------------------------------------------------
+			auto audioClip = scene->createEntity("audio");
+			audioClip->emplace<SPW::TransformComponent>();
+			//= scene->createEntity("audio");
+			std::string flyMeToTheMoon = SPW::Config::k_WorkingProjectSounds + "FlyMeToTheMoon.mp3";
+			std::string edm = SPW::Config::k_WorkingProjectSounds + "EDM.mav";
+			auto audioCom = audioClip->emplace<SPW::AudioComponent>(std::vector{ flyMeToTheMoon, edm });
+			audioCom->setState(flyMeToTheMoon, SPW::SoundState::Play);
+			// audioClip.swap();
 			// --------------------------------------------------------------------------------
 			SPW::ResourceManager::getInstance()->m_CameraIDMap["main"] = camera_id;
 			SPW::ResourceManager::getInstance()->m_CameraIDMap["not main"] = camera2;

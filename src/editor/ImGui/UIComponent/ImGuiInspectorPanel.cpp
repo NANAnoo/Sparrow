@@ -6,7 +6,7 @@
 
 namespace SPW
 {
-	void ImGuiInspectorPanel::Loop() 
+	void ImGuiInspectorPanel::Loop()
 	{
 		if (m_Entity->has<TransformComponent>())
 			componentStatus.at(ComponentType::TransformComponent) = true;
@@ -54,7 +54,6 @@ namespace SPW
 			componentStatus.at(ComponentType::MouseComponent) = true;
 		else
 			componentStatus.at(ComponentType::MouseComponent) = false;
-
 	}
 
 	void ImGuiInspectorPanel::Draw()
@@ -105,28 +104,28 @@ namespace SPW
 				// 	return;
 				// }
 			}
-			if (m_Entity->has<MeshComponent>() )
+			if (m_Entity->has<MeshComponent>())
 				DrawMeshComponent(m_Entity->component<MeshComponent>());
-			if (m_Entity->has<CameraComponent>() )
+			if (m_Entity->has<CameraComponent>())
 				DrawCameraComponent(m_Entity->component<CameraComponent>());
 			//			if (m_Entity->has<PointLightComponent>())
 			//				DrawPointLightComponent(m_Entity->component<PointLightComponent>());
 			//			if (m_Entity->has<DirectionalLightComponent>())
 			//				DrawDirectionalLightComponent(m_Entity->component<DirectionalLightComponent>());
-			if ((m_Entity->has<PointLightComponent>() || m_Entity->has<DirectionalLightComponent>()) )
+			if ((m_Entity->has<PointLightComponent>() || m_Entity->has<DirectionalLightComponent>()))
 				DrawLightComponent();
-			if (m_Entity->has<AnimationComponent>()  )
+			if (m_Entity->has<AnimationComponent>())
 				DrawAnimationComponent(m_Entity->component<AnimationComponent>());
-			if (m_Entity->has<AudioComponent>()  )
+			if (m_Entity->has<AudioComponent>())
 				DrawAudioComponent(m_Entity->component<AudioComponent>());
-			if (m_Entity->has<AudioListener>() )
+			if (m_Entity->has<AudioListener>())
 				DrawAudioListener(m_Entity->component<AudioListener>());
-			if ((m_Entity->has<KeyComponent>() || m_Entity->has<MouseComponent>()) )
+			if ((m_Entity->has<KeyComponent>() || m_Entity->has<MouseComponent>()))
 				DrawKeyComponent(m_Entity->component<KeyComponent>());
 			// ------------- RENDER COMPONENTS -------------
 
 			// ------------- ADD ANY COMPONENT -------------
-			ImGui::SetCursorPosX((ImGui::GetWindowWidth()* 0.2f));
+			ImGui::SetCursorPosX((ImGui::GetWindowWidth() * 0.2f));
 			if (ImGui::Button("Add Component", ImVec2(200, 20)))
 			{
 				show_addcomponent = true;
@@ -166,9 +165,12 @@ namespace SPW
 								auto model = m_Entity->emplace<MeshComponent>();
 
 								model->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
-								model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kPointShadowShader).uuid;
-								model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kDirectionalShadowShader).uuid;
-								model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kGBufferShader).uuid;
+								model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(
+									SPW::kPointShadowShader).uuid;
+								model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] =
+									GET_SHADER_DESC(SPW::kDirectionalShadowShader).uuid;
+								model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(
+									SPW::kGBufferShader).uuid;
 								model->ready = false;
 								show_addcomponent = false;
 
@@ -242,7 +244,6 @@ namespace SPW
 		{
 			if (ImGui::Button("delete"))
 			{
-
 				//TODO To delete the entity
 				m_Entity->remove<TransformComponent>();
 
@@ -258,7 +259,7 @@ namespace SPW
 			if (ImGui::BeginChild("Transform", ImVec2(0, 90), true))
 			{
 				// draw component properties
-				ImGui::DragFloat3("Position", glm::value_ptr(component->position),0.01f);
+				ImGui::DragFloat3("Position", glm::value_ptr(component->position), 0.01f);
 				ImGui::DragFloat3("Rotation", glm::value_ptr(component->rotation));
 				ImGui::DragFloat3("Scale", glm::value_ptr(component->scale), 0.01f);
 
@@ -306,7 +307,7 @@ namespace SPW
 
 			ImGui::End();
 		}
-		  
+
 
 		// ------------------------- DISPLAY LOGIC -------------------------
 		if (!component->assetName.empty())
@@ -318,13 +319,15 @@ namespace SPW
 			if (ImGui::TreeNode(ICON_FA_SPIDER"			Render Graphs"))
 			{
 				// Add a child window with scrolling capabilities
-				ImGui::BeginChild("Render Graphs Scrolling", ImVec2(0,  120), false, /*ImGuiWindowFlags_NoScrollbar | */ImGuiWindowFlags_AlwaysAutoResize);
+				ImGui::BeginChild("Render Graphs Scrolling", ImVec2(0, 120), false, /*ImGuiWindowFlags_NoScrollbar | */
+				                  ImGuiWindowFlags_AlwaysAutoResize);
 
 				std::vector<const char*> renderGraphNames;
 				const auto& renderGraphs = RenderGraphManager::getInstance()->GetRenderGraphs();
 				const auto& renderNodes = RenderGraphManager::getInstance()->GetNodes();
 
-				std::optional<std::string> currGraphKeyStr = RenderGraphManager::getInstance()->FindGraphName(component->bindRenderGraph);
+				std::optional<std::string> currGraphKeyStr = RenderGraphManager::getInstance()->FindGraphName(
+					component->bindRenderGraph);
 				static const char* currGraphKey = "";
 				if (currGraphKeyStr.has_value())
 					currGraphKey = currGraphKeyStr.value().c_str();
@@ -334,7 +337,7 @@ namespace SPW
 
 				std::vector<std::string> currNodeKeys;
 				static size_t numKeys = component->modelSubPassPrograms.size();
-				for(const auto&[k,v] : component->modelSubPassPrograms)
+				for (const auto& [k,v] : component->modelSubPassPrograms)
 				{
 					std::string tmp;
 					std::optional<std::string> currNodeKeyStr = RenderGraphManager::getInstance()->FindNodeName(k);
@@ -342,7 +345,7 @@ namespace SPW
 						tmp = currNodeKeyStr.value();
 					else
 						tmp = "Select";
-//					std::cout << tmp << std::endl;
+					//					std::cout << tmp << std::endl;
 					currNodeKeys.emplace_back(tmp);
 				}
 
@@ -385,24 +388,29 @@ namespace SPW
 								currNodeKeys[idx] = nodeKey;
 								if (nodeKey == kPointShadowNode)
 								{
-									if(m_Entity->has<AnimationComponent>())
+									if (m_Entity->has<AnimationComponent>())
 									{
-										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kAniPointShadowShader).uuid;
+										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] =
+											GET_SHADER_DESC(kAniPointShadowShader).uuid;
 									}
-									else 
-										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kPointShadowShader).uuid;
+									else
+										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] =
+											GET_SHADER_DESC(kPointShadowShader).uuid;
 								}
 								else if (nodeKey == kDirectionalShadowNode)
 								{
 									if (m_Entity->has<AnimationComponent>())
 									{
-										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kAniDirectionalShadowShader).uuid;
+										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] =
+											GET_SHADER_DESC(kAniDirectionalShadowShader).uuid;
 									}
 									else
-										component->modelSubPassPrograms[GET_RENDER_NODE(kDirectionalShadowNode)] = GET_SHADER_DESC(kDirectionalShadowShader).uuid;
+										component->modelSubPassPrograms[GET_RENDER_NODE(kDirectionalShadowNode)] =
+											GET_SHADER_DESC(kDirectionalShadowShader).uuid;
 								}
 								else if (nodeKey == kGBufferNode)
-									component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
+									component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(
+										kGBufferShader).uuid;
 							}
 							if (is_selected)
 							{
@@ -412,7 +420,7 @@ namespace SPW
 						ImGui::EndCombo();
 					}
 				}
-				if(ImGui::Button("Add Render Node!"))
+				if (ImGui::Button("Add Render Node!"))
 				{
 					// component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
 					numKeys++;
@@ -423,7 +431,6 @@ namespace SPW
 				ImGui::TreePop();
 			}
 			ImGui::PopID();
-
 
 
 			// if (ImGui::BeginCombo("G-Buffer Render Node", kGBufferNode.c_str()))
@@ -588,14 +595,14 @@ namespace SPW
 
 			if (ImGui::BeginChild("Animation", ImVec2(0, 120), true))
 			{
-				for(const auto& anim : skeleton.animClips)
+				for (const auto& anim : skeleton.animClips)
 				{
 					const char* anim_name = anim.name.c_str();
 					ImGui::Text("name : %s", anim_name);
 				}
 
 				ImGui::Checkbox("onGoingAnim update", &component->onGoingAnim->bUpdate);
-				
+
 				ImGui::Checkbox("anim ssbo bind", &component->SPW_AnimSSBO->bBinding);
 
 				ImGui::Checkbox("anim ssbo Initialized", &component->SPW_AnimSSBO->bInitialized);
@@ -617,10 +624,9 @@ namespace SPW
 			ImGui::TreePop();
 		}
 		ImGui::PopID();
-
 	}
 
-	void ImGuiInspectorPanel::DrawHierarchyNode(AnimationComponent* component,const HierarchyNode& node) const
+	void ImGuiInspectorPanel::DrawHierarchyNode(AnimationComponent* component, const HierarchyNode& node) const
 	{
 		bool node_open = ImGui::TreeNode(node.name.c_str());
 
@@ -628,7 +634,7 @@ namespace SPW
 		{
 			for (const HierarchyNode& child : node.children)
 			{
-				DrawHierarchyNode(component,child);
+				DrawHierarchyNode(component, child);
 			}
 			ImGui::TreePop();
 		}
@@ -640,7 +646,7 @@ namespace SPW
 
 		const char* items[] = {"Perspective", "Ortho", "UIOrtho"};
 
-		if (ImGui::TreeNode(ICON_FA_CAMERA"			Camera")) 
+		if (ImGui::TreeNode(ICON_FA_CAMERA"			Camera"))
 		{
 			if (ImGui::Button("delete"))
 			{
@@ -708,7 +714,7 @@ namespace SPW
 		//ImGui::SameLine();
 
 		//  PointLightComponent = 0, DirectionalLightComponent = 1;
-		const char* items[] = {"Point Light","Directional Light"};
+		const char* items[] = {"Point Light", "Directional Light"};
 		// ImGui::LabelText();
 		if (ImGui::TreeNode(ICON_FA_LIGHTBULB"			Light Source"))
 		{
@@ -811,22 +817,30 @@ namespace SPW
 				return;
 			}
 
-			int i = 1, j = 1;
-			for (auto& a : component->allSounds)
-			{
-				std::string clipNum = "Audio Clip " + std::to_string(i++);
-				std::string AudioSourceNum = "Audio Source " + std::to_string(j++);
-				if (ImGui::TreeNode(AudioSourceNum.c_str()))
-				{
-					ImGui::InputText(clipNum.c_str(), const_cast<char*>(a.first.c_str()), 256);
-					ImGui::Checkbox("is 3D", &a.second->is3D);
-					ImGui::Checkbox("is Loop", &a.second->isLoop);
-					ImGui::Spacing();
-					ImGui::Spacing();
-					ImGui::TreePop();
-				}
-			}
+			const std::string crtpath = component->currentSoundPath;
+			ImGui::Text("Audios: ");
+			ImGui::Separator();
+			const char* previewLabel = component->currentSoundPath.c_str();
 
+			int i = 1, j = 1;
+			for (const auto& [path, data] : component->allSounds)
+			{
+				ImGui::Text(path.c_str());
+				ImGui::Checkbox("is 3D", &data->is3D);
+				ImGui::Checkbox("is Loop", &data->isLoop);
+
+				if (ImGui::Button("Play"))
+					component->setState(component->currentSoundPath, Play);
+				ImGui::SameLine();
+				if (ImGui::Button("Stop"))
+					component->setState(component->currentSoundPath, Stop);
+				ImGui::SameLine();
+				if (ImGui::Button("Pause"))
+					component->setState(component->currentSoundPath, Pause);
+				ImGui::SameLine();
+				if (ImGui::Button("Continue"))
+					component->setState(component->currentSoundPath, Continue);
+			}
 			ImGui::TreePop();
 		}
 		ImGui::PopID();

@@ -275,6 +275,7 @@ namespace SPW
 
 	public:
 		std::unordered_map<std::string, std::shared_ptr<SPWSound>> allSounds;
+		std::string currentSoundPath{};
 	};
 
 }
