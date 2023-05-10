@@ -407,7 +407,7 @@ int main(int argc, char** argv)
 		return -1;
 	
 	// app test
-	auto appProxy =
+	auto appProxy =	
 		SPW::Application::create<SPWTestApp>("SPWTestApp");
 	return appProxy->app->run(argc, argv);
 }

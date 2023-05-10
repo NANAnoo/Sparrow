@@ -19,6 +19,7 @@ namespace SPW
 		std::string k_WorkingProjectScenes;
 		std::string k_WorkingProjectShaders;
 		std::string k_WorkingProjectScripts;
+		std::string k_WorkingProjectUI;
 	}
 
 	bool ConfigManager::Boost()
@@ -34,15 +35,17 @@ namespace SPW
 		FileSystem::MountPath(Config::k_TempalteProjectRoot, SPW::Config::k_WorkingProjectRoot);
 
 		// copy sounds
-		FileSystem::MountPath(SPW::Config::k_EngineRoot + "sounds/", SPW::Config::k_WorkingProjectSounds);
+		FileSystem::MountPath(Config::k_EngineRoot + "sounds/", SPW::Config::k_WorkingProjectSounds);
 
 		// copy scripts
-		FileSystem::MountPath(SPW::Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
+		FileSystem::MountPath(Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
+
+		// copy UI resources TODO ui path
+		FileSystem::MountPath(Config::k_EngineRoot + "texture/", SPW::Config::k_WorkingProjectUI);
 
 		// reference source code lualib
 		if (std::filesystem::exists(SPW::Config::k_EngineLualib))
-			std::cout << "[CONFIG]::lualib exsits! \033[31m \n";
-
+			std::cout << "[CONFIG]::lualib exsits! \n";
 
 		return true;
 	}
@@ -59,7 +62,7 @@ namespace SPW
 
 			std::cout << "Boost Sparrow Eninge: " << config["Sparrow"] << std::endl;
 
-			Config::k_EngineRoot = std::string(*config["Engine"]["RootPath"].as<std::string>());
+			Config::k_EngineRoot   = std::string(*config["Engine"]["RootPath"].as<std::string>());
 
 			Config::k_EngineLualib = std::string(*config["Engine"]["RuntimePath"].as<std::string>()) + "/src/LuaLib/";
 
@@ -87,12 +90,13 @@ namespace SPW
 
 			if (!project_paths.empty())
 			{
-				Config::k_WorkingProjectRoot = project_paths.begin()->second;
-				Config::k_WorkingProjectAssets = project_paths.begin()->second + "Assets/";
-				Config::k_WorkingProjectSounds = project_paths.begin()->second + "Sounds/";
-				Config::k_WorkingProjectScenes = project_paths.begin()->second + "Scenes/";
+				Config::k_WorkingProjectRoot	= project_paths.begin()->second;
+				Config::k_WorkingProjectAssets	= project_paths.begin()->second + "Assets/";
+				Config::k_WorkingProjectSounds	= project_paths.begin()->second + "Sounds/";
+				Config::k_WorkingProjectScenes	= project_paths.begin()->second + "Scenes/";
 				Config::k_WorkingProjectShaders = project_paths.begin()->second + "Shaders/";
 				Config::k_WorkingProjectScripts = project_paths.begin()->second + "Scripts/";
+				Config::k_WorkingProjectUI		= project_paths.begin()->second + "UI/";
 			}
 
 			std::cout << "Engine Root: " << Config::k_EngineRoot << std::endl;

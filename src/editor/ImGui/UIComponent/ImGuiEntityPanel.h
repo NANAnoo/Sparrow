@@ -45,24 +45,10 @@ namespace SPW
 
 		void SetActiveScene(const std::shared_ptr<Scene>& scene)
 		{
-			scene_ptr = scene.get();
+			m_ScenePtr = scene.get();
 		}
 
 	protected:
-		void Begin() override
-		{
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // 设置前景色为灰色
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.3f)); // 设置背景色为蓝色
-			ImGui::Begin(m_title.c_str(), m_open, m_windowFlags);
-
-		}
-
-		void End() override
-		{
-			ImGui::End();
-			ImGui::PopStyleColor(2); // 恢复前景色和背景色
-
-		}
 		void Draw() override
 		{
 			for (const auto& item_pair : m_Items)
@@ -73,7 +59,7 @@ namespace SPW
 				std::string button_label = ss.str();
 				if (ImGui::Button(button_label.c_str()))
 				{
-					scene_ptr->deleteEntity(scene_ptr->getEntityByID(item_pair.first));
+					m_ScenePtr->deleteEntity(m_ScenePtr->getEntityByID(item_pair.first));
 					RemoveMenuItem(item_pair.first);
 				}
 				ImGui::SameLine();
@@ -92,13 +78,13 @@ namespace SPW
 			ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize("Add Entity").x) * 0.5f);
 			if( ImGui::Button( "Add Entity" ) )
 			{
-				auto new_gameObject = scene_ptr->createEntity("NewGameObject");
+				auto new_gameObject = m_ScenePtr->createEntity("NewGameObject");
 				new_gameObject->emplace<TransformComponent>();
 			}
 		}
 
 	private:
 		std::unordered_map<std::string, MenuItem> m_Items;
-		Scene* scene_ptr;
+		Scene* m_ScenePtr;
 	};
 }

@@ -22,7 +22,6 @@ namespace SPW
 		// SparrowTemplate
 		extern std::string k_TempalteProjectRoot;
 
-
 		// Project
 		extern std::string k_WorkingProjectRoot;
 		// Project/Assets
@@ -35,9 +34,8 @@ namespace SPW
 		extern std::string k_WorkingProjectShaders;
 		// Project/Scripts
 		extern std::string k_WorkingProjectScripts;
-
-		// engine entrence script
-		// proj   entrence script
+		// in game ui
+		extern std::string k_WorkingProjectUI;
 	}
 
 

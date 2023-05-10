@@ -318,7 +318,7 @@ namespace SPW
 			if (ImGui::TreeNode(ICON_FA_SPIDER"			Render Graphs"))
 			{
 				// Add a child window with scrolling capabilities
-				ImGui::BeginChild("Render Graphs Scrolling", ImVec2(0, 100), false, /*ImGuiWindowFlags_NoScrollbar | */ImGuiWindowFlags_AlwaysAutoResize);
+				ImGui::BeginChild("Render Graphs Scrolling", ImVec2(0,  120), false, /*ImGuiWindowFlags_NoScrollbar | */ImGuiWindowFlags_AlwaysAutoResize);
 
 				std::vector<const char*> renderGraphNames;
 				const auto& renderGraphs = RenderGraphManager::getInstance()->GetRenderGraphs();
