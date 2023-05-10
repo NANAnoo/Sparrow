@@ -134,14 +134,14 @@ RepeatType = {
 
 DefaultGraph = {
     kDefferShadingGraph = "kDefferShadingGraph",
-    SkyBoxGraph = "SkyBoxGraph",
+    SkyBoxGraph = "kSkyBoxRenderGraph",
 };
 
 DefaultNode = {
     kPointShadowNode = "kPointShadowNode",
     kDirectionalShadowNode = "kDirectionalShadowNode",
     kGBufferNode = "kGBufferNode",
-    SkyBoxNode = "SkyBoxNode",
+    SkyBoxNode = "kSkyboxNode",
 };
 
 DefaultRenderPort = {

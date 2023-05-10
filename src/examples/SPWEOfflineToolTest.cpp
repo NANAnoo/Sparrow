@@ -13,7 +13,10 @@ int main(int argc, char** argv)
 
     SPW::FileSystem::MountFromConfig();
 
-    SPW::AssetManager::ImportModel("./resources/models/sand_cube/sand_cube.obj");
+    SPW::AssetManager::ImportModel("./resources/models/scene/scene.gltf");
     SPW::AssetManager::ImportModel("./resources/models/mantis/mantis.gltf");
+    SPW::AssetManager::ImportModel("./resources/models/cube.obj");
+    SPW::AssetManager::ImportModel("./resources/models/sand_cube/sand_cube.obj");
+    SPW::AssetManager::ImportModel("./resources/models/dragon/dragon.gltf");
 	return 0;
 }

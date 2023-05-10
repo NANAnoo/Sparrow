@@ -16,10 +16,14 @@ namespace SPW {
     using ShaderDescKey = std::string;
 
     const RenderGraphKey kDefferShadingGraph = "kDefferShadingGraph";
+    const RenderGraphKey kSkyBoxRenderGraph = "kSkyBoxRenderGraph";
+    const RenderGraphKey kUIRenderGraph = "kUIRenderGraph";
 
     const RenderNodeKey kPointShadowNode = "kPointShadowNode";
     const RenderNodeKey kDirectionalShadowNode = "kDirectionalShadowNode";
     const RenderNodeKey kGBufferNode = "kGBufferNode";
+
+    const RenderNodeKey kSkyboxNode = "kSkyboxNode";
 
     // render outputs in deffer shading
     const RenderNodeOutputKey kPointShadowPort = "kPointShadowPort";
@@ -45,7 +49,7 @@ namespace SPW {
 
     class RenderGraphManager : public SingletonBase<RenderGraphManager> {
     public:
-        RenderGraphManager();
+        RenderGraphManager() = default;
         std::shared_ptr<SPW::RenderGraph> createRenderGraph(const std::shared_ptr<RenderBackEndI> &backend, const RenderGraphKey &type);
         unsigned int getRenderGraph(const RenderGraphKey &type);
         unsigned int getRenderNode(const RenderNodeKey &type);

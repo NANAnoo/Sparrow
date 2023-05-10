@@ -17,7 +17,6 @@
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/PhysicalComponent/RigidActor.h"
-#include "EcsFramework/Component/PhysicalComponent/Collider.h"
 
 #include "EcsFramework/Component/Audio/AudioComponent.h"
 #include "EcsFramework/Component/Audio/AudioListener.h"
@@ -42,9 +41,8 @@
 #include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "IO/FileSystem.h"
-#include "ImGui/ImGuiManager.hpp"
 #include "Asset/Serializer/EntitySerializer.h"
-#include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
+#include "Asset/BasicMeshStorage.hpp"
 #include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
 #include "IO/ConfigManager.h"
 
@@ -248,12 +246,18 @@ public:
 
 		{
 			auto data = SPW::AssetManager::LoadAsset(
-				SPW::Config::k_WorkingProjectAssets + "companion_cube/companion_cube.json");
+				SPW::Config::k_WorkingProjectAssets + "cube/cube.json");
 			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
 		}
 
+        {
+            auto data = SPW::AssetManager::LoadAsset(
+                    SPW::Config::k_WorkingProjectAssets + "sand_cube/sand_cube.json");
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+        }
+
 		{
-			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "cube/cube.json");
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "scene/scene.json");
 			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
 		}
 		{
@@ -310,7 +314,7 @@ public:
 			// create ui camera
 			scene->uiCamera = scene->createEntity("ui_camera");
 			auto ui_trans = scene->uiCamera->emplace<SPW::TransformComponent>();
-			ui_trans->position = glm::vec3(0, 0, -1);
+			ui_trans->position = glm::vec3(0, 0, 0);
 			auto ui_camera = scene->uiCamera->emplace<SPW::CameraComponent>(SPW::UIOrthoType);
 			ui_camera->left = 0;
 			ui_camera->right = float(weak_window.lock()->frameWidth());
@@ -322,11 +326,48 @@ public:
 
             // ------ create render graph ----------------
             SPW::RenderGraphManager::getInstance()->createRenderGraph(renderBackEnd, SPW::kDefferShadingGraph);
+            SPW::RenderGraphManager::getInstance()->createRenderGraph(renderBackEnd, SPW::kSkyBoxRenderGraph);
             SPW::RenderGraphManager::getInstance()->forEachShader([&renderSystem](const SPW::ShaderDesc &shader){
                 renderSystem->addShaderDescriptor(shader);
             });
 
-			// game objects
+//            auto bar = scene->createEntity("bar");
+//			auto bar_transform = bar->emplace<SPW::TransformComponent>();
+//            bar_transform->scale = {1, 1, 1};
+//            bar_transform->rotation = {0, 0, 0};
+//            bar_transform->position = {0, 0, 0};
+//
+//			auto bar_model = bar->emplace<SPW::MeshComponent>(camera_id);
+//            bar_model->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+//            bar_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kPointShadowShader).uuid;
+//            bar_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kDirectionalShadowShader).uuid;
+//            bar_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kGBufferShader).uuid;
+//            bar_model->assetID   = SPW::ResourceManager::getInstance()->m_AssetDataMap["scene"].assetID;
+//			bar_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["scene"].assetName;
+//			bar_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["scene"].path;
+
+            {
+                auto uiTestMesh = scene->createEntity("uiTestMesh");
+                auto trans = uiTestMesh->emplace<SPW::TransformComponent>();
+                auto mesh = uiTestMesh->emplace<SPW::MeshComponent>(scene->uiCamera->getUUID());
+                trans->scale = glm::vec3(100, 100, 1);
+                trans->position = glm::vec3(0, 0, -1);
+                mesh->bindRenderGraph = scene->getUIRenderGraphID();
+                mesh->modelSubPassPrograms[scene->getUIRenderNodeID()] = scene->getUIProgramID();
+                mesh->assetID = uiTestMesh->getUUID().toString();
+
+                auto builder = SPW::BasicMeshStorage<SPW::UIMesh>::getInstance()->insert(mesh->assetID);
+                auto material = SPW::MaterialData();
+                auto id = SPW::UUID::randomUUID();
+                material.m_TextureIDMap[SPW::TextureMapType::Albedo] = id.toString();
+                material.ID = SPW::UUID::randomUUID().toString();
+                builder.addMaterial(material);
+                builder.addMesh(SPW::createUIMesh(material));
+                builder.addTexture("/Assets/skybox/Textures/back.jpg", id);
+            }
+
+
+            // game objects
 			// --------------- dragon ---------------
 			auto dragon = scene->createEntity("anim dragon");
 			auto dragon_transform = dragon->emplace<SPW::TransformComponent>();
@@ -382,9 +423,9 @@ public:
 			auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
 			cubeTrans->scale = {50.0, 0.05, 50.0};
 			auto floorModel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
-            floorModel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetID;
-            floorModel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetName;
-            floorModel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].path;
+            floorModel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetID;
+            floorModel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName;
+            floorModel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].path;
 
             floorModel->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
             floorModel->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kFloorGBufferShader).uuid;
@@ -403,8 +444,8 @@ public:
 			skyMesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].assetName;
 			skyMesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].path;
 
-			skyMesh->bindRenderGraph = renderSystem->skyBoxGraph->graph_id;
-			skyMesh->modelSubPassPrograms[renderSystem->skyBoxNode->pass_id] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
+			skyMesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kSkyBoxRenderGraph);
+			skyMesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
 
 			auto light1 = createPlight(scene, {5, 2, 2}, {10, 5, 0});
 			auto light2 = createPlight(scene, {5, 2, -2}, {0, 5, 10});
@@ -479,7 +520,6 @@ public:
 			light3->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(2);
 			light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
-			std::cout << "ImGui" << IMGUI_VERSION << std::endl;
 			// init scene
 			scene->initial();
 			transformer->scene = scene;
