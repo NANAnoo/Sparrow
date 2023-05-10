@@ -18,6 +18,7 @@
 #include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
+#include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
 
 namespace SPW {
     class EntityWrapper{
@@ -83,6 +84,9 @@ namespace SPW {
                 return ComponentWrapper::createCompWrapper<AudioComponent>(m_entity);
             } else if (type == "AudioListener") {
                 return ComponentWrapper::createCompWrapper<AudioListener>(m_entity);
+            } else if(type == "AnimationComponent")
+            {
+                return ComponentWrapper::createCompWrapper<AnimationComponent>(m_entity);
             }
             return ComponentWrapper(m_entity);
         }
@@ -113,6 +117,8 @@ namespace SPW {
                 res.setupComponent<AudioComponent>(value);
             } else if (type == "AudioListener") {
                 res.setupComponent<AudioListener>(value);
+            } else if(type == "AnimationComponent"){
+                res.setupComponent<AnimationComponent>(value);
             }
             return res;
         }

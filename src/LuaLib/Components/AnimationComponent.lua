@@ -58,18 +58,18 @@ function AnimationComponent:swapAnimation(animationName)
 
     --Set state: to be implemented
     --Stop current animation
-    self.setState(AnimationState.Stopped)
+    self:setState(AnimationState.Stopped)
 
-    self.update("swapAnimation",animationName)
-
+    self:update("swapAnimation",animationName)
+    self.onGoingAnim = animationName
     --Start current Animation
-    self.setState(AnimationState.OnPlaying)
+    self:setState(AnimationState.OnPlaying)
 end
 
 function AnimationComponent:setState(state)
 
-    shouldUpdate = false
-    oldState = self.onGoingAnimState
+    local shouldUpdate = false
+    local oldState = self.onGoingAnimState
 
     if oldState == AnimationState.OnPlaying then
 

@@ -235,9 +235,9 @@ namespace SPW {
             skyMesh->bindRenderGraph = skyboxGraphID;
             skyMesh->modelSubPassPrograms[skyboxNodeID] = skyboxShaderID;
 
-            skyMesh->model = SPW::createSkyBoxModel({
-                right, left, top, bottom, front, back
-            });
+//            skyMesh->model = SPW::createSkyBoxModel({
+//                right, left, top, bottom, front, back
+//            });
         }
 
         RenderGraphWrapper createRenderGraph() {

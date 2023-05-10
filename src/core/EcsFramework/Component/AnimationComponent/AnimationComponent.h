@@ -145,11 +145,12 @@ namespace SPW
 		bool bInitialized = false;
 	};
 
-	class AnimationComponent : ComponentI
+	class AnimationComponent : public ComponentI
 	{
 	public:
 		//Constructor
 		AnimationComponent() = default;
+        AnimationComponent(const AnimationComponent&) = default;
 
 		explicit AnimationComponent(const std::string& asset_name)
 		{
@@ -247,7 +248,7 @@ namespace SPW
                 return;
             std::string assetPath = value["animFilePath"];
 
-            assetName = assetPath;
+            assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap[assetPath].assetName;
 
             const auto skeleton = ResourceManager::getInstance()->m_AssetDataMap[assetName].skeleton;
 
@@ -294,8 +295,6 @@ namespace SPW
             }
             return sol::nil;
         }
-
-
 
         std::unordered_map<std::string, AnimationClip> allAnimations;
 		std::shared_ptr<SPWAnimSSBO> SPW_AnimSSBO;

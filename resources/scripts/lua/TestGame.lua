@@ -8,7 +8,7 @@ require "MantisModel"
 require "MainLight"
 require "FloorModel"
 
-local scene = {}
+local scene = {}    
 local MainCamera = {}
 
 App({name="Test", width = 1280, height = 720,

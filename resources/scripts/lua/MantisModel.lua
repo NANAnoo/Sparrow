@@ -22,11 +22,13 @@ function CreateMantisModel(scene, camera_id)
     model:setRenderProgram(scene:getRenderNodeID(DefaultNode.PBRShadowLightingNode), scene:getShaderID(DefaultShader.PBRShadowShader))
 
     --render animation
-    local animation = MantisModel:addComponent(AnimationComponent,"resources/models/mantis/scene.gltf")
-
-
-
+    local animation = MantisModel:addComponent(AnimationComponent,"scene.gltf")
+    animation:setState(2)
+    animation:setLoop(true)
+    animation:swapAnimation("movement")
     print("Mantis Model id : ", MantisModel.id)
-    
+    print("Mantis animation state.", animation.onGoingAnimState)
+    print("Mantis animation name",animation.onGoingAnim)
+    print("Mantis animation state.",animation.onGoingAnimState)
     return MantisModel
 end
