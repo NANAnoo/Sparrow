@@ -34,8 +34,9 @@ namespace SPW
 		icons_config.SizePixels = 16.f;
 		icons_config.GlyphOffset = ImVec2(0.0f,3.0f);
 
-		const char* font_path = "./resources/fonts/fa-solid-900.ttf";
-		io.Fonts->AddFontFromFileTTF(font_path, 16.0f, &icons_config, icons_ranges);
+		std::string fontPath = Config::k_EngineRoot + "fonts/fa-solid-900.ttf";
+		const char* fontPath_cstr = fontPath.c_str();
+		io.Fonts->AddFontFromFileTTF(fontPath_cstr, 16.0f, &icons_config, icons_ranges);
 
 		//file dialog panel
 		m_FileDialog = std::make_shared<ImGuiFileDialog>();
@@ -274,7 +275,9 @@ namespace SPW
 
 	void ImGuiManager::LoadDefaultLayout() const
 	{
-		std::ifstream default_ini("./default.ini");
+		const std::string editorLayoutPath = Config::k_EngineRoot + "/fonts/EditorLayout.ini";
+
+		std::ifstream default_ini(editorLayoutPath);
 		std::ofstream imgui_ini("./imgui.ini");
 
 		if (!default_ini.is_open() || !imgui_ini.is_open()) {
