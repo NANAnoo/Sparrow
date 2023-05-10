@@ -21,7 +21,6 @@ namespace SPW
 
 		// SparrowTemplate
 		extern std::string k_TempalteProjectRoot;
-
 		// Project
 		extern std::string k_WorkingProjectRoot;
 		// Project/Assets
@@ -60,7 +59,7 @@ namespace SPW
 
 
 
-		static bool WriteConfig();
+		static bool WriteDefaultConfig();
 		static bool WriteConfig(const std::string& curr_path);
 	};
 }

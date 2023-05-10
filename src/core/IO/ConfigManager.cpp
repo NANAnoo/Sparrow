@@ -26,7 +26,8 @@ namespace SPW
 	{
 		if (ReadConfig())
 			std::cout << "Successfully read config file" << std::endl;
-		else return false;
+		else 
+			ReadConfig();
 
 		// copy engine shaders
 		FileSystem::MountPath(Config::k_EngineShaderLib, SPW::Config::k_WorkingProjectShaders);
@@ -62,16 +63,43 @@ namespace SPW
 
 			std::cout << "Boost Sparrow Eninge: " << config["Sparrow"] << std::endl;
 
-			Config::k_EngineRoot   = std::string(*config["Engine"]["RootPath"].as<std::string>());
+			{
+				auto ret = config["Engine"]["RootPath"].as<std::string>();
+				if (ret)
+					Config::k_EngineRoot = std::string(*ret);
+				else
+				{
+					WriteDefaultConfig();
+					return false;
+				}
+			}
 
-			Config::k_EngineLualib = std::string(*config["Engine"]["RuntimePath"].as<std::string>()) + "/src/LuaLib/";
+			{
+				auto ret = config["Engine"]["RuntimePath"].as<std::string>();
+				if (ret)
+					Config::k_EngineLualib = std::string(*ret) + "/src/LuaLib/";
+				else
+				{
+					WriteDefaultConfig();
+					return false;
+				}
+			}
+
+			{
+				auto ret = config["Engine"]["SparrowTemplate"].as<std::string>();
+				if(ret)
+					Config::k_TempalteProjectRoot = std::string(*ret);
+				else
+				{
+					WriteDefaultConfig();
+					return false;
+				}
+			}
+
 
 			// new shader lib from Engine to 
 			Config::k_EngineShaderLib = Config::k_EngineRoot + "shaders/";
 
-			// std::filesystem::parent_path(Config::k_EngineRoot);
-			// Config::k_EngineLualib =	Config::k_EngineRoot + "scripts/";
-			Config::k_TempalteProjectRoot = std::string(*config["Engine"]["SparrowTemplate"].as<std::string>());
 
 			std::unordered_map<std::string, std::string> project_paths;
 
@@ -132,7 +160,7 @@ namespace SPW
 		return false;
 	}
 
-	bool ConfigManager::WriteConfig()
+	bool ConfigManager::WriteDefaultConfig()
 	{
 		std::filesystem::path config_file_dir = FileSystem::GetUserHomeDir().append("./.config/");
 		FileSystem::CreateDirectory(config_file_dir);
