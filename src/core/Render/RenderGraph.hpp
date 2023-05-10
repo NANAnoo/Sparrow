@@ -341,8 +341,14 @@ namespace SPW {
         ScreenAttachmentType screen_output_type = UnknownScreenAttachmentType; 
     };
 
+    enum class MeshSourceType {
+        MeshFromAsset,
+        MeshFromUIStorage
+    };
+
     class Entity;
     struct RenderInput {
+        MeshSourceType sourceType = MeshSourceType::MeshFromAsset;
         unsigned int screen_width;
         unsigned int screen_height;
         std::unordered_map<unsigned int, std::vector<Entity>> render_models;

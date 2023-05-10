@@ -2,6 +2,7 @@
 
 #include "Render/RenderGraph.hpp"
 #include "Asset/AssetData/Mesh.h"
+#include "Asset/AssetData/MaterialData.h"
 
 namespace SPW {
     static ShaderDesc FXAA_desc(const AttachmentPort &port) {
@@ -319,18 +320,17 @@ namespace SPW {
         return mesh;
     }
 
-    static Mesh createUIMesh(const std::string &bg_img) {
-        auto mesh = Mesh{};
-        // mesh->mMaterial = std::make_shared<Material>();
-        // mesh->mMaterial->updateTexture(TextureType::Albedo, bg_img);
+    static std::shared_ptr<Mesh> createUIMesh(const MaterialData &material) {
+        auto mesh = std::make_shared<Mesh>();
+        mesh->materialID = material.ID;
 
         // push 8 vertices on cube
-        mesh.vertices.emplace_back(Vertex{glm::vec3(0, 0, 0), glm::vec3(0.0f), glm::vec2(0, 0), glm::vec3(0.0f), glm::vec3(0.0f)});
-        mesh.vertices.emplace_back(Vertex{glm::vec3(0, 1, 0), glm::vec3(0.0f), glm::vec2(0, 1), glm::vec3(0.0f), glm::vec3(0.0f)});
-        mesh.vertices.emplace_back(Vertex{glm::vec3(1, 1, 0), glm::vec3(0.0f), glm::vec2(1, 1), glm::vec3(0.0f), glm::vec3(0.0f)});
-        mesh.vertices.emplace_back(Vertex{glm::vec3(1, 0, 0), glm::vec3(0.0f), glm::vec2(1, 0), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(0, 0, 0), glm::vec3(0.0f), glm::vec2(0, 0), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(0, 1, 0), glm::vec3(0.0f), glm::vec2(0, 1), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(1, 1, 0), glm::vec3(0.0f), glm::vec2(1, 1), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(1, 0, 0), glm::vec3(0.0f), glm::vec2(1, 0), glm::vec3(0.0f), glm::vec3(0.0f)});
 
-    	mesh.indices = {0, 2, 1, 0, 3, 2};
+    	mesh->indices = {0, 2, 1, 0, 3, 2};
 
         // auto model = std::make_shared<Model>( std::vector<std::shared_ptr<Mesh>>{mesh});
         return mesh;
