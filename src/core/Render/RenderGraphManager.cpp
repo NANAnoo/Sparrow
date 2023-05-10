@@ -4,10 +4,6 @@
 #include "RenderGraphManager.h"
 #include "DefaultRenderPass.hpp"
 
-SPW::RenderGraphManager::RenderGraphManager() {
-    shaders.insert({kSkyBoxShader, SPW::SkyBoxShader_desc()});
-}
-
 unsigned int SPW::RenderGraphManager::getRenderGraph(const RenderGraphKey &type) {
     if (graphs.contains(type)) {
         return graphs.at(type)->graph_id;
@@ -152,12 +148,20 @@ SPW::RenderGraphManager::createRenderGraph(const std::shared_ptr<RenderBackEndI>
         shaders.insert({kSSRShader, SSR_desc});
         shaders.insert({kSSRBlurShader, SSR_blur_desc});
         return defferShading;
-    }
-	else if (type == kSkyboxShadingGraph)
-    {
-		auto skybox_shading = backend->createRenderGraph();
-    }
-    else {
+    } else if (kSkyBoxRenderGraph == type) {
+        auto skyBoxGraph = backend->createRenderGraph();
+        skyBoxGraph->graph_id = (unsigned int)(graphs.size());
+
+        auto skyBoxNode = skyBoxGraph->createRenderNode<SPW::ModelToScreenNode>();
+        skyBoxNode->addScreenAttachment(SPW::ScreenColorType);
+        skyBoxNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
+
+        graphs.insert({kSkyBoxRenderGraph, skyBoxGraph});
+        nodes.insert({kSkyboxNode, skyBoxNode});
+        shaders.insert({kSkyBoxShader, SPW::SkyBoxShader_desc()});
+
+        return skyBoxGraph;
+    } else {
         auto graph = backend->createRenderGraph();
         graph->graph_id = (unsigned int)(graphs.size());
         return graph;

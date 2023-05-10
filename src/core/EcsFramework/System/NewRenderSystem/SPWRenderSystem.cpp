@@ -7,6 +7,7 @@
 
 #include "Render/Light.h"
 #include "Utils/Debounce.hpp"
+#include "Asset/BasicMeshStorage.hpp"
 
 #include "Render/RenderGraphManager.h"
 
@@ -41,8 +42,8 @@ namespace SPW {
         renderBackEnd->SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 
         RenderGraphManager::getInstance()->initializeGraph(width, height);
-        skyBoxGraph->init(width, height);
         postProcessGraph->init(width, height);
+        uiGraph->init(width, height);
     }
 
     void SPWRenderSystem::beforeUpdate() 
@@ -51,10 +52,19 @@ namespace SPW {
         [this](MeshComponent *meshComponent){
             if (!meshComponent->ready)  
 			{
-				auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[meshComponent->assetName].meshes;
-				for (auto& mesh : meshes)
-					mesh.setupMesh(renderBackEnd);
-				meshComponent->ready = true;
+                if ( ResourceManager::getInstance()->m_AssetDataMap.contains(meshComponent->assetName)) {
+                    auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[meshComponent->assetName].meshes;
+                    for (auto& mesh : meshes)
+                        mesh.setupMesh(renderBackEnd);
+                }
+                BasicMeshStorage<UIMesh>::getInstance()
+                ->forEachMesh(
+                        meshComponent->assetID,
+                        [this](auto mesh,auto m, auto t)
+                        {
+                            mesh->setupMesh(renderBackEnd);
+                });
+                meshComponent->ready = true;
             }
             
             if (meshComponent->beforeDraw) {
@@ -166,22 +176,29 @@ namespace SPW {
                     model_by_shader[id].push_back(mesh_entity);
                 }
             }
-
+            auto skybox_id = GET_RENDER_GRAPH(kSkyBoxRenderGraph);
+            std::shared_ptr<RenderGraph> skyGraph = nullptr;
             RenderGraphManager::getInstance()->forEachGraph(
-                    [&model_by_pass, &input](const std::shared_ptr<RenderGraph> &graph){
+                    [&model_by_pass, &input, &skybox_id, &skyGraph](const std::shared_ptr<RenderGraph> &graph){
                 auto graph_id = graph->graph_id;
-                if (model_by_pass.find(graph_id) != model_by_pass.end())
+                if (skybox_id == graph_id) {
+                    skyGraph = graph;
+                } else if (model_by_pass.find(graph_id) != model_by_pass.end()) {
+                    input.sourceType = SPW::MeshSourceType::MeshFromAsset;
                     input.render_models = model_by_pass.at(graph_id);
-                graph->render(input);
+                    graph->render(input);
+                }
             });
 
-            if (model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
-                input.render_models = model_by_pass.at(skyBoxGraph->graph_id);
-                skyBoxGraph->render(input);
+            if (skyGraph != nullptr && model_by_pass.find(skybox_id) != model_by_pass.end()) {
+                input.sourceType = SPW::MeshSourceType::MeshFromAsset;
+                input.render_models = model_by_pass.at(skybox_id);
+                skyGraph->render(input);
             }
 
             if (cameraCom->getType() == SPW::UIOrthoType && model_by_pass.find(uiGraph->graph_id) != model_by_pass.end()) {
                 // draw ui
+                input.sourceType = SPW::MeshSourceType::MeshFromUIStorage;
                 input.render_models = model_by_pass.at(uiGraph->graph_id);
                 uiGraph->render(input);
             }

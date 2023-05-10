@@ -18,12 +18,15 @@ namespace SPW {
     using ShaderDescKey = std::string;
 
     const RenderGraphKey kDefferShadingGraph = "kDefferShadingGraph";
-    const RenderGraphKey kSkyboxShadingGraph = "kSkyboxShadingGraph";
+    const RenderGraphKey kSkyBoxRenderGraph = "kSkyBoxRenderGraph";
+    const RenderGraphKey kUIRenderGraph = "kUIRenderGraph";
 
     const RenderNodeKey kPointShadowNode = "kPointShadowNode";
     const RenderNodeKey kDirectionalShadowNode = "kDirectionalShadowNode";
     const RenderNodeKey kGBufferNode = "kGBufferNode";
     const RenderNodeKey kSkyboxNode = "kSkyboxNode";
+
+//    const RenderNodeKey kSkyboxNode = "kSkyboxNode";
 
     // render outputs in deffer shading
     const RenderNodeOutputKey kPointShadowPort = "kPointShadowPort";
@@ -49,7 +52,7 @@ namespace SPW {
 
     class RenderGraphManager : public SingletonBase<RenderGraphManager> {
     public:
-        RenderGraphManager();
+        RenderGraphManager() = default;
         std::shared_ptr<SPW::RenderGraph> createRenderGraph(const std::shared_ptr<RenderBackEndI> &backend, const RenderGraphKey &type);
         unsigned int getRenderGraph(const RenderGraphKey &type);
         unsigned int getRenderNode(const RenderNodeKey &type);
@@ -80,11 +83,11 @@ namespace SPW {
             }
             return {};
         }
-        inline void AddSkyboxGraph(std::shared_ptr<RenderGraph> skyBoxGraph, std::shared_ptr<ModelToScreenNode> skyBoxNode)
-        {
-            graphs.insert({ kSkyboxShadingGraph, skyBoxGraph });
-            nodes.insert({ kSkyboxNode, skyBoxNode });
-        }
+        // inline void AddSkyboxGraph(std::shared_ptr<RenderGraph> skyBoxGraph, std::shared_ptr<ModelToScreenNode> skyBoxNode)
+        // {
+        //     graphs.insert({ kSkyboxShadingGraph, skyBoxGraph });
+        //     nodes.insert({ kSkyboxNode, skyBoxNode });
+        // }
         inline std::unordered_map<RenderGraphKey, std::shared_ptr<RenderGraph>>
     	GetRenderGraphs() const { return graphs; }
         inline std::unordered_map<RenderNodeKey, std::shared_ptr<RenderPassNodeI>>

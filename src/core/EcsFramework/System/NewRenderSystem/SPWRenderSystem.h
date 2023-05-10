@@ -25,11 +25,7 @@ namespace SPW {
 			{
                 width = w;
                 height = h;
-                skyBoxGraph = renderBackEnd->createRenderGraph();
-                skyBoxNode = skyBoxGraph->createRenderNode<SPW::ModelToScreenNode>();
-                skyBoxNode->addScreenAttachment(SPW::ScreenColorType);
-                skyBoxNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
-                skyBoxGraph->graph_id = 666;
+
 
                 postProcessGraph = renderBackEnd->createRenderGraph();
                 if(editor)
@@ -77,9 +73,6 @@ namespace SPW {
         [[nodiscard]] inline GLuint getTextureID() const {
             return std::dynamic_pointer_cast<OpenGLAttachmentTexture>(screenTexture)->m_textureID;
         }
-
-        std::shared_ptr<RenderGraph> skyBoxGraph;
-        std::shared_ptr<ModelToScreenNode> skyBoxNode;
 
         std::shared_ptr<RenderGraph> postProcessGraph;
         std::shared_ptr<PresentNode> presentNode;

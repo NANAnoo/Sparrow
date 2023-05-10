@@ -201,8 +201,11 @@ namespace SPW
 
 						if(mesh->assetName == "skybox")
 						{
-							mesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kSkyboxShadingGraph);
-							mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
+							mesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kSkyBoxRenderGraph	);
+							mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode	)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
+
+							// mesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kSkyboxShadingGraph);
+							// mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
 						}
 					}
 				}

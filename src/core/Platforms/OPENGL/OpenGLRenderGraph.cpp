@@ -7,6 +7,7 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "IO/FileSystem.h"
 #include "IO/ConfigManager.h"
+#include "Asset/BasicMeshStorage.hpp"
 
 namespace SPW {
     static glm::mat4 getCubeViewOnFace(const glm::vec3 &pos, int face) {
@@ -515,15 +516,24 @@ namespace SPW {
                 }
 
                 // draw submeshes
-                auto &meshes = ResourceManager::getInstance()->m_AssetDataMap[mesh_component->assetName].meshes;
-                auto &materials = ResourceManager::getInstance()->m_AssetDataMap[mesh_component->assetName].materials;
-                auto &textures = ResourceManager::getInstance()->m_AssetDataMap[mesh_component->assetName].textures;
+                if (input.sourceType == MeshSourceType::MeshFromAsset) {
+                    auto &meshes = ResourceManager::getInstance()->m_AssetDataMap[mesh_component->assetName].meshes;
+                    auto &materials = ResourceManager::getInstance()->m_AssetDataMap[mesh_component->assetName].materials;
+                    auto &textures = ResourceManager::getInstance()->m_AssetDataMap[mesh_component->assetName].textures;
 
-                for (int idx = 0; idx < meshes.size(); ++idx) {
-                    bindMaterial(shader, shader_desc.mat_inputs, input.backend, materials[idx], textures, slot);
-                    if (shader_desc.context_inputs.contains(MeshOffset))
-                        shader->setInt(shader_desc.context_inputs.at(MeshOffset), meshes[idx].offset);
-                    meshes[idx].PureDraw(input.backend);
+                    for (int idx = 0; idx < meshes.size(); ++idx) {
+                        bindMaterial(shader, shader_desc.mat_inputs, input.backend, materials[idx], textures, slot);
+                        if (shader_desc.context_inputs.contains(MeshOffset))
+                            shader->setInt(shader_desc.context_inputs.at(MeshOffset), meshes[idx].offset);
+                        meshes[idx].PureDraw(input.backend);
+                    }
+                } else {
+                    BasicMeshStorage<UIMesh>::getInstance()
+                    ->forEachMesh(mesh_component->assetID,
+                                  [&](auto mesh, const MaterialData &mat, auto textures){
+                        bindMaterial(shader, shader_desc.mat_inputs, input.backend, mat, textures, slot);
+                        mesh->PureDraw(input.backend);
+                    });
                 }
             }
         }
