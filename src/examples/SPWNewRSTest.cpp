@@ -326,6 +326,7 @@ public:
 
             // ------ create render graph ----------------
             SPW::RenderGraphManager::getInstance()->createRenderGraph(renderBackEnd, SPW::kDefferShadingGraph);
+            SPW::RenderGraphManager::getInstance()->createRenderGraph(renderBackEnd, SPW::kSkyBoxRenderGraph);
             SPW::RenderGraphManager::getInstance()->forEachShader([&renderSystem](const SPW::ShaderDesc &shader){
                 renderSystem->addShaderDescriptor(shader);
             });
@@ -443,8 +444,8 @@ public:
 			skyMesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].assetName;
 			skyMesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].path;
 
-			skyMesh->bindRenderGraph = renderSystem->skyBoxGraph->graph_id;
-			skyMesh->modelSubPassPrograms[renderSystem->skyBoxNode->pass_id] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
+			skyMesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kSkyBoxRenderGraph);
+			skyMesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
 
 			auto light1 = createPlight(scene, {5, 2, 2}, {10, 5, 0});
 			auto light2 = createPlight(scene, {5, 2, -2}, {0, 5, 10});

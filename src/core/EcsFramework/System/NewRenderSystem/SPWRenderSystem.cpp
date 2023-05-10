@@ -42,7 +42,6 @@ namespace SPW {
         renderBackEnd->SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 
         RenderGraphManager::getInstance()->initializeGraph(width, height);
-        skyBoxGraph->init(width, height);
         postProcessGraph->init(width, height);
         uiGraph->init(width, height);
     }
@@ -177,21 +176,24 @@ namespace SPW {
                     model_by_shader[id].push_back(mesh_entity);
                 }
             }
-
+            auto skybox_id = GET_RENDER_GRAPH(kSkyBoxRenderGraph);
+            std::shared_ptr<RenderGraph> skyGraph = nullptr;
             RenderGraphManager::getInstance()->forEachGraph(
-                    [&model_by_pass, &input](const std::shared_ptr<RenderGraph> &graph){
+                    [&model_by_pass, &input, &skybox_id, &skyGraph](const std::shared_ptr<RenderGraph> &graph){
                 auto graph_id = graph->graph_id;
-                if (model_by_pass.find(graph_id) != model_by_pass.end()) {
+                if (skybox_id == graph_id) {
+                    skyGraph = graph;
+                } else if (model_by_pass.find(graph_id) != model_by_pass.end()) {
                     input.sourceType = SPW::MeshSourceType::MeshFromAsset;
                     input.render_models = model_by_pass.at(graph_id);
                     graph->render(input);
                 }
             });
 
-            if (model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
+            if (skyGraph != nullptr && model_by_pass.find(skybox_id) != model_by_pass.end()) {
                 input.sourceType = SPW::MeshSourceType::MeshFromAsset;
-                input.render_models = model_by_pass.at(skyBoxGraph->graph_id);
-                skyBoxGraph->render(input);
+                input.render_models = model_by_pass.at(skybox_id);
+                skyGraph->render(input);
             }
 
             if (cameraCom->getType() == SPW::UIOrthoType && model_by_pass.find(uiGraph->graph_id) != model_by_pass.end()) {
@@ -241,7 +243,6 @@ namespace SPW {
             RenderGraphManager::getInstance()->onFrameChanged(width, height);
             uiGraph->onFrameChanged(width, height);
             postProcessGraph->onFrameChanged(width, height);
-            skyBoxGraph->onFrameChanged(width, height);
 
         }, 100);
 
