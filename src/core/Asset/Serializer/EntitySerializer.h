@@ -16,6 +16,7 @@
 #include "IO/FileSystem.h"
 #include "Asset/ResourceManager/ResourceManager.h"
 #include "IO/ConfigManager.h"
+#include "Render/RenderGraphManager.h"
 
 namespace SPW
 {
@@ -187,21 +188,21 @@ namespace SPW
 
 						if (mesh->assetName == "sand_cube")
 						{
-							mesh->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
-							mesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_light_shadow_tiled_desc"].uuid;
+							mesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+							mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kFloorGBufferShader).uuid;
 						}
 						else
 						{
-							mesh->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
-							mesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_shadow_desc"].uuid;
-							mesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["d_shadowmap_node"]->pass_id] = rm->m_ShaderMap["d_shadow_desc"].uuid;
-							mesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_light_shadow_desc"].uuid;
+							mesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+							mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kPointShadowShader).uuid;
+							mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kDirectionalShadowShader).uuid;
+							mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kGBufferShader).uuid;
 						}
 
 						if(mesh->assetName == "skybox")
 						{
-							mesh->bindRenderGraph = rm->m_RenderGraph["skybox"]->graph_id;
-							mesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["skybox"]->pass_id] = rm->m_ShaderMap["skybox"].uuid;
+							mesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kSkyboxShadingGraph);
+							mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
 						}
 					}
 				}
@@ -218,10 +219,10 @@ namespace SPW
 
 						auto animMesh = e->component<MeshComponent>();
 
-						animMesh->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
-						animMesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_ani_shadow_desc"].uuid;
-						animMesh->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["d_shadowmap_node"]->pass_id] = rm->m_ShaderMap["d_ani_shadow_desc"].uuid;
-						animMesh->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_ani_light_shadow_desc"].uuid;
+						animMesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+						animMesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kAniPointShadowShader).uuid;
+						animMesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kAniDirectionalShadowShader).uuid;
+						animMesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kAniGBufferShader).uuid;
 					}
 				}
 			}

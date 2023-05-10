@@ -46,7 +46,7 @@ namespace SPW
 	class ImGuiManager : public EventResponderI
 	{
 	public:
-		ImGuiManager(GLFWwindow* window, std::shared_ptr<Scene> scene, const std::shared_ptr<EventResponderI>& eventResponder)
+		ImGuiManager(GLFWwindow* window, const std::shared_ptr<Scene>& scene, const std::shared_ptr<EventResponderI>& eventResponder)
 					: m_Window(window)
 			        , m_Scene (scene)
 					, EventResponderI(eventResponder)

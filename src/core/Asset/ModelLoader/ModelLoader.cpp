@@ -320,26 +320,26 @@ namespace SPW
 			material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath);
 			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 
-			if (texturePath.length != 0)
-			{
-				std::string uuid = FileSystem::GenerateRandomUUID();
-				modelData->textures.emplace(uuid, str);
-				tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Roughness, uuid));
-			}
-		}
+            if (texturePath.length != 0)
+            {
+                std::string uuid = FileSystem::GenerateRandomUUID();
+                modelData->textures.emplace(uuid, str);
+                tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Roughness, uuid));
+            }
+        }
 
 		{
 			aiString texturePath;
 			material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath);
 			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 
-			if (texturePath.length != 0)
-			{
-				std::string uuid = FileSystem::GenerateRandomUUID();
-				modelData->textures.emplace(uuid, str);
-				tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::AmbientOcclusion, uuid));
-			}
-		}
+            if (texturePath.length != 0)
+            {
+                std::string uuid = FileSystem::GenerateRandomUUID();
+                modelData->textures.emplace(uuid, str);
+                tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::AmbientOcclusion, uuid));
+            }
+        }
 
 		modelData->materials.emplace_back(std::move(tmpMaterial));
 	}

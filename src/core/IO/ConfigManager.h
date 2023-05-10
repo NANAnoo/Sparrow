@@ -57,7 +57,7 @@ namespace SPW
 	class ConfigManager
 	{
 	public:
-
+		static bool Boost();
 		static bool ReadConfig();
 
 

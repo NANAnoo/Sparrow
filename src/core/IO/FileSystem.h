@@ -14,25 +14,10 @@ namespace SPW
 	namespace fs = std::filesystem;
 	using FilePath = std::filesystem::path;
 
-	// inline namespace FileRoots
-	// {
-	// 	extern std::string k_Root;
-	//
-	// 	extern std::string k_Engine;
-	//
-	// 	extern std::string k_Assets;
-	//
-	// 	extern std::string k_Scenes;
-	// }
-
 	class FileSystem
 	{
 	public:
-		static void Boost(/*const std::string& root = ""*/);
-
 		static void MountPath(std::string src, std::string& dst);
-
-		static void MountFromConfig();
 
 		static void RecursiveCopyDirectory(const std::filesystem::path& source, const std::filesystem::path& destination);
 

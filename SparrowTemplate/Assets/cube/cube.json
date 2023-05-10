@@ -1,15 +1,15 @@
 {
-    "assetID": "def66e16-7f5e-4dfe-beb8-7999269ce633",
+    "assetID": "935b2de7-2334-42b7-a4e0-8a19bd0e0523",
     "assetName": "cube",
     "assetPath": "Assets/cube/cube.json",
-    "meshURI": "4462531a-ed0e-4a21-ad68-32c556a49c5b",
+    "meshURI": "0c5c317a-b67d-4524-865f-6d25e751b7c0",
     "materials": [
         {
-            "id": "0f9071f1-5a2a-4fb9-8a0b-8e2a85da2d92",
+            "id": "1f8350ff-2641-4e4b-aea8-991ee49d61b9",
             "textureMap": [
                 {
                     "key": "Albedo",
-                    "value": "5407a8f7-1298-4682-8e30-cf999098bcb6"
+                    "value": "5a5be32c-c351-43f1-9e81-b0409cff7e9f"
                 }
             ],
             "property": {
@@ -59,7 +59,7 @@
     ],
     "textures": [
         {
-            "key": "5407a8f7-1298-4682-8e30-cf999098bcb6",
+            "key": "5a5be32c-c351-43f1-9e81-b0409cff7e9f",
             "value": "Assets/cube/Textures/white.png"
         }
     ]

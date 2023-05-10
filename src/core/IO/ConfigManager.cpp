@@ -21,6 +21,32 @@ namespace SPW
 		std::string k_WorkingProjectScripts;
 	}
 
+	bool ConfigManager::Boost()
+	{
+		if (ReadConfig())
+			std::cout << "Successfully read config file" << std::endl;
+		else return false;
+
+		// copy engine shaders
+		FileSystem::MountPath(Config::k_EngineShaderLib, SPW::Config::k_WorkingProjectShaders);
+
+		// copy template project root with default asset
+		FileSystem::MountPath(Config::k_TempalteProjectRoot, SPW::Config::k_WorkingProjectRoot);
+
+		// copy sounds
+		FileSystem::MountPath(SPW::Config::k_EngineRoot + "sounds/", SPW::Config::k_WorkingProjectSounds);
+
+		// copy scripts
+		FileSystem::MountPath(SPW::Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
+
+		// reference source code lualib
+		if (std::filesystem::exists(SPW::Config::k_EngineLualib))
+			std::cout << "[CONFIG]::lualib exsits! \033[31m \n";
+
+
+		return true;
+	}
+
 	bool ConfigManager::ReadConfig()
 	{
 		// std::string orgPath = FileSystem::GetUserHomeDir() + "./.config/ÖÐÎÄ.toml"
@@ -136,7 +162,7 @@ namespace SPW
 		toml::table projects = toml::table
 		{
 			// project_name, project_path
-			{"SparrowTemplate", "// TODO NEW ABSOLTE PATH"},
+			{"SparrowTemplate", absolute_template},
 		};
 
 		toml::table config_table = toml::table

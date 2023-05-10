@@ -2,8 +2,9 @@ require("luaclass")
 
 RenderGraph = class("RenderGraph")
 
-function RenderGraph:init(cpp_object)
+function RenderGraph:init(cpp_object, name)
     self.cpp_object = cpp_object or nil
+    self.name = name or nil
     self.render_nodes = {}
 end
 

@@ -49,6 +49,20 @@ namespace SPW
 		}
 
 	protected:
+		void Begin() override
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // 设置前景色为灰色
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.3f)); // 设置背景色为蓝色
+			ImGui::Begin(m_title.c_str(), m_open, m_windowFlags);
+
+		}
+
+		void End() override
+		{
+			ImGui::End();
+			ImGui::PopStyleColor(2); // 恢复前景色和背景色
+
+		}
 		void Draw() override
 		{
 			for (const auto& item_pair : m_Items)

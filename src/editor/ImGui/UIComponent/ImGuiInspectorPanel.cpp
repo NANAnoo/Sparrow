@@ -2,6 +2,7 @@
 #include "EcsFramework/Component/ComponentTypes.h"
 #include "ImGui/IconsFontAwesome6.h"
 #include "IO/ConfigManager.h"
+#include "Render/RenderGraphManager.h"
 
 namespace SPW
 {
@@ -164,10 +165,11 @@ namespace SPW
 								// add a model to show
 								auto model = m_Entity->emplace<MeshComponent>();
 
-								model->bindRenderGraph = rm->m_RenderGraph["pbr_with_PDshadow"]->graph_id;
-								model->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["p_shadowmap_node"]->pass_id] = rm->m_ShaderMap["p_shadow_desc"].uuid;
-								model->modelSubPassPrograms[rm->m_ModelRepeatPassNodes["d_shadowmap_node"]->pass_id] = rm->m_ShaderMap["d_shadow_desc"].uuid;
-								model->modelSubPassPrograms[rm->m_ModelToScreenNodes["pbr_shadow_lighting_node"]->pass_id] = rm->m_ShaderMap["pbr_light_shadow_desc"].uuid;
+								model->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+								model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kPointShadowShader).uuid;
+								model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kDirectionalShadowShader).uuid;
+								model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kGBufferShader).uuid;
+								model->ready = false;
 								show_addcomponent = false;
 
 								// m_Entity->emplace<MeshComponent>();
@@ -310,6 +312,145 @@ namespace SPW
 		if (!component->assetName.empty())
 		{
 			auto& active_asset_data = ResourceManager::getInstance()->m_AssetDataMap[component->assetName];
+
+			ImGui::PushID("Render Graph Settings");
+
+			if (ImGui::TreeNode(ICON_FA_SPIDER"			Render Graphs"))
+			{
+				// Add a child window with scrolling capabilities
+				ImGui::BeginChild("Render Graphs Scrolling", ImVec2(0, 100), false, /*ImGuiWindowFlags_NoScrollbar | */ImGuiWindowFlags_AlwaysAutoResize);
+
+				std::vector<const char*> renderGraphNames;
+				const auto& renderGraphs = RenderGraphManager::getInstance()->GetRenderGraphs();
+				const auto& renderNodes = RenderGraphManager::getInstance()->GetNodes();
+
+				std::optional<std::string> currGraphKeyStr = RenderGraphManager::getInstance()->FindGraphName(component->bindRenderGraph);
+				static const char* currGraphKey = "";
+				if (currGraphKeyStr.has_value())
+					currGraphKey = currGraphKeyStr.value().c_str();
+				else
+					currGraphKey = "Select";
+
+
+				std::vector<std::string> currNodeKeys;
+				static size_t numKeys = component->modelSubPassPrograms.size();
+				for(const auto&[k,v] : component->modelSubPassPrograms)
+				{
+					std::string tmp;
+					std::optional<std::string> currNodeKeyStr = RenderGraphManager::getInstance()->FindNodeName(k);
+					if (currNodeKeyStr.has_value())
+						tmp = currNodeKeyStr.value();
+					else
+						tmp = "Select";
+//					std::cout << tmp << std::endl;
+					currNodeKeys.emplace_back(tmp);
+				}
+
+				ImGui::Text("Render Graph");
+				ImGui::Separator();
+				if (ImGui::BeginCombo("Render Graph", currGraphKey))
+				{
+					for (const auto& [key, graphPtrs] : renderGraphs)
+					{
+						bool is_selected = (currGraphKey == key.c_str());
+						if (ImGui::Selectable(key.c_str(), is_selected))
+						{
+							currGraphKey = key.c_str();
+							component->bindRenderGraph = GET_RENDER_GRAPH(key);
+
+							// previewLabel = key.c_str();
+						}
+						if (is_selected)
+						{
+							ImGui::SetItemDefaultFocus();
+						}
+					}
+					ImGui::EndCombo();
+				}
+
+				ImGui::Text("Render Nodes");
+				ImGui::Separator();
+				for (size_t idx = 0; idx < numKeys; ++idx)
+				{
+					std::string label = "Node #" + std::to_string(idx);
+					const char* label_cstr = label.c_str();
+					const char* currNodeKey = currNodeKeys[idx].c_str();
+					if (ImGui::BeginCombo(label_cstr, currNodeKey))
+					{
+						for (const auto& [nodeKey, nodePtr] : renderNodes)
+						{
+							bool is_selected = (currNodeKeys[idx] == nodeKey);
+							if (ImGui::Selectable(nodeKey.c_str(), is_selected))
+							{
+								currNodeKeys[idx] = nodeKey;
+								if (nodeKey == kPointShadowNode)
+								{
+									if(m_Entity->has<AnimationComponent>())
+									{
+										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kAniPointShadowShader).uuid;
+									}
+									else 
+										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kPointShadowShader).uuid;
+								}
+								else if (nodeKey == kDirectionalShadowNode)
+								{
+									if (m_Entity->has<AnimationComponent>())
+									{
+										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kAniDirectionalShadowShader).uuid;
+									}
+									else
+										component->modelSubPassPrograms[GET_RENDER_NODE(kDirectionalShadowNode)] = GET_SHADER_DESC(kDirectionalShadowShader).uuid;
+								}
+								else if (nodeKey == kGBufferNode)
+									component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
+							}
+							if (is_selected)
+							{
+								ImGui::SetItemDefaultFocus();
+							}
+						}
+						ImGui::EndCombo();
+					}
+				}
+				if(ImGui::Button("Add Render Node!"))
+				{
+					// component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
+					numKeys++;
+				}
+
+				ImGui::EndChild();
+
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
+
+
+
+			// if (ImGui::BeginCombo("G-Buffer Render Node", kGBufferNode.c_str()))
+			// {
+			// 	for (const auto& [nodeKey, nodePtr] : renderNodes					)
+			// 	{
+			// 		bool is_selected = (currNodeKey == nodeKey.c_str());
+			// 		if (ImGui::Selectable(nodeKey.c_str(), is_selected))
+			// 		{
+			// 			currNodeKey = nodeKey.c_str();
+			// 			if(nodeKey == kPointShadowNode)
+			// 				component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kPointShadowShader).uuid;
+			// 			else if(nodeKey == kDirectionalShadowNode)
+			// 				component->modelSubPassPrograms[GET_RENDER_NODE(kDirectionalShadowNode)] = GET_SHADER_DESC(kDirectionalShadowShader).uuid;
+			// 			else if (nodeKey == kGBufferNode)
+			// 				component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
+			// 		}
+			// 		if (is_selected) 
+			// 		{
+			// 			ImGui::SetItemDefaultFocus();
+			// 		}
+			// 	}
+			// 	ImGui::EndCombo();
+			// }
+
+			ImGui::PopID();
+
 
 			ImGui::PushID("Asset Meta");
 			std::string label = ICON_FA_DATABASE"			Asset Meta : " + component->assetName;

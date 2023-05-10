@@ -31,11 +31,10 @@ namespace SPW
 		{
 			if (!value["value"].valid())
 				return;
-			if (key == "mesh_path")
+			if (key == "asset_name")
 			{
-				std::string path = value["value"];
-				// model = ResourceManager::getInstance()->LoadModel(path);
-				// ready = false;
+				assetName = value["value"];
+				ready = false;
 			}
 			else if (key == "cam_id")
 			{
@@ -58,10 +57,9 @@ namespace SPW
 
 		void initFromLua(const sol::table& value)
 		{
-			if (value["mesh_path"].valid())
+			if (value["asset_name"].valid())
 			{
-				std::string path = value["mesh_path"];
-				// model = ResourceManager::getInstance()->LoadModel(path);
+				assetName = value["asset_name"];
 				ready = false;
 			}
 			if (value["cam_id"].valid())
@@ -106,19 +104,16 @@ namespace SPW
 		std::function<void(RenderCommandsQueue<Shader>& queue)> onDraw;
 		std::function<void(RenderCommandsQueue<RenderBackEndI>& queue)> beforeDraw;
 
+		bool ready = false;
 		UUID bindCamera;
 		// render pass id -> subpass ref -> shader
-		unsigned int bindRenderPass = 0;
-		std::unordered_map<unsigned int, ShaderHandle> modelSubPassProgram;
-
 		unsigned int bindRenderGraph = 0;
 		std::unordered_map<unsigned int, UUID> modelSubPassPrograms;
-
-		bool ready = false;
-
 		// -------------- NEW ASSET DATA --------------
 		std::string assetPath{};
 		std::string assetID{};
-		std::string assetName;
+		std::string assetName{};
+
+		unsigned int bindRenderPass = 0;
 	};
 }

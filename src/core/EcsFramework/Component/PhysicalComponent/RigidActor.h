@@ -2,10 +2,8 @@
 // Created by duhao on 2023/3/27.
 //
 
-#ifndef SPARROW_RIGIDACTOR_H
-#define SPARROW_RIGIDACTOR_H
+#pragma once
 
-#endif //SPARROW_RIGIDACTOR_H
 #include "../ComponentI.h"
 #include "EcsFramework/System/PhysicSystem/PhysicSystem.h"
 #include <PxPhysicsAPI.h>

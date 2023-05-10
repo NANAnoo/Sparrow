@@ -42,7 +42,6 @@ namespace SPW {
             if (windowCreatedCallback) {
                 windowCreatedCallback(window);
             }
-            // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         } else {
             std::cout << "Window create failed !" << std::endl;
         }
@@ -74,7 +73,6 @@ namespace SPW {
         });
 
         glfwSetKeyCallback(window, [](GLFWwindow *win, int key, int scancode, int action, int mods) {
-
         	auto realWindow = all_windows[win];
             auto keyCode = static_cast<KeyCode>(key);
             if(action == GLFW_RELEASE){
@@ -91,9 +89,6 @@ namespace SPW {
 
 
         glfwSetMouseButtonCallback(window, [](GLFWwindow* win, int button, int action, int mods){
-
-            // ImGui_ImplGlfw_MouseButtonCallback(win, button, action, mods);
-
             auto realWindow = all_windows[win];
             auto mouseCode = static_cast<MouseCode>(button);
             if(action == GLFW_PRESS){
@@ -111,7 +106,6 @@ namespace SPW {
         });
 
         glfwSetScrollCallback(window, [](GLFWwindow* win, double x_offset, double y_offset){
-
         	auto realWindow = all_windows[win];
             realWindow->data.handler(std::make_shared<MouseEvent>(
                     MouseScrollType, MouseCode::ButtonMiddle, y_offset));
@@ -154,6 +148,14 @@ namespace SPW {
                 data.handler(std::make_shared<KeyEvent>(
                         KeyHeldType, static_cast<KeyCode>(key)));
             }
+        }
+    }
+
+    void GlfwWindow::enableCursor(bool enabled) {
+        if (enabled) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        } else {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }
 

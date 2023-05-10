@@ -21,25 +21,6 @@
 namespace SPW
 {
 
-	void FileSystem::Boost()
-	{
-		// if(!root.empty())
-		//     k_Root = "./Project/";
-		// else
-		//     k_Root = root;
-		// k_Engine = k_Root  + "/Engine/";
-		// k_Assets = k_Root  + "/Assets/";
-		// k_Scenes = k_Root  + "/Scenes/";
-
-		// create engine root
-		// CreateDirectory(k_Root);
-		// // copy engine files into engine 
-		// CreateDirectory(k_Engine);
-		// // copy project asset/ resource,
-		// CreateDirectory(k_Assets);
-		// CreateDirectory(k_Scenes);
-		// MountPath();
-	}
 	void FileSystem::MountPath(std::string src, std::string& dst)
 	{
 		try

@@ -1,27 +1,27 @@
 {
-    "assetID": "87e8f9d7-5015-4bbc-bb49-ed969714e8c8",
+    "assetID": "cbd0b6e9-90e6-4e60-abf0-9ad820c7ce72",
     "assetName": "sand_cube",
     "assetPath": "Assets/sand_cube/sand_cube.json",
-    "meshURI": "7e9add00-2449-4b03-86a5-60199e91a828",
+    "meshURI": "d9024f58-d63d-40f7-914f-1da5429847d8",
     "materials": [
         {
-            "id": "ba14b5af-6db0-4589-9c4a-47c8fac3bfa4",
+            "id": "0fe0fff3-471a-4f2b-8e5a-b2808ddd10f8",
             "textureMap": [
                 {
                     "key": "Albedo",
-                    "value": "d59e9396-d29f-4caa-be8e-d530a0cb571b"
+                    "value": "0d052c58-c0c3-49f8-b2bf-4aa1522af8fc"
                 },
                 {
                     "key": "Normal",
-                    "value": "9e3c57f5-638d-4abb-85a8-9412a5c8261b"
+                    "value": "e9278657-b558-42a1-89a9-e8bdd55d5240"
                 },
                 {
                     "key": "Metalness",
-                    "value": "172cf7c5-23be-483e-ae9d-248604151983"
+                    "value": "444379d2-f342-4e13-9c85-fca618191301"
                 },
                 {
                     "key": "Roughness",
-                    "value": "f9f2b53f-32ac-4363-86b3-47da7e71332d"
+                    "value": "2ba66f13-f9e0-421a-8193-37b78f1d39f9"
                 }
             ],
             "property": {
@@ -71,19 +71,19 @@
     ],
     "textures": [
         {
-            "key": "d59e9396-d29f-4caa-be8e-d530a0cb571b",
+            "key": "0d052c58-c0c3-49f8-b2bf-4aa1522af8fc",
             "value": "Assets/sand_cube/Textures/albedo.png"
         },
         {
-            "key": "9e3c57f5-638d-4abb-85a8-9412a5c8261b",
+            "key": "e9278657-b558-42a1-89a9-e8bdd55d5240",
             "value": "Assets/sand_cube/Textures/normal.png"
         },
         {
-            "key": "172cf7c5-23be-483e-ae9d-248604151983",
+            "key": "444379d2-f342-4e13-9c85-fca618191301",
             "value": "Assets/sand_cube/Textures/metalness.png"
         },
         {
-            "key": "f9f2b53f-32ac-4363-86b3-47da7e71332d",
+            "key": "2ba66f13-f9e0-421a-8193-37b78f1d39f9",
             "value": "Assets/sand_cube/Textures/roughness.png"
         }
     ]

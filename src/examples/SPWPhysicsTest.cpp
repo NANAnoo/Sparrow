@@ -283,10 +283,6 @@ public:
 
 
 
-
-
-
-
             //add a key component for testing, press R to rotate
             auto key = obj->emplace<SPW::KeyComponent>();
             key->onKeyHeldCallBack = [transform](const SPW::Entity& e, SPW::KeyCode keycode){

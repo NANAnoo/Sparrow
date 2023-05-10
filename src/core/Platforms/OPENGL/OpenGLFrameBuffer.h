@@ -5,6 +5,8 @@
 #ifndef SPARROW_OPENGLFRAMEBUFFER_H
 #define SPARROW_OPENGLFRAMEBUFFER_H
 #include "Render/FrameBuffer.h"
+#include <vector>
+#include <glad/glad.h>
 namespace SPW
 {
 
@@ -29,6 +31,7 @@ namespace SPW
     private:
         unsigned int framebufferId;
         unsigned int rboId;
+        std::vector<GLuint> Buffers;
     public:
         unsigned int textureColorbufferId;
 
