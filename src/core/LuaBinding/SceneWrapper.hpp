@@ -85,22 +85,17 @@ namespace SPW {
                 const std::shared_ptr<RenderBackEndI> &backend) {
             m_renderSystem = renderSystem;
             RenderGraphManager::getInstance()->createRenderGraph(backend, kDefferShadingGraph);
+            RenderGraphManager::getInstance()->createRenderGraph(backend, kSkyBoxRenderGraph);
             RenderGraphManager::getInstance()->forEachShader([this](const ShaderDesc &shader) {
                 m_renderSystem.lock()->addShaderDescriptor(shader);
             });
         }
 
         [[nodiscard]] unsigned int getGraphID(const std::string &name) const {
-            if (name == "SkyBoxGraph") {
-                return m_renderSystem.lock()->skyBoxGraph->graph_id;
-            }
             return GET_RENDER_GRAPH(name);
         }
 
         [[nodiscard]] unsigned int getRenderNodeID(const std::string &name) const {
-            if (name == "SkyBoxNode") {
-                return m_renderSystem.lock()->skyBoxNode->pass_id;
-            }
             return GET_RENDER_NODE(name);
         }
 
