@@ -13,6 +13,14 @@ namespace SPW {
     class LuaAppContext {
     public:
         LuaAppContext() = default;
+        ~LuaAppContext() {
+            onInit = sol::nil;
+            beforeUpdate = sol::nil;
+            onUpdate = sol::nil;
+            afterUpdate = sol::nil;
+            onStop = sol::nil;
+            onWindowResize = sol::nil;
+        }
         // init lua state and load libraries, debug port is for remote debug
         inline void init(int debug_port) {
             m_state.open_libraries(sol::lib::base,

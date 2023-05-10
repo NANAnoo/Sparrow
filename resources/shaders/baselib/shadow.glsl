@@ -1,7 +1,7 @@
 #define PI 3.141592653589793
 #define PI2 6.283185307179586
 
-uniform float RandomSeed;
+ const float RandomSeed = 0.5;
 
 highp float rand_2to1(vec2 uv ) {//传入一个二维数，传出一个假随机数。
     // 0 - 1
@@ -34,7 +34,7 @@ float ShadowCalculation(vec3 projCoords, int slot)
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    float bias = max(0.05 * (1.0 - dot(normal, -DLights[slot].direction)), 0.005);
+    float bias = max(0.005 * (1.0 - dot(normal, -DLights[slot].direction)), 0.005);
     //float bias = 0.005;
     float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
     return shadow;
@@ -46,7 +46,7 @@ float PCF(vec3 projCoords,int r,int slot)
     // 取得当前片段在光源视角下的深度
     float currentDepth = projCoords.z;
     // 检查当前片段是否在阴影中
-    float bias = max(0.05 * (1.0 - dot(normal, -DLights[slot].direction)), 0.000001);
+    float bias = max(0.005 * (1.0 - dot(normal, -DLights[slot].direction)), 0.000001);
 
        //PCF
     float shadow = 0.0;
@@ -76,7 +76,7 @@ float averageBlockDep(vec3 projCoords,vec2 texelSize,int slot)
     int count = 0;
     float r=10;
     poissonDiskSamples(projCoords.xy+vec2(0.1314,0.351));
-    float bias = max(0.05 * (1.0 - dot(normal, -DLights[slot].direction)), 0.005);
+    float bias = max(0.005 * (1.0 - dot(normal, -DLights[slot].direction)), 0.005);
     for(int i=0;i<NUM_SAMPLES;++i)
     {
         vec2 coord = projCoords.xy + vec2(r) * poissonDisk[i] * texelSize;

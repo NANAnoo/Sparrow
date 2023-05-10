@@ -15,9 +15,10 @@ add_executable(SPWPhysicsTest "SPWPhysicsTest.cpp")
 add_executable(SPWNewRSTest "SPWNewRSTest.cpp")
 add_executable(SPWSceneTest "SPWSceneTest.cpp")
 add_executable(SPWEditorTest "SPWEditorTest.cpp")
+add_executable(AssetLoader "SPWEOfflineToolTest.cpp")
 
 # add_compile_definitions("ENGINE_ROOT_DIR=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-
+LoadSparrow(AssetLoader)
 LoadSparrow(SPWTestApp)
 LoadSparrow(SPWSoundTest)
 LoadSparrow(SPWPhysicsTest)

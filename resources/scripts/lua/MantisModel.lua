@@ -15,11 +15,11 @@ function CreateMantisModel(scene, camera_id)
     trans:setScale(glm.vec3(0.1, 0.1, 0.1))
     
     -- render model
-    local model = MantisModel:addComponent(MeshComponent, camera_id, "resources/models/mantis/scene.gltf")
-    model:setGraphId(scene:getGraphID(DefaultGraph.PBRShadowGraph))
-    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.PointShadowNode), scene:getShaderID(DefaultShader.PointShadowShader))
-    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.DirectionalShadowNode), scene:getShaderID(DefaultShader.DirectionalShadowShader))
-    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.PBRShadowLightingNode), scene:getShaderID(DefaultShader.PBRShadowShader))
+    local model = MantisModel:addComponent(MeshComponent, camera_id, "mantis")
+    model:setGraphId(scene:getGraphID(DefaultGraph.kDefferShadingGraph))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.kPointShadowNode), scene:getShaderID(DefaultShader.kPointShadowShader))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.kDirectionalShadowNode), scene:getShaderID(DefaultShader.kDirectionalShadowShader))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.kGBufferNode), scene:getShaderID(DefaultShader.kGBufferShader))
 
     print("Mantis Model id : ", MantisModel.id)
     

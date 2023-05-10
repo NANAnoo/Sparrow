@@ -7,30 +7,26 @@ require "MonaModel"
 require "MantisModel"
 require "MainLight"
 require "FloorModel"
+require "SkyBox"
 
 local scene = {}
 local MainCamera = {}
 
 App({name="Test", width = 1280, height = 720,
     onInit = function ()
+        global.app:loadAsset("mantis/mantis.json")
+        global.app:loadAsset("skybox/skybox.json")
+        global.app:loadAsset("sand_cube/sand_cube.json")
         scene = Scene.new("LuaTestGame")
         MainCamera = CreateMainCamera(scene, 1280, 720)
         local main_camera_id = MainCamera.id
         CreateMantisModel(scene, main_camera_id)
+        CreateSkyBox(scene, main_camera_id)
         local floor = CreateFloor(scene, main_camera_id)
         local MainLight = CreateMainLight(scene)
         local SubLight = CreateSubLight(scene)
         createPointLight(scene, glm.vec3(0, 1, 1), glm.vec3(0.5, 0.5, 0), 1)
         createPointLight(scene, glm.vec3(1, 0, 1), glm.vec3(-0.5, 0.5, 0), 2)
-        scene:setSkyBox(
-            main_camera_id,
-            "./resources/texture/skybox/right.jpg",
-            "./resources/texture/skybox/left.jpg",
-            "./resources/texture/skybox/top.jpg",
-            "./resources/texture/skybox/bottom.jpg",
-            "./resources/texture/skybox/front.jpg",
-            "./resources/texture/skybox/back.jpg"
-        )
         scene:initScene()
     end,
     beforeUpdate = function()

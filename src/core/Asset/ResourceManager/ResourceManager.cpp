@@ -1,4 +1,5 @@
 #include "ResourceManager.h"
+
 #include "IO/SOIL2/stb_image.h"
 #include "IO/SOIL2/SOIL2.h"
 
