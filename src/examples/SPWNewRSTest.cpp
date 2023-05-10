@@ -45,11 +45,13 @@
 #include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
 #include "IO/FileSystem.h"
-#include "ImGui/ImGuiManager.hpp"
 #include "Asset/Serializer/EntitySerializer.h"
 #include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
 #include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
 #include "IO/ConfigManager.h"
+
+#include "ImGui/ImGuiEvent.hpp"
+#include "ImGui/ImGuiManager.hpp"
 
 auto CreateEmptyNode(const std::shared_ptr<SPW::Scene>& scene) -> std::shared_ptr<SPW::Entity>
 {
@@ -278,11 +280,11 @@ public:
 			// [data.assetID] = std::move(data);
 		}
 
-		{
-			auto data = SPW::AssetManager::LoadAsset(
-				SPW::Config::k_WorkingProjectAssets + "companion_cube/companion_cube.json");
-			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
-		}
+		// {
+		// 	auto data = SPW::AssetManager::LoadAsset(
+		// 		SPW::Config::k_WorkingProjectAssets + "companion_cube/companion_cube.json");
+		// 	SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+		// }
 
 		{
 			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "sand_cube/sand_cube.json");
@@ -290,14 +292,19 @@ public:
 		}
 
 
-		{
-			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "dragon/dragon.json");
-			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
-		}
+		// {
+		// 	auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "dragon/dragon.json");
+		// 	SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+		// }
 
 
 		{
 			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "skybox/skybox.json");
+			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+		}
+
+		{
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "cellar/cellar.json");
 			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
 		}
 
@@ -346,10 +353,9 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 		std::shared_ptr<SPW::GlfwWindow> window = std::make_shared<SPW::GlfwWindow>();
 		app->window = window;
 		app->window->setSize(1280, 720);
-		app->window->setTitle("Editor Test");
+		app->window->setTitle("New Render System Test");
 
-		transformer = std::make_shared<Transformer>(app->delegate.lock());
-		transformer->window = window;
+		// transformer->window = window;
 
 
 		// weak strong dance
@@ -483,33 +489,50 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 
 			// --------------- dragon ---------------
 
-			auto dragon = scene->createEntity("anim dragon");
-			auto dragon_transform = dragon->emplace<SPW::TransformComponent>();
-			dragon_transform->scale = {0.05, 0.05, 0.05};
-			dragon_transform->rotation = {0, 90, 0};
-			dragon_transform->position = {0, -0.3, 0};
-
-			auto dragon_model = dragon->emplace<SPW::MeshComponent>(camera_id);
-			dragon_model->bindRenderGraph = pbr_with_PDshadow->graph_id;
-			dragon_model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
-			dragon_model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
-			dragon_model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_ani_light_shadow_desc.uuid;
-
-			dragon_model->assetID   = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
-			dragon_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName;
-			dragon_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].path;
-
-			// add a model to show
-			auto dragon_anim = dragon->emplace<SPW::AnimationComponent>( SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName );
-			dragon_anim->swapCurrentAnim("dragon_idle");
+			// auto dragon = scene->createEntity("anim dragon");
+			// auto dragon_transform = dragon->emplace<SPW::TransformComponent>();
+			// dragon_transform->scale = {0.05, 0.05, 0.05};
+			// dragon_transform->rotation = {0, 90, 0};
+			// dragon_transform->position = {0, -0.3, 0};
+			//
+			// auto dragon_model = dragon->emplace<SPW::MeshComponent>(camera_id);
+			// dragon_model->bindRenderGraph = pbr_with_PDshadow->graph_id;
+			// dragon_model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
+			// dragon_model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
+			// dragon_model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_ani_light_shadow_desc.uuid;
+			//
+			// dragon_model->assetID   = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
+			// dragon_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName;
+			// dragon_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].path;
+			//
+			// // add a model to show
+			// auto dragon_anim = dragon->emplace<SPW::AnimationComponent>( SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName );
+			// dragon_anim->swapCurrentAnim("dragon_idle");
 			// --------------------------------------------------------------------------------
 
 
+			auto cellar = scene->createEntity("mantis");
+			auto cellar_transform = cellar->emplace<SPW::TransformComponent>();
+			cellar_transform->scale = {1, 1, 1};
+			cellar_transform->rotation = {0, 0, 0};
+			cellar_transform->position = {0, 0, 0};
+
+			// add a model to show
+			auto cellar_mesh = cellar->emplace<SPW::MeshComponent>(camera_id);
+			cellar_mesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cellar"].assetName;
+			cellar_mesh->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["cellar"].assetID;
+			// mantis_mesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].;
+
+			cellar_mesh->bindRenderGraph = pbr_with_PDshadow->graph_id;
+			cellar_mesh->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
+			cellar_mesh->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
+			cellar_mesh->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
+
 			auto mantis = scene->createEntity("mantis");
 			auto transform = mantis->emplace<SPW::TransformComponent>();
-			transform->scale = {0.1, 0.1, 0.1};
-			transform->rotation = {0, 90, 0};
-			transform->position = {0, -0.3, 0};
+			transform->scale = { 0.1, 0.1, 0.1 };
+			transform->rotation = { 0, 90, 0 };
+			transform->position = { 0, -0.3, 0 };
 
 			// add a model to show
 			auto mantis_mesh = mantis->emplace<SPW::MeshComponent>(camera_id);
@@ -521,14 +544,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			mantis_mesh->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_shadow_desc.uuid;
 			mantis_mesh->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_shadow_desc.uuid;
 			mantis_mesh->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_desc.uuid;
-			// model->model = createModel();
-			/*
-			 * TODO HACK FOR SER TEST
-			 */
-
-			// mantis_mesh->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
-			// mantis_mesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName;
-			// mantis_mesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].path;
 
 			auto  rigid1 = mantis->emplace<SPW::RigidDynamicComponent>();
 			rigid1->rigidState = SPW::Awake;
@@ -541,8 +556,7 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			collider1->state = SPW::needAwake;
 			collider1->is_trigger_ = false;
 
-			//
-			//            --------------------------------------------------------------------------------
+			// --------------------------------------------------------------------------------
 			auto cubeObj = scene->createEntity("floor");
 			auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
 			cubeTrans->scale = {5.0, 0.05, 5.0};
@@ -566,13 +580,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 
 			// ------ create render graph for skybox ----------------
 
-			// auto skyGraph = renderSystem->createRenderGraph();
-			// auto skyNode = skyGraph->createRenderNode<SPW::ModelToScreenNode>();
-			// auto skybox_desc = SPW::SkyBoxShader_desc();
-			// skyNode->addScreenAttachment(SPW::ScreenColorType);
-			// skyNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
-			// ------ create render graph for skybox ----------------
-
 			auto skybox = scene->createEntity("skybox");
 			auto skyboxTrans = skybox->emplace<SPW::TransformComponent>();
 			auto skyMesh = skybox->emplace<SPW::MeshComponent>(camera_id);
@@ -582,7 +589,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 
 			skyMesh->bindRenderGraph = rendersystem->skyBoxGraph->graph_id;
 			skyMesh->modelSubPassPrograms[rendersystem->skyBoxNode->pass_id] = skybox_desc.uuid;
-
 
 			auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
 			auto light2 = createPlight(scene, {-1, 1, 0}, {0, 0.5, 1});
@@ -657,21 +663,9 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 			light3->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(2);
 			light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
-			m_ImguiManager = std::make_shared<SPW::ImGuiManager>(scene);
-			m_ImguiManager->Init(handle);
-
-
-			std::cout << "ImGui" << IMGUI_VERSION << std::endl;
-#ifdef IMGUI_HAS_VIEWPORT
-			std::cout << " +viewport";
-#endif
-#ifdef IMGUI_HAS_DOCK
-			std::cout << " +docking" << std::endl;
-#endif
 
 			// init scene
 			scene->initial();
-			transformer->scene = scene;
 		});
 	}
 
@@ -689,29 +683,6 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 	void afterAppUpdate() final
 	{
 		scene->afterUpdate();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->Begin();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->CreateImagePanel(scene->m_renderSystem.lock()->getTextureID());
-
-		m_ImguiManager->RenderAllPanels();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->GetInspectorPanel()->SetActiveScene(scene);
-		m_ImguiManager->GetEntityPanel()->SetActiveScene(scene);
-		scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
-		{
-			const auto component_name = e.component<SPW::NameComponent>()->getName();
-			const auto component_id = e.component<SPW::IDComponent>()->getID().toString();
-			m_ImguiManager->GetEntityPanel()->AddMenuItem(component_id, component_name, [&, e]()
-			{
-				m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
-			});
-		});
-
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->End();
-		m_ImguiManager->EnableViewport();
-		//-------------------------------------------------------------------------
 	}
 
 	void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>>& events) final
@@ -762,11 +733,11 @@ SPW::AssetManager::SaveAsset(std::move(data),  "");
 
 	const char* getName() final { return _name; }
 	const char* _name;
-	std::shared_ptr<Transformer> transformer;
+	std::shared_ptr<SPW::ImGuiMouseEventResponder> transformer;
+	std::shared_ptr<SPW::ImGuiKeyEventResponder> key_transformer;
 	std::shared_ptr<SimpleRender> render;
 	std::shared_ptr<SPW::Scene> scene;
 	std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
-	std::shared_ptr<SPW::ImGuiManager> m_ImguiManager;
 };
 
 // main entrance
@@ -775,7 +746,21 @@ int main(int argc, char** argv)
 	if (SPW::ConfigManager::ReadConfig())
 		std::cout << "Successfully read config file" << std::endl;
 
-	SPW::FileSystem::MountFromConfig();
+	// copy engine shaders
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineShaderLib, SPW::Config::k_WorkingProjectShaders);
+
+	// copy template project root with default asset
+	SPW::FileSystem::MountPath(SPW::Config::k_TempalteProjectRoot, SPW::Config::k_WorkingProjectRoot);
+
+	// copy sounds
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "sounds/", SPW::Config::k_WorkingProjectSounds);
+
+	// copy scripts
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
+
+	// reference source code lualib
+	if (std::filesystem::exists(SPW::Config::k_EngineLualib))
+		std::cout << "\033[31m [CONFIG]::lualib exsits! \033[31m \n";
 
 	// app test
 	auto appProxy =

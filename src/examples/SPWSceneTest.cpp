@@ -355,6 +355,7 @@ public:
 			auto d_shadow_desc = SPW::D_shadowmap_desc();
 			auto p_ani_shadow_desc = SPW::P_ani_shadowmap_desc();
 			auto d_ani_shadow_desc = SPW::D_ani_shadowmap_desc();
+			// auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc( p_shadowmap_output, d_shadowmap_output, pbr_light_shadow_tiled);
 
 			auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_ani_light_shadow);
 			auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
@@ -370,7 +371,6 @@ public:
 			rendersystem->addShaderDesciptor(d_ani_shadow_desc);
 			rendersystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
 
-
 			// --------------- create shader ---------------
 
 			auto camera_id = CreateACamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
@@ -378,19 +378,31 @@ public:
 			// --------------------------------------------------------------------------------
 			SPW::ResourceManager::getInstance()->activeCameraID = camera_id;
 			SPW::ResourceManager::getInstance()->m_CameraIDMap["main"] = camera_id;
+
 			SPW::ResourceManager::getInstance()->m_ShaderMap["p_shadow_desc"] = p_shadow_desc;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["d_shadow_desc"] = d_shadow_desc;
+			SPW::ResourceManager::getInstance()->m_ShaderMap["pbr_light_shadow_tiled_desc"] = pbr_light_shadow_tiled_desc;
 			SPW::ResourceManager::getInstance()->m_ShaderMap["pbr_light_shadow_desc"] = pbr_light_shadow_desc;
+			SPW::ResourceManager::getInstance()->m_ShaderMap["p_ani_shadow_desc"] = p_ani_shadow_desc;
+			SPW::ResourceManager::getInstance()->m_ShaderMap["d_ani_shadow_desc"] = d_ani_shadow_desc;
+			SPW::ResourceManager::getInstance()->m_ShaderMap["pbr_ani_light_shadow_desc"] = pbr_ani_light_shadow_desc;
+			SPW::ResourceManager::getInstance()->m_ShaderMap["skybox"] = skybox_desc;
+
+
 			SPW::ResourceManager::getInstance()->m_RenderGraph["pbr_with_PDshadow"] = pbr_with_PDshadow;
+			SPW::ResourceManager::getInstance()->m_RenderGraph["skybox"] = rendersystem->skyBoxGraph;
+
 			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["p_shadowmap_node"] = p_shadowmap_node;
 			SPW::ResourceManager::getInstance()->m_ModelRepeatPassNodes["d_shadowmap_node"] = d_shadowmap_node;
+
 			SPW::ResourceManager::getInstance()->m_ModelToScreenNodes["pbr_shadow_lighting_node"] = pbr_shadow_lighting_node;
+			SPW::ResourceManager::getInstance()->m_ModelToScreenNodes["skybox"] = rendersystem->skyBoxNode;
 
 
 			auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
 
-			m_ImguiManager = std::make_shared<SPW::ImGuiManager>(scene);
-			m_ImguiManager->Init(handle);
+			auto ptr = std::shared_ptr<EventResponderI>(app);
+			m_ImguiManager = std::make_shared<SPW::ImGuiManager>(handle, scene, ptr);
 
 
 			std::cout << "ImGui" << IMGUI_VERSION << std::endl;
@@ -422,27 +434,7 @@ public:
 	{
 		scene->afterUpdate();
 		//----------------------------------------------------------------------------------------
-		m_ImguiManager->Begin();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->CreateImagePanel(scene->m_renderSystem.lock()->getTextureID());
-
-		m_ImguiManager->RenderAllPanels();
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->GetInspectorPanel()->SetActiveScene(scene);
-		m_ImguiManager->GetEntityPanel()->SetActiveScene(scene);
-		scene->forEachEntity<SPW::IDComponent>([this](const SPW::Entity& e)
-		{
-			const auto component_name = e.component<SPW::NameComponent>()->getName();
-			const auto component_id = e.component<SPW::IDComponent>()->getID().toString();
-			m_ImguiManager->GetEntityPanel()->AddMenuItem(component_id, component_name, [&, e]()
-			{
-				m_ImguiManager->GetInspectorPanel()->SetSelectedGameObject(e);
-			});
-		});
-
-		//----------------------------------------------------------------------------------------
-		m_ImguiManager->End();
-		m_ImguiManager->EnableViewport();
+		m_ImguiManager->Render();
 		//-------------------------------------------------------------------------
 	}
 
@@ -507,10 +499,28 @@ int main(int argc, char** argv)
 	if (SPW::ConfigManager::ReadConfig())
 		std::cout << "Successfully read config file" << std::endl;
 
-	SPW::FileSystem::MountFromConfig();
+	// copy engine shaders
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineShaderLib, SPW::Config::k_WorkingProjectShaders);
+
+	// copy template project root with default asset
+	SPW::FileSystem::MountPath(SPW::Config::k_TempalteProjectRoot, SPW::Config::k_WorkingProjectRoot);
+
+	// copy sounds
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "sounds/", SPW::Config::k_WorkingProjectSounds);
+
+	// copy scripts
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
+
+//	SPW::AssetManager::ImportModel("C:/Users/dudu/Downloads/wine_cellar/cellar.gltf");
+
+	// reference source code lualib
+	if(std::filesystem::exists(SPW::Config::k_EngineLualib))
+		std::cout << "\033[31m [CONFIG]::lualib exsits! \033[31m \n";
 
 	// app test
 	auto appProxy =
 		SPW::Application::create<SPWTestApp>("SPWTestApp");
 	return appProxy->app->run(argc, argv);
+
+//	SPW::ConfigManager::WriteConfig();
 }

@@ -10,11 +10,12 @@ EDITOR_ADD_SOURCE(
         ImGuiFileDialog.h
         ImGuiFileDialog.cpp
 
+
         ImGuiFileDialogConfig.h
  
         dirent/dirent.h
-    
 
+        UIComponent/ImGuiLog.h
         UIComponent/ImGuiPanel.h
         UIComponent/ImGuiDockSpace.h
         UIComponent/ImGuiMenuBar.h
@@ -34,4 +35,6 @@ EDITOR_ADD_SOURCE(
 
         ImGuiMessageBox/ImGuiMessageBox.h
         ImGuiMessageBox/ImGuiMessageBox.cpp
+
+        ImGuiEvent.hpp
         )

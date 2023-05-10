@@ -241,6 +241,12 @@ namespace SPW
 			onGoingAnim = anim;
 		}
 
+		template <class Archive>
+		void serialize(Archive& ar)
+		{
+			ar( cereal::make_nvp("assetName", assetName) );
+		}
+
 
         void initFromLua(const sol::table& value) override
         {
@@ -299,9 +305,6 @@ namespace SPW
         std::unordered_map<std::string, AnimationClip> allAnimations;
 		std::shared_ptr<SPWAnimSSBO> SPW_AnimSSBO;
 		AnimationClip* onGoingAnim = nullptr;
-
-		//Original data
-		// Skeleton* skeleton;
 
 		std::string assetName;
 	};

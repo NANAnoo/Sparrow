@@ -58,11 +58,13 @@ namespace SPW
 
 	void ImGuiInspectorPanel::Draw()
 	{
-
 		if (m_Entity != nullptr)
 		{
 			// ------------- UPDATE NAME ------------- 
-			std::string name = m_Entity->component<SPW::NameComponent>()->getName();
+			if (m_Entity->component<NameComponent>()->getName().length() < 1)
+				return;
+			std::string name = m_Entity->component<NameComponent>()->getName();
+
 			ImGui::Text("Name: %s", name.c_str());
 			// bool show_naming = false;
 			if (ImGui::Button("Update Name"))
@@ -94,28 +96,36 @@ namespace SPW
 
 			// ------------- RENDER COMPONENTS -------------
 			if (m_Entity->has<TransformComponent>())
+			{
 				DrawTransformComponent(m_Entity->component<TransformComponent>());
-			if (m_Entity->has<MeshComponent>())
+				// if (m_Entity == nullptr)
+				// {
+				// 	deleteEntity = true;
+				// 	return;
+				// }
+			}
+			if (m_Entity->has<MeshComponent>() )
 				DrawMeshComponent(m_Entity->component<MeshComponent>());
-			if (m_Entity->has<CameraComponent>())
+			if (m_Entity->has<CameraComponent>() )
 				DrawCameraComponent(m_Entity->component<CameraComponent>());
 			//			if (m_Entity->has<PointLightComponent>())
 			//				DrawPointLightComponent(m_Entity->component<PointLightComponent>());
 			//			if (m_Entity->has<DirectionalLightComponent>())
 			//				DrawDirectionalLightComponent(m_Entity->component<DirectionalLightComponent>());
-			if (m_Entity->has<PointLightComponent>() || m_Entity->has<DirectionalLightComponent>())
+			if ((m_Entity->has<PointLightComponent>() || m_Entity->has<DirectionalLightComponent>()) )
 				DrawLightComponent();
-			if (m_Entity->has<AnimationComponent>())
+			if (m_Entity->has<AnimationComponent>()  )
 				DrawAnimationComponent(m_Entity->component<AnimationComponent>());
-			if (m_Entity->has<AudioComponent>())
+			if (m_Entity->has<AudioComponent>()  )
 				DrawAudioComponent(m_Entity->component<AudioComponent>());
-			if (m_Entity->has<AudioListener>())
+			if (m_Entity->has<AudioListener>() )
 				DrawAudioListener(m_Entity->component<AudioListener>());
-			if (m_Entity->has<KeyComponent>() || m_Entity->has<MouseComponent>())
+			if ((m_Entity->has<KeyComponent>() || m_Entity->has<MouseComponent>()) )
 				DrawKeyComponent(m_Entity->component<KeyComponent>());
 			// ------------- RENDER COMPONENTS -------------
 
-			// ------------- ADD ANY COMPONENT ------------- 
+			// ------------- ADD ANY COMPONENT -------------
+			ImGui::SetCursorPosX((ImGui::GetWindowWidth()* 0.2f));
 			if (ImGui::Button("Add Component", ImVec2(200, 20)))
 			{
 				show_addcomponent = true;
@@ -207,13 +217,11 @@ namespace SPW
 							}
 							else if (componentType == ComponentType::AnimationComponent)
 							{
+								// FIXME: read from a fixed name?
 								m_Entity->emplace<AnimationComponent>("dragon");
 								std::cout << "Add Animation Component\n";
 								show_addcomponent = false;
 							}
-
-
-							
 						}
 					}
 				}
@@ -228,16 +236,17 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawTransformComponent(TransformComponent* component)
 	{
 		ImGui::PushID("Transform");
-		if (ImGui::TreeNode(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT"		Transform"))
+		if (ImGui::TreeNode(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT"			Transform"))
 		{
 			if (ImGui::Button("delete"))
 			{
 
 				//TODO To delete the entity
-//				m_Entity->remove<TransformComponent>();
-//				scene_ptr->deleteEntity(m_Entity);
+				m_Entity->remove<TransformComponent>();
 
-//				m_Entity = nullptr;
+				// scene_ptr->deleteEntity(m_Entity);
+				// m_Entity = nullptr;
+
 				ImGui::TreePop();
 				ImGui::PopID();
 				return;
@@ -303,7 +312,7 @@ namespace SPW
 			auto& active_asset_data = ResourceManager::getInstance()->m_AssetDataMap[component->assetName];
 
 			ImGui::PushID("Asset Meta");
-			std::string label = ICON_FA_DATABASE"		Asset Meta : " + component->assetName;
+			std::string label = ICON_FA_DATABASE"			Asset Meta : " + component->assetName;
 			if (ImGui::TreeNode(label.c_str()))
 			{
 				if (ImGui::BeginChild("Asset Meta", ImVec2(0, 60), true))
@@ -318,7 +327,7 @@ namespace SPW
 			ImGui::PopID();
 
 			ImGui::PushID("Mesh Filter");
-			if (ImGui::TreeNode(ICON_FA_SQUARE"		Mesh Filter"))
+			if (ImGui::TreeNode(ICON_FA_SQUARE"			Mesh Filter"))
 			{
 				// Add a child window with scrolling capabilities
 				ImGui::BeginChild("MeshFilterNoScrolling", ImVec2(0, 100), false,
@@ -343,7 +352,7 @@ namespace SPW
 			ImGui::PopID();
 
 			ImGui::PushID("Mesh Renderer");
-			if (ImGui::TreeNode(ICON_FA_PALETTE"		Mesh Renderer"))
+			if (ImGui::TreeNode(ICON_FA_PALETTE"			Mesh Renderer"))
 			{
 				if (!component->assetName.empty())
 				{
@@ -432,7 +441,7 @@ namespace SPW
 	{
 		ImGui::PushID("Animation");
 
-		if (ImGui::TreeNode(ICON_FA_PERSON_RUNNING"		Animation")) /* TODO: add icon*/
+		if (ImGui::TreeNode(ICON_FA_PERSON_RUNNING"			Animation")) /* TODO: add icon*/
 		{
 			const auto& skeleton = ResourceManager::getInstance()->m_AssetDataMap[component->assetName].skeleton;
 
@@ -490,7 +499,7 @@ namespace SPW
 
 		const char* items[] = {"Perspective", "Ortho", "UIOrtho"};
 
-		if (ImGui::TreeNode(ICON_FA_CAMERA"		 Camera")) 
+		if (ImGui::TreeNode(ICON_FA_CAMERA"			Camera")) 
 		{
 			if (ImGui::Button("delete"))
 			{
@@ -560,7 +569,7 @@ namespace SPW
 		//  PointLightComponent = 0, DirectionalLightComponent = 1;
 		const char* items[] = {"Point Light","Directional Light"};
 		// ImGui::LabelText();
-		if (ImGui::TreeNode(ICON_FA_LIGHTBULB"		Light Source"))
+		if (ImGui::TreeNode(ICON_FA_LIGHTBULB"			Light Source"))
 		{
 			int orignal_lightType = m_Entity->has<PointLightComponent>() ? 0 : 1;
 
@@ -685,7 +694,7 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawAudioListener(AudioListener* component) const
 	{
 		ImGui::PushID("Audio");
-		if (ImGui::TreeNode(ICON_FA_HEADPHONES"		Audio")) /* TODO: add icon*/
+		if (ImGui::TreeNode(ICON_FA_HEADPHONES"			Audio")) /* TODO: add icon*/
 		{
 			if (ImGui::Button("delete"))
 			{
@@ -711,7 +720,8 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawKeyComponent(KeyComponent* component) const
 	{
 		ImGui::PushID("Event System");
-		if (ImGui::TreeNode(ICON_FA_BULLHORN"		Event System")) /* TODO: add icon*/
+
+		if (ImGui::TreeNode(ICON_FA_BULLHORN"			Event System"))
 		{
 			if (ImGui::Button("delete"))
 			{

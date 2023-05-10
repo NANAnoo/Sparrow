@@ -9,24 +9,39 @@ namespace SPW
 	namespace Config
 	{
 		std::string k_EngineRoot;
+		std::string k_EngineShaderLib;
+		std::string k_EngineLualib;
+
 		std::string k_TempalteProjectRoot;
 		std::string k_WorkingProjectRoot;
 		std::string k_WorkingProjectAssets;
+		std::string k_WorkingProjectSounds;
 		std::string k_WorkingProjectScenes;
+		std::string k_WorkingProjectShaders;
+		std::string k_WorkingProjectScripts;
 	}
 
 	bool ConfigManager::ReadConfig()
 	{
-		const std::filesystem::path config_path = FileSystem::GetUserHomeDir() + "./.config/sparrow.toml";
+		// std::string orgPath = FileSystem::GetUserHomeDir() + "./.config/ÖÐÎÄ.toml"
+		const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
 
 		if (fs::exists(config_path))
 		{
 			// if path exists, directly from sparrow.toml
-			toml::table config = toml::parse_file(config_path.string());
+			toml::table config = toml::parse_file(config_path.u8string());
 
 			std::cout << "Boost Sparrow Eninge: " << config["Sparrow"] << std::endl;
 
 			Config::k_EngineRoot = std::string(*config["Engine"]["RootPath"].as<std::string>());
+
+			Config::k_EngineLualib = std::string(*config["Engine"]["RuntimePath"].as<std::string>()) + "/src/LuaLib/";
+
+			// new shader lib from Engine to 
+			Config::k_EngineShaderLib = Config::k_EngineRoot + "shaders/";
+
+			// std::filesystem::parent_path(Config::k_EngineRoot);
+			// Config::k_EngineLualib =	Config::k_EngineRoot + "scripts/";
 			Config::k_TempalteProjectRoot = std::string(*config["Engine"]["SparrowTemplate"].as<std::string>());
 
 			std::unordered_map<std::string, std::string> project_paths;
@@ -48,7 +63,10 @@ namespace SPW
 			{
 				Config::k_WorkingProjectRoot = project_paths.begin()->second;
 				Config::k_WorkingProjectAssets = project_paths.begin()->second + "Assets/";
+				Config::k_WorkingProjectSounds = project_paths.begin()->second + "Sounds/";
 				Config::k_WorkingProjectScenes = project_paths.begin()->second + "Scenes/";
+				Config::k_WorkingProjectShaders = project_paths.begin()->second + "Shaders/";
+				Config::k_WorkingProjectScripts = project_paths.begin()->second + "Scripts/";
 			}
 
 			std::cout << "Engine Root: " << Config::k_EngineRoot << std::endl;
@@ -61,6 +79,8 @@ namespace SPW
 		}
 		else
 		{
+			//FileSystem::CreateDirectory(config_path.parent_path().string());
+
 			std::filesystem::path absolute_engine_path = std::filesystem::absolute("./resources/");
 			std::string absolute_engine = absolute_engine_path.string();
 			FileSystem::ResolveSlash(absolute_engine);
@@ -84,13 +104,17 @@ namespace SPW
 
 	bool ConfigManager::WriteConfig()
 	{
-		std::string config_file_dir = SPW::FileSystem::GetUserHomeDir() + "./.config/";
+		std::filesystem::path config_file_dir = FileSystem::GetUserHomeDir().append("./.config/");
 		FileSystem::CreateDirectory(config_file_dir);
 
 		toml::table engine_meta = toml::table
 		{
 			{"Version", "0.1.1"}
 		};
+
+		std::filesystem::path absolute_runtime_path = std::filesystem::absolute("./");
+		std::string absolute_runtime = absolute_runtime_path.string();
+		SPW::FileSystem::ResolveSlash(absolute_runtime);
 
 		std::filesystem::path absolute_engine_path = std::filesystem::absolute("./resources/");
 		std::string absolute_engine = absolute_engine_path.string();
@@ -104,6 +128,7 @@ namespace SPW
 		toml::table engine_path = toml::table
 		{
 			{"RootPath", absolute_engine},
+			{"RuntimePath", absolute_runtime},
 			{"SparrowTemplate", absolute_template}
 		};
 
@@ -121,7 +146,7 @@ namespace SPW
 			{"Projects", projects},
 		};
 
-		std::ofstream config{config_file_dir + "sparrow.toml"};
+		std::ofstream config{config_file_dir.append("sparrow.toml")};
 		if (config.is_open())
 		{
 			config << config_table;
@@ -136,7 +161,7 @@ namespace SPW
 
 	bool ConfigManager::WriteConfig(const std::string& curr_path)
 	{
-		std::string config_file_dir = SPW::FileSystem::GetUserHomeDir() + "./.config/";
+		std::filesystem::path config_file_dir = SPW::FileSystem::GetUserHomeDir().append("./.config/");
 		SPW::FileSystem::CreateDirectory(config_file_dir);
 
 		toml::table engine_meta = toml::table
@@ -173,7 +198,7 @@ namespace SPW
 			{"Projects", projects},
 		};
 
-		std::ofstream config{config_file_dir + "sparrow.toml"};
+		std::ofstream config{config_file_dir.append("sparrow.toml")};
 		if (config.is_open())
 		{
 			config << config_table;

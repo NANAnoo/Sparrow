@@ -24,8 +24,18 @@ namespace SPW
 		ImGui::End();
 
 		const char* icon = ICON_FA_FOLDER"  ";
+		ImGui::Text(ICON_FA_LAPTOP_CODE" Runtime LuaLib");
+		DisplayImGuiFileExplorer(icon, Config::k_EngineLualib);
+		ImGui::Separator();
+
+		ImGui::Text(ICON_FA_LAPTOP_CODE" Project");
 		DisplayImGuiFileExplorer(icon, Config::k_WorkingProjectRoot);
+		ImGui::Separator();
+
+		ImGui::Text(ICON_FA_LAPTOP_CODE" Engine Resources");
 		DisplayImGuiFileExplorer(icon, Config::k_EngineRoot);
+		ImGui::Separator();
+
 		DisplayImagePanel();
 	}
 
@@ -90,7 +100,7 @@ namespace SPW
 			{
 				if (entryPath.extension() == ".obj")
 					icon_id = m_IconManager->GetLibIcon("obj");
-				else if (entryPath.extension() == ".wav")
+				else if (entryPath.extension() == ".wav" || entryPath.extension() == ".mp3")
 					icon_id = m_IconManager->GetLibIcon("music");
 				else if (entryPath.extension() == ".png" || entryPath.extension() == ".jpg"
 					|| entryPath.extension() == ".jpeg" || entryPath.extension() == ".dds")

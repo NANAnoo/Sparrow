@@ -30,13 +30,13 @@ namespace SPW
 	public:
 		static void Boost(/*const std::string& root = ""*/);
 
-		static void MountEngine();
+		static void MountPath(std::string src, std::string& dst);
 
 		static void MountFromConfig();
 
-		static void copy_directory(const std::filesystem::path& source, const std::filesystem::path& destination);
+		static void RecursiveCopyDirectory(const std::filesystem::path& source, const std::filesystem::path& destination);
 
-		static std::string GetUserHomeDir();
+		static std::filesystem::path GetUserHomeDir();
 
 		static std::string GetProjectName();
 
@@ -77,6 +77,7 @@ namespace SPW
 		static bool PathExists(const std::string& filename);
 
 		static bool CreateDirectory(const std::string& dir_name);
+		static bool CreateDirectory(const std::filesystem::path& dir_name);
 
 		static bool CopyFile(const std::string& src, const std::string& dest);
 	};
