@@ -423,9 +423,9 @@ public:
 			auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
 			cubeTrans->scale = {50.0, 0.05, 50.0};
 			auto floorModel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
-            floorModel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetID;
-            floorModel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName;
-            floorModel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].path;
+            floorModel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetID;
+            floorModel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetName;
+            floorModel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].path;
 
             floorModel->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
             floorModel->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kFloorGBufferShader).uuid;
@@ -435,6 +435,17 @@ public:
 			auto  collider2 = cubeObj->emplace<SPW::BoxCollider>();
 			collider2->box_size_ = glm::vec3(50, 0.1, 50);
 			collider2->state = SPW::needAwake;
+
+            auto wallObj = scene->createEntity("wall");
+            auto wallTrans = wallObj->emplace<SPW::TransformComponent>();
+            wallTrans->scale = {0.05, 10, 10.0};
+            wallTrans->position = {5.5, 10.0, 0};
+            auto wallModel = wallObj->emplace<SPW::MeshComponent>(camera_id);
+            wallModel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetID;
+            wallModel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName;
+            wallModel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].path;
+            wallModel->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+            wallModel->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kFloorGBufferShader).uuid;
 
 			// --------------------------------------------------------------------------------
 			auto skybox = scene->createEntity("skybox");
