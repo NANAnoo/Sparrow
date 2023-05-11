@@ -2,5 +2,9 @@
 .idea
 *.DS_Store*
 .cache
+deffer.rdc
 .vscode/
 .vs
+UserProject/Engine
+UserProject/Scenes
+

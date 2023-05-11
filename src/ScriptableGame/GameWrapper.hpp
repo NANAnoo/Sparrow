@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "SparrowCore.h"
+#include "Asset/ResourceManager/ResourceManager.h"
+#include "IO/ConfigManager.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include "ApplicationFramework/WindowI/WindowEvent.h"
 #include "Event/Event.h"
@@ -87,7 +89,7 @@ namespace SPW {
             SPW::RenderGraphWrapper::bindLuaTable(cpp_table);
             SPW::bindAttachmentPort(cpp_table);
 
-            // bind shaderhandle
+            // bind shader handle
             cpp_table.new_usertype<SPW::ShaderHandle>("ShaderHandle",
                     sol::call_constructor, sol::constructors<SPW::ShaderHandle(const std::string&, const std::string&, const std::string&)>(),
                     sol::meta_function::to_string,[] (const SPW::ShaderHandle* shader) {return shader->name;},
@@ -105,9 +107,13 @@ namespace SPW {
                 scene.m_scene->addSystem(std::make_shared<SPW::AudioSystem>(scene.m_scene));
                 scene.m_scene->addSystem(std::make_shared<SPW::PhysicSystem>(scene.m_scene));
                 auto renderSystem = std::make_shared<SPW::SPWRenderSystem>(scene.m_scene, renderBackEnd, width, height);
-                scene.setUpDefaultRenderGraph(renderSystem);
+                scene.setUpDefaultRenderGraph(renderSystem, renderBackEnd);
                 scene.m_scene->addSystem(renderSystem);
                 return scene;
+            };
+            cpp_table["LoadAsset"] = [this, weak_window](const std::string &name) {
+                auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + name);
+			    SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
             };
         }
         void beforeAppUpdate() final{

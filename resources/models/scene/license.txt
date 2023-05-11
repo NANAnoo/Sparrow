@@ -1,0 +1,11 @@
+Model Information:
+* title:	Resto ni Teo
+* source:	https://sketchfab.com/3d-models/resto-ni-teo-2c587738161e43708b4d99210c57c9cc
+* author:	LowPolyBoy (https://sketchfab.com/lowPolyBoy)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Resto ni Teo" (https://sketchfab.com/3d-models/resto-ni-teo-2c587738161e43708b4d99210c57c9cc) by LowPolyBoy (https://sketchfab.com/lowPolyBoy) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

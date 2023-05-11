@@ -10,4 +10,6 @@ CORE_ADD_SOURCE(ComponentI.h
         CameraComponent.hpp
         ModelComponent.h
         KeyComponent.hpp
-        MouseComponent.hpp)
+        MouseComponent.hpp
+        AnimationComponent/AnimationComponent.h
+        )

@@ -38,8 +38,5 @@ namespace SPW
             return sol::nil;
         }
     };
-
-
-
 };
 #endif //SPARROW_AUDIOLISTENER_H

@@ -1,0 +1,362 @@
+{
+    "assetID": "eaa2997c-9f63-4345-959b-524a771a6f5d",
+    "assetName": "dragon",
+    "assetPath": "Assets/dragon/dragon.json",
+    "meshURI": "9a5f5f21-8143-4d46-b0c6-f143b09ab4e0",
+    "materials": [
+        {
+            "id": "4294f09f-99b3-4b52-a996-08d166c41481",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "2be156a6-c317-42e0-b4b1-26ff30e36ed1"
+                },
+                {
+                    "key": "Normal",
+                    "value": "ffcb026f-98c6-4e0c-83ca-df57842be0e8"
+                },
+                {
+                    "key": "Metalness",
+                    "value": "27fea58a-211e-44dd-98e3-e37eef5d7999"
+                },
+                {
+                    "key": "Roughness",
+                    "value": "9f99ca85-1792-4926-bd62-bed58f1e7c88"
+                },
+                {
+                    "key": "AmbientOcclusion",
+                    "value": "aa77cc61-061a-4e12-9f80-1bcb9b364c6f"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 0.23000000417232514,
+                    "y": 0.23000000417232514,
+                    "z": 0.23000000417232514
+                },
+                "metallicConstant": 0.8359212875366211,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 0.23000000417232514,
+                    "y": 0.23000000417232514,
+                    "z": 0.23000000417232514
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 105.99542999267578,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "4d8c7bab-a028-40e6-ad1c-308d9b7a6599",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "676dfbcc-a3a3-487e-8839-ada83be83931"
+                },
+                {
+                    "key": "Normal",
+                    "value": "8a3e0a8b-27ed-477d-9b63-ec46ae172094"
+                },
+                {
+                    "key": "Metalness",
+                    "value": "32b1a37c-a3ea-408f-97ba-32d226dfb28a"
+                },
+                {
+                    "key": "Roughness",
+                    "value": "f049406b-5688-47af-86b9-ff748c756059"
+                },
+                {
+                    "key": "AmbientOcclusion",
+                    "value": "5c4feb41-d71b-4b04-9ac7-51b0a66d0187"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 2.893374443054199,
+                "specularPower": 0.0,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "e5d30ac5-81c2-4024-adcb-c6067f5f7999",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "ecf28842-6ed6-4607-9495-616c36ab81ca"
+                },
+                {
+                    "key": "Normal",
+                    "value": "ef675449-0792-4058-b9b0-daf662151c6c"
+                },
+                {
+                    "key": "Metalness",
+                    "value": "49f22864-4956-422b-b5e2-bedb960a07bb"
+                },
+                {
+                    "key": "Roughness",
+                    "value": "4f995816-2f37-441b-9f53-9337b7b321eb"
+                },
+                {
+                    "key": "AmbientOcclusion",
+                    "value": "bc89f5c4-ff88-4bdc-abbd-865ee174e398"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 1.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 0.0,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "ce1f47cc-fec0-4233-841b-4c9e0c33f9d2",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "7ab2f3dc-0dbc-4c00-84c0-d9bdd97193e6"
+                },
+                {
+                    "key": "Normal",
+                    "value": "ea7c14be-b1ce-4369-b1f7-9fed7e43c52d"
+                },
+                {
+                    "key": "Metalness",
+                    "value": "984df82d-0146-4af2-ae3b-d7c67b2aaf1d"
+                },
+                {
+                    "key": "Roughness",
+                    "value": "88bcbf0e-3371-4052-b382-67bcfceef0c8"
+                },
+                {
+                    "key": "AmbientOcclusion",
+                    "value": "f05573c2-2d45-438e-8a17-d3b4ef2d5765"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 0.2148032784461975,
+                    "y": 0.2148032784461975,
+                    "z": 0.2148032784461975
+                },
+                "metallicConstant": 1.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 0.2148032784461975,
+                    "y": 0.2148032784461975,
+                    "z": 0.2148032784461975
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 345.1258239746094,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        }
+    ],
+    "textures": [
+        {
+            "key": "2be156a6-c317-42e0-b4b1-26ff30e36ed1",
+            "value": "Assets/dragon/Textures/Material_baseColor.jpeg"
+        },
+        {
+            "key": "ffcb026f-98c6-4e0c-83ca-df57842be0e8",
+            "value": "Assets/dragon/Textures/Material_normal.png"
+        },
+        {
+            "key": "27fea58a-211e-44dd-98e3-e37eef5d7999",
+            "value": "Assets/dragon/Textures/Material_metallicRoughness.png"
+        },
+        {
+            "key": "9f99ca85-1792-4926-bd62-bed58f1e7c88",
+            "value": "Assets/dragon/Textures/Material_metallicRoughness.png"
+        },
+        {
+            "key": "aa77cc61-061a-4e12-9f80-1bcb9b364c6f",
+            "value": "Assets/dragon/Textures/Material_metallicRoughness.png"
+        },
+        {
+            "key": "32b1a37c-a3ea-408f-97ba-32d226dfb28a",
+            "value": "Assets/dragon/Textures/EYES_metallicRoughness.png"
+        },
+        {
+            "key": "676dfbcc-a3a3-487e-8839-ada83be83931",
+            "value": "Assets/dragon/Textures/EYES_baseColor.jpeg"
+        },
+        {
+            "key": "8a3e0a8b-27ed-477d-9b63-ec46ae172094",
+            "value": "Assets/dragon/Textures/EYES_baseColor.jpeg"
+        },
+        {
+            "key": "f049406b-5688-47af-86b9-ff748c756059",
+            "value": "Assets/dragon/Textures/EYES_metallicRoughness.png"
+        },
+        {
+            "key": "49f22864-4956-422b-b5e2-bedb960a07bb",
+            "value": "Assets/dragon/Textures/Game_dragon_metallicRoughness.png"
+        },
+        {
+            "key": "5c4feb41-d71b-4b04-9ac7-51b0a66d0187",
+            "value": "Assets/dragon/Textures/EYES_metallicRoughness.png"
+        },
+        {
+            "key": "ecf28842-6ed6-4607-9495-616c36ab81ca",
+            "value": "Assets/dragon/Textures/EYES_baseColor.jpeg"
+        },
+        {
+            "key": "ef675449-0792-4058-b9b0-daf662151c6c",
+            "value": "Assets/dragon/Textures/Game_dragon_normal.jpeg"
+        },
+        {
+            "key": "4f995816-2f37-441b-9f53-9337b7b321eb",
+            "value": "Assets/dragon/Textures/Game_dragon_metallicRoughness.png"
+        },
+        {
+            "key": "bc89f5c4-ff88-4bdc-abbd-865ee174e398",
+            "value": "Assets/dragon/Textures/Game_dragon_metallicRoughness.png"
+        },
+        {
+            "key": "7ab2f3dc-0dbc-4c00-84c0-d9bdd97193e6",
+            "value": "Assets/dragon/Textures/EYES_baseColor.jpeg"
+        },
+        {
+            "key": "ea7c14be-b1ce-4369-b1f7-9fed7e43c52d",
+            "value": "Assets/dragon/Textures/Game_dragon_normal.jpeg"
+        },
+        {
+            "key": "984df82d-0146-4af2-ae3b-d7c67b2aaf1d",
+            "value": "Assets/dragon/Textures/Game_dragon.001_metallicRoughness.png"
+        },
+        {
+            "key": "88bcbf0e-3371-4052-b382-67bcfceef0c8",
+            "value": "Assets/dragon/Textures/Game_dragon.001_metallicRoughness.png"
+        },
+        {
+            "key": "f05573c2-2d45-438e-8a17-d3b4ef2d5765",
+            "value": "Assets/dragon/Textures/Game_dragon.001_metallicRoughness.png"
+        }
+    ]
+}

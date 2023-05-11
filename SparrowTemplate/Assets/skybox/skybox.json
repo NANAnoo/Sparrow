@@ -1,0 +1,106 @@
+{
+    "assetID": "74b862ed-05b6-4576-852c-5cf548cf7604",
+    "assetName": "skybox",
+    "assetPath": "Assets/skybox/skybox.json",
+    "meshURI": "30d19ac7-08fe-408f-b169-d3160306d6f0",
+    "materials": [
+        {
+            "id": "30d19ac7-08fe-408f-b169-d3160306d6f0",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "eb870681-bef4-44ea-b3c4-bc35597c9295"
+                },
+                {
+                    "key": "Normal",
+                    "value": "24c8a290-3b86-42b1-b8cd-5e577b3b68e3"
+                },
+                {
+                    "key": "Metalness",
+                    "value": "8c589cca-ec1b-4d2b-977f-e49a3543d097"
+                },
+                {
+                    "key": "Roughness",
+                    "value": "4d13a771-b8d0-444b-aa51-2191e17ad6bb"
+                },
+                {
+                    "key": "AmbientOcclusion",
+                    "value": "af00deb1-0743-4658-a252-276b48e7381f"
+                },
+                {
+                    "key": "Unknown",
+                    "value": "764d1952-2412-436c-80ee-979a7f6dcfa1"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "transparent": {
+                    "x": -107374176.0,
+                    "y": -107374176.0,
+                    "z": -107374176.0
+                },
+                "refection": {
+                    "x": -107374176.0,
+                    "y": -107374176.0,
+                    "z": -107374176.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 0.0,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        }
+    ],
+    "textures": [
+        {
+            "key": "24c8a290-3b86-42b1-b8cd-5e577b3b68e3",
+            "value": "Assets/skybox/Textures/left.jpg"
+        },
+        {
+            "key": "eb870681-bef4-44ea-b3c4-bc35597c9295",
+            "value": "Assets/skybox/Textures/right.jpg"
+        },
+        {
+            "key": "8c589cca-ec1b-4d2b-977f-e49a3543d097",
+            "value": "Assets/skybox/Textures/top.jpg"
+        },
+        {
+            "key": "4d13a771-b8d0-444b-aa51-2191e17ad6bb",
+            "value": "Assets/skybox/Textures/bottom.jpg"
+        },
+        {
+            "key": "764d1952-2412-436c-80ee-979a7f6dcfa1",
+            "value": "Assets/skybox/Textures/back.jpg"
+        },
+        {
+            "key": "af00deb1-0743-4658-a252-276b48e7381f",
+            "value": "Assets/skybox/Textures/front.jpg"
+        }
+    ]
+}

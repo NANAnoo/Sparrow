@@ -1,7 +1,7 @@
 #include "Platforms/OPENGL/OpenGLAttachmentTexture.hpp"
 #include "Platforms/OPENGL/OpenGLFrameBuffer.h"
 #include "Render/RenderGraph.hpp"
-
+#include "Asset/ResourceManager/ResourceManager.h"
 
 namespace SPW {
     class OpenGLRenderGraph : public RenderGraph {
@@ -9,7 +9,8 @@ namespace SPW {
             explicit OpenGLRenderGraph()=default;
 
             // create resource for pass node
-            void init() override;
+            void init(unsigned int s_width, unsigned int s_height) override;
+            void onFrameChanged(unsigned int s_width, unsigned int s_height) override;
             void render(const RenderInput &input) override;
 
         private:
@@ -27,10 +28,13 @@ namespace SPW {
             // attachment map
 
             // create resource for model node
-            void createResourceForModelNode(const std::shared_ptr<ModelPassNode> &node);
+            void createResourceForModelNode(const std::shared_ptr<ModelPassNode> &node, unsigned int s_width, unsigned int s_height);
 
             // create resource for model repeat node
             void createResourceForModelRepeatNode(const std::shared_ptr<ModelRepeatPassNode> &node);
+
+            // create resource for image pass node
+            void createResourceForImagePassNode(const std::shared_ptr<ImagePassNode> &node, unsigned int s_width, unsigned int s_height);
 
             // bind required attachments
             unsigned int bindAttachments(
@@ -53,6 +57,9 @@ namespace SPW {
 
             // render on screen pass node
             void renderOnScreenPassNode(const std::shared_ptr<ScreenPassNode> &node, const RenderInput &input);
+
+            // render on image pass node
+            void renderOnImagePassNode(const std::shared_ptr<ImagePassNode> &node, const RenderInput &input);
 
             // render on present node
             void renderOnPresentNode(const std::shared_ptr<PresentNode> &node, const RenderInput &input);

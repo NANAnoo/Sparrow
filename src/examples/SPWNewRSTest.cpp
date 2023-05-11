@@ -1,49 +1,31 @@
-#include <cmath>
 #include <iostream>
 
 #include <memory>
-#include <sol/sol.hpp>
 
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
-#include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Entity/Entity.hpp"
-#include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
-#include "Model/Mesh.h"
 #include "SparrowCore.h"
 #include "Platforms/GlfwWindow/GlfwWindow.h"
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
+
 
 #include "ApplicationFramework/WindowI/WindowEvent.h"
-#include "Control/KeyEvent.hpp"
-#include "Control/MouseEvent.hpp"
-
 #include "Control/KeyCodes.h"
-#include "Control/MouseCodes.h"
 
 #include "EcsFramework/Scene.hpp"
-
 #include "EcsFramework/Component/BasicComponent/IDComponent.h"
-#include "EcsFramework/Component/MeshComponent.hpp"
 #include "EcsFramework/Component/CameraComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
 #include "EcsFramework/Component/PhysicalComponent/RigidActor.h"
-#include "EcsFramework/Component/PhysicalComponent/Collider.h"
 
 #include "EcsFramework/Component/Audio/AudioComponent.h"
 #include "EcsFramework/Component/Audio/AudioListener.h"
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
-
-
-#include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
-#include "EcsFramework/System/NewRenderSystem/DefaultRenderPass.hpp"
-#include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
+#include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/PhysicSystem/PhysicSystem.h"
-
-#include "Model/Model.h"
+#include "Render/RenderGraphManager.h"
 
 #include "Utils/UUID.hpp"
 
@@ -53,438 +35,568 @@
 #include "Platforms/OPENGL/OpenGLxGLFWContext.hpp"
 
 #include "SimpleRender.h"
-#include "IO/ResourceManager.h"
-#include "Model/Model.h"
-#include <glm/glm/ext.hpp>
+#include "Asset/ResourceManager/ResourceManager.h"
 #include <glm/glm/gtx/euler_angles.hpp>
 
-std::shared_ptr<SPW::Skeleton> createSkeleton() {
-    return SPW::ResourceManager::getInstance()->LoadAnimation("./resources/models/dragon/scene.gltf");
-}
+#include "EcsFramework/Component/MeshComponent.hpp"
+#include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
+#include "IO/FileSystem.h"
+#include "Asset/Serializer/EntitySerializer.h"
+#include "Asset/BasicMeshStorage.hpp"
+#include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
+#include "IO/ConfigManager.h"
 
-std::shared_ptr<SPW::Model> createModel() {
-    //return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/mona2/mona.fbx");
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/dragon/scene.gltf");
-}
-std::shared_ptr<SPW::Model> createCubeModel()
+const SPW::UUID& CreateACamera(const std::shared_ptr<SPW::Scene>& scene, float width, float height, bool main = true)
 {
-    return SPW::ResourceManager::getInstance()->LoadModel("./resources/models/sand_cube/cube.obj");
-}
+	// add a camera entity
+	auto camera = scene->createEntity("main camera");
+	camera->emplace<SPW::AudioListener>();
+	auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
+	mainCameraTrans->position = glm::vec4(4.0f, 3.0f, 1.0f, 1.0f);
+	auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
+	cam->fov = 60;
+	cam->aspect = width / height;
+	cam->near = 0.1;
+	cam->far = 100;
 
-const SPW::UUID& createMaincamera(const std::shared_ptr<SPW::Scene> &scene, float width, float height) {
-    // add a camera entity
-    auto camera = scene->createEntity("main camera");
-    camera->emplace<SPW::AudioListener>();
-    auto mainCameraTrans = camera->emplace<SPW::TransformComponent>();
-    mainCameraTrans->position = glm::vec4(0.0f,0.0f,1.0f,1.0f);
-    auto cam = camera->emplace<SPW::CameraComponent>(SPW::PerspectiveType);
-    cam->fov = 60;
-    cam->aspect = width / height;
-    cam->near = 0.01;
-    cam->far = 100;
-
-    cam->whetherMainCam = true;
-    //add a key component for testing, press R to rotate
-    auto cameraKey = camera->emplace<SPW::KeyComponent>();
-    static float speed = 0.02f;
-    auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode){
-        auto mainCameraTrans = e.component<SPW::TransformComponent>();
-        auto rotMat = glm::eulerAngleYXZ(glm::radians(mainCameraTrans->rotation.y),
-                            glm::radians(mainCameraTrans->rotation.x),
-                            glm::radians(mainCameraTrans->rotation.z));
-        glm::vec4 front = {0, 0, -1, 0};
-        front = rotMat * front;
-        glm::vec3 forward = {front.x, 0, front.z};
-        forward = glm::normalize(forward);
-        glm::vec3 up = {0, 1, 0};
-        glm::vec3 right = glm::normalize(glm::cross(forward, up));
-        if(keycode == SPW::Key::W)
-            mainCameraTrans->position +=speed * forward;
-        if(keycode == SPW::Key::S)
-            mainCameraTrans->position -=speed * forward;
-        if(keycode == SPW::Key::A)
-            mainCameraTrans->position -=speed * right;
-        if(keycode == SPW::Key::D)
-            mainCameraTrans->position +=speed * right;
-        if(keycode == SPW::Key::Q)
-            mainCameraTrans->position -=speed * up;
-        if(keycode == SPW::Key::E)
-            mainCameraTrans->position +=speed * up;
-        if (keycode == SPW::Key::LeftShift) {
-            speed = 0.1f;
-        }
-    };
-    auto mouse = camera->emplace<SPW::MouseComponent>();
-    mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias, double y_pos_bias){
-        auto transform = e.component<SPW::TransformComponent>();
-        transform->rotation.x -= y_pos_bias * 0.1;
-        transform->rotation.y -= x_pos_bias * 0.1 ;
-    };
-    cameraKey->onKeyHeldCallBack = cb;
-    cameraKey->onKeyDownCallBack = cb;
+	cam->whetherMainCam = main;
+    static bool speed_up = false;
+	//add a key component for testing, press R to rotate
+	auto cameraKey = camera->emplace<SPW::KeyComponent>();
+	auto cb = [](const SPW::Entity& e, SPW::KeyCode keycode)
+	{
+		auto mainCameraTrans = e.component<SPW::TransformComponent>();
+		auto rotMat = glm::eulerAngleYXZ(glm::radians(mainCameraTrans->rotation.y),
+		                                 glm::radians(mainCameraTrans->rotation.x),
+		                                 glm::radians(mainCameraTrans->rotation.z));
+		glm::vec4 front = {0, 0, -1, 0};
+		front = rotMat * front;
+		glm::vec3 forward = {front.x, 0, front.z};
+		forward = glm::normalize(forward);
+		glm::vec3 up = {0, 1, 0};
+		glm::vec3 right = glm::normalize(glm::cross(forward, up));
+		if (keycode == SPW::Key::W)
+			mainCameraTrans->position += (speed_up ? 0.1f : 0.01f) * forward;
+		if (keycode == SPW::Key::S)
+			mainCameraTrans->position -= (speed_up ? 0.1f : 0.01f) * forward;
+		if (keycode == SPW::Key::A)
+			mainCameraTrans->position -= (speed_up ? 0.1f : 0.01f) * right;
+		if (keycode == SPW::Key::D)
+			mainCameraTrans->position += (speed_up ? 0.1f : 0.01f) * right;
+		if (keycode == SPW::Key::Q)
+			mainCameraTrans->position -= (speed_up ? 0.1f : 0.01f) * up;
+		if (keycode == SPW::Key::E)
+			mainCameraTrans->position += (speed_up ? 0.1f : 0.01f) * up;
+        if (keycode == SPW::Key::LeftShift)
+            speed_up = true;
+	};
+	auto mouse = camera->emplace<SPW::MouseComponent>();
+	mouse->cursorMovementCallBack = [](const SPW::Entity& e, double x_pos, double y_pos, double x_pos_bias,
+	                                   double y_pos_bias)
+	{
+		auto transform = e.component<SPW::TransformComponent>();
+		transform->rotation.x -= float(y_pos_bias * 0.1);
+		transform->rotation.y -= float(x_pos_bias * 0.1);
+	};
+	cameraKey->onKeyHeldCallBack = cb;
+	cameraKey->onKeyDownCallBack = cb;
     cameraKey->onKeyReleasedCallBack = [](const SPW::Entity& e, SPW::KeyCode keycode) {
-        if (keycode == SPW::Key::LeftShift) {
-            speed = 0.02f;
-        }
+        if (keycode == SPW::Key::LeftShift)
+            speed_up = false;
     };
-    return camera->component<SPW::IDComponent>()->getID();
+	return camera->component<SPW::IDComponent>()->getID();
 }
 
-std::shared_ptr<SPW::Entity> createPlight(const std::shared_ptr<SPW::Scene> &scene, glm::vec3 position, glm::vec3 color) {
-    auto light = scene->createEntity("light");
-    auto lightTrans =light->emplace<SPW::TransformComponent>();
-    auto lightCom = light->emplace<SPW::PointLightComponent>();
-    lightCom->ambient = color;
-    lightTrans->position = position;
-    return light;
+std::shared_ptr<SPW::Entity> createPlight(const std::shared_ptr<SPW::Scene>& scene, glm::vec3 position, glm::vec3 color)
+{
+	auto light = scene->createEntity("light");
+	auto lightTrans = light->emplace<SPW::TransformComponent>();
+	auto lightCom = light->emplace<SPW::PointLightComponent>();
+	lightCom->ambient = color;
+	lightTrans->position = position;
+	return light;
 }
 
-std::shared_ptr<SPW::Entity> createDlight(const std::shared_ptr<SPW::Scene> &scene, glm::vec3 rotation, glm::vec3 color) {
-    auto light = scene->createEntity("light");
-    auto lightTrans =light->emplace<SPW::TransformComponent>();
-    auto lightCom = light->emplace<SPW::DirectionalLightComponent>();
-    lightCom->ambient = color;
-    lightTrans->rotation = rotation;
-    return light;
+std::shared_ptr<SPW::Entity> createDirectionalLight(const std::shared_ptr<SPW::Scene>& scene, glm::vec3 rotation, glm::vec3 color)
+{
+	auto light = scene->createEntity("light");
+	auto lightTrans = light->emplace<SPW::TransformComponent>();
+	auto lightCom = light->emplace<SPW::DirectionalLightComponent>();
+	lightCom->ambient = color;
+	lightTrans->rotation = rotation;
+	return light;
 }
 
 // test usage
-class Transformer :
-        public SPW::WindowEventResponder {
+class Transformer : public SPW::WindowEventResponder
+{
 public:
-    explicit Transformer (const std::shared_ptr<SPW::EventResponderI> &parent)
-            : SPW::WindowEventResponder(parent) {
-    }
+	explicit Transformer(const std::shared_ptr<SPW::EventResponderI>& parent)
+		: SPW::WindowEventResponder(parent)
+	{
+	}
 
-    bool onWindowResize(int w, int h) override {
-        std::cout << "window resize" << "(" << w << ", " << h << ")" <<std::endl;
-        bool should_update = false;
-        if (w < 500) {
-            w = 500;
-            should_update = true;
-        }
-        if (h < 400) {
-            h = 400;
-            should_update = true;
-        }
-        if (should_update && ! window.expired())
-            window.lock()->setSize(w, h);
-        // set projection
-        // TODO: add a responder to each camera
-        scene.lock()->forEach([=](SPW::CameraComponent *cam) {
-            cam->aspect = float(w) / float(h);
-            if (cam->getType() == SPW::UIOrthoType) {
-                cam->right = w;
-                cam->top = h;
-            }
-        }, SPW::CameraComponent);
-        return true;
-    }
+	bool onWindowResize(int w, int h) override
+	{
+		std::cout << "window resize" << "(" << w << ", " << h << ")" << std::endl;
+		bool should_update = false;
+		if (w < 500)
+		{
+			w = 500;
+			should_update = true;
+		}
+		if (h < 400)
+		{
+			h = 400;
+			should_update = true;
+		}
+		if (should_update && !window.expired())
+			window.lock()->setSize(w, h);
+		// set projection
+		// TODO: add a responder to each camera
+		scene.lock()->forEach([=](SPW::CameraComponent* cam) {
+		                      cam->aspect = float(w) / float(h);
+		                      if (cam->getType() == SPW::UIOrthoType) {
+		                      cam->right = w;
+		                      cam->top = h;
+		                      }
+		                      }, SPW::CameraComponent);
+		return true;
+	}
 
-    // windows size is not equal to frame buffer size
-    bool onFrameResize(int w, int h) override {
-        glViewport(0, 0, w, h);
-        std::cout << "frame resize" << "(" << w << ", " << h << ")" <<std::endl;
-        // set projection
-        return false;
-    }
-    const char *getName() final {
-        return "Transformer";
-    }
-    std::weak_ptr<SPW::WindowI> window;
-    std::weak_ptr<SPW::Scene> scene;
+	// windows size is not equal to frame buffer size
+	bool onFrameResize(int w, int h) override
+	{
+		glViewport(0, 0, w, h);
+		std::cout << "frame resize" << "(" << w << ", " << h << ")" << std::endl;
+		// set projection
+		return false;
+	}
+
+	const char* getName() final
+	{
+		return "Transformer";
+	}
+
+	std::weak_ptr<SPW::WindowI> window;
+	std::weak_ptr<SPW::Scene> scene;
 };
 
-class TestDelegate : public SPW::AppDelegateI {
+// #define SAVE_SKYBOX
+// #define LOAD_ASSET
+
+class SPWTestApp : public SPW::AppDelegateI
+{
 public:
-    explicit TestDelegate(std::shared_ptr<SPW::EventResponderI> &app, const char *name) :
-            SPW::AppDelegateI(app), _name(name) {
-    }
-    void onAppInit() final {
-        auto window = std::make_shared<SPW::GlfwWindow>();
-        app->window = window;
-        app->window->setSize(1280, 720);
-        app->window->setTitle("Test");
+	explicit SPWTestApp(std::shared_ptr<SPW::EventResponderI>& app, const char* name)
+		: SPW::AppDelegateI(app), _name(name)
+	{
+	}
 
-        transformer = std::make_shared<Transformer>(app->delegate.lock());
-        transformer->window = window;
+	void onAppInit() final
+	{
+		// TomlWriter();
 
-        // weak strong dance
-        std::weak_ptr<SPW::GlfwWindow> weak_window = window;
-        window->onWindowCreated([weak_window, this](GLFWwindow *handle){
-            if (weak_window.expired()) {
-                return;
-            }
-            // create graphics context
-            weak_window.lock()->graphicsContext = std::make_shared<SPW::OpenGLxGLFWContext>(handle);
-            // initial context
-            weak_window.lock()->graphicsContext->Init();
+		// -------------------------------OFFLINE TEST-------------------------------------------
 
-            // create render back end
-            renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
-
-            // create scene
-            scene = SPW::Scene::create(app->delegate.lock());
-
-            // create render system
-            auto rendersystem = std::make_shared<SPW::SPWRenderSystem>(scene, renderBackEnd, weak_window.lock()->frameWidth(), weak_window.lock()->frameHeight());
-            // add system
-            scene->m_renderSystem = rendersystem;
-            scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
-            scene->addSystem(rendersystem);
-            scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
-            scene->addSystem(std::make_shared<SPW::PhysicSystem>(scene));
-
-            // create ui camera
-            scene->uiCamera = scene->createEntity("ui_camera");
-            auto ui_trans = scene->uiCamera->emplace<SPW::TransformComponent>();
-            ui_trans->position = glm::vec3(0, 0, -1);
-            auto ui_camera = scene->uiCamera->emplace<SPW::CameraComponent>(SPW::UIOrthoType);
-            ui_camera->left = 0;
-            ui_camera->right = weak_window.lock()->frameWidth();
-            ui_camera->bottom = 0;
-            ui_camera->top = weak_window.lock()->frameHeight();
-
-            // ------ create main render graph ----------------
-            auto pbr_with_PDshadow = rendersystem->createRenderGraph();
-
-            auto p_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::CubeMapType, SPW::RepeatForPLights, 10);
-            p_shadowmap_node->width = 256;
-            p_shadowmap_node->height = 256;
-            p_shadowmap_node->clearType = SPW::ClearDepth;
-
-
-            auto d_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
-            d_shadowmap_node->width = 4096;
-            d_shadowmap_node->height = 4096;
-            d_shadowmap_node->clearType = SPW::ClearDepth;
-
-            auto pbr_shadow_lighting_node = pbr_with_PDshadow->createRenderNode<SPW::ModelToScreenNode>();
-
-            auto p_shadowmap_output = p_shadowmap_node->addAttachment(SPW::Depth);
-            auto d_shadowmap_output = d_shadowmap_node->addAttachment(SPW::Depth);
-
-            pbr_shadow_lighting_node->bindInputPort(p_shadowmap_output);
-            pbr_shadow_lighting_node->bindInputPort(d_shadowmap_output);
-            
-            auto pbr_shadow_lighting_output = pbr_shadow_lighting_node->addScreenAttachment(SPW::ScreenColorType);
-            // ------ create main render graph ----------------
-
-            // ------ create post processing graph --------------
-            SPW::AttachmentPort screen_color_port = {SPW::SCREEN_PORT, SPW::ScreenColorType};
-            rendersystem->presentNode = rendersystem->postProcessGraph->createRenderNode<SPW::PresentNode>(FXAA_desc(screen_color_port));
-            rendersystem->presentNode->bindInputPort(screen_color_port);
-            rendersystem->presentNode->depthTest = false;
-            // ------ create post processing graph --------------
-
-            // --------------- create shader ---------------
-            SPW::ShaderHandle pbr_light_shadow({
-                                         "pbr_light_shadow",
-                                         "./resources/shaders/simpleVs.vert",
-                                         "./resources/shaders/pbrShadow.frag"
-                                     });
-            SPW::ShaderHandle pbr_ani_light_shadow({
-                                         "pbr_light_shadow",
-                                         "./resources/shaders/ani_model.vert",
-                                         "./resources/shaders/pbrShadow.frag"
-                                     });
-            SPW::ShaderHandle pbr_light_shadow_tiled({
-                                            "pbr_light_shadow_tiled",
-                                            "./resources/shaders/simpleVs.vert",
-                                            "./resources/shaders/pbrShadowTiled.frag"
-                                    });
-            auto p_shadow_desc = SPW::P_shadowmap_desc();
-            auto d_shadow_desc = SPW::D_shadowmap_desc();
-            auto p_ani_shadow_desc = SPW::P_ani_shadowmap_desc();
-            auto d_ani_shadow_desc = SPW::D_ani_shadowmap_desc();
-
-            auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_ani_light_shadow);
-            auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
-            auto pbr_light_shadow_tiled_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow_tiled);
-            
-            auto skybox_desc = SPW::SkyBoxShader_desc();
-            rendersystem->addShaderDesciptor(pbr_light_shadow_desc);
-            rendersystem->addShaderDesciptor(pbr_light_shadow_tiled_desc);
-            rendersystem->addShaderDesciptor(p_shadow_desc);
-            rendersystem->addShaderDesciptor(d_shadow_desc);
-            rendersystem->addShaderDesciptor(skybox_desc);
-            rendersystem->addShaderDesciptor(p_ani_shadow_desc);
-            rendersystem->addShaderDesciptor(d_ani_shadow_desc);
-            rendersystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
-
-            // --------------- create shader ---------------
-            auto camera_id = createMaincamera(scene, weak_window.lock()->width(), weak_window.lock()->height());
-            // --------------------------------------------------------------------------------
-
-            auto obj = scene->createEntity("test");
-            auto transform = obj->emplace<SPW::TransformComponent>();
-            transform->scale = {0.05, 0.05, 0.05};
-            transform->rotation = {0, 90, 0};
-            transform->position = {0, 4, 0};
-
-            // add a model to show
-            auto model = obj->emplace<SPW::MeshComponent>(camera_id);
-
-            model->bindRenderGraph = pbr_with_PDshadow->graph_id;
-            model->modelSubPassPrograms[p_shadowmap_node->pass_id] = p_ani_shadow_desc.uuid;
-            model->modelSubPassPrograms[d_shadowmap_node->pass_id] = d_ani_shadow_desc.uuid;
-            model->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_ani_light_shadow_desc.uuid;
-
-            model->model = createModel();
-            auto animation = obj->emplace<SPW::AnimationComponent>(createSkeleton(),model->model);
-            //animation->swapCurrentAnim("mixamo.com");
-            animation->swapCurrentAnim("Scene");
-            auto  rigid1 = obj->emplace<SPW::RigidDynamicComponent>();
-            rigid1->rigidState=SPW::Awake;
-
-            auto  collider1 = obj->emplace<SPW::BoxCollider>();
-            collider1->box_size_=glm::vec3(0.2f,0.2f,0.2f);
-            collider1->custom_material_= std::make_shared<SPW::PhysicMaterial>(SPW::PhysicMaterial (0.5,0.5,0.0));
-            collider1->state = SPW::needAwake;
-            collider1->is_trigger_=false;
-
-            auto dragonController = obj->emplace<SPW::KeyComponent>();
-            auto dragonMove = [](const SPW::Entity& e, SPW::KeyCode keycode){
-                if(keycode == SPW::Key::I)
-                    e.component<SPW::TransformComponent>()->position.z -= 0.01f;
-                if(keycode == SPW::Key::K)
-                    e.component<SPW::TransformComponent>()->position.z += 0.01f;
-                if(keycode == SPW::Key::J)
-                    e.component<SPW::TransformComponent>()->position.x -= 0.01f;
-                if(keycode == SPW::Key::L)
-                    e.component<SPW::TransformComponent>()->position.x += 0.01f;
-            };
-            dragonController->onKeyHeldCallBack = dragonMove;
-
-            // --------------------------------------------------------------------------------
-            auto cubeObj = scene->createEntity("floor");
-            auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
-            cubeTrans->scale = {5.0, 0.05, 5.0};
-            cubeTrans->position.y-=0.35f;
-            auto cubemodel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
-            cubemodel->model = createCubeModel();
-
-            cubemodel->bindRenderGraph = pbr_with_PDshadow->graph_id;
-            cubemodel->modelSubPassPrograms[pbr_shadow_lighting_node->pass_id] = pbr_light_shadow_tiled_desc.uuid;
-            auto  rigid2 = cubeObj->emplace<SPW::RigidStaticComponent>();
-            rigid2->rigidState=SPW::Awake;
-            auto  collider2 = cubeObj->emplace<SPW::BoxCollider>();
-            collider2->box_size_=glm::vec3(10,0.001,10);
-            collider2->state = SPW::needAwake;
-
-            // --------------------------------------------------------------------------------
-            auto skybox = scene->createEntity("skybox");
-            auto skyboxTrans = skybox->emplace<SPW::TransformComponent>();
-            auto skyMesh = skybox->emplace<SPW::MeshComponent>(camera_id);
-            skyMesh->model = SPW::createSkyBoxModel({
-                "./resources/texture/skybox/right.jpg",
-                "./resources/texture/skybox/left.jpg",
-                "./resources/texture/skybox/top.jpg",
-                "./resources/texture/skybox/bottom.jpg",
-                "./resources/texture/skybox/front.jpg",
-                "./resources/texture/skybox/back.jpg"
-            });
-            skyMesh->bindRenderGraph = rendersystem->skyBoxGraph->graph_id;
-            skyMesh->modelSubPassPrograms[rendersystem->skyBoxNode->pass_id] = skybox_desc.uuid;
-
-            auto light1 = createPlight(scene, {1, 1, 0}, {1, 0.5, 0});
-            auto light2 = createPlight(scene, {-1, 1, 0}, {0, 0.5, 1});
-            auto light3 = createDlight(scene, {30, 60, 0}, {0.5, 0, 1});
-            auto light4 = createDlight(scene, {30, -60, 0}, {0.5, 1, 0});
-            static int control_id = 0;
-            auto light_controller = [](int idx){
-                return [idx](const SPW::Entity &en, SPW::KeyCode code) {
-                    if (code == SPW::KeyCode::D1) {
-                        control_id = 0;
-                    } else if (code == SPW::KeyCode::D2){
-                        control_id = 1;
-                    } else if (code == SPW::KeyCode::D3){
-                        control_id = 2;
-                    } else if (code == SPW::KeyCode::D4){
-                        control_id = 3;
-                    } 
-                    if (control_id == idx) {
-                        if ((control_id == 1 || control_id == 0)) {
-                            if (code == SPW::KeyCode::Up) {
-                                en.component<SPW::TransformComponent>()->position.z -= 0.1;
-                            } else if (code == SPW::KeyCode::Down) {
-                                en.component<SPW::TransformComponent>()->position.z += 0.1;
-                            } else if (code == SPW::KeyCode::Left) {
-                                en.component<SPW::TransformComponent>()->position.x -= 0.1;
-                            } else if (code == SPW::KeyCode::Right) {
-                                en.component<SPW::TransformComponent>()->position.x += 0.1;
-                            }
-                        } else {
-                            if (code == SPW::KeyCode::Up) {
-                                en.component<SPW::TransformComponent>()->rotation.x -= 5;
-                            } else if (code == SPW::KeyCode::Down) {
-                                en.component<SPW::TransformComponent>()->rotation.x += 5;
-                            } else if (code == SPW::KeyCode::Left) {
-                                en.component<SPW::TransformComponent>()->rotation.y += 5;
-                            } else if (code == SPW::KeyCode::Right) {
-                                en.component<SPW::TransformComponent>()->rotation.y -= 5;
-                            }
-                        }
-                    }
+		// 1. Simulate a process of an engine boost
+		SPW::FileSystem::Boost();
+#ifdef SAVE_SKYBOX
+        std::unique_ptr<SPW::AssetData> data = std::make_unique<SPW::AssetData>();
+        data->assetID = SPW::FileSystem::GenerateRandomUUID();
+        data->assetName = "skybox";
+        data->meshes.emplace_back(SPW::createSkyBoxMesh());
+        data->meshURI = SPW::FileSystem::GenerateRandomUUID();
+        data->meshes[0].materialID = data->meshURI;
+        SPW::MaterialData material;
+        material.ID = data->meshURI;
+        auto id_0 = SPW::FileSystem::GenerateRandomUUID();
+        auto id_1 = SPW::FileSystem::GenerateRandomUUID();
+        auto id_2 = SPW::FileSystem::GenerateRandomUUID();
+        auto id_3 = SPW::FileSystem::GenerateRandomUUID();
+        auto id_4 = SPW::FileSystem::GenerateRandomUUID();
+        auto id_5 = SPW::FileSystem::GenerateRandomUUID();
+        material.m_TextureIDMap =
+                {
+                        {SPW::TextureMapType::Albedo, id_0},
+                        {SPW::TextureMapType::Normal, id_1},
+                        {SPW::TextureMapType::Metalness, id_2},
+                        {SPW::TextureMapType::Roughness, id_3},
+                        {SPW::TextureMapType::AmbientOcclusion, id_4},
+                        {SPW::TextureMapType::Unknown, id_5},
                 };
-            };
-            light1->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(0);
-            light2->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(1);
-            light3->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(2);
-            light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
+        data->materials.emplace_back(material);
+        data->textures =
+                {
+                        {id_0, "./resources/texture/skybox/right.jpg"},
+                        {id_1, "./resources/texture/skybox/left.jpg"},
+                        {id_2, "./resources/texture/skybox/top.jpg"},
+                        {id_3, "./resources/texture/skybox/bottom.jpg"},
+                        {id_4, "./resources/texture/skybox/front.jpg"},
+                        {id_5, "./resources/texture/skybox/back.jpg"},
+                };
+        SPW::AssetManager::SaveAsset(std::move(data),  "");
+#endif
+		// 2. Simulate a process of loading some resources into a scene
+		{
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "mantis/mantis.json");
+			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+			// [data.assetID] = std::move(data);
+		}
 
-            // init scene
-            scene->initial();
-            transformer->scene = scene;
-        });
-    }
-    void beforeAppUpdate() final{
-        scene->beforeUpdate();
-    }
-    void onAppUpdate(const SPW::TimeDuration &du) final{
+		{
+			auto data = SPW::AssetManager::LoadAsset(
+				SPW::Config::k_WorkingProjectAssets + "cube/cube.json");
+			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+		}
 
-        // physics, computation
+        {
+            auto data = SPW::AssetManager::LoadAsset(
+                    SPW::Config::k_WorkingProjectAssets + "sand_cube/sand_cube.json");
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+        }
 
-        scene->onUpdate(du);
-    }
+		{
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "scene/scene.json");
+			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+		}
+		{
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "dragon/dragon.json");
+			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+		}
+		{
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "skybox/skybox.json");
+			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+		}
 
-    void afterAppUpdate() final{
-        scene->afterUpdate();
-    }
-    void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>> &events) final{
-        // for (auto &e : events) {
-        //     DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
-        // }
-    }
-    void onAppStopped() final{
-        std::cout << "app stopped" << std::endl;
-        scene->onStop();
-    }
+		// -------------------------------OFFLINE TEST-------------------------------------------
 
-    void solveEvent(const std::shared_ptr<SPW::EventI> &e) final {
-        e->dispatch<SPW::WindowCloseType, SPW::WindowEvent>(
-                [this](SPW::WindowEvent *e){
-                    // close application
-                    app->stop();
-                    return true;
-                });
-        SPW::EventResponderI::solveEvent(e);
-    }
+		std::shared_ptr<SPW::GlfwWindow> window = std::make_shared<SPW::GlfwWindow>();
+		app->window = window;
+		app->window->setSize(1280, 720);
+		app->window->setTitle("Editor Test");
 
-    const char *getName() final {return _name;}
-    const char *_name;
-    std::shared_ptr<Transformer> transformer;
-    std::shared_ptr<SimpleRender> render;
-    std::shared_ptr<SPW::Scene> scene;
-    std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
+		transformer = std::make_shared<Transformer>(app->delegate.lock());
+		transformer->window = window;
+
+		// weak strong dance
+		std::weak_ptr weak_window = window;
+		window->onWindowCreated([weak_window, this](GLFWwindow* handle)
+		{
+			if (weak_window.expired())
+			{
+				return;
+			}
+			// create graphics context
+			weak_window.lock()->graphicsContext = std::make_shared<SPW::OpenGLxGLFWContext>(handle);
+			// initial context
+			weak_window.lock()->graphicsContext->Init();
+
+			// create render back end
+			renderBackEnd = std::make_shared<SPW::OpenGLBackEnd>();
+
+			// create scene
+			scene = SPW::Scene::create(app->delegate.lock());
+
+			// create render system
+			auto renderSystem = std::make_shared<SPW::SPWRenderSystem>(scene, renderBackEnd,
+                                                                       weak_window.lock()->frameWidth(),
+                                                                       weak_window.lock()->frameHeight());
+			// add system
+			scene->m_renderSystem = renderSystem;
+			scene->addSystem(std::make_shared<SPW::AudioSystem>(scene));
+			scene->addSystem(renderSystem);
+			scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene));
+			scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene));
+			scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene));
+			scene->addSystem(std::make_shared<SPW::PhysicSystem>(scene));
+
+			// create ui camera
+			scene->uiCamera = scene->createEntity("ui_camera");
+			auto ui_trans = scene->uiCamera->emplace<SPW::TransformComponent>();
+			ui_trans->position = glm::vec3(0, 0, 0);
+			auto ui_camera = scene->uiCamera->emplace<SPW::CameraComponent>(SPW::UIOrthoType);
+			ui_camera->left = 0;
+			ui_camera->right = float(weak_window.lock()->frameWidth());
+			ui_camera->bottom = 0;
+			ui_camera->top = float(weak_window.lock()->frameHeight());
+
+            // create main camera
+            auto camera_id = CreateACamera(scene, float(weak_window.lock()->width()), float(weak_window.lock()->height()));
+
+            // ------ create render graph ----------------
+            SPW::RenderGraphManager::getInstance()->createRenderGraph(renderBackEnd, SPW::kDefferShadingGraph);
+            SPW::RenderGraphManager::getInstance()->createRenderGraph(renderBackEnd, SPW::kSkyBoxRenderGraph);
+            SPW::RenderGraphManager::getInstance()->forEachShader([&renderSystem](const SPW::ShaderDesc &shader){
+                renderSystem->addShaderDescriptor(shader);
+            });
+
+//            auto bar = scene->createEntity("bar");
+//			auto bar_transform = bar->emplace<SPW::TransformComponent>();
+//            bar_transform->scale = {1, 1, 1};
+//            bar_transform->rotation = {0, 0, 0};
+//            bar_transform->position = {0, 0, 0};
+//
+//			auto bar_model = bar->emplace<SPW::MeshComponent>(camera_id);
+//            bar_model->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+//            bar_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kPointShadowShader).uuid;
+//            bar_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kDirectionalShadowShader).uuid;
+//            bar_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kGBufferShader).uuid;
+//            bar_model->assetID   = SPW::ResourceManager::getInstance()->m_AssetDataMap["scene"].assetID;
+//			bar_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["scene"].assetName;
+//			bar_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["scene"].path;
+
+            {
+                auto uiTestMesh = scene->createEntity("uiTestMesh");
+                auto trans = uiTestMesh->emplace<SPW::TransformComponent>();
+                auto mesh = uiTestMesh->emplace<SPW::MeshComponent>(scene->uiCamera->getUUID());
+                trans->scale = glm::vec3(100, 100, 1);
+                trans->position = glm::vec3(0, 0, -1);
+                mesh->bindRenderGraph = scene->getUIRenderGraphID();
+                mesh->modelSubPassPrograms[scene->getUIRenderNodeID()] = scene->getUIProgramID();
+                mesh->assetID = uiTestMesh->getUUID().toString();
+
+                auto builder = SPW::BasicMeshStorage<SPW::UIMesh>::getInstance()->insert(mesh->assetID);
+                auto material = SPW::MaterialData();
+                auto id = SPW::UUID::randomUUID();
+                material.m_TextureIDMap[SPW::TextureMapType::Albedo] = id.toString();
+                material.ID = SPW::UUID::randomUUID().toString();
+                builder.addMaterial(material);
+                builder.addMesh(SPW::createUIMesh(material));
+                builder.addTexture("/Assets/skybox/Textures/back.jpg", id);
+            }
+
+
+            // game objects
+			// --------------- dragon ---------------
+			auto dragon = scene->createEntity("anim dragon");
+			auto dragon_transform = dragon->emplace<SPW::TransformComponent>();
+			dragon_transform->scale = {1, 1, 1};
+			dragon_transform->rotation = {0, 90, 0};
+			dragon_transform->position = {0, 0, 0};
+
+			auto dragon_model = dragon->emplace<SPW::MeshComponent>(camera_id);
+			dragon_model->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+			dragon_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kAniPointShadowShader).uuid;
+			dragon_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kAniDirectionalShadowShader).uuid;
+			dragon_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kAniGBufferShader).uuid;
+
+			dragon_model->assetID   = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
+			dragon_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName;
+			dragon_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].path;
+
+            // add animation
+			auto dragon_anim = dragon->emplace<SPW::AnimationComponent>( SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName );
+			dragon_anim->swapCurrentAnim("dragon_idle");
+
+			// --------------------------------------------------------------------------------
+			auto mantis = scene->createEntity("mantis");
+			auto transform = mantis->emplace<SPW::TransformComponent>();
+			transform->scale = {0.2, 0.2, 0.2};
+			transform->rotation = {0, 90, 0};
+			transform->position = {5, 10, 0};
+
+			// add a model to show
+			auto mantis_mesh = mantis->emplace<SPW::MeshComponent>(camera_id);
+			mantis_mesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetName;
+			mantis_mesh->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].assetID;
+			mantis_mesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["mantis"].path;
+
+			mantis_mesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+			mantis_mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kPointShadowShader).uuid;
+            mantis_mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kDirectionalShadowShader).uuid;
+            mantis_mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kGBufferShader).uuid;
+
+			auto  rigid1 = mantis->emplace<SPW::RigidDynamicComponent>();
+			rigid1->rigidState = SPW::Awake;
+
+			auto  collider1 = mantis->emplace<SPW::CapsuleCollider>();
+			collider1->capsule_half_height_ = 0.1;
+			collider1->capsule_radius_ = 0.1;
+			collider1->degree = PxHalfPi;
+			collider1->capsule_axis_ = glm::vec3(0, 1, 0);
+			collider1->state = SPW::needAwake;
+			collider1->is_trigger_ = false;
+
+			//  --------------------------------------------------------------------------------
+			auto cubeObj = scene->createEntity("floor");
+			auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
+			cubeTrans->scale = {50.0, 0.05, 50.0};
+			auto floorModel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
+            floorModel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetID;
+            floorModel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName;
+            floorModel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].path;
+
+            floorModel->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
+            floorModel->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kFloorGBufferShader).uuid;
+
+			auto  rigid2 = cubeObj->emplace<SPW::RigidStaticComponent>();
+			rigid2->rigidState = SPW::Awake;
+			auto  collider2 = cubeObj->emplace<SPW::BoxCollider>();
+			collider2->box_size_ = glm::vec3(50, 0.1, 50);
+			collider2->state = SPW::needAwake;
+
+			// --------------------------------------------------------------------------------
+			auto skybox = scene->createEntity("skybox");
+            skybox->emplace<SPW::TransformComponent>();
+			auto skyMesh = skybox->emplace<SPW::MeshComponent>(camera_id);
+			skyMesh->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].assetID;
+			skyMesh->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].assetName;
+			skyMesh->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["skybox"].path;
+
+			skyMesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kSkyBoxRenderGraph);
+			skyMesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
+
+			auto light1 = createPlight(scene, {5, 2, 2}, {10, 5, 0});
+			auto light2 = createPlight(scene, {5, 2, -2}, {0, 5, 10});
+			auto light3 = createDirectionalLight(scene, {30, 60, 0}, {0.5, 0, 1});
+			auto light4 = createDirectionalLight(scene, {30, -60, 0}, {0.5, 1, 0});
+			static int control_id = 0;
+			auto light_controller = [](int idx)
+			{
+				return [idx](const SPW::Entity& en, SPW::KeyCode code)
+				{
+					if (code == SPW::KeyCode::D1)
+					{
+						control_id = 0;
+					}
+					else if (code == SPW::KeyCode::D2)
+					{
+						control_id = 1;
+					}
+					else if (code == SPW::KeyCode::D3)
+					{
+						control_id = 2;
+					}
+					else if (code == SPW::KeyCode::D4)
+					{
+						control_id = 3;
+					}
+					if (control_id == idx)
+					{
+						if ((control_id == 1 || control_id == 0))
+						{
+							if (code == SPW::KeyCode::Up)
+							{
+								en.component<SPW::TransformComponent>()->position.z -= 0.1;
+							}
+							else if (code == SPW::KeyCode::Down)
+							{
+								en.component<SPW::TransformComponent>()->position.z += 0.1;
+							}
+							else if (code == SPW::KeyCode::Left)
+							{
+								en.component<SPW::TransformComponent>()->position.x += 0.1;
+							}
+							else if (code == SPW::KeyCode::Right)
+							{
+								en.component<SPW::TransformComponent>()->position.x -= 0.1;
+							}
+						}
+						else
+						{
+							if (code == SPW::KeyCode::Up)
+							{
+								en.component<SPW::TransformComponent>()->rotation.x -= 5;
+							}
+							else if (code == SPW::KeyCode::Down)
+							{
+								en.component<SPW::TransformComponent>()->rotation.x += 5;
+							}
+							else if (code == SPW::KeyCode::Left)
+							{
+								en.component<SPW::TransformComponent>()->rotation.y += 5;
+							}
+							else if (code == SPW::KeyCode::Right)
+							{
+								en.component<SPW::TransformComponent>()->rotation.y -= 5;
+							}
+						}
+					}
+				};
+			};
+			light1->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(0);
+			light2->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(1);
+			light3->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(2);
+			light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
+
+			// init scene
+			scene->initial();
+			transformer->scene = scene;
+		});
+	}
+
+	void beforeAppUpdate() final
+	{
+		scene->beforeUpdate();
+	}
+
+	void onAppUpdate(const SPW::TimeDuration& du) final
+	{
+		// physics, computation
+		scene->onUpdate(du);
+	}
+
+	void afterAppUpdate() final
+	{
+		scene->afterUpdate();
+	}
+
+	void onUnConsumedEvents(std::vector<std::shared_ptr<SPW::EventI>>& events) final
+	{
+		// for (auto &e : events) {
+		//     DEBUG_EXPRESSION(std::cout << e.get() << std::endl;)
+		// }
+	}
+
+	void onAppStopped() final
+	{
+		std::cout << "app stopped" << std::endl;
+		scene->onStop();
+	}
+
+	void solveEvent(const std::shared_ptr<SPW::EventI>& e) final
+	{
+		e->dispatch<SPW::WindowCloseType, SPW::WindowEvent>(
+			[this](SPW::WindowEvent* e)
+			{
+				// close application
+
+				app->stop();
+				return true;
+			});
+		e->dispatch<SPW::MouseDownType, SPW::MouseEvent>(
+			[this](SPW::MouseEvent* e)
+			{
+				static bool enabled = false;
+				if (e->button_code == SPW::MouseCode::ButtonRight) {
+					enabled = !enabled;
+					app->window->enableCursor(enabled);
+				}
+				return true;
+			}
+		);
+		SPW::EventResponderI::solveEvent(e);
+	}
+
+	const char* getName() final { return _name; }
+	const char* _name;
+	std::shared_ptr<Transformer> transformer;
+	std::shared_ptr<SimpleRender> render;
+	std::shared_ptr<SPW::Scene> scene;
+	std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
 };
 
 // main entrance
-int main(int argc, char **argv) {
-    // app test
-    auto appProxy =
-        SPW::Application::create<TestDelegate>("SPWTestApp");
-    return appProxy->app->run(argc, argv);
+int main(int argc, char** argv)
+{
+	if (SPW::ConfigManager::ReadConfig())
+		std::cout << "Successfully read config file" << std::endl;
+
+	SPW::FileSystem::MountFromConfig();
+
+	// app test
+	auto appProxy =
+		SPW::Application::create<SPWTestApp>("SPWTestApp");
+	return appProxy->app->run(argc, argv);
 }

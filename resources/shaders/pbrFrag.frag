@@ -52,7 +52,7 @@ vec3 PBR(vec3 N){
 
     vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
     float metallic  = texture(metallicMap, TexCoords).r;
-    float roughness = texture(roughnessMap, TexCoords).r;
+    float roughness = texture(roughnessMap, TexCoords).g;
     float ao        = texture(AoMap, TexCoords).r;
     vec3 V = normalize(camPos - position.xyz);
 
