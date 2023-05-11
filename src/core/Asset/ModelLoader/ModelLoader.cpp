@@ -178,6 +178,8 @@ namespace SPW
 		return ret;
 	}
 
+
+
 	std::unordered_map<std::string, BoneInfo> GetUniqueBoneMap(const std::vector<BoneInfo>& repeatedBones)
 	{
 		std::unordered_map<std::string, BoneInfo> bone_map;
@@ -273,49 +275,50 @@ namespace SPW
 
 
 		const auto& basepath = FileSystem::ToFsPath(modelData->path).parent_path();
-        {
-            aiString texturePath;
-            material->GetTexture(aiTextureType_BASE_COLOR, 0, &texturePath);
-            if (texturePath.length == 0)
-                material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath);
 
-            std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
-            if (texturePath.length != 0)
-            {
-                std::string uuid = FileSystem::GenerateRandomUUID();
-                modelData->textures.emplace(uuid, str);
-                tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Albedo, uuid));
-            }
-        }
+		{
+			aiString texturePath;
+			material->GetTexture(aiTextureType_BASE_COLOR, 0, &texturePath);
+			if (texturePath.length == 0)
+				material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath);
 
-        {
-            aiString texturePath;
-            material->GetTexture(aiTextureType_NORMALS, 0, &texturePath);
-            std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
-            if (texturePath.length != 0)
-            {
-                std::string uuid = FileSystem::GenerateRandomUUID();
-                modelData->textures.emplace(uuid, str);
-                tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Normal, uuid));
-            }
-        }
+			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
+			if (texturePath.length != 0)
+			{
+				std::string uuid = FileSystem::GenerateRandomUUID();
+				modelData->textures.emplace(uuid, str);
+				tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Albedo, uuid));
+			}
+		}
 
-        {
-            aiString texturePath;
-            material->GetTexture(aiTextureType_METALNESS, 0, &texturePath);
-            std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
-            if (texturePath.length != 0)
-            {
-                std::string uuid = FileSystem::GenerateRandomUUID();
-                modelData->textures.emplace(uuid, str);
-                tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Metalness, uuid));
-            }
-        }
+		{
+			aiString texturePath;
+			material->GetTexture(aiTextureType_NORMALS, 0, &texturePath);
+			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
+			if (texturePath.length != 0)
+			{
+				std::string uuid = FileSystem::GenerateRandomUUID();
+				modelData->textures.emplace(uuid, str);
+				tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Normal, uuid));
+			}
+		}
 
-        {
-            aiString texturePath;
-            material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath);
-            std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
+		{
+			aiString texturePath;
+			material->GetTexture(aiTextureType_METALNESS, 0, &texturePath);
+			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
+			if (texturePath.length != 0)
+			{
+				std::string uuid = FileSystem::GenerateRandomUUID();
+				modelData->textures.emplace(uuid, str);
+				tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Metalness, uuid));
+			}
+		}
+
+		{
+			aiString texturePath;
+			material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath);
+			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 
             if (texturePath.length != 0)
             {
@@ -325,10 +328,10 @@ namespace SPW
             }
         }
 
-        {
-            aiString texturePath;
-            material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath);
-            std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
+		{
+			aiString texturePath;
+			material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath);
+			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 
             if (texturePath.length != 0)
             {
@@ -394,6 +397,29 @@ namespace SPW
 		return (std::move(tmpMesh));
 	}
 
+	void ProcessHierarchyTransforms(glm::mat4 sumTransform, AssetData* data, const aiNode* node, const aiScene* scene)
+	{
+		auto transformation = glm::toMat4(node->mTransformation);
+		sumTransform = sumTransform * transformation;
+
+		for (size_t idx = 0; idx < node->mNumMeshes; ++idx)
+		{
+			auto& mesh = data->meshes[node->mMeshes[idx]];
+			for(auto& vert : mesh.vertices)
+			{
+				glm::vec4 postion4D = glm::vec4(vert.Position, 1.0f);
+				postion4D = sumTransform * postion4D;
+
+				vert.Position = glm::vec3(postion4D);
+			}
+		}
+
+		for (size_t child_node = 0; child_node < node->mNumChildren; child_node++)
+		{
+			ProcessHierarchyTransforms(sumTransform, data, node->mChildren[child_node], scene);
+		}
+	}
+
 	void ProcessNodes(AssetData* modelData, aiNode* node, const aiScene* scene)
 	{
 		for (uint32_t i = 0; i < node->mNumMeshes; i++)
@@ -443,15 +469,14 @@ namespace SPW
 			offset += mesh->mNumVertices;
 		}
 
+		// Fill the meta information
+		ret->assetName = FileSystem::GetCleanFilename(filepath.string());
+		ret->path = filepath.string();
+		ret->meshURI = FileSystem::GenerateRandomUUID();
+		ret->assetID = FileSystem::GenerateRandomUUID();
+
 		// ------- LOAD ANIMATION --------------------------------
 		const bool hasAnimations = scene->HasAnimations();
-
-		// Fill the meta information
-		ret->assetName	= FileSystem::GetCleanFilename(filepath.string());
-		ret->path		= filepath.string();
-		ret->meshURI	= FileSystem::GenerateRandomUUID();
-		ret->assetID	= FileSystem::GenerateRandomUUID();
-
 		if (hasAnimations)
 		{
 			// ----- ANIMATIONCLIP ----
@@ -600,7 +625,10 @@ namespace SPW
 
 		}
 		else
+		{
 			std::cout << "No AnimationClips Exist! Only Return Static Data! \n";
+			ProcessHierarchyTransforms(glm::mat4(1.f), ret.get(), scene->mRootNode, scene);
+		}
 
 		return std::move(ret);
 	}

@@ -60,13 +60,13 @@ namespace SPW {
 
         // delete entity
         void deleteEntity(const std::shared_ptr<Entity> &entity) {
-            registry->destroy(entity->entity);
             all_entities.erase(entity->getUUID().toString());
+            registry->destroy(entity->entity);
         }
 
         void deleteEntity(const Entity* entity) {
-            registry->destroy(entity->entity);
             all_entities.erase(entity->getUUID().toString());
+            registry->destroy(entity->entity);
         }
 
         // get entity by id

@@ -6,6 +6,8 @@
 #include "Utils/SingletonBase.h"
 #include "RenderGraph.hpp"
 #include "RenderBackEndI.h"
+// #include "EcsFramework/System/NewRenderSystem/SPWRenderSystem.h"
+
 namespace SPW {
     // default render graph config in sparrow engine
     const unsigned int UNKNOWN_ID = (unsigned int)(-1);
@@ -22,8 +24,9 @@ namespace SPW {
     const RenderNodeKey kPointShadowNode = "kPointShadowNode";
     const RenderNodeKey kDirectionalShadowNode = "kDirectionalShadowNode";
     const RenderNodeKey kGBufferNode = "kGBufferNode";
-
     const RenderNodeKey kSkyboxNode = "kSkyboxNode";
+
+//    const RenderNodeKey kSkyboxNode = "kSkyboxNode";
 
     // render outputs in deffer shading
     const RenderNodeOutputKey kPointShadowPort = "kPointShadowPort";
@@ -60,6 +63,35 @@ namespace SPW {
         void onFrameChanged(unsigned int w, unsigned int h);
         void forEachGraph(const std::function<void(const std::shared_ptr<RenderGraph> &graph)> &callback);
         void forEachShader(const std::function<void(const ShaderDesc &shader)> &callback);
+
+        inline std::optional<std::string> FindGraphName(unsigned int searchID)
+        {
+            for (const auto& [k,v] : graphs) {
+                if (v->graph_id == searchID) {
+                    return k;
+                }
+            }
+            return {};
+        }
+
+    	inline std::optional<std::string> FindNodeName(unsigned int searchID)
+        {
+            for (const auto& [k,v] : nodes) {
+                if (v->pass_id == searchID) {
+                    return k;
+                }
+            }
+            return {};
+        }
+        // inline void AddSkyboxGraph(std::shared_ptr<RenderGraph> skyBoxGraph, std::shared_ptr<ModelToScreenNode> skyBoxNode)
+        // {
+        //     graphs.insert({ kSkyboxShadingGraph, skyBoxGraph });
+        //     nodes.insert({ kSkyboxNode, skyBoxNode });
+        // }
+        inline std::unordered_map<RenderGraphKey, std::shared_ptr<RenderGraph>>
+    	GetRenderGraphs() const { return graphs; }
+        inline std::unordered_map<RenderNodeKey, std::shared_ptr<RenderPassNodeI>>
+        GetNodes() const { return nodes; }
 
 #define GET_RENDER_GRAPH(key) SPW::RenderGraphManager::getInstance()->getRenderGraph(key)
 #define GET_RENDER_NODE(key) SPW::RenderGraphManager::getInstance()->getRenderNode(key)

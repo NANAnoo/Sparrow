@@ -18,7 +18,7 @@ namespace SPW {
 
     class SPWRenderSystem : public SystemI, public WindowEventResponder {
     public:
-        explicit SPWRenderSystem(std::shared_ptr<Scene> &scene, std::shared_ptr<RenderBackEndI> backEnd, int w, int h)
+        explicit SPWRenderSystem(std::shared_ptr<Scene> &scene, std::shared_ptr<RenderBackEndI> backEnd, int w, int h, bool editor = false)
 			: SystemI(scene)
 			, renderBackEnd(std::move(backEnd))
 			, WindowEventResponder(std::dynamic_pointer_cast<EventResponderI>(scene))
@@ -28,9 +28,20 @@ namespace SPW {
 
 
                 postProcessGraph = renderBackEnd->createRenderGraph();
-                presentNode = postProcessGraph->createRenderNode<SPW::PresentNode>(SPW::FXAA_desc({SPW::SCREEN_PORT, SPW::ScreenColorType}));
-                presentNode->bindInputPort({SPW::SCREEN_PORT, SPW::ScreenColorType});
-                presentNode->depthTest = false;
+                if(editor)
+	            {
+	                    presentNode = postProcessGraph->createRenderNode<SPW::ScreenPassNode>(SPW::FXAA_desc({ SPW::SCREEN_PORT, SPW::ScreenColorType }));
+	                    presentNode->bindInputPort({ SPW::SCREEN_PORT, SPW::ScreenColorType });
+	                    presentNode->depthTest = false;
+
+	            }
+	            else
+	            {
+	                presentNode = postProcessGraph->createRenderNode<SPW::PresentNode>(SPW::FXAA_desc({ SPW::SCREEN_PORT, SPW::ScreenColorType }));
+	                presentNode->bindInputPort({ SPW::SCREEN_PORT, SPW::ScreenColorType });
+	                presentNode->depthTest = false;
+
+	            }
 
                 uiGraph = renderBackEnd->createRenderGraph();
                 uiNode = uiGraph->createRenderNode<SPW::ModelToScreenNode>();

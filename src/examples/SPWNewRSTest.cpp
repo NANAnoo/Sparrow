@@ -46,6 +46,18 @@
 #include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
 #include "IO/ConfigManager.h"
 
+#include "ImGui/ImGuiEvent.hpp"
+#include "ImGui/ImGuiManager.hpp"
+
+auto CreateEmptyNode(const std::shared_ptr<SPW::Scene>& scene) -> std::shared_ptr<SPW::Entity>
+{
+	return scene->createEntity("emptyNode");
+}
+
+void CreateAProject()
+{
+}
+
 const SPW::UUID& CreateACamera(const std::shared_ptr<SPW::Scene>& scene, float width, float height, bool main = true)
 {
 	// add a camera entity
@@ -195,48 +207,6 @@ public:
 
 	void onAppInit() final
 	{
-		// TomlWriter();
-
-		// -------------------------------OFFLINE TEST-------------------------------------------
-
-		// 1. Simulate a process of an engine boost
-		SPW::FileSystem::Boost();
-#ifdef SAVE_SKYBOX
-        std::unique_ptr<SPW::AssetData> data = std::make_unique<SPW::AssetData>();
-        data->assetID = SPW::FileSystem::GenerateRandomUUID();
-        data->assetName = "skybox";
-        data->meshes.emplace_back(SPW::createSkyBoxMesh());
-        data->meshURI = SPW::FileSystem::GenerateRandomUUID();
-        data->meshes[0].materialID = data->meshURI;
-        SPW::MaterialData material;
-        material.ID = data->meshURI;
-        auto id_0 = SPW::FileSystem::GenerateRandomUUID();
-        auto id_1 = SPW::FileSystem::GenerateRandomUUID();
-        auto id_2 = SPW::FileSystem::GenerateRandomUUID();
-        auto id_3 = SPW::FileSystem::GenerateRandomUUID();
-        auto id_4 = SPW::FileSystem::GenerateRandomUUID();
-        auto id_5 = SPW::FileSystem::GenerateRandomUUID();
-        material.m_TextureIDMap =
-                {
-                        {SPW::TextureMapType::Albedo, id_0},
-                        {SPW::TextureMapType::Normal, id_1},
-                        {SPW::TextureMapType::Metalness, id_2},
-                        {SPW::TextureMapType::Roughness, id_3},
-                        {SPW::TextureMapType::AmbientOcclusion, id_4},
-                        {SPW::TextureMapType::Unknown, id_5},
-                };
-        data->materials.emplace_back(material);
-        data->textures =
-                {
-                        {id_0, "./resources/texture/skybox/right.jpg"},
-                        {id_1, "./resources/texture/skybox/left.jpg"},
-                        {id_2, "./resources/texture/skybox/top.jpg"},
-                        {id_3, "./resources/texture/skybox/bottom.jpg"},
-                        {id_4, "./resources/texture/skybox/front.jpg"},
-                        {id_5, "./resources/texture/skybox/back.jpg"},
-                };
-        SPW::AssetManager::SaveAsset(std::move(data),  "");
-#endif
 		// 2. Simulate a process of loading some resources into a scene
 		{
 			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "mantis/mantis.json");
@@ -257,15 +227,20 @@ public:
         }
 
 		{
-			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "scene/scene.json");
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "mantis/mantis.json");
 			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
 		}
+
 		{
-			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "dragon/dragon.json");
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "cube/cube.json");
 			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
 		}
 		{
 			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "skybox/skybox.json");
+			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+		}
+		{
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "cellar/cellar.json");
 			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
 		}
 
@@ -274,10 +249,9 @@ public:
 		std::shared_ptr<SPW::GlfwWindow> window = std::make_shared<SPW::GlfwWindow>();
 		app->window = window;
 		app->window->setSize(1280, 720);
-		app->window->setTitle("Editor Test");
+		app->window->setTitle("New Render System Test");
 
-		transformer = std::make_shared<Transformer>(app->delegate.lock());
-		transformer->window = window;
+		// transformer->window = window;
 
 		// weak strong dance
 		std::weak_ptr weak_window = window;
@@ -376,14 +350,14 @@ public:
 			dragon_transform->position = {0, 0, 0};
 
 			auto dragon_model = dragon->emplace<SPW::MeshComponent>(camera_id);
+			dragon_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName;
+			dragon_model->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
+			dragon_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].path;
+
 			dragon_model->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
 			dragon_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kPointShadowNode)] = GET_SHADER_DESC(SPW::kAniPointShadowShader).uuid;
 			dragon_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kDirectionalShadowNode)] = GET_SHADER_DESC(SPW::kAniDirectionalShadowShader).uuid;
 			dragon_model->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(SPW::kAniGBufferShader).uuid;
-
-			dragon_model->assetID   = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetID;
-			dragon_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName;
-			dragon_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].path;
 
             // add animation
 			auto dragon_anim = dragon->emplace<SPW::AnimationComponent>( SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName );
@@ -533,7 +507,6 @@ public:
 
 			// init scene
 			scene->initial();
-			transformer->scene = scene;
 		});
 	}
 
@@ -592,7 +565,8 @@ public:
 
 	const char* getName() final { return _name; }
 	const char* _name;
-	std::shared_ptr<Transformer> transformer;
+	std::shared_ptr<SPW::ImGuiMouseEventResponder> transformer;
+	std::shared_ptr<SPW::ImGuiKeyEventResponder> key_transformer;
 	std::shared_ptr<SimpleRender> render;
 	std::shared_ptr<SPW::Scene> scene;
 	std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
@@ -604,7 +578,21 @@ int main(int argc, char** argv)
 	if (SPW::ConfigManager::ReadConfig())
 		std::cout << "Successfully read config file" << std::endl;
 
-	SPW::FileSystem::MountFromConfig();
+	// copy engine shaders
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineShaderLib, SPW::Config::k_WorkingProjectShaders);
+
+	// copy template project root with default asset
+	SPW::FileSystem::MountPath(SPW::Config::k_TempalteProjectRoot, SPW::Config::k_WorkingProjectRoot);
+
+	// copy sounds
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "sounds/", SPW::Config::k_WorkingProjectSounds);
+
+	// copy scripts
+	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
+
+	// reference source code lualib
+	if (std::filesystem::exists(SPW::Config::k_EngineLualib))
+		std::cout << "\033[31m [CONFIG]::lualib exsits! \033[31m \n";
 
 	// app test
 	auto appProxy =

@@ -110,6 +110,14 @@ namespace SPW {
             realWindow->data.handler(std::make_shared<MouseEvent>(
                     MouseScrollType, MouseCode::ButtonMiddle, y_offset));
         });
+
+        glfwSetCharCallback(window, [](GLFWwindow* window, unsigned int codepoint)
+        {
+                auto realWindow = all_windows[window];
+                auto keyCode = static_cast<KeyCode>(codepoint);
+        		realWindow->data.handler(std::make_shared<KeyEvent>(
+                        KeyInputType, keyCode));
+        });
     }
 
     void GlfwWindow::stop() {

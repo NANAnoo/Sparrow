@@ -105,9 +105,9 @@ namespace SPW
 			archive(cereal::make_nvp(model_data->meshURI, model_data->meshes));
 		}
 
+		if( !model_data->skeleton.animClips.empty() )
 		{
-			std::ofstream
-				mesh_bin(FileSystem::JoinPaths(absolute_modelDir, model_data->meshURI) + ".anim", std::ios::binary);
+			std::ofstream mesh_bin(FileSystem::JoinPaths(absolute_modelDir, model_data->meshURI) + ".anim", std::ios::binary);
 			cereal::BinaryOutputArchive archive(mesh_bin);
 			archive(cereal::make_nvp(model_data->meshURI + "anim", model_data->skeleton));
 		}
@@ -129,6 +129,23 @@ namespace SPW
 		}
 
 		return SaveAsset(std::move(model_data), path) ? true : false;
+	}
+
+	bool AssetManager::ImportAudio(const std::string& path)
+	{
+		try
+		{
+			if (std::filesystem::path(path).extension() == ".wav" || std::filesystem::path(path).extension() == ".mp3")
+			{
+				fs::copy(path, Config::k_WorkingProjectSounds);
+			}
+		}
+		catch (std::exception& e)
+		{
+			std::cerr << "Error: " << e.what() << std::endl;
+		}
+
+		return false;
 	}
 
 	int64_t AssetManager::LoadCompressedImage(const std::string& filename)
@@ -234,4 +251,5 @@ namespace SPW
 
 		return {width, height, numChannels, data}; // return ImageData with loaded texture data
 	}
+
 } // SPW

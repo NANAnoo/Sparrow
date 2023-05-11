@@ -9,7 +9,7 @@ require "MainLight"
 require "FloorModel"
 require "SkyBox"
 
-local scene = {}
+local scene = {}    
 local MainCamera = {}
 local mantisModel = {}
 App({name="Test", width = 1280, height = 720,
