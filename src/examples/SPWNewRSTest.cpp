@@ -209,7 +209,7 @@ public:
 	{
 		// 2. Simulate a process of loading some resources into a scene
 		{
-			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "mantis/mantis.json");
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "dragon/dragon.json");
 			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
 			// [data.assetID] = std::move(data);
 		}

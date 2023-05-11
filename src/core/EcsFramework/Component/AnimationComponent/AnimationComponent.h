@@ -24,12 +24,6 @@ namespace SPW
 	//OnPlaying -> stop: bUpdate = false; (AnimComponent to animation)
 	//Paused: Animation is stopped during playing
 	//Onplaying: Animation is playing and keeps updating
-	class SPWAnimationDelegateI
-	{
-	public:
-		virtual std::weak_ptr<AnimationClip> playAnim(const std::string& name, bool isLoop);
-	};
-
 
 	class SPWAnimSSBO
 	{
