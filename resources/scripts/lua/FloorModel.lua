@@ -17,7 +17,7 @@ function CreateFloor(scene, camera_id)
     local floorc = floor:addComponent(RigidStaticComponent,RigidState.Awake)
     local boxCollider = floor:addComponent(BoxCollider,ColliderState.needAwake,false,glm.vec3(10, 5, 10))
     --local sphereCollider = floor:addComponent(SphereCollider,ColliderState.needAwake,true,100)
-    sphereCollider:setTriggerEnter(
+    boxCollider:setTriggerEnter(
             function (en)
                 print("TRIGGER")
             end
