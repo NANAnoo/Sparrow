@@ -13,7 +13,16 @@ function CreateFloor(scene, camera_id)
     trans:setRotation(glm.vec3(0, 0, 0))
     trans:setScale(glm.vec3(5.0, 0.05, 5.0))
 
-    local model = floor:addComponent(MeshComponent, camera_id, "sand_cube")
+    local model = floor:addComponent(MeshComponent, camera_id, "cube")
+    local floorc = floor:addComponent(RigidStaticComponent,RigidState.Awake)
+    local boxCollider = floor:addComponent(BoxCollider,ColliderState.needAwake,false,glm.vec3(5, 0.05, 5))
+    --local sphereCollider = floor:addComponent(SphereCollider,ColliderState.needAwake,true,100)
+    boxCollider:setTriggerEnter(
+            function (en)
+                print("TRIGGER")
+            end
+    ,scene
+    )
 
     -- custom shader example
     -- local tiledPBRShader = ShaderDesc.new()
