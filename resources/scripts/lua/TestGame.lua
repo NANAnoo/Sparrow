@@ -16,7 +16,7 @@ App({name="Test", width = 1280, height = 720,
     onInit = function ()
         global.app:loadAsset("mantis/mantis.json")
         global.app:loadAsset("skybox/skybox.json")
-        global.app:loadAsset("sand_cube/sand_cube.json")
+        global.app:loadAsset("cube/cube.json")
         scene = Scene.new("LuaTestGame")
         MainCamera = CreateMainCamera(scene, 1280, 720)
         local main_camera_id = MainCamera.id
