@@ -40,7 +40,7 @@ namespace SPW {
                 uiGraph->graph_id = 777;
 
                 UIProgram = UIShader();
-                addShaderDesciptor(*UIProgram);
+                addShaderDesciptor(UIProgram);
             }
         void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
             renderBackEnd = backEnd;
@@ -81,7 +81,7 @@ namespace SPW {
 
         std::shared_ptr<RenderGraph> uiGraph;
         std::shared_ptr<ModelToScreenNode> uiNode;
-        std::shared_ptr<ShaderDesc> UIProgram;
+        ShaderDesc UIProgram{};
     private:
         void findAllLights(std::vector<DLight> &dLights, std::vector<PLight> &pLights);
 

@@ -210,14 +210,14 @@ namespace SPW {
         return mesh;
     }
 
-    static std::shared_ptr<ShaderDesc> UIShader() {
-        auto res = std::make_shared<ShaderDesc>();
+    static ShaderDesc UIShader() {
+        ShaderDesc res {};
 
-        res->transform_inputs[TransformType::MVP] = "MVP";
+        res.transform_inputs[TransformType::MVP] = "MVP";
 
-        res->mat_inputs[MaterialType::AlbedoType] = "background";
+        res.mat_inputs[MaterialType::AlbedoType] = "background";
 
-        res->shader = {
+        res.shader = {
             "UI",
             "./resources/shaders/ui.vert",
             "./resources/shaders/ui.frag"

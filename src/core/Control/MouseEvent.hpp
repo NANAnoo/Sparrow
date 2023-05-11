@@ -17,8 +17,14 @@ namespace SPW {
         double cursor_ypos_bias;
         double cursor_xpos;
         double cursor_ypos;
-        explicit MouseEvent(EventType type, MouseCode code, double scroll): _type(type), button_code(code), scroll_offset(scroll){}
-        explicit MouseEvent(EventType type, double x_pos, double y_pos, double x_bias, double y_bias): _type(type), cursor_xpos(x_pos), cursor_ypos(y_pos), cursor_xpos_bias(x_bias), cursor_ypos_bias(y_bias){}
+        int window_width;
+        int window_height;
+        explicit MouseEvent(EventType type, MouseCode code, double x_pos, double y_pos):
+                _type(type), button_code(code), cursor_xpos(x_pos), cursor_ypos(y_pos){}
+        explicit MouseEvent(EventType type, double x_pos, double y_pos, double x_bias, double y_bias, int win_width, int win_height):
+                _type(type), cursor_xpos(x_pos), cursor_ypos(y_pos), cursor_xpos_bias(x_bias), cursor_ypos_bias(y_bias), window_width(win_width), window_height(win_height){}
+        explicit MouseEvent(EventType type, MouseCode code, double x_pos, double y_pos, double x_bias, double y_bias, int win_width, int win_height):
+                 _type(type), button_code(code), cursor_xpos(x_pos), cursor_ypos(y_pos), cursor_xpos_bias(x_bias), cursor_ypos_bias(y_bias), window_width(win_width), window_height(win_height){}
         EventCategory category() final {return EventCategory::MouseCategory;}
         EventType type() final {return _type;}
     private:
@@ -36,6 +42,10 @@ namespace SPW {
         }
         EventCategory listeningCategory() final {
             return MouseCategory;
+        }
+
+        const char *getName() override {
+            return "SPWMouseEvent";
         }
 
         explicit MouseEventResponder(const std::shared_ptr<EventResponderI> &parent) :

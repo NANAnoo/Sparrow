@@ -14,9 +14,8 @@
 #include "Component/BasicComponent/IDComponent.h"
 #include "Component/BasicComponent/NameComponent.h"
 #include "Utils/UUID.hpp"
-
 #include "Utils/MacroUtils.h"
-
+#include "UI/UIResponder.hpp"
 #include <vector>
 
 namespace SPW {
@@ -27,6 +26,7 @@ namespace SPW {
         explicit Scene(const std::shared_ptr<EventResponderI> &parent)
             : EventResponderI(parent) {
             registry = std::make_shared<entt::registry>();
+            ui_responder = std::make_shared<UIResponder>(parent);
         }
         // create scene with this line
         static std::shared_ptr<Scene> create(const std::shared_ptr<EventResponderI> &parent) {
@@ -81,14 +81,6 @@ namespace SPW {
         void removeEntityByID(const std::string &uuid) {
             if (all_entities.find(uuid) != all_entities.end()) {
                 deleteEntity(all_entities[uuid]);
-            }
-        }
-
-        void onEvent(const std::shared_ptr<EventI> &e) override{
-            if (isUIMode) {
-                // uiroot.onEvent(e);
-            } else {
-                EventResponderI::onEvent(e);
             }
         }
 
@@ -171,15 +163,35 @@ namespace SPW {
         }
 
         UUID getUIProgramID() {
-            return m_renderSystem.lock()->UIProgram->uuid;
+            return m_renderSystem.lock()->UIProgram.uuid;
+        }
+
+        void onEvent(const std::shared_ptr<EventI> &e) override{
+            if (isUIMode) {
+                ui_responder->onEvent(e);
+            } else {
+                EventResponderI::onEvent(e);
+            }
+        }
+
+        std::shared_ptr<UIResponder> getUIResponder(){
+            return ui_responder;
+        }
+
+        std::shared_ptr<UIResponder> initUIResponder(int width, int height){
+            ui_responder->width = width;
+            ui_responder->height = height;
+            ui_responder->pos_x = 0;
+            ui_responder->pos_y = 0;
+
+            return ui_responder;
         }
 
         std::weak_ptr<SPWRenderSystem> m_renderSystem;
 
         std::shared_ptr<Entity> uiCamera;
 
-        bool isUIMode = false;
-
+        std::shared_ptr<UIResponder> ui_responder;
     private:
         // get entity with components
         template<Component ...C>
@@ -193,7 +205,7 @@ namespace SPW {
         std::shared_ptr<entt::registry> registry;
         std::vector<std::shared_ptr<SystemI>> systems;
         friend Entity;
+        bool isUIMode = true;
     };
-
 }
 

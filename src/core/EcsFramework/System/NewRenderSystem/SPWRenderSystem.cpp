@@ -45,6 +45,7 @@ namespace SPW {
         }
         skyBoxGraph->init();
         postProcessGraph->init();
+        uiGraph->init();
     }
 
     void SPWRenderSystem::beforeUpdate() 

@@ -158,6 +158,7 @@ namespace SPW {
             auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
             
             auto skybox_desc = SPW::SkyBoxShader_desc();
+            auto ui_desc = SPW::UIShader();
             rendersystem->addShaderDesciptor(pbr_light_shadow_desc);
             rendersystem->addShaderDesciptor(p_shadow_desc);
             rendersystem->addShaderDesciptor(d_shadow_desc);
@@ -165,6 +166,7 @@ namespace SPW {
             rendersystem->addShaderDesciptor(p_ani_shadow_desc);
             rendersystem->addShaderDesciptor(d_ani_shadow_desc);
             rendersystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
+            rendersystem->addShaderDesciptor(*ui_desc);
 
             pbrShadowGraphID = pbr_with_PDshadow->graph_id;
             skyboxGraphID = rendersystem->skyBoxGraph->graph_id;
@@ -181,6 +183,7 @@ namespace SPW {
             pointShadowAniShaderID = p_ani_shadow_desc.uuid;
             dirShadowAniShaderID = d_ani_shadow_desc.uuid;
             skyboxShaderID = skybox_desc.uuid;
+            uiShaderID = ui_desc->uuid;
         }
 
         unsigned int getGraphID(const std::string &name) {
@@ -272,5 +275,6 @@ namespace SPW {
         UUID pointShadowAniShaderID = UUID::noneID();
         UUID dirShadowAniShaderID = UUID::noneID();
         UUID skyboxShaderID = UUID::noneID();
+        UUID uiShaderID = UUID::noneID();
     };
 }

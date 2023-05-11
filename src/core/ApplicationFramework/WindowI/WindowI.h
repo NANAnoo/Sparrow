@@ -7,6 +7,8 @@
 
 #include "Event/Event.h"
 #include "Render/GraphicsContext.h"
+#include "Control/KeyCodes.h"
+
 
 namespace SPW {
     struct WindowMeta {
@@ -28,6 +30,7 @@ namespace SPW {
         virtual void setSize(int w, int h) = 0;
         virtual std::shared_ptr<GraphicsContext> getGraphicsContext() = 0;
         virtual void enableCursor(bool enabled) = 0;
+        //virtual void setUIModeKey(SPW::KeyCode keycode) = 0;
     };
 }
 
