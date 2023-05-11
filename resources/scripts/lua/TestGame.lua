@@ -10,13 +10,13 @@ require "FloorModel"
 
 local scene = {}
 local MainCamera = {}
-
+local mantisModel = {}
 App({name="Test", width = 1280, height = 720,
     onInit = function ()
         scene = Scene.new("LuaTestGame")
         MainCamera = CreateMainCamera(scene, 1280, 720)
         local main_camera_id = MainCamera.id
-        CreateMantisModel(scene, main_camera_id)
+        mantisModel = CreateMantisModel(scene, main_camera_id)
         local floor = CreateFloor(scene, main_camera_id)
         local MainLight = CreateMainLight(scene)
         local SubLight = CreateSubLight(scene)
@@ -41,6 +41,8 @@ App({name="Test", width = 1280, height = 720,
     end,
     afterUpdate = function()
         scene:afterUpdate()
+        local com = mantisModel:getComponent(Transform);
+        com:synchronize();
         collectgarbage()
     end,
     onStop = function()

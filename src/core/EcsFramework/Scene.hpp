@@ -168,7 +168,7 @@ namespace SPW {
         std::shared_ptr<Entity> uiCamera;
 
         bool isUIMode = false;
-
+        std::shared_ptr<entt::registry> registry;
     private:
         // get entity with components
         template<Component ...C>
@@ -179,7 +179,7 @@ namespace SPW {
 
         std::unordered_map<std::string, std::shared_ptr<Entity>> all_entities;
 
-        std::shared_ptr<entt::registry> registry;
+
         std::vector<std::shared_ptr<SystemI>> systems;
         friend Entity;
     };

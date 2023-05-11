@@ -4,7 +4,7 @@
 #include <memory>
 #include <sol/sol.hpp>
 
-#include "EcsFramework/Component/LightComponent.hpp"
+
 #include "EcsFramework/Entity/Entity.hpp"
 #include "Model/Mesh.h"
 #include "SparrowCore.h"

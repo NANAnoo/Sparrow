@@ -339,13 +339,24 @@ public:
             auto  rigid1 = obj->emplace<SPW::RigidDynamicComponent>();
             rigid1->rigidState=SPW::Awake;
 
-            auto  collider1 = obj->emplace<SPW::CapsuleCollider>();
-            collider1->capsule_half_height_=0.1;
-            collider1->capsule_radius_=0.1;
-            collider1->degree=PxHalfPi;
-            collider1->capsule_axis_=glm::vec3(0,0,1);
+            auto  collider1 = obj->emplace<SPW::BoxCollider>();
+            collider1->box_size_=glm::vec3(0.2f,0.2f,0.2f);
+            collider1->custom_material_= std::make_shared<SPW::PhysicMaterial>(SPW::PhysicMaterial (0.5,0.5,0.0));
             collider1->state = SPW::needAwake;
             collider1->is_trigger_=false;
+
+            auto dragonController = obj->emplace<SPW::KeyComponent>();
+            auto dragonMove = [](const SPW::Entity& e, SPW::KeyCode keycode){
+                if(keycode == SPW::Key::I)
+                    e.component<SPW::TransformComponent>()->position.z -= 0.01f;
+                if(keycode == SPW::Key::K)
+                    e.component<SPW::TransformComponent>()->position.z += 0.01f;
+                if(keycode == SPW::Key::J)
+                    e.component<SPW::TransformComponent>()->position.x -= 0.01f;
+                if(keycode == SPW::Key::L)
+                    e.component<SPW::TransformComponent>()->position.x += 0.01f;
+            };
+            dragonController->onKeyHeldCallBack = dragonMove;
 
             // --------------------------------------------------------------------------------
             auto cubeObj = scene->createEntity("floor");
