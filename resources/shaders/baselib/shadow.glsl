@@ -1,12 +1,10 @@
 #define PI 3.141592653589793
 #define PI2 6.283185307179586
 
- const float RandomSeed = 0.5;
-
-highp float rand_2to1(vec2 uv ) {//传入一个二维数，传出一个假随机数。
+highp float rand_2to1(vec2 uv, float seed) {//传入一个二维数，传出一个假随机数。
     // 0 - 1
     const highp float a = 12.9898, b = 78.233, c = 43758.5453;
-    highp float dt = dot( uv.xy, vec2( a,b ) ) + RandomSeed;
+    highp float dt = dot( uv.xy, vec2( a,b ) ) + seed;
     highp float sn = mod( dt, PI );
     return fract(sin(sn) * c);//只取小数部分（取值范围0~1，若为负+1）
 }
@@ -16,7 +14,7 @@ void poissonDiskSamples(const in vec2 randomSeed)
     float ANGLE_STEP = PI2 * float(NUM_RINGS)/float( NUM_SAMPLES);//角位移大小
     float INV_NUM_SAMPLES = 1.0 / float(NUM_SAMPLES); //采样数的倒数
 
-    float angle = rand_2to1(randomSeed) * PI2;//初始角度（弧度）
+    float angle = rand_2to1(randomSeed, RandomSeed) * PI2;//初始角度（弧度）
     float radius = INV_NUM_SAMPLES;//初始半径
     float radiusStep = radius;     //半径增量
 
