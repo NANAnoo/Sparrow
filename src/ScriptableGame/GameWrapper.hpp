@@ -88,7 +88,7 @@ namespace SPW {
             SPW::RenderGraphWrapper::bindLuaTable(cpp_table);
             SPW::bindAttachmentPort(cpp_table);
 
-            // bind shaderhandle
+            // bind shader handle
             cpp_table.new_usertype<SPW::ShaderHandle>("ShaderHandle",
                     sol::call_constructor, sol::constructors<SPW::ShaderHandle(const std::string&, const std::string&, const std::string&)>(),
                     sol::meta_function::to_string,[] (const SPW::ShaderHandle* shader) {return shader->name;},
@@ -105,7 +105,7 @@ namespace SPW {
                 scene.m_scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene.m_scene));
                 scene.m_scene->addSystem(std::make_shared<SPW::AudioSystem>(scene.m_scene));
                 auto renderSystem = std::make_shared<SPW::SPWRenderSystem>(scene.m_scene, renderBackEnd, width, height);
-                scene.setUpDefaultRenderGraph(renderSystem);
+                scene.setUpDefaultRenderGraph(renderSystem, renderBackEnd);
                 scene.m_scene->addSystem(renderSystem);
                 return scene;
             };

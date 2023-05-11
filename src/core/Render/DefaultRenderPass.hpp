@@ -2,6 +2,7 @@
 
 #include "Render/RenderGraph.hpp"
 #include "Asset/AssetData/Mesh.h"
+#include "Asset/AssetData/MaterialData.h"
 
 namespace SPW {
     static ShaderDesc FXAA_desc(const AttachmentPort &port) {
@@ -28,6 +29,93 @@ namespace SPW {
             "./resources/shaders/P_shadowMap.vert",
             "./resources/shaders/P_shadowMap.frag"
         };
+
+        return res;
+    }
+
+    static ShaderDesc SSR(const AttachmentPort &gAlbedo,
+                          const AttachmentPort &gMetalRognessAO,
+                          const AttachmentPort &gDepth,
+                          const AttachmentPort &gNormal,
+                          const AttachmentPort &gPosition,
+                          const AttachmentPort &ScreenColor)
+    {
+        ShaderDesc res{};
+        res.dependency_inputs[gAlbedo] = "gAlbedo";
+        res.dependency_inputs[gNormal] = "gNormal";
+        res.dependency_inputs[gMetalRognessAO] = "gMetalRognessAO";
+        res.dependency_inputs[gDepth] = "gDepth";
+        res.dependency_inputs[ScreenColor] = "Screen";
+        res.dependency_inputs[gPosition] = "gPosition";
+
+        res.transform_inputs[TransformType::V] = "V";
+        res.transform_inputs[TransformType::P] = "P";
+
+        res.shader = {
+            "SSR Shader",
+            "./resources/shaders/screen.vert",
+            "./resources/shaders/SSR.frag"
+        };
+
+        return res;
+    }
+
+    static ShaderDesc SSR_blur(const AttachmentPort &ssr_input,
+                               const AttachmentPort &gDepth,
+                               const AttachmentPort &ScreenColor)
+    {
+        ShaderDesc res{};
+
+        res.dependency_inputs[ssr_input] = "reflection";
+        res.dependency_inputs[gDepth] = "gDepth";
+        res.dependency_inputs[ScreenColor] = "Screen";
+
+
+
+        res.shader = {
+                "SSR Shader",
+                "./resources/shaders/screen.vert",
+                "./resources/shaders/SSR_blur.frag"
+        };
+
+        return res;
+    }
+
+
+    static ShaderDesc defferPBR(const AttachmentPort &p_shaodw, const AttachmentPort &d_shaodw,
+                                const AttachmentPort &gPosition,
+                                const AttachmentPort &gNormal,
+                                const AttachmentPort &gAlbedo,
+                                const AttachmentPort &gMetalRognessAO,
+                                const AttachmentPort &gDepth,
+                                const ShaderHandle &shader)
+    {
+        ShaderDesc res{};
+
+        res.context_inputs[ContextType::CameraPosition] = "camPos";
+
+        res.light_inputs[LightType::PointLight] = "PLights";
+        res.light_inputs[LightType::DirectionalLight] = "DLights";
+        res.light_inputs[LightType::DLightArraySize] = "DLightCount";
+        res.light_inputs[LightType::PLightArraySize] = "PLightCount";
+        res.light_inputs[LightType::DLightTransform] = "lightSpaceMatrix";
+
+        res.dependency_inputs[p_shaodw] = "P_shadowMap";
+        res.dependency_inputs[d_shaodw] = "shadowMap";
+        res.dependency_inputs[gPosition] = "gPosition";
+        res.dependency_inputs[gNormal] = "gNormal";
+        res.dependency_inputs[gAlbedo] = "gAlbedo";
+        res.dependency_inputs[gMetalRognessAO] = "gMetalRognessAO";
+        res.dependency_inputs[gDepth] = "gDepth";
+
+
+        res.transform_inputs[TransformType::M] = "M";
+        res.transform_inputs[TransformType::V] = "V";
+        res.transform_inputs[TransformType::P] = "P";
+
+        res.context_inputs[ContextType::RandomNumber] ="RandomSeed";
+
+        res.shader = shader;
 
         return res;
     }
@@ -79,6 +167,45 @@ namespace SPW {
 
         return res;
     }
+
+    static ShaderDesc GBuffer_desc(const ShaderHandle &shader) {
+        ShaderDesc res{};
+
+        res.mat_inputs[MaterialType::AlbedoType] = "albedoMap";
+        res.mat_inputs[MaterialType::NormalType] = "normalMap";
+        res.mat_inputs[MaterialType::MetallicType] = "metallicMap";
+        res.mat_inputs[MaterialType::RoughnessType] = "roughnessMap";
+        res.mat_inputs[MaterialType::AOType] = "AoMap";
+
+        res.transform_inputs[TransformType::M] = "M";
+        res.transform_inputs[TransformType::V] = "V";
+        res.transform_inputs[TransformType::P] = "P";
+
+        res.shader = shader;
+
+        return res;
+    }
+
+    static ShaderDesc ani_GBuffer_desc(const ShaderHandle &shader) {
+        ShaderDesc res{};
+
+        res.mat_inputs[MaterialType::AlbedoType] = "albedoMap";
+        res.mat_inputs[MaterialType::NormalType] = "normalMap";
+        res.mat_inputs[MaterialType::MetallicType] = "metallicMap";
+        res.mat_inputs[MaterialType::RoughnessType] = "roughnessMap";
+        res.mat_inputs[MaterialType::AOType] = "AoMap";
+
+        res.transform_inputs[TransformType::M] = "M";
+        res.transform_inputs[TransformType::V] = "V";
+        res.transform_inputs[TransformType::P] = "P";
+
+        res.context_inputs[ContextType::MeshOffset] = "offset";
+
+        res.shader = shader;
+
+        return res;
+    }
+
 
     static ShaderDesc PBR_light_with_shadow_desc(const AttachmentPort &p_shaodw, const AttachmentPort &d_shaodw, const ShaderHandle &shader) {
         ShaderDesc res{};
@@ -192,19 +319,18 @@ namespace SPW {
 
         return mesh;
     }
-    
-    static Mesh createUIMesh(const std::string &bg_img) {
-        auto mesh = Mesh{};
-        // mesh->mMaterial = std::make_shared<Material>();
-        // mesh->mMaterial->updateTexture(TextureType::Albedo, bg_img);
+
+    static std::shared_ptr<Mesh> createUIMesh(const MaterialData &material) {
+        auto mesh = std::make_shared<Mesh>();
+        mesh->materialID = material.ID;
 
         // push 8 vertices on cube
-        mesh.vertices.emplace_back(Vertex{glm::vec3(0, 0, 0), glm::vec3(0.0f), glm::vec2(0, 0), glm::vec3(0.0f), glm::vec3(0.0f)});
-        mesh.vertices.emplace_back(Vertex{glm::vec3(0, 1, 0), glm::vec3(0.0f), glm::vec2(0, 1), glm::vec3(0.0f), glm::vec3(0.0f)});
-        mesh.vertices.emplace_back(Vertex{glm::vec3(1, 1, 0), glm::vec3(0.0f), glm::vec2(1, 1), glm::vec3(0.0f), glm::vec3(0.0f)});
-        mesh.vertices.emplace_back(Vertex{glm::vec3(1, 0, 0), glm::vec3(0.0f), glm::vec2(1, 0), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(0, 0, 0), glm::vec3(0.0f), glm::vec2(0, 0), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(0, 1, 0), glm::vec3(0.0f), glm::vec2(0, 1), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(1, 1, 0), glm::vec3(0.0f), glm::vec2(1, 1), glm::vec3(0.0f), glm::vec3(0.0f)});
+        mesh->vertices.emplace_back(Vertex{glm::vec3(1, 0, 0), glm::vec3(0.0f), glm::vec2(1, 0), glm::vec3(0.0f), glm::vec3(0.0f)});
 
-    	mesh.indices = {0, 2, 1, 0, 3, 2};
+    	mesh->indices = {0, 2, 1, 0, 3, 2};
 
         // auto model = std::make_shared<Model>( std::vector<std::shared_ptr<Mesh>>{mesh});
         return mesh;

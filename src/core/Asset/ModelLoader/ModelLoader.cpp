@@ -273,64 +273,70 @@ namespace SPW
 
 
 		const auto& basepath = FileSystem::ToFsPath(modelData->path).parent_path();
-		aiString texturePath;
+        {
+            aiString texturePath;
+            material->GetTexture(aiTextureType_BASE_COLOR, 0, &texturePath);
+            if (texturePath.length == 0)
+                material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath);
 
-		{
-			material->GetTexture(aiTextureType_BASE_COLOR, 0, &texturePath);
-			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
-			if (texturePath.length != 0)
-			{
-				std::string uuid = FileSystem::GenerateRandomUUID();
-				modelData->textures.emplace(uuid, str);
-				tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Albedo, uuid));
-			}
-		}
+            std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
+            if (texturePath.length != 0)
+            {
+                std::string uuid = FileSystem::GenerateRandomUUID();
+                modelData->textures.emplace(uuid, str);
+                tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Albedo, uuid));
+            }
+        }
 
-		{
-			material->GetTexture(aiTextureType_NORMALS, 0, &texturePath);
-			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
-			if (texturePath.length != 0)
-			{
-				std::string uuid = FileSystem::GenerateRandomUUID();
-				modelData->textures.emplace(uuid, str);
-				tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Normal, uuid));
-			}
-		}
+        {
+            aiString texturePath;
+            material->GetTexture(aiTextureType_NORMALS, 0, &texturePath);
+            std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
+            if (texturePath.length != 0)
+            {
+                std::string uuid = FileSystem::GenerateRandomUUID();
+                modelData->textures.emplace(uuid, str);
+                tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Normal, uuid));
+            }
+        }
 
-		{
-			material->GetTexture(aiTextureType_METALNESS, 0, &texturePath);
-			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
-			if (texturePath.length != 0)
-			{
-				std::string uuid = FileSystem::GenerateRandomUUID();
-				modelData->textures.emplace(uuid, str);
-				tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Metalness, uuid));
-			}
-		}
+        {
+            aiString texturePath;
+            material->GetTexture(aiTextureType_METALNESS, 0, &texturePath);
+            std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
+            if (texturePath.length != 0)
+            {
+                std::string uuid = FileSystem::GenerateRandomUUID();
+                modelData->textures.emplace(uuid, str);
+                tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Metalness, uuid));
+            }
+        }
 
-		{
-			material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath);
-			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
+        {
+            aiString texturePath;
+            material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath);
+            std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 
-			if (texturePath.length != 0)
-			{
-				std::string uuid = FileSystem::GenerateRandomUUID();
-				modelData->textures.emplace(uuid, str);
-				tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Roughness, uuid));
-			}
-		}
+            if (texturePath.length != 0)
+            {
+                std::string uuid = FileSystem::GenerateRandomUUID();
+                modelData->textures.emplace(uuid, str);
+                tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::Roughness, uuid));
+            }
+        }
 
-		{
-			material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath);
-			std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
+        {
+            aiString texturePath;
+            material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath);
+            std::string str = FileSystem::JoinFileRoute(basepath, texturePath.C_Str());
 
-			if (texturePath.length != 0)
-			{
-				std::string uuid = FileSystem::GenerateRandomUUID();
-				modelData->textures.emplace(uuid, str);
-				tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::AmbientOcclusion, uuid));
-			}
-		}
+            if (texturePath.length != 0)
+            {
+                std::string uuid = FileSystem::GenerateRandomUUID();
+                modelData->textures.emplace(uuid, str);
+                tmpMaterial.m_TextureIDMap.emplace(std::make_pair(TextureMapType::AmbientOcclusion, uuid));
+            }
+        }
 
 		modelData->materials.emplace_back(std::move(tmpMaterial));
 	}

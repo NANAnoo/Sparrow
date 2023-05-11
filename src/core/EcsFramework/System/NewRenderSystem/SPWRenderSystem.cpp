@@ -4,13 +4,14 @@
 #include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/MeshComponent.hpp"
-#include "glm/fwd.hpp"
+
 #include "Render/Light.h"
 #include "Utils/Debounce.hpp"
+#include "Asset/BasicMeshStorage.hpp"
 
-#include <glm/glm/ext.hpp>
+#include "Render/RenderGraphManager.h"
+
 #include <glm/glm/gtx/euler_angles.hpp>
-#include <string>
 #include "IO/FileSystem.h"
 
 namespace SPW {
@@ -40,12 +41,18 @@ namespace SPW {
 
         renderBackEnd->SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 
+<<<<<<< HEAD
         for (auto &graph : graphs) {
             graph->init();
         }
         skyBoxGraph->init();
         postProcessGraph->init();
         uiGraph->init();
+=======
+        RenderGraphManager::getInstance()->initializeGraph(width, height);
+        postProcessGraph->init(width, height);
+        uiGraph->init(width, height);
+>>>>>>> main
     }
 
     void SPWRenderSystem::beforeUpdate() 
@@ -54,10 +61,19 @@ namespace SPW {
         [this](MeshComponent *meshComponent){
             if (!meshComponent->ready)  
 			{
-				auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[meshComponent->assetName].meshes;
-				for (auto& mesh : meshes)
-					mesh.setupMesh(renderBackEnd);
-				meshComponent->ready = true;
+                if ( ResourceManager::getInstance()->m_AssetDataMap.contains(meshComponent->assetName)) {
+                    auto& meshes = ResourceManager::getInstance()->m_AssetDataMap[meshComponent->assetName].meshes;
+                    for (auto& mesh : meshes)
+                        mesh.setupMesh(renderBackEnd);
+                }
+                BasicMeshStorage<UIMesh>::getInstance()
+                ->forEachMesh(
+                        meshComponent->assetID,
+                        [this](auto mesh,auto m, auto t)
+                        {
+                            mesh->setupMesh(renderBackEnd);
+                });
+                meshComponent->ready = true;
             }
             
             if (meshComponent->beforeDraw) {
@@ -82,10 +98,9 @@ namespace SPW {
         ComponentGroup<IDComponent, CameraComponent, TransformComponent> cameraGroup;
         std::vector<Entity> cameras;
         Entity uiCamera = Entity::nullEntity();
-        // bool onlyoneActiveCamera = false;
-        
+
         locatedScene.lock()->forEachEntityInGroup(cameraGroup, 
-            [&cameraGroup, &cameras, &uiCamera](const Entity &en){
+            [&cameras, &uiCamera](const Entity &en){
             if (en.component<CameraComponent>()->getType() != CameraType::UIOrthoType) {
                 cameras.push_back(en);
             } else {
@@ -105,9 +120,10 @@ namespace SPW {
         for (unsigned int i = 0; i < cameras.size(); ++i) {
             UUID camID = cameras[i].getUUID();
             locatedScene.lock()->forEachEntityInGroup(meshGroup,
-                [&meshGroup, &camID, &models_by_camera, i](const Entity& en) 
+                [&camID, &models_by_camera, i](const Entity& en)
                 {
-                	if(en.component<MeshComponent>()->bindCamera == camID)
+                    auto mesh = en.component<MeshComponent>();
+                	if(mesh->bindCamera == camID)
                     {
                         models_by_camera[i].push_back(en);
 					}
@@ -160,29 +176,38 @@ namespace SPW {
             input.camera_dir = cam_center - camPos;
             input.view = V;
             input.projection = P;
-            // map meshes by shaderdesc
+            // map meshes by shader desc
             std::unordered_map<unsigned int, std::unordered_map<unsigned int, std::vector<Entity>>> model_by_pass;
-            for (auto mesh_en : meshes) {
-                auto mesh = mesh_en.component<MeshComponent>();
-                const auto& tmp = mesh;
+            for (const auto& mesh_entity : meshes) {
+                auto mesh = mesh_entity.component<MeshComponent>();
             	auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
                 for (auto &[id, uuid] : mesh->modelSubPassPrograms) {
-                    model_by_shader[id].push_back(mesh_en);
+                    model_by_shader[id].push_back(mesh_entity);
                 }
             }
-            for (unsigned int graph_id = 0; graph_id < graphs.size(); graph_id ++) {
-                if (model_by_pass.find(graph_id) != model_by_pass.end())
+            auto skybox_id = GET_RENDER_GRAPH(kSkyBoxRenderGraph);
+            std::shared_ptr<RenderGraph> skyGraph = nullptr;
+            RenderGraphManager::getInstance()->forEachGraph(
+                    [&model_by_pass, &input, &skybox_id, &skyGraph](const std::shared_ptr<RenderGraph> &graph){
+                auto graph_id = graph->graph_id;
+                if (skybox_id == graph_id) {
+                    skyGraph = graph;
+                } else if (model_by_pass.find(graph_id) != model_by_pass.end()) {
+                    input.sourceType = SPW::MeshSourceType::MeshFromAsset;
                     input.render_models = model_by_pass.at(graph_id);
-                graphs[graph_id]->render(input);
-            }
-            
-            if (model_by_pass.find(skyBoxGraph->graph_id) != model_by_pass.end()) {
-                input.render_models = model_by_pass.at(skyBoxGraph->graph_id);
-                skyBoxGraph->render(input);
+                    graph->render(input);
+                }
+            });
+
+            if (skyGraph != nullptr && model_by_pass.find(skybox_id) != model_by_pass.end()) {
+                input.sourceType = SPW::MeshSourceType::MeshFromAsset;
+                input.render_models = model_by_pass.at(skybox_id);
+                skyGraph->render(input);
             }
 
             if (cameraCom->getType() == SPW::UIOrthoType && model_by_pass.find(uiGraph->graph_id) != model_by_pass.end()) {
                 // draw ui
+                input.sourceType = SPW::MeshSourceType::MeshFromUIStorage;
                 input.render_models = model_by_pass.at(uiGraph->graph_id);
                 uiGraph->render(input);
             }
@@ -191,7 +216,7 @@ namespace SPW {
         postProcessGraph->render(input);
 
         locatedScene.lock()->forEach(
-        [this](MeshComponent *mesh){
+        [](MeshComponent *mesh){
             mesh->onDraw = nullptr;
         }, MeshComponent);
     }
@@ -223,6 +248,11 @@ namespace SPW {
 
             screenBuffer->CheckFramebufferStatus();
             screenBuffer->unbind();
+
+            RenderGraphManager::getInstance()->onFrameChanged(width, height);
+            uiGraph->onFrameChanged(width, height);
+            postProcessGraph->onFrameChanged(width, height);
+
         }, 100);
 
         updateFrame();

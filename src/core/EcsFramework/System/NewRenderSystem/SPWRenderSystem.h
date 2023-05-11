@@ -12,7 +12,7 @@
 #include "Platforms/OPENGL/OpenGLAttachmentTexture.hpp"
 #include "Asset/ResourceManager/ResourceManager.h"
 #include "EcsFramework/Component/MeshComponent.hpp"
-#include "DefaultRenderPass.hpp"
+#include "Render/DefaultRenderPass.hpp"
 
 namespace SPW {
 
@@ -25,13 +25,12 @@ namespace SPW {
 			{
                 width = w;
                 height = h;
-                skyBoxGraph = renderBackEnd->createRenderGraph();
-                skyBoxNode = skyBoxGraph->createRenderNode<SPW::ModelToScreenNode>();
-                skyBoxNode->addScreenAttachment(SPW::ScreenColorType);
-                skyBoxNode->depthCompType = SPW::DepthCompType::LEQUAL_Type;
-                skyBoxGraph->graph_id = 666;
+
 
                 postProcessGraph = renderBackEnd->createRenderGraph();
+                presentNode = postProcessGraph->createRenderNode<SPW::PresentNode>(SPW::FXAA_desc({SPW::SCREEN_PORT, SPW::ScreenColorType}));
+                presentNode->bindInputPort({SPW::SCREEN_PORT, SPW::ScreenColorType});
+                presentNode->depthTest = false;
 
                 uiGraph = renderBackEnd->createRenderGraph();
                 uiNode = uiGraph->createRenderNode<SPW::ModelToScreenNode>();
@@ -40,15 +39,17 @@ namespace SPW {
                 uiGraph->graph_id = 777;
 
                 UIProgram = UIShader();
+<<<<<<< HEAD
                 addShaderDesciptor(UIProgram);
+=======
+                addShaderDescriptor(*UIProgram);
+>>>>>>> main
             }
         void setupRenderBackEnd(const std::shared_ptr<RenderBackEndI> &backEnd) {
             renderBackEnd = backEnd;
         };
 
         using RenderableEntity = std::tuple<IDComponent*, MeshComponent*, TransformComponent*>;
-
-
         void initial() final;
         void beforeUpdate() final;
         void onUpdate(TimeDuration dt) final {}
@@ -56,42 +57,34 @@ namespace SPW {
         void onStop() final;
         bool onFrameResize(int w, int h) override;
 
-        std::shared_ptr<RenderGraph> createRenderGraph() {
-            auto res = renderBackEnd->createRenderGraph();
-            res->graph_id = graphs.size();
-            graphs.push_back(res);
-            return res;
-        }
-
-        void addShaderDesciptor(const ShaderDesc& desc) {
+        void addShaderDescriptor(const ShaderDesc& desc) {
             shader_storage.insert({desc.uuid, desc});
         }
         // events
         const char *getName() override {return "SPW_RENDER_SYSTEM";}
 
-        inline GLuint getTextureID() const {
+        [[nodiscard]] inline GLuint getTextureID() const {
             return std::dynamic_pointer_cast<OpenGLAttachmentTexture>(screenTexture)->m_textureID;
         }
-
-        std::shared_ptr<RenderGraph> skyBoxGraph;
-        std::shared_ptr<ModelToScreenNode> skyBoxNode;
 
         std::shared_ptr<RenderGraph> postProcessGraph;
         std::shared_ptr<PresentNode> presentNode;
 
         std::shared_ptr<RenderGraph> uiGraph;
         std::shared_ptr<ModelToScreenNode> uiNode;
+<<<<<<< HEAD
         ShaderDesc UIProgram{};
+=======
+        std::shared_ptr<ShaderDesc> UIProgram;
+
+        std::shared_ptr<RenderBackEndI> renderBackEnd;
+>>>>>>> main
     private:
         void findAllLights(std::vector<DLight> &dLights, std::vector<PLight> &pLights);
 
         std::shared_ptr<FrameBuffer> screenBuffer;
         std::shared_ptr<AttachmentTexture> screenTexture;
         std::shared_ptr<AttachmentTexture> screenDepthTexture;
-
-        std::vector<std::shared_ptr<RenderGraph>> graphs;
-        
-        std::shared_ptr<RenderBackEndI> renderBackEnd;
 
         std::unordered_map<UUID, ShaderDesc, UUID::hash> shader_storage;
 

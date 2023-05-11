@@ -14,10 +14,10 @@ function CreateMonaModel(scene, camera_id)
     
     -- render model
     local model = MonaModel:addComponent(MeshComponent, camera_id, "mona")
-    model:setGraphId(scene:getGraphID(DefaultGraph.PBRShadowGraph))
-    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.PointShadowNode), scene:getShaderID(DefaultShader.PointShadowShader))
-    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.DirectionalShadowNode), scene:getShaderID(DefaultShader.DirectionalShadowShader))
-    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.PBRShadowLightingNode), scene:getShaderID(DefaultShader.PBRShadowShader))
+    model:setGraphId(scene:getGraphID(DefaultGraph.kDefferShadingGraph))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.kPointShadowNode), scene:getShaderID(DefaultShader.kPointShadowShader))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.kDirectionalShadowNode), scene:getShaderID(DefaultShader.kDirectionalShadowShader))
+    model:setRenderProgram(scene:getRenderNodeID(DefaultNode.kGBufferNode), scene:getShaderID(DefaultShader.kGBufferShader))
 
     -- add audio component
     local audio = MonaModel:addComponent(AudioComponent, { "resources/sounds/test.wav" })
