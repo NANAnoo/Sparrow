@@ -38,7 +38,7 @@ namespace SPW{
         int width;
         int height;
         int depth = 1;
-        int bias = 2;
+        int bias = 4;
 
         friend Scene;
     };

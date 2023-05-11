@@ -167,6 +167,7 @@ namespace SPW {
         }
 
         void onEvent(const std::shared_ptr<EventI> &e) override{
+
             if (isUIMode) {
                 ui_responder->onEvent(e);
             } else {
@@ -192,6 +193,8 @@ namespace SPW {
         std::shared_ptr<Entity> uiCamera;
 
         std::shared_ptr<UIResponder> ui_responder;
+
+        bool isUIMode = false;
     private:
         // get entity with components
         template<Component ...C>
@@ -205,7 +208,7 @@ namespace SPW {
         std::shared_ptr<entt::registry> registry;
         std::vector<std::shared_ptr<SystemI>> systems;
         friend Entity;
-        bool isUIMode = true;
+
     };
 }
 

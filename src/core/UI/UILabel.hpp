@@ -29,11 +29,19 @@ namespace SPW{
 
             label = scene->createEntity(name);
             label->emplace<SPW::TransformComponent>();
-            auto model = label->emplace<SPW::MeshComponent>(scene->uiCamera->getUUID());
-            //model->model = SPW::createUIMesh(bg_img);
-            model->bindRenderGraph = scene->getUIRenderGraphID();
-            model->modelSubPassPrograms[scene->getUIRenderNodeID()] = scene->getUIProgramID();
-            updateLayout();
+            auto mesh = label->emplace<SPW::MeshComponent>(scene->uiCamera->getUUID());
+            mesh->bindRenderGraph = scene->getUIRenderGraphID();
+            mesh->modelSubPassPrograms[scene->getUIRenderNodeID()] = scene->getUIProgramID();
+            mesh->assetID = label->getUUID().toString();
+
+            builder = SPW::BasicMeshStorage<SPW::UIMesh>::getInstance()->insert(mesh->assetID);
+            auto material = SPW::MaterialData();
+            id = SPW::UUID::randomUUID();
+            material.m_TextureIDMap[SPW::TextureMapType::Albedo] = id.toString();
+            material.ID = SPW::UUID::randomUUID().toString();
+            builder.addMaterial(material);
+            builder.addMesh(SPW::createUIMesh(material));
+            builder.addTexture(bg_img, id);
         };
 
         void setSize(int width, int height){
@@ -52,6 +60,11 @@ namespace SPW{
             name_ = name;
         }
 
+        void setBackgroundImage(const char* img_path){
+            bg_img = img_path;
+            builder.addTexture(bg_img, id);
+        }
+
     private:
 
         void updateLayout(){
@@ -62,6 +75,8 @@ namespace SPW{
         std::shared_ptr<Scene> scene;
         std::shared_ptr<SPW::Entity> label;
         const char* name_;
-        const char* bg_img = "./resources/texture/skybox/right.jpg";
+        const char* bg_img = "/Assets/UItexture/button.jpg";
+        BasicMeshBuilder builder;
+        UUID id;
     };
 };

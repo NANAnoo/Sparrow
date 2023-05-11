@@ -5,6 +5,7 @@
 #include "UIResponder.hpp"
 #include "EcsFramework/Scene.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "Asset/BasicMeshStorage.hpp"
 
 namespace SPW{
 
@@ -32,11 +33,15 @@ namespace SPW{
             mesh->bindRenderGraph = scene->getUIRenderGraphID();
             mesh->modelSubPassPrograms[scene->getUIRenderNodeID()] = scene->getUIProgramID();
             mesh->assetID = button->getUUID().toString();
-            auto builder = SPW::BasicMeshStorage<Spw::UIMesh>::getInstance().insert(mesh->assetID);
+
+            builder = SPW::BasicMeshStorage<SPW::UIMesh>::getInstance()->insert(mesh->assetID);
             auto material = SPW::MaterialData();
-            auto id = SPW::UUID::randomUUID;
+            id = SPW::UUID::randomUUID();
             material.m_TextureIDMap[SPW::TextureMapType::Albedo] = id.toString();
-            updateLayout();
+            material.ID = SPW::UUID::randomUUID().toString();
+            builder.addMaterial(material);
+            builder.addMesh(SPW::createUIMesh(material));
+            builder.addTexture(bg_img, id);
         };
 
         const char* getName() override{
@@ -80,6 +85,10 @@ namespace SPW{
             bg_img = img_path;
         }
 
+        void setHoveredImage(const char* img_path){
+            hovered_img = img_path;
+        }
+
     private:
         bool buttonOnClick(MouseEvent *e){
             onClick_();
@@ -88,8 +97,8 @@ namespace SPW{
 
         bool buttonOnHover(MouseEvent *e){
             if(isHovered){
-                double cursorX = e->cursor_xpos + e->cursor_xpos_bias;
-                double cursorY = e->cursor_ypos + e->cursor_ypos_bias;
+                double cursorX = e->cursor_xpos + e->cursor_xpos_bias * 2;//multiply by 2 so that it's more sensitive
+                double cursorY = e->cursor_ypos + e->cursor_ypos_bias * 2;
                 if(cursorX < this->pos_x - bias || cursorX > this->pos_x + this->width - bias ||
                 e->window_height - cursorY < this->pos_y - bias ||
                 e->window_height - cursorY > this->pos_y + this->height - bias){
@@ -99,8 +108,10 @@ namespace SPW{
             }
             else{
                 isHovered = true;
-                if (onHover_)
+                if (onHover_){
+                    updateBgImage(hovered_img);
                     onHover_();
+                }
                  else
                     std::cout << "onHover unset!" << std::endl;
             }
@@ -108,8 +119,10 @@ namespace SPW{
         }
 
         void buttonNoHover(){
-            if (noHover_)
+            if (noHover_){
                 noHover_();
+                updateBgImage(bg_img);
+            }
             else
                 std::cout << "noHover unset!" << std::endl;
         }
@@ -119,13 +132,20 @@ namespace SPW{
             button->component<SPW::TransformComponent>()->scale = {this->width, this->height, 1};
         }
 
+        void updateBgImage(const char* image_path){
+            builder.addTexture(image_path, id);
+        }
+
         std::shared_ptr<Scene> scene;
         std::shared_ptr<SPW::Entity> button;
         const char* name_;
-        const char* bg_img = "./resources/texture/skybox/right.jpg";
+        const char* bg_img = "/Assets/UItexture/button.jpg";
+        const char* hovered_img = "/Assets/UItexture/hovered.jpg";
         std::function<void()> onClick_;
         std::function<void()> onHover_;
         std::function<void()> noHover_;
         bool isHovered = false;
+        BasicMeshBuilder builder;
+        UUID id;
     };
 };

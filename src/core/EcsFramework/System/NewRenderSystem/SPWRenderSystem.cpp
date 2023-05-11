@@ -41,18 +41,9 @@ namespace SPW {
 
         renderBackEnd->SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 
-<<<<<<< HEAD
-        for (auto &graph : graphs) {
-            graph->init();
-        }
-        skyBoxGraph->init();
-        postProcessGraph->init();
-        uiGraph->init();
-=======
         RenderGraphManager::getInstance()->initializeGraph(width, height);
         postProcessGraph->init(width, height);
         uiGraph->init(width, height);
->>>>>>> main
     }
 
     void SPWRenderSystem::beforeUpdate() 
