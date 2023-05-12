@@ -24,6 +24,7 @@
 #include "ImGui/ImGuiMessageBox/ImGuiMessageBox.h"
 #include "Asset/ResourceManager/ResourceManager.h"
 #include "ImGui/IconsFontAwesome6.h"
+#include "ImGui/ImGuiFileDialog.h"
 #include "IO/FileSystem.h"
 
 namespace SPW
@@ -35,6 +36,7 @@ namespace SPW
 			: ImGuiPanel(ICON_FA_CIRCLE_EXCLAMATION"  "+std::move(title), open,ImGuiWindowFlags_NoMove )
 			, m_IconManager(iconManager)
 		{
+			m_FileDialog = std::make_shared<ImGuiFileDialog>();
 		}
 
 		void SetActiveScene(const std::shared_ptr<Scene>& scene)
@@ -83,6 +85,9 @@ namespace SPW
 		ImGuiIconManager* m_IconManager;
 		ImVec2 k_DefalutImageSize = ImVec2(20, 20);
 		std::unique_ptr<ImGuiMessageBox> msgBox_Inspector;
+
+		std::shared_ptr<ImGuiFileDialog>		m_FileDialog;
+
 
 		bool show_selectingMesh = false;
 		bool show_naming = false;

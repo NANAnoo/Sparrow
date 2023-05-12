@@ -235,6 +235,8 @@ namespace SPW
 			}
 			// ------------- ADD ANY COMPONENT ------------- 
 		}
+
+		DisplayFileDialog();
 	}
 
 	void ImGuiInspectorPanel::DrawTransformComponent(TransformComponent* component)
@@ -432,33 +434,6 @@ namespace SPW
 			}
 			ImGui::PopID();
 
-
-			// if (ImGui::BeginCombo("G-Buffer Render Node", kGBufferNode.c_str()))
-			// {
-			// 	for (const auto& [nodeKey, nodePtr] : renderNodes					)
-			// 	{
-			// 		bool is_selected = (currNodeKey == nodeKey.c_str());
-			// 		if (ImGui::Selectable(nodeKey.c_str(), is_selected))
-			// 		{
-			// 			currNodeKey = nodeKey.c_str();
-			// 			if(nodeKey == kPointShadowNode)
-			// 				component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kPointShadowShader).uuid;
-			// 			else if(nodeKey == kDirectionalShadowNode)
-			// 				component->modelSubPassPrograms[GET_RENDER_NODE(kDirectionalShadowNode)] = GET_SHADER_DESC(kDirectionalShadowShader).uuid;
-			// 			else if (nodeKey == kGBufferNode)
-			// 				component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
-			// 		}
-			// 		if (is_selected) 
-			// 		{
-			// 			ImGui::SetItemDefaultFocus();
-			// 		}
-			// 	}
-			// 	ImGui::EndCombo();
-			// }
-
-			ImGui::PopID();
-
-
 			ImGui::PushID("Asset Meta");
 			std::string label = ICON_FA_DATABASE"			Asset Meta : " + component->assetName;
 			if (ImGui::TreeNode(label.c_str()))
@@ -523,32 +498,38 @@ namespace SPW
 									{
 										ImGui::Text("Albedo");
 										ImGui::SameLine();
-										ImGui::Image(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
+										ImGui::ImageButton(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
 									}
 									else if (k == TextureMapType::Normal)
 									{
 										ImGui::Text("Normal");
 										ImGui::SameLine();
-										ImGui::Image(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
+										ImGui::ImageButton(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
 									}
 									else if (k == TextureMapType::Metalness)
 									{
 										ImGui::Text("Metalness");
 										ImGui::SameLine();
-										ImGui::Image(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
+										ImGui::ImageButton(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
 									}
 									else if (k == TextureMapType::Roughness)
 									{
 										ImGui::Text("Roughness");
 										ImGui::SameLine();
-										ImGui::Image(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
+										ImGui::ImageButton(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
 									}
 									else if (k == TextureMapType::AmbientOcclusion)
 									{
 										ImGui::Text("AO");
 										ImGui::SameLine();
-										ImGui::Image(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
+										ImGui::ImageButton(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
 									}
+
+									if (ImGui::IsItemClicked(0))
+									{
+										std::cout << "Clicked" << std::endl;
+									}
+
 								}
 
 								auto& curr_props = active_asset_data.materials[i].m_Properties;
@@ -898,4 +879,5 @@ namespace SPW
 		}
 		ImGui::PopID();
 	}
+
 }

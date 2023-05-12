@@ -297,18 +297,21 @@ namespace SPW
 
 	void ImGuiManager::LoadDefaultLayout() const
 	{
+// 		ImGui::GetIO().IniFilename = Config::k_EngineRoot + "/fonts/EditorLayout.ini";
 		const std::string editorLayoutPath = Config::k_EngineRoot + "/fonts/EditorLayout.ini";
 
 		std::ifstream default_ini(editorLayoutPath);
 		std::ofstream imgui_ini("./imgui.ini");
 
-		if (!default_ini.is_open() || !imgui_ini.is_open()) {
+		if (!default_ini.is_open() || !imgui_ini.is_open()) 
+		{
 			std::cerr << "Error: Could not open ini files." << std::endl;
 			return;
 		}
 
 		std::string line;
-		while (std::getline(default_ini, line)) {
+		while (std::getline(default_ini, line)) 
+		{
 			imgui_ini << line << std::endl;
 		}
 
@@ -316,9 +319,30 @@ namespace SPW
 		imgui_ini.close();
 	}
 
-	//void ImGuiManager::SetLog(std::string log)
-	//{
-	//	m_Log =log;
-	//}
+	void ImGuiManager::Render()
+	{
+		Begin();
+		//----------------------------------------------------------------------------------------
+		CreateImagePanel(m_Scene->m_renderSystem.lock()->getTextureID());
+
+		RenderAllPanels();
+		//----------------------------------------------------------------------------------------
+		m_EntityPanel->SetActiveScene(m_Scene);
+		m_InspectorPanel->SetActiveScene(m_Scene);
+
+		m_Scene->forEachEntity<IDComponent>([this](const Entity& e)
+			{
+				const auto component_name = e.component<NameComponent>()->getName();
+				const auto component_id = e.component<IDComponent>()->getID().toString();
+				m_EntityPanel->AddMenuItem(component_id, component_name, [&, e]()
+					{
+						m_InspectorPanel->SetSelectedGameObject(e);
+					}
+				);
+			});
+		//----------------------------------------------------------------------------------------
+		End();
+		EnableViewport();
+	}
 
 }

@@ -138,6 +138,7 @@ namespace SPW
 						std::cerr << "Error: Failed to open the file in Visual Studio Code" << std::endl;
 				}
 
+				// button-right || .lua files
 				if (ImGui::IsItemClicked(1) && (entryPath.extension() == ".lua" ))
 				{
 					SetLuaPathCallback(entryPath);

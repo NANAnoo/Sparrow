@@ -85,6 +85,21 @@ namespace SPW
 				if (e.has<MeshComponent>())
 				{
 					meshComponents[uuid_str] = *e.component<MeshComponent>();
+
+					const auto& assetData = ResourceManager::getInstance()->m_AssetDataMap.at(e.component<MeshComponent>()->assetName);
+
+					std::string path = Config::k_WorkingProjectRoot + e.component<MeshComponent>()->assetPath;
+					std::ofstream outAsset(path);
+					cereal::JSONOutputArchive ar(outAsset);
+					ar(
+						cereal::make_nvp("assetID", assetData.assetID),
+						cereal::make_nvp("assetName", assetData.assetName),
+						cereal::make_nvp("assetPath", e.component<MeshComponent>()->assetPath),                                  
+						cereal::make_nvp("meshURI", assetData.meshURI),
+						cereal::make_nvp("materials", assetData.materials),
+						cereal::make_nvp("textures", assetData.textures)
+					);
+
 				}
 				if (e.has<AnimationComponent>())
 				{
@@ -101,6 +116,7 @@ namespace SPW
 			ar( cereal::make_nvp("transformComponents", transformComponents ));
 			ar( cereal::make_nvp("meshComponents", meshComponents ));
 			ar( cereal::make_nvp("animationComponents", animationComponents ));
+			of_file.close();
 
 			return true;
 		}
@@ -203,9 +219,6 @@ namespace SPW
 						{
 							mesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kSkyBoxRenderGraph	);
 							mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode	)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
-
-							// mesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kSkyboxShadingGraph);
-							// mesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
 						}
 					}
 				}

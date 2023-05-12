@@ -1,57 +1,57 @@
 {
     "entityNodes": [
         {
-            "uuid": "0ba9b230-e3ce-4afb-a57b-6ab58278d887",
+            "uuid": "973b4b52-745b-42f9-8137-434ce75de3e3",
             "name": "light"
         },
         {
-            "uuid": "3c921dee-7f91-4c2c-9519-d2d1d1fd59f0",
+            "uuid": "a9ad7d45-ebc7-44a9-a151-3dd051aedc40",
             "name": "light"
         },
         {
-            "uuid": "3f3d2abb-eab5-45ea-aede-5650fcafe1b1",
+            "uuid": "1730e6b3-0f13-4101-9dcb-1e387889ea0e",
             "name": "light"
         },
         {
-            "uuid": "cf5aa593-fb13-4a03-8594-60a113afd577",
+            "uuid": "3615cf85-e03f-44d6-bd24-7762bd9d85c6",
             "name": "light"
         },
         {
-            "uuid": "cf817253-b832-4a1f-90ee-caffdb26bdfa",
+            "uuid": "2de9ffd5-ef2f-4e24-94f9-dadb2d5f336c",
             "name": "skybox"
         },
         {
-            "uuid": "40dc4ff4-408a-404b-9999-24c7eafc4afc",
+            "uuid": "1d998fb7-c4e0-4233-ac8b-c39721f50040",
             "name": "floor"
         },
         {
-            "uuid": "ce86bb4c-c207-4826-b60f-2efc6a6a3686",
+            "uuid": "e241b72a-53a6-4d98-a34e-d6d3ed3102c4",
             "name": "mantis"
         },
         {
-            "uuid": "8a03f762-9ed8-4a8d-a46b-b29872a69642",
+            "uuid": "31e0843d-486c-4610-8dab-32e5ded2965a",
             "name": "anim dragon"
         },
         {
-            "uuid": "62bcf2a8-a4d3-4269-bfdf-88f373eed296",
+            "uuid": "256c8aef-64a0-47c0-99fe-334691e236d9",
             "name": "audio"
         },
         {
-            "uuid": "a3c6b148-381f-46ca-938e-20baee5a477c",
+            "uuid": "f429cee3-e738-42bb-8f03-c9219a353c4d",
             "name": "not main camera"
         },
         {
-            "uuid": "88a5bd45-f4c8-4e62-bce0-efb165d6a9ca",
+            "uuid": "fcef33c3-e832-4776-9208-717c75f815c5",
             "name": "main camera"
         },
         {
-            "uuid": "e1fbb8ce-6430-47f1-81c8-e624c021b841",
+            "uuid": "e3c3a906-8ca0-477b-835e-1d1bbec35342",
             "name": "ui_camera"
         }
     ],
     "cameraComponents": [
         {
-            "key": "a3c6b148-381f-46ca-938e-20baee5a477c",
+            "key": "f429cee3-e738-42bb-8f03-c9219a353c4d",
             "value": {
                 "cameraType": 0,
                 "fov": 60.0,
@@ -61,7 +61,7 @@
             }
         },
         {
-            "key": "88a5bd45-f4c8-4e62-bce0-efb165d6a9ca",
+            "key": "fcef33c3-e832-4776-9208-717c75f815c5",
             "value": {
                 "cameraType": 0,
                 "fov": 60.0,
@@ -71,7 +71,7 @@
             }
         },
         {
-            "key": "e1fbb8ce-6430-47f1-81c8-e624c021b841",
+            "key": "e3c3a906-8ca0-477b-835e-1d1bbec35342",
             "value": {
                 "cameraType": 2,
                 "left": 0.0,
@@ -83,7 +83,7 @@
     ],
     "pointLightComponents": [
         {
-            "key": "3f3d2abb-eab5-45ea-aede-5650fcafe1b1",
+            "key": "1730e6b3-0f13-4101-9dcb-1e387889ea0e",
             "value": {
                 "constant": 0.0,
                 "linear": 0.0,
@@ -106,7 +106,7 @@
             }
         },
         {
-            "key": "cf5aa593-fb13-4a03-8594-60a113afd577",
+            "key": "3615cf85-e03f-44d6-bd24-7762bd9d85c6",
             "value": {
                 "constant": 0.0,
                 "linear": 0.0,
@@ -131,12 +131,12 @@
     ],
     "directionalComponents": [
         {
-            "key": "3c921dee-7f91-4c2c-9519-d2d1d1fd59f0",
+            "key": "973b4b52-745b-42f9-8137-434ce75de3e3",
             "value": {
                 "ambient": {
                     "x": 0.5,
-                    "y": 0.0,
-                    "z": 1.0
+                    "y": 1.0,
+                    "z": 0.0
                 },
                 "diffuse": {
                     "x": 0.0,
@@ -151,12 +151,12 @@
             }
         },
         {
-            "key": "0ba9b230-e3ce-4afb-a57b-6ab58278d887",
+            "key": "a9ad7d45-ebc7-44a9-a151-3dd051aedc40",
             "value": {
                 "ambient": {
                     "x": 0.5,
-                    "y": 1.0,
-                    "z": 0.0
+                    "y": 0.0,
+                    "z": 1.0
                 },
                 "diffuse": {
                     "x": 0.0,
@@ -173,67 +173,7 @@
     ],
     "transformComponents": [
         {
-            "key": "3c921dee-7f91-4c2c-9519-d2d1d1fd59f0",
-            "value": {
-                "position": {
-                    "x": 0.0,
-                    "y": 0.0,
-                    "z": 0.0
-                },
-                "rotation": {
-                    "x": 30.0,
-                    "y": 60.0,
-                    "z": 0.0
-                },
-                "scale": {
-                    "x": 1.0,
-                    "y": 1.0,
-                    "z": 1.0
-                }
-            }
-        },
-        {
-            "key": "0ba9b230-e3ce-4afb-a57b-6ab58278d887",
-            "value": {
-                "position": {
-                    "x": 0.0,
-                    "y": 0.0,
-                    "z": 0.0
-                },
-                "rotation": {
-                    "x": 30.0,
-                    "y": -60.0,
-                    "z": 0.0
-                },
-                "scale": {
-                    "x": 1.0,
-                    "y": 1.0,
-                    "z": 1.0
-                }
-            }
-        },
-        {
-            "key": "8a03f762-9ed8-4a8d-a46b-b29872a69642",
-            "value": {
-                "position": {
-                    "x": 0.0,
-                    "y": -0.30000001192092898,
-                    "z": 0.0
-                },
-                "rotation": {
-                    "x": 0.0,
-                    "y": 90.0,
-                    "z": 0.0
-                },
-                "scale": {
-                    "x": 0.05000000074505806,
-                    "y": 0.05000000074505806,
-                    "z": 0.05000000074505806
-                }
-            }
-        },
-        {
-            "key": "3f3d2abb-eab5-45ea-aede-5650fcafe1b1",
+            "key": "1730e6b3-0f13-4101-9dcb-1e387889ea0e",
             "value": {
                 "position": {
                     "x": -1.0,
@@ -253,7 +193,47 @@
             }
         },
         {
-            "key": "cf5aa593-fb13-4a03-8594-60a113afd577",
+            "key": "973b4b52-745b-42f9-8137-434ce75de3e3",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 30.0,
+                    "y": -60.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "e241b72a-53a6-4d98-a34e-d6d3ed3102c4",
+            "value": {
+                "position": {
+                    "x": 0.3405344486236572,
+                    "y": -0.2489999681711197,
+                    "z": 0.000011658617040666286
+                },
+                "rotation": {
+                    "x": 8.557913133699913e-7,
+                    "y": -0.00024274864699691534,
+                    "z": -0.00048538786359131336
+                },
+                "scale": {
+                    "x": 0.10000000149011612,
+                    "y": 0.10000000149011612,
+                    "z": 0.10000000149011612
+                }
+            }
+        },
+        {
+            "key": "3615cf85-e03f-44d6-bd24-7762bd9d85c6",
             "value": {
                 "position": {
                     "x": 1.0,
@@ -273,27 +253,7 @@
             }
         },
         {
-            "key": "cf817253-b832-4a1f-90ee-caffdb26bdfa",
-            "value": {
-                "position": {
-                    "x": 0.0,
-                    "y": 0.0,
-                    "z": 0.0
-                },
-                "rotation": {
-                    "x": 0.0,
-                    "y": 0.0,
-                    "z": 0.0
-                },
-                "scale": {
-                    "x": 1.0,
-                    "y": 1.0,
-                    "z": 1.0
-                }
-            }
-        },
-        {
-            "key": "40dc4ff4-408a-404b-9999-24c7eafc4afc",
+            "key": "1d998fb7-c4e0-4233-ac8b-c39721f50040",
             "value": {
                 "position": {
                     "x": 0.0,
@@ -313,27 +273,67 @@
             }
         },
         {
-            "key": "ce86bb4c-c207-4826-b60f-2efc6a6a3686",
+            "key": "a9ad7d45-ebc7-44a9-a151-3dd051aedc40",
             "value": {
                 "position": {
-                    "x": 1.0533212524421743e-8,
-                    "y": -0.2489999681711197,
-                    "z": 0.000016033083738875577
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
                 },
                 "rotation": {
-                    "x": 0.004624558612704277,
+                    "x": 30.0,
+                    "y": 60.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "2de9ffd5-ef2f-4e24-94f9-dadb2d5f336c",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "31e0843d-486c-4610-8dab-32e5ded2965a",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": -0.30000001192092898,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
                     "y": 90.0,
-                    "z": -0.000030420411349041389
+                    "z": 0.0
                 },
                 "scale": {
-                    "x": 0.10000000149011612,
-                    "y": 0.10000000149011612,
-                    "z": 0.10000000149011612
+                    "x": 0.05000000074505806,
+                    "y": 0.05000000074505806,
+                    "z": 0.05000000074505806
                 }
             }
         },
         {
-            "key": "62bcf2a8-a4d3-4269-bfdf-88f373eed296",
+            "key": "256c8aef-64a0-47c0-99fe-334691e236d9",
             "value": {
                 "position": {
                     "x": 0.0,
@@ -353,12 +353,12 @@
             }
         },
         {
-            "key": "a3c6b148-381f-46ca-938e-20baee5a477c",
+            "key": "f429cee3-e738-42bb-8f03-c9219a353c4d",
             "value": {
                 "position": {
                     "x": 0.0,
                     "y": 0.0,
-                    "z": 1.0
+                    "z": 1.0499999523162842
                 },
                 "rotation": {
                     "x": 0.0,
@@ -373,16 +373,16 @@
             }
         },
         {
-            "key": "88a5bd45-f4c8-4e62-bce0-efb165d6a9ca",
+            "key": "fcef33c3-e832-4776-9208-717c75f815c5",
             "value": {
                 "position": {
-                    "x": 0.0,
+                    "x": -0.02730504795908928,
                     "y": 0.0,
-                    "z": 1.0
+                    "z": 1.0418859720230103
                 },
                 "rotation": {
-                    "x": -0.6400005221366882,
-                    "y": -7.899964809417725,
+                    "x": -0.6199968457221985,
+                    "y": -7.499917030334473,
                     "z": 0.0
                 },
                 "scale": {
@@ -393,7 +393,7 @@
             }
         },
         {
-            "key": "e1fbb8ce-6430-47f1-81c8-e624c021b841",
+            "key": "e3c3a906-8ca0-477b-835e-1d1bbec35342",
             "value": {
                 "position": {
                     "x": 0.0,
@@ -415,9 +415,9 @@
     ],
     "meshComponents": [
         {
-            "key": "cf817253-b832-4a1f-90ee-caffdb26bdfa",
+            "key": "2de9ffd5-ef2f-4e24-94f9-dadb2d5f336c",
             "value": {
-                "bindCamera": "88a5bd45-f4c8-4e62-bce0-efb165d6a9ca",
+                "bindCamera": "fcef33c3-e832-4776-9208-717c75f815c5",
                 "bindRenderPass": 0,
                 "bindRenderGraph": 1,
                 "ready": true,
@@ -427,21 +427,9 @@
             }
         },
         {
-            "key": "40dc4ff4-408a-404b-9999-24c7eafc4afc",
+            "key": "e241b72a-53a6-4d98-a34e-d6d3ed3102c4",
             "value": {
-                "bindCamera": "88a5bd45-f4c8-4e62-bce0-efb165d6a9ca",
-                "bindRenderPass": 0,
-                "bindRenderGraph": 0,
-                "ready": true,
-                "assetID": "cbd0b6e9-90e6-4e60-abf0-9ad820c7ce72",
-                "assetName": "sand_cube",
-                "assetPath": "Assets/sand_cube/sand_cube.json"
-            }
-        },
-        {
-            "key": "ce86bb4c-c207-4826-b60f-2efc6a6a3686",
-            "value": {
-                "bindCamera": "88a5bd45-f4c8-4e62-bce0-efb165d6a9ca",
+                "bindCamera": "fcef33c3-e832-4776-9208-717c75f815c5",
                 "bindRenderPass": 0,
                 "bindRenderGraph": 0,
                 "ready": true,
@@ -451,9 +439,21 @@
             }
         },
         {
-            "key": "8a03f762-9ed8-4a8d-a46b-b29872a69642",
+            "key": "1d998fb7-c4e0-4233-ac8b-c39721f50040",
             "value": {
-                "bindCamera": "88a5bd45-f4c8-4e62-bce0-efb165d6a9ca",
+                "bindCamera": "fcef33c3-e832-4776-9208-717c75f815c5",
+                "bindRenderPass": 0,
+                "bindRenderGraph": 0,
+                "ready": true,
+                "assetID": "cbd0b6e9-90e6-4e60-abf0-9ad820c7ce72",
+                "assetName": "sand_cube",
+                "assetPath": "Assets/sand_cube/sand_cube.json"
+            }
+        },
+        {
+            "key": "31e0843d-486c-4610-8dab-32e5ded2965a",
+            "value": {
+                "bindCamera": "fcef33c3-e832-4776-9208-717c75f815c5",
                 "bindRenderPass": 0,
                 "bindRenderGraph": 0,
                 "ready": true,
@@ -465,10 +465,9 @@
     ],
     "animationComponents": [
         {
-            "key": "8a03f762-9ed8-4a8d-a46b-b29872a69642",
+            "key": "31e0843d-486c-4610-8dab-32e5ded2965a",
             "value": {
                 "assetName": "dragon"
             }
         }
     ]
-}
