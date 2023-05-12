@@ -236,7 +236,6 @@ namespace SPW
 			// ------------- ADD ANY COMPONENT ------------- 
 		}
 
-		DisplayFileDialog();
 	}
 
 	void ImGuiInspectorPanel::DrawTransformComponent(TransformComponent* component)

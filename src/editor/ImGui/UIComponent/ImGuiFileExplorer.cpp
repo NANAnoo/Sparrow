@@ -127,6 +127,9 @@ namespace SPW
 				else
 					icon_id = m_IconManager->GetLibIcon("file");
 
+				ImGuiStyle& style = ImGui::GetStyle();
+
+				style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
 				if (ImGui::ImageButton(reinterpret_cast<void*>(icon_id), m_DefalutImageSize))
 				{
 					// selected_dir = entryPath.string();
