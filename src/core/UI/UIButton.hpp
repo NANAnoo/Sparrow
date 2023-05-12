@@ -95,25 +95,30 @@ namespace SPW{
             return true;
         }
 
+        bool isSideButton(MouseEvent *e, double x, double y) {
+            return (x > this->pos_x + bias &&
+                    x < this->pos_x + this->width - bias &&
+                    e->window_height - y > this->pos_y + bias &&
+                    e->window_height - y < this->pos_y + this->height - bias);
+        }
+
         bool buttonOnHover(MouseEvent *e){
-            if(isHovered){
+            if(isHovered) {
                 double cursorX = e->cursor_xpos + e->cursor_xpos_bias * 2;//multiply by 2 so that it's more sensitive
                 double cursorY = e->cursor_ypos + e->cursor_ypos_bias * 2;
-                if(cursorX < this->pos_x - bias || cursorX > this->pos_x + this->width - bias ||
-                e->window_height - cursorY < this->pos_y - bias ||
-                e->window_height - cursorY > this->pos_y + this->height - bias){
+                if(!isSideButton(e, cursorX, cursorY)){
                     isHovered = false;
                     buttonNoHover();
                 }
             }
-            else{
+            else if (isSideButton(e, e->cursor_xpos, e->cursor_ypos)) {
                 isHovered = true;
                 if (onHover_){
                     updateBgImage(hovered_img);
                     onHover_();
-                }
-                 else
+                } else {
                     std::cout << "onHover unset!" << std::endl;
+                }
             }
             return true;
         }
@@ -132,15 +137,15 @@ namespace SPW{
             button->component<SPW::TransformComponent>()->scale = {this->width, this->height, 1};
         }
 
-        void updateBgImage(const char* image_path){
+        void updateBgImage(const std::string &image_path){
             builder.addTexture(image_path, id);
         }
 
         std::shared_ptr<Scene> scene;
         std::shared_ptr<SPW::Entity> button;
-        const char* name_;
-        const char* bg_img = "/UI/button.jpg";
-        const char* hovered_img = "/UI/hovered.jpg";
+        std::string name_;
+        std::string bg_img = "/UI/button.jpg";
+        std::string hovered_img= "/UI/hovered.jpg";
         std::function<void()> onClick_;
         std::function<void()> onHover_;
         std::function<void()> noHover_;

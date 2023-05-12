@@ -60,7 +60,7 @@ namespace SPW{
             name_ = name;
         }
 
-        void setBackgroundImage(const char* img_path){
+        void setBackgroundImage(const std::string &img_path){
             bg_img = img_path;
             builder.addTexture(bg_img, id);
         }
@@ -74,8 +74,8 @@ namespace SPW{
 
         std::shared_ptr<Scene> scene;
         std::shared_ptr<SPW::Entity> label;
-        const char* name_;
-        const char* bg_img = "/UI/button.jpg";
+        std::string name_;
+        std::string bg_img = "/UI/button.jpg";
         BasicMeshBuilder builder;
         UUID id;
     };
