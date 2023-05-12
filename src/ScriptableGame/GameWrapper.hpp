@@ -26,6 +26,8 @@
 #include "EcsFramework/System/ControlSystem/KeyControlSystem.hpp"
 #include "EcsFramework/System/ControlSystem/MouseControlSystem.hpp"
 #include "EcsFramework/System/AudioSystem/AudioSystem.h"
+#include "EcsFramework/System/PhysicSystem/PhysicSystem.h"
+#include "EcsFramework/System/AnimationSystem/AnimationSystem.h"
 
 #include "Render/shader.h"
 
@@ -103,7 +105,9 @@ namespace SPW {
                 auto scene = SPW::SceneWrapper(app, path);
                 scene.m_scene->addSystem(std::make_shared<SPW::KeyControlSystem>(scene.m_scene));
                 scene.m_scene->addSystem(std::make_shared<SPW::MouseControlSystem>(scene.m_scene));
+                scene.m_scene->addSystem(std::make_shared<SPW::AnimationSystem>(scene.m_scene));
                 scene.m_scene->addSystem(std::make_shared<SPW::AudioSystem>(scene.m_scene));
+                scene.m_scene->addSystem(std::make_shared<SPW::PhysicSystem>(scene.m_scene));
                 auto renderSystem = std::make_shared<SPW::SPWRenderSystem>(scene.m_scene, renderBackEnd, width, height);
                 scene.setUpDefaultRenderGraph(renderSystem, renderBackEnd);
                 scene.m_scene->addSystem(renderSystem);

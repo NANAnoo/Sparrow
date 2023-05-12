@@ -9,7 +9,8 @@
 
 namespace SPW
 {
-	void ImGuiManager::Init(GLFWwindow* window) {
+	void ImGuiManager::Init(GLFWwindow* window)
+	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
@@ -21,7 +22,7 @@ namespace SPW
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(nullptr);
 
-		windowHandle = window;
+		m_Window = window;
 
 		ImFont* default_font = io.Fonts->AddFontDefault();
 		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
@@ -32,23 +33,21 @@ namespace SPW
 		icons_config.GlyphMinAdvanceX = 4.0f;
 		icons_config.SizePixels = 16.f;
 		icons_config.GlyphOffset = ImVec2(0.0f,3.0f);
-		//io.Fonts->AddFontFromMemoryCompressedTTF(
-		//	FONT_ICON_FILE_NAME_FAS,
-		//	10, 16.f,
-		//	&icons_config, icons_ranges);
-		const char* font_path = "./resources/fonts/fa-solid-900.ttf";
-		//const char* font_path = "./resources/fonts/fa-solid-900.ttf";
-		io.Fonts->AddFontFromFileTTF(font_path, 16.0f, &icons_config, icons_ranges);
+
+		std::string fontPath = Config::k_EngineRoot + "fonts/fa-solid-900.ttf";
+		const char* fontPath_cstr = fontPath.c_str();
+		io.Fonts->AddFontFromFileTTF(fontPath_cstr, 16.0f, &icons_config, icons_ranges);
 
 		//file dialog panel
-		file_dialog = std::make_shared<ImGuiFileDialog>();
+		m_FileDialog = std::make_shared<ImGuiFileDialog>();
 
-		importModel_MessageBox = std::make_unique<ImGuiMessageBox>("Import Model", "file", "Import Model Sucessed!", std::vector{ "OK" }, false);
-		textureCompression_MessageBox = std::make_unique<ImGuiMessageBox>("textureCompression_MessageBox Model", "file", "textureCompression_MessageBox Model Sucessed!", std::vector{ "OK" }, false);
+		m_ImportModelMessageBox = std::make_unique<ImGuiMessageBox>("Import Model", "file", "Import Model Sucessed!", std::vector{ "OK" }, false);
+		m_TextureCompressionMessageBox = std::make_unique<ImGuiMessageBox>("m_TextureCompressionMessageBox Model", "file", "m_TextureCompressionMessageBox Model Sucessed!", std::vector{ "OK" }, false);
 
-		m_FileDialogID = -1;
+// 		m_FileDialogID = -1;
+
 		InitLayout();
-		
+
 	}
 
 
@@ -84,7 +83,7 @@ namespace SPW
 		{
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(windowHandle);
+			glfwMakeContextCurrent(m_Window);
 		}
 	}
 
@@ -100,24 +99,24 @@ namespace SPW
 
 	void ImGuiManager::InitLayout()
 	{
-		loadDefaultLayout();
+		LoadDefaultLayout();
 		InitIconManager();
 		InitMenuBar();
 		InitEntityPanel();
-		InitSceneHierarchy();
 		InitInspectorPanel();
 		InitFileExplorer();
+		//InitLogPanel();
 		m_ProfilingPanel = std::make_shared<ImGuiProfilingPanel>();
-
-		// m_TestWindow = std::make_shared<ImGuiMessageBox>("My Window", ImVec2(200, 100), ImVec2(100, 100));
 
 		m_DockspacePanel = std::make_shared<ImGuiDockSpace>();
 		m_DockspacePanel->AddPanel(m_MainMenuBar);
 		m_DockspacePanel->AddPanel(m_EntityPanel);
-		m_DockspacePanel->AddPanel(m_HierarchyPanel);
 		m_DockspacePanel->AddPanel(m_InspectorPanel);
+		//m_DockspacePanel->AddPanel(m_HierarchyPanel);
 		m_DockspacePanel->AddPanel(m_FileExplorer);
 		m_DockspacePanel->AddPanel(m_ProfilingPanel);
+//		m_DockspacePanel->AddPanel(m_LogPanel);
+
 	}
 
 	void ImGuiManager::InitIconManager()
@@ -135,14 +134,12 @@ namespace SPW
 		m_MainMenuBar->AddSubMenu("Tool");
 		m_MainMenuBar->AddSubMenu("Help");
 		m_MainMenuBar->AddSubMenu("About");
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {SPW::EntitySerializer::SaveScene(m_Scene); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {std::cout << "Clikecd on Export Asset"; });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() {FileDialogCallBack_1(); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Asset", [&]() {FileDialogCallBack_2();  });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Image Compression", [&]() {FileDialogCallBack_3();  });
-
-		//using fileDiaglogCallback = std::function<void()>;
-
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {EntitySerializer::SaveScene(m_Scene);});
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {EntitySerializer::LoadScene(m_Scene); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() {ImportModelCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Audio", [&]() {ImportAudioCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Asset", [&]() {LoadAssetCallback();  });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Image Compression", [&]() {ImageCompressedCallback();  });
 	}
 
 	void ImGuiManager::InitEntityPanel()
@@ -150,17 +147,6 @@ namespace SPW
 		m_EntityPanel = std::make_shared<ImGuiEntityPanel>("Entity Panel");
 	}
 
-	void ImGuiManager::InitSceneHierarchy()
-	{
-		m_HierarchyPanel = std::make_shared<ImGuiTreeNodePanel>(ICON_FA_LIST"  Hierarchy Panel");
-
-		m_HierarchyPanel->AddTreeNode("Root", [] { std::cout << "Clicked on Root" << std::endl; });
-		m_HierarchyPanel->AddChildTreeNode("Root", "FolderA", [] { std::cout << "Clicked on FolderA" << std::endl; });
-		m_HierarchyPanel->AddChildTreeNode("FolderA", "SubfolderA1", [] { std::cout << "Clicked on SubfolderA1" << std::endl; });
-		m_HierarchyPanel->AddChildTreeNode("Root", "FolderB", [] { std::cout << "Clicked on FolderB" << std::endl; });
-		m_HierarchyPanel->AddChildTreeNode("FolderB", "FileB1", [] { std::cout << "Clicked on FileB1" << std::endl; });
-		m_HierarchyPanel->AddChildTreeNode("Root", "File1", [] { std::cout << "Clicked on File1" << std::endl; });
-	}
 
 	void ImGuiManager::InitInspectorPanel()
 	{
@@ -172,78 +158,126 @@ namespace SPW
 		m_FileExplorer = std::make_shared<ImGuiFileExplorer>(m_ImguiIconManager.get());
 	}
 
-	void ImGuiManager::FileDialogCallBack_1()
+	// void ImGuiManager::InitLogPanel()
+	// {
+	// 	m_LogPanel = std::make_shared<ImGuiLog>();
+	// }
+
+	void ImGuiManager::ImportModelCallback()
 	{
-		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
-		m_FileDialogID = 1;
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Import Model", "*.*", ".");
+		m_Feature = FeatureType::ImportModel;
+//		m_FileDialogID = 1;
 	}
 
-	void ImGuiManager::FileDialogCallBack_2()
+	void ImGuiManager::LoadAssetCallback()
 	{
-		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
-		m_FileDialogID = 2;
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		m_Feature = FeatureType::LoadAsset;
+		// m_FileDialogID = 2;
 	}
 
-	void ImGuiManager::FileDialogCallBack_3()
+	void ImGuiManager::ImageCompressedCallback()
 	{
-		file_dialog->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", ".");
-		m_FileDialogID = 3;
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		m_Feature = FeatureType::ImageCompression;
+//		m_FileDialogID = 3;
+	}
+
+	void ImGuiManager::ImportAudioCallback()
+	{
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		m_Feature = FeatureType::ImportAudio;
+//		m_FileDialogID = 4;
 	}
 
 	void ImGuiManager::DisplayDialog() const
 	{
-		if (file_dialog->Display("ChooseFileDlgKey"))
+		if (m_FileDialog->Display("Universal_FileDialog"))
 		{
-			if (file_dialog->IsOk())
+			if (m_FileDialog->IsOk())
 			{
-				std::string file_path = file_dialog->GetFilePathName();
+				std::string file_path = m_FileDialog->GetFilePathName();
 				// Do something with the file_path
-				std::string filePathName = file_dialog->GetFilePathName();
-				std::string fileName = file_dialog->GetCurrentFileName();
+				std::string filePathName = m_FileDialog->GetFilePathName();
+				std::string fileName = m_FileDialog->GetCurrentFileName();
 
 				std::string extension = FileSystem::ToFsPath(fileName).extension().string();
 				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
 
-				if(m_FileDialogID == 1)
+				if ( m_Feature == FeatureType::ImportModel )
 				{
 					if (extension == ".gltf" || extension == ".fbx" || extension == ".obj")
 					{
 						if (AssetManager::ImportModel(filePathName))
 						{
-							importModel_MessageBox->trigger_flag = true;
+							m_ImportModelMessageBox->trigger_flag = true;
 						}
+					}
+					else
+					{
+						std::cout << "Not Support ! \n";
 					}
 				}
 
-				if(m_FileDialogID == 2)
+				if ( m_Feature == FeatureType::LoadAsset )
 				{
 					if (extension == ".json" || extension == ".asset")
 					{
 						auto asset_data = AssetManager::LoadAsset(filePathName);
 						ResourceManager::getInstance()->m_AssetDataMap[asset_data.assetName] = asset_data;
 					}
+					else
+					{
+						std::cout << "Not Support ! \n";
+					}
+
 				}
 
-				if (m_FileDialogID == 3)
+				if (m_Feature == FeatureType::ImageCompression )
 				{
 					if (extension == ".png" || extension == ".jpg" || extension == ".jepg")
 					{
 						auto data = AssetManager::LoadTextureData(filePathName);
 						if (AssetManager::CompressImage(std::move(data), filePathName))
 						{
-							textureCompression_MessageBox->trigger_flag = true;
+							m_TextureCompressionMessageBox->trigger_flag = true;
 						}
+					}
+					else
+					{
+						std::cout << "Not Support ! \n";
+					}
+
+				}
+
+				if (m_Feature == FeatureType::ImportAudio)
+				{
+					if (extension == ".wav" || extension == ".mp3")
+					{
+						// auto data = AssetManager::ImportAudio(filePathName);
+						if (AssetManager::ImportAudio(filePathName))
+						{
+							m_TextureCompressionMessageBox->trigger_flag = true;
+						}
+					}
+					else
+					{
+						std::cout << "Not Support ! \n";
 					}
 				}
 				
 			}
-			file_dialog->Close();
+			m_FileDialog->Close();
 		}
 	}
 
-	void ImGuiManager::loadDefaultLayout() const{
-		std::ifstream default_ini("./default.ini");
+	void ImGuiManager::LoadDefaultLayout() const
+	{
+		const std::string editorLayoutPath = Config::k_EngineRoot + "/fonts/EditorLayout.ini";
+
+		std::ifstream default_ini(editorLayoutPath);
 		std::ofstream imgui_ini("./imgui.ini");
 
 		if (!default_ini.is_open() || !imgui_ini.is_open()) {
@@ -259,4 +293,10 @@ namespace SPW
 		default_ini.close();
 		imgui_ini.close();
 	}
+
+	//void ImGuiManager::SetLog(std::string log)
+	//{
+	//	m_Log =log;
+	//}
+
 }

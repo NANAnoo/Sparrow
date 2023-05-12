@@ -21,7 +21,7 @@ namespace SPW
 		UpdateMenuItemLabel(id, label);
 		if (!m_Items.contains(id))
 		{
-			m_Items[id] = { id, label, std::move(callback) };
+			m_Items[id] = { id, label, std::move(callback)};
 		}
 	}
 }

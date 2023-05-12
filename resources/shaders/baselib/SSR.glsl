@@ -80,7 +80,7 @@ vec3 SSR(float roughness,vec3 albedo,float metallic, sampler2D Screen)
     wp /= wp.w;
     vec3 reflectionView = normalize(reflect(positionView.xyz, normalView));
 
-    int count = 4;
+    int count = 1;
     float scale = float(count);
     while(count -- > 0) {
         vec3 jitter = mix(vec3(0), hash(wp.xyz), roughness * 0.5);

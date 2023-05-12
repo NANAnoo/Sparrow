@@ -29,6 +29,13 @@ namespace SPW {
             id = IDFromString(str);
             assert(!id.is_nil());
         }
+
+    	UUID(const std::string& str)
+        {
+            id = uuids::uuid::from_string(str).value();
+            assert(!id.is_nil());
+        }
+
         UUID(const UUID &other) {
             id = other.id;
         }

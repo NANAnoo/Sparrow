@@ -21,62 +21,19 @@
 namespace SPW
 {
 
-	void FileSystem::Boost()
-	{
-		// if(!root.empty())
-		//     k_Root = "./Project/";
-		// else
-		//     k_Root = root;
-		// k_Engine = k_Root  + "/Engine/";
-		// k_Assets = k_Root  + "/Assets/";
-		// k_Scenes = k_Root  + "/Scenes/";
-
-		// create engine root
-		// CreateDirectory(k_Root);
-		// // copy engine files into engine 
-		// CreateDirectory(k_Engine);
-		// // copy project asset/ resource,
-		// CreateDirectory(k_Assets);
-		// CreateDirectory(k_Scenes);
-		// MountEngine();
-	}
-	void FileSystem::MountEngine()
-	{
-		// try
-		// {
-		// 	for (const auto& entry: std::filesystem::directory_iterator("./resources/"))
-		// 	{
-		// 		const auto& path = entry.path();
-		// 		auto new_destination = k_Engine / path.filename();
-		//
-		// 		if (fs::is_directory(path))
-		// 		{
-		// 			copy_directory(path, new_destination);
-		// 		}
-		// 		else
-		// 		{
-		// 			fs::copy(path, new_destination);
-		// 		}
-		// 	}
-		// }
-		// catch (std::exception& e)
-		// {
-		// 	std::cerr << "Error: " << e.what() << std::endl;
-		// }
-	}
-
-	void FileSystem::MountFromConfig()
+	void FileSystem::MountPath(std::string src, std::string& dst)
 	{
 		try
 		{
-			for (const auto& entry : std::filesystem::directory_iterator(Config::k_TempalteProjectRoot))
+			CreateDirectory(dst);
+			for (const auto& entry : std::filesystem::directory_iterator(src))
 			{
 				const auto& path = entry.path();
-				auto new_destination = Config::k_WorkingProjectRoot / path.filename();
+				auto new_destination = dst / path.filename();
 
 				if (fs::is_directory(path))
 				{
-					copy_directory(path, new_destination);
+					RecursiveCopyDirectory(path, new_destination);
 				}
 				else
 				{
@@ -90,14 +47,15 @@ namespace SPW
 		}
 	}
 
-	std::string FileSystem::GetUserHomeDir()
+
+	std::filesystem::path FileSystem::GetUserHomeDir()
 	{
 		TCHAR homeDirectory[MAX_PATH];
 		HRESULT result = SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, homeDirectory);
 
 		if (result == S_OK)
 		{
-			return std::string(homeDirectory);
+			return std::filesystem::u8path(std::string(homeDirectory));
 		}
 		else
 		{
@@ -106,7 +64,7 @@ namespace SPW
 		}
 	}
 
-	void FileSystem::copy_directory(const std::filesystem::path& source, const std::filesystem::path& destination)
+	void FileSystem::RecursiveCopyDirectory(const std::filesystem::path& source, const std::filesystem::path& destination)
 	{
 		try
 		{
@@ -119,7 +77,7 @@ namespace SPW
 
 				if (std::filesystem::is_directory(path))
 				{
-					copy_directory(path, new_destination);
+					RecursiveCopyDirectory(path, new_destination);
 				}
 				else
 				{
@@ -197,6 +155,28 @@ namespace SPW
 	}
 
 	bool FileSystem::CreateDirectory(const std::string& dir_name)
+	{
+		// Check if the directory already exists.
+		if (fs::exists(dir_name))
+		{
+			std::cout << "The directory " << dir_name << " already exists.\n";
+			return true;
+		}
+
+		// Attempt to create the directory and handle any errors.
+		std::error_code err;
+		if (!fs::create_directories(dir_name, err))
+		{
+			std::cout << "CreateDirectory: FAILED to create " << dir_name
+				<< " err: " << err.message() << "\n";
+			return false;
+		}
+
+		// Directory created successfully.
+		return true;
+	}
+
+	bool FileSystem::CreateDirectory(const std::filesystem::path& dir_name)
 	{
 		// Check if the directory already exists.
 		if (fs::exists(dir_name))

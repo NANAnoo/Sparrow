@@ -39,7 +39,6 @@ namespace SPW
 
 	void AnimationSystem::onUpdate(TimeDuration dt)
 	{
-
 		//TICKTOCK;
 		double deltaTime = dt.toSecond();
 		ComponentGroup<SPW::AnimationComponent, SPW::IDComponent, SPW::MeshComponent> animatedGroup;

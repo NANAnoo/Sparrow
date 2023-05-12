@@ -17,7 +17,9 @@
 #include "EcsFramework/Component/KeyComponent.hpp"
 #include "EcsFramework/Component/MouseComponent.hpp"
 #include "EcsFramework/Component/TransformComponent.hpp"
+#include "EcsFramework/Component/PhysicalComponent/RigidActor.h"
 #include "EcsFramework/Component/Lights/DirectionalLightComponent.hpp"
+#include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
 
 namespace SPW {
     class EntityWrapper{
@@ -83,6 +85,20 @@ namespace SPW {
                 return ComponentWrapper::createCompWrapper<AudioComponent>(m_entity);
             } else if (type == "AudioListener") {
                 return ComponentWrapper::createCompWrapper<AudioListener>(m_entity);
+            } else if(type == "AnimationComponent") {
+                return ComponentWrapper::createCompWrapper<AnimationComponent>(m_entity);
+            } else if (type == "RigidDynamicComponent"){
+                return ComponentWrapper::createCompWrapper<RigidDynamicComponent>(m_entity);
+            }else if (type == "Collider"){
+                return ComponentWrapper::createCompWrapper<Collider>(m_entity);
+            } else if (type == "SphereCollider") {
+                return ComponentWrapper::createCompWrapper<SphereCollider>(m_entity);
+            } else if (type == "CapsuleCollider") {
+                return ComponentWrapper::createCompWrapper<CapsuleCollider>(m_entity);
+            } else if (type == "BoxCollider") {
+                return ComponentWrapper::createCompWrapper<BoxCollider>(m_entity);
+            }else if (type == "RigidStaticComponent"){
+                return ComponentWrapper::createCompWrapper<RigidStaticComponent>(m_entity);
             }
             return ComponentWrapper(m_entity);
         }
@@ -113,6 +129,20 @@ namespace SPW {
                 res.setupComponent<AudioComponent>(value);
             } else if (type == "AudioListener") {
                 res.setupComponent<AudioListener>(value);
+            } else if(type == "AnimationComponent"){
+                res.setupComponent<AnimationComponent>(value);
+            } else if (type == "RigidDynamicComponent"){
+                res.setupComponent<RigidDynamicComponent>(value);
+            } else if (type == "Collider"){
+                res.setupComponent<Collider>(value);
+            } else if (type == "SphereCollider"){
+                res.setupComponent<SphereCollider>(value);
+            } else if (type == "CapsuleCollider"){
+                res.setupComponent<CapsuleCollider>(value);
+            } else if (type == "BoxCollider"){
+                res.setupComponent<BoxCollider>(value);
+            } else if (type == "RigidStaticComponent"){
+                res.setupComponent<RigidStaticComponent>(value);
             }
             return res;
         }

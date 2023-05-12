@@ -1,4 +1,4 @@
-require "luaclass"
+-- require "luaclass"
 require "Component"
 
 DirectionalLight = class("DirectionalLight", Component)

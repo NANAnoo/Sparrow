@@ -88,7 +88,9 @@ namespace SPW
 				cereal::make_nvp("bindRenderPass", bindRenderPass),
 				cereal::make_nvp("bindRenderGraph", bindRenderGraph),
 				cereal::make_nvp("ready", ready),
-				cereal::make_nvp("assetID", assetID)
+				cereal::make_nvp("assetID", assetID),
+				cereal::make_nvp("assetName", assetName),
+				cereal::make_nvp("assetPath", assetPath)
 			);
 		}
 

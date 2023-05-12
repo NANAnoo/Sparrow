@@ -9,18 +9,18 @@ require "MainLight"
 require "FloorModel"
 require "SkyBox"
 
-local scene = {}
+local scene = {}    
 local MainCamera = {}
-
+local mantisModel = {}
 App({name="Test", width = 1280, height = 720,
     onInit = function ()
         global.app:loadAsset("mantis/mantis.json")
         global.app:loadAsset("skybox/skybox.json")
-        global.app:loadAsset("sand_cube/sand_cube.json")
+        global.app:loadAsset("cube/cube.json")
         scene = Scene.new("LuaTestGame")
         MainCamera = CreateMainCamera(scene, 1280, 720)
         local main_camera_id = MainCamera.id
-        CreateMantisModel(scene, main_camera_id)
+        mantisModel = CreateMantisModel(scene, main_camera_id)
         CreateSkyBox(scene, main_camera_id)
         local floor = CreateFloor(scene, main_camera_id)
         local MainLight = CreateMainLight(scene)
@@ -37,6 +37,8 @@ App({name="Test", width = 1280, height = 720,
     end,
     afterUpdate = function()
         scene:afterUpdate()
+        local com = mantisModel:getComponent(Transform);
+        com:synchronize();
         collectgarbage()
     end,
     onStop = function()

@@ -60,13 +60,13 @@ namespace SPW {
 
         // delete entity
         void deleteEntity(const std::shared_ptr<Entity> &entity) {
-            registry->destroy(entity->entity);
             all_entities.erase(entity->getUUID().toString());
+            registry->destroy(entity->entity);
         }
 
         void deleteEntity(const Entity* entity) {
-            registry->destroy(entity->entity);
             all_entities.erase(entity->getUUID().toString());
+            registry->destroy(entity->entity);
         }
 
         // get entity by id
@@ -193,8 +193,8 @@ namespace SPW {
         std::shared_ptr<Entity> uiCamera;
 
         std::shared_ptr<UIResponder> ui_responder;
-
         bool isUIMode = false;
+        std::shared_ptr<entt::registry> registry;
     private:
         // get entity with components
         template<Component ...C>
@@ -205,7 +205,7 @@ namespace SPW {
 
         std::unordered_map<std::string, std::shared_ptr<Entity>> all_entities;
 
-        std::shared_ptr<entt::registry> registry;
+
         std::vector<std::shared_ptr<SystemI>> systems;
         friend Entity;
 
