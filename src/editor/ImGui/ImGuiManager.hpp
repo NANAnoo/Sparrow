@@ -111,12 +111,6 @@ namespace SPW
 				}
 				);
 			});
-			ImGui::Begin("Debug");
-			if(ImGui::Button("Lua"))
-			{
-				SetupScriptEntryCallback();
-			}
-			ImGui::End();
 			//----------------------------------------------------------------------------------------
 			End();
 			EnableViewport();

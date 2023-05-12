@@ -132,6 +132,7 @@ namespace SPW
 		m_MainMenuBar->AddSubMenu("Edit");
 		m_MainMenuBar->AddSubMenu("View");
 		m_MainMenuBar->AddSubMenu("Tool");
+		m_MainMenuBar->AddSubMenu("Window");
 		m_MainMenuBar->AddSubMenu("Help");
 		m_MainMenuBar->AddSubMenu("About");
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {EntitySerializer::SaveScene(m_Scene);});
@@ -140,6 +141,7 @@ namespace SPW
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Audio", [&]() {ImportAudioCallback(); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Asset", [&]() {LoadAssetCallback();  });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Image Compression", [&]() {ImageCompressedCallback();  });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Setup Script Entry", [&]() {SetupScriptEntryCallback();  });
 	}
 
 	void ImGuiManager::InitEntityPanel()
@@ -224,11 +226,9 @@ namespace SPW
 				{
 					toml::table cfg = ConfigManager::GetConfigContext();
 
-					// TODO Image Button Set to default script
 					if (extension == ".lua")
 					{
 						FileSystem::ResolveSlash(filePath);
-						// TODO Recevie a path from file dialog, and insert into the table
 						toml::table scriptEntries = toml::table
 						{
 							// get file name | filepath
@@ -236,7 +236,6 @@ namespace SPW
 						};
 						cfg.insert_or_assign("DefaultScript", scriptEntries);
 						ConfigManager::WriteDefaultScript(cfg);
-						// cfg.emplace("Lua Entry", "Values");
 					}
 					else
 					{

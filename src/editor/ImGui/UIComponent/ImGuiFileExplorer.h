@@ -31,6 +31,11 @@ namespace SPW
 		int64_t LoadImage(const std::string& file_path);
 		void DisplayImagePanel();
 
+	protected:
+		void SetLuaPathCallback(const std::filesystem::path& path);
+		void DisplayLuaSettingMenu();
+		std::string luaPath;
+
     private:
 		std::string selected_dir;
 		ImGuiIconManager* m_IconManager;

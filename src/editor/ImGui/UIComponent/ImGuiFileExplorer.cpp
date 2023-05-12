@@ -15,12 +15,12 @@ namespace SPW
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove;
 		bool* p_open = nullptr;
 		ImGui::Begin(ICON_FA_FILE "  Selected Folder",p_open,window_flags);
-		//ImGui::Text("%s", ); // Displays the "fa-camera" icon
 
 		if (!selected_dir.empty())
-		{
 			DisplaySelectedFolder(selected_dir);
-		}
+
+		DisplayLuaSettingMenu();
+
 		ImGui::End();
 
 		const char* icon = ICON_FA_FOLDER"  ";
@@ -37,6 +37,7 @@ namespace SPW
 		ImGui::Separator();
 
 		DisplayImagePanel();
+
 	}
 
 	void ImGuiFileExplorer::DisplayImGuiFileExplorer(const char* icon, const std::string& path)
@@ -69,7 +70,7 @@ namespace SPW
 		}
 	}
 
-	void SPW::ImGuiFileExplorer::DisplaySelectedFolder(const std::string& folderPath)
+	void ImGuiFileExplorer::DisplaySelectedFolder(const std::string& folderPath)
 	{
 		// set row numbers and row width
 		int numColumns = 4;
@@ -137,9 +138,9 @@ namespace SPW
 						std::cerr << "Error: Failed to open the file in Visual Studio Code" << std::endl;
 				}
 
-				if (ImGui::IsItemClicked(1) && (entryPath.extension() == ".json" || entryPath.extension() == ".lua" || entryPath.extension() == ".asset"))
+				if (ImGui::IsItemClicked(1) && (entryPath.extension() == ".lua" ))
 				{
-					// TODO Right Button Behaviours
+					SetLuaPathCallback(entryPath);
 				}
 
 				if (ImGui::IsItemClicked() && (entryPath.extension() == ".png" || entryPath.extension() == ".jpg" || entryPath.extension() == ".jpeg"))
@@ -201,7 +202,7 @@ namespace SPW
 		return texture;
 	}
 
-	void SPW::ImGuiFileExplorer::DisplayImagePanel()
+	void ImGuiFileExplorer::DisplayImagePanel()
 	{
 		if (m_ShowImagePanel)
 		{
@@ -230,4 +231,36 @@ namespace SPW
 		}
 	}
 
+	void ImGuiFileExplorer::SetLuaPathCallback(const std::filesystem::path& path)
+	{
+		// std::cout << path << std::endl;
+		luaPath = path.string();
+		FileSystem::ResolveSlash(luaPath);
+
+		ImGui::OpenPopup("SetLuaPath");
+	}
+
+	void ImGuiFileExplorer::DisplayLuaSettingMenu()
+	{
+		if (ImGui::BeginPopup("SetLuaPath"))
+		{
+			if (ImGui::MenuItem("Set it as default file"))
+			{
+				toml::table cfg = ConfigManager::GetConfigContext();
+
+				toml::table scriptEntries = toml::table
+				{
+					// get file name | filepath
+					{"Entry", luaPath}
+				};
+				cfg.insert_or_assign("DefaultScript", scriptEntries);
+				ConfigManager::WriteDefaultScript(cfg);
+			}
+
+			if (ImGui::MenuItem("Cancel"))
+				ImGui::CloseCurrentPopup();
+
+			ImGui::EndPopup();
+		}
+	}
 }
