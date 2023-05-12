@@ -41,7 +41,7 @@ namespace SPW
 
 		void SetActiveScene(const std::shared_ptr<Scene>& scene)
 		{
-			scene_ptr = scene.get();
+			scene_ptr = scene;
 		}
 
 		void SetNoneSelectedGameObject()
@@ -51,7 +51,7 @@ namespace SPW
 
 		void SetSelectedGameObject(const Entity& e)
 		{
-			m_Entity = &e;
+			m_Entity = std::make_shared<Entity>(e);
 
 			for (int i = static_cast<int>(ComponentType::IDComponent); i <= static_cast<int>(ComponentType::AudioListener); ++i)
 			{
@@ -78,8 +78,8 @@ namespace SPW
 		void Loop();
 
 	private:
-		const Entity* m_Entity = nullptr;
-		Scene* scene_ptr = nullptr;
+		std::shared_ptr<Entity> m_Entity = nullptr;
+		std::shared_ptr<Scene> scene_ptr = nullptr;
 		std::unordered_map<ComponentType, bool> componentStatus;
 
 		ImGuiIconManager* m_IconManager;

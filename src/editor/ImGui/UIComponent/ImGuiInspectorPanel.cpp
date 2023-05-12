@@ -3,6 +3,7 @@
 #include "ImGui/IconsFontAwesome6.h"
 #include "IO/ConfigManager.h"
 #include "Render/RenderGraphManager.h"
+#include "Asset/Serializer/EntitySerializer.h"
 
 namespace SPW
 {
@@ -130,6 +131,11 @@ namespace SPW
 			{
 				show_addcomponent = true;
 				Loop();
+			}
+
+			if (ImGui::Button("Save Entity"))
+			{
+				EntitySerializer::SaveEntity(m_Entity);
 			}
 
 			if (show_addcomponent)

@@ -5,6 +5,7 @@
  */
 #include "ImGuiInspectorPanel.h"
 #include "ImGuiPanel.h"
+#include "Asset/Serializer/EntitySerializer.h"
 #include "ImGui/IconsFontAwesome6.h"
 
 namespace SPW
@@ -45,7 +46,7 @@ namespace SPW
 
 		void SetActiveScene(const std::shared_ptr<Scene>& scene)
 		{
-			m_ScenePtr = scene.get();
+			m_ScenePtr = scene;
 		}
 
 	protected:
@@ -81,10 +82,16 @@ namespace SPW
 				auto new_gameObject = m_ScenePtr->createEntity("NewGameObject");
 				new_gameObject->emplace<TransformComponent>();
 			}
+
+			if (ImGui::Button("Load Entity"))
+			{
+				EntitySerializer::LoadEntity(m_ScenePtr);
+			}
+
 		}
 
 	private:
 		std::unordered_map<std::string, MenuItem> m_Items;
-		Scene* m_ScenePtr;
+		std::shared_ptr<Scene> m_ScenePtr;
 	};
 }
