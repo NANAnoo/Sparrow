@@ -6,6 +6,7 @@
 #include "ImGuiManager.hpp"
 
 #include "Asset/Serializer/EntitySerializer.h"
+#include "dirent/dirent.h"
 
 namespace SPW
 {
@@ -21,6 +22,8 @@ namespace SPW
 		ImGui::StyleColorsDark();
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(nullptr);
+
+		HWND hwnd = (HWND)ImGui::GetIO().ImeWindowHandle;
 
 		m_Window = window;
 
@@ -49,6 +52,7 @@ namespace SPW
 		InitLayout();
 
 	}
+
 
 
 	void ImGuiManager::Begin()

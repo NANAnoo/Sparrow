@@ -36,6 +36,8 @@ namespace SPW
 		DisplayImGuiFileExplorer(icon, Config::k_EngineRoot);
 		ImGui::Separator();
 
+		DisplayImageMenu();
+		DisplayJsonMenu();
 		DisplayImagePanel();
 
 	}
@@ -138,20 +140,30 @@ namespace SPW
 						std::cerr << "Error: Failed to open the file in Visual Studio Code" << std::endl;
 				}
 
-				// button-right || .lua files
+				if (ImGui::IsItemClicked(1) && (entryPath.extension() == ".json" || entryPath.extension() == ".asset"))
+				{
+					m_ShowJsonMenu = true;
+					m_Path = entryPath.string();
+				}
+
+
 				if (ImGui::IsItemClicked(1) && (entryPath.extension() == ".lua" ))
 				{
 					SetLuaPathCallback(entryPath);
 				}
 
-				if (ImGui::IsItemClicked() && (entryPath.extension() == ".png" || entryPath.extension() == ".jpg" || entryPath.extension() == ".jpeg"))
+				if (ImGui::IsItemClicked(1) && (entryPath.extension() == ".png" || entryPath.extension() == ".jpg" || entryPath.extension() == ".jpeg"
+					||  entryPath.extension() == ".dds"))
 				{
-					m_ShowImagePanel = true;
+					//m_ShowImagePanel = true;
 
 					//m_OpenGLTexture = static_cast<GLuint>(SPW::AssetManager::LoadRawImage(entryPath.string()));
 					//ImTextureID imgui_texture = LoadImage(entryPath.string());
 					m_OpenGLTexture = AssetManager::LoadRawImage(entryPath.string());
+					m_Path = entryPath.string();
+					m_ShowImageMenu = true;
 				}
+
 			}
 
 			ImGui::Text("%s", fileName.c_str());
@@ -161,6 +173,7 @@ namespace SPW
 		}
 
 		ImGui::Columns(1);
+
 	}
 
 	int64_t SPW::ImGuiFileExplorer::LoadImage(const std::string& file_path) {
@@ -203,6 +216,35 @@ namespace SPW
 		return texture;
 	}
 
+	void SPW::ImGuiFileExplorer::DisplayImageMenu()
+	{
+		if (m_ShowImageMenu)
+		{
+			ImGui::OpenPopup("ImageMenu");
+		}
+
+		if (ImGui::BeginPopup("ImageMenu"))
+		{
+			if (ImGui::MenuItem("image preview"))
+			{
+				m_ShowImagePanel = true;
+			}
+			if (ImGui::MenuItem("compress image"))
+			{
+				auto data = AssetManager::LoadTextureData(m_Path);
+				(AssetManager::CompressImage(std::move(data), m_Path));
+			}
+			if (ImGui::MenuItem("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			m_ShowImageMenu = false;
+			ImGui::EndPopup();
+		}
+		
+	}
+
 	void ImGuiFileExplorer::DisplayImagePanel()
 	{
 		if (m_ShowImagePanel)
@@ -231,6 +273,32 @@ namespace SPW
 			ImGui::End();
 		}
 	}
+
+
+	void SPW::ImGuiFileExplorer::DisplayJsonMenu()
+	{
+		if (m_ShowJsonMenu)
+		{
+			ImGui::OpenPopup("FileContextMenu");
+		}
+
+		if (ImGui::BeginPopup("FileContextMenu"))
+		{
+			if (ImGui::MenuItem("Load"))
+			{
+				auto asset_data = AssetManager::LoadAsset(m_Path);
+				ResourceManager::getInstance()->m_AssetDataMap[asset_data.assetName] = asset_data;
+			}
+			if (ImGui::MenuItem("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			m_ShowJsonMenu = false;
+			ImGui::EndPopup();
+		}
+	}
+
 
 	void ImGuiFileExplorer::SetLuaPathCallback(const std::filesystem::path& path)
 	{

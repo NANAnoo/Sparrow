@@ -29,6 +29,8 @@ namespace SPW
 		void DisplayImGuiFileExplorer(const char* icon, const std::string& path);
 		void DisplaySelectedFolder(const std::string& folderPath);
 		int64_t LoadImage(const std::string& file_path);
+		void DisplayImageMenu();
+		void DisplayJsonMenu();
 		void DisplayImagePanel();
 
 	protected:
@@ -42,6 +44,10 @@ namespace SPW
 		ImVec2 m_DefalutImageSize  = ImVec2(40, 40);
 		GLuint m_OpenGLTexture = 0;
 		bool m_ShowImagePanel = false;
+		bool m_ShowImageMenu= false;
+		bool m_ShowJsonMenu = false;
+		std::string m_Path;
+
     };
 
 }
