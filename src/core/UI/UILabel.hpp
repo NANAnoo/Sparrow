@@ -75,7 +75,7 @@ namespace SPW{
         std::shared_ptr<Scene> scene;
         std::shared_ptr<SPW::Entity> label;
         const char* name_;
-        const char* bg_img = "/Assets/UItexture/button.jpg";
+        const char* bg_img = "/UI/button.jpg";
         BasicMeshBuilder builder;
         UUID id;
     };

@@ -139,8 +139,8 @@ namespace SPW{
         std::shared_ptr<Scene> scene;
         std::shared_ptr<SPW::Entity> button;
         const char* name_;
-        const char* bg_img = "/Assets/UItexture/button.jpg";
-        const char* hovered_img = "/Assets/UItexture/hovered.jpg";
+        const char* bg_img = "/UI/button.jpg";
+        const char* hovered_img = "/UI/hovered.jpg";
         std::function<void()> onClick_;
         std::function<void()> onHover_;
         std::function<void()> noHover_;

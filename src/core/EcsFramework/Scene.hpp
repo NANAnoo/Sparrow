@@ -26,7 +26,7 @@ namespace SPW {
         explicit Scene(const std::shared_ptr<EventResponderI> &parent)
             : EventResponderI(parent) {
             registry = std::make_shared<entt::registry>();
-            ui_responder = std::make_shared<UIResponder>(parent);
+            ui_responder = std::make_shared<UIResponder>(nullptr);
         }
         // create scene with this line
         static std::shared_ptr<Scene> create(const std::shared_ptr<EventResponderI> &parent) {
@@ -167,12 +167,19 @@ namespace SPW {
         }
 
         void onEvent(const std::shared_ptr<EventI> &e) override{
-
             if (isUIMode) {
                 ui_responder->onEvent(e);
             } else {
                 EventResponderI::onEvent(e);
             }
+        }
+
+        void solveEvent(const std::shared_ptr<EventI> &e) override {
+            e->dispatch<WindowResizeType, WindowEvent>([this](WindowEvent *e){
+                ui_responder->width = e->width;
+                ui_responder->height = e->height;
+                return false;
+            });
         }
 
         std::shared_ptr<UIResponder> getUIResponder(){

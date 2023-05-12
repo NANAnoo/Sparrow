@@ -128,54 +128,6 @@ createDirectionalLight(const std::shared_ptr<SPW::Scene> &scene, glm::vec3 rotat
     return light;
 }
 
-// test usage
-class Transformer : public SPW::WindowEventResponder {
-public:
-    explicit Transformer(const std::shared_ptr<SPW::EventResponderI> &parent)
-            : SPW::WindowEventResponder(parent) {
-    }
-
-    bool onWindowResize(int w, int h) override {
-        std::cout << "window resize" << "(" << w << ", " << h << ")" << std::endl;
-        bool should_update = false;
-        if (w < 500) {
-            w = 500;
-            should_update = true;
-        }
-        if (h < 400) {
-            h = 400;
-            should_update = true;
-        }
-        if (should_update && !window.expired())
-            window.lock()->setSize(w, h);
-        // set projection
-        // TODO: add a responder to each camera
-        scene.lock()->forEach([=](SPW::CameraComponent *cam) {
-            cam->aspect = float(w) / float(h);
-            if (cam->getType() == SPW::UIOrthoType) {
-                cam->right = w;
-                cam->top = h;
-            }
-        }, SPW::CameraComponent);
-        return true;
-    }
-
-    // windows size is not equal to frame buffer size
-    bool onFrameResize(int w, int h) override {
-        glViewport(0, 0, w, h);
-        std::cout << "frame resize" << "(" << w << ", " << h << ")" << std::endl;
-        // set projection
-        return false;
-    }
-
-    const char *getName() final {
-        return "Transformer";
-    }
-
-    std::weak_ptr<SPW::WindowI> window;
-    std::weak_ptr<SPW::Scene> scene;
-};
-
 // #define SAVE_SKYBOX
 // #define LOAD_ASSET
 
@@ -230,8 +182,6 @@ public:
 		app->window = window;
 		app->window->setSize(1280, 720);
 		app->window->setTitle("New Render System Test");
-
-		// transformer->window = window;
 
         // weak strong dance
         std::weak_ptr weak_window = window;
@@ -298,28 +248,6 @@ public:
 //            bar_model->assetID   = SPW::ResourceManager::getInstance()->m_AssetDataMap["scene"].assetID;
 //			bar_model->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["scene"].assetName;
 //			bar_model->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["scene"].path;
-
-            {
-                auto uiTestMesh = scene->createEntity("uiTestMesh");
-                auto trans = uiTestMesh->emplace<SPW::TransformComponent>();
-                auto mesh = uiTestMesh->emplace<SPW::MeshComponent>(scene->uiCamera->getUUID());
-                trans->scale = glm::vec3(100, 100, 1);
-                trans->position = glm::vec3(0, 0, -1);
-                mesh->bindRenderGraph = scene->getUIRenderGraphID();
-                mesh->modelSubPassPrograms[scene->getUIRenderNodeID()] = scene->getUIProgramID();
-                mesh->assetID = uiTestMesh->getUUID().toString();
-
-                auto builder = SPW::BasicMeshStorage<SPW::UIMesh>::getInstance()->insert(mesh->assetID);
-                auto material = SPW::MaterialData();
-                auto id = SPW::UUID::randomUUID();
-                material.m_TextureIDMap[SPW::TextureMapType::Albedo] = id.toString();
-                material.ID = SPW::UUID::randomUUID().toString();
-                builder.addMaterial(material);
-                builder.addMesh(SPW::createUIMesh(material));
-                builder.addTexture("/Assets/skybox/Textures/back.jpg", id);
-            }
-
-
             // game objects
             // --------------- dragon ---------------
             auto dragon = scene->createEntity("anim dragon");
@@ -482,7 +410,6 @@ public:
             // init scene
             scene->initUIResponder(weak_window.lock()->width(), weak_window.lock()->height());
             scene->initial();
-            transformer->scene = scene;
         });
     }
 
@@ -518,6 +445,22 @@ public:
                     app->stop();
                     return true;
                 });
+        e->dispatch<SPW::WindowFrameResizeType, SPW::WindowEvent>(
+                [this](SPW::WindowEvent *e) {
+                    // resize cameras
+                    scene->forEach(
+                        [=](SPW::CameraComponent* cam) 
+                        {
+                            if (cam->getType() == SPW::UIOrthoType) {
+                                cam->right = float(e->width);
+                                cam->top = float(e->height);
+                            } else {
+                                cam->aspect = float(e->width) / float(e->height);
+                            }
+                        }, SPW::CameraComponent);
+                    
+                    return true;
+                });
         e->dispatch<SPW::MouseDownType, SPW::MouseEvent>(
                 [this](SPW::MouseEvent *e) {
                     static bool enabled = false;
@@ -535,11 +478,9 @@ public:
     const char *getName() final { return _name; }
 
     const char *_name;
-    std::shared_ptr<Transformer> transformer;
     std::shared_ptr<SimpleRender> render;
     std::shared_ptr<SPW::Scene> scene;
     std::shared_ptr<SPW::RenderBackEndI> renderBackEnd;
-	const char* getName() final { return _name; }
 };
 
 // main entrance
@@ -558,6 +499,9 @@ int main(int argc, char **argv) {
 
 	// copy scripts
 	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
+
+    // copy ui
+    SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "UI/", SPW::Config::k_WorkingProjectUI);
 
 	// reference source code lualib
 	if (std::filesystem::exists(SPW::Config::k_EngineLualib))

@@ -244,6 +244,8 @@ namespace SPW {
             uiGraph->onFrameChanged(width, height);
             postProcessGraph->onFrameChanged(width, height);
 
+            renderBackEnd->SetViewport(0, 0, width, height);
+
         }, 100);
 
         updateFrame();

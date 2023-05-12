@@ -79,89 +79,6 @@ namespace SPW {
         void onStop() const {
             m_scene->onStop();
         }
-
-<<<<<<< HEAD
-        void setUpDefaultRenderGraph(std::shared_ptr<SPWRenderSystem> &rendersystem) {
-            m_renderSystem = rendersystem;
-            // ------ create main render graph ----------------
-            auto pbr_with_PDshadow = rendersystem->createRenderGraph();
-
-            auto p_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::CubeMapType, SPW::RepeatForPLights, 10);
-            p_shadowmap_node->width = 256;
-            p_shadowmap_node->height = 256;
-            p_shadowmap_node->clearType = SPW::ClearDepth;
-
-            auto d_shadowmap_node = pbr_with_PDshadow->createRenderNode<SPW::ModelRepeatPassNode>(SPW::ColorType, SPW::RepeatForDLights, 10);
-            d_shadowmap_node->width = 4096;
-            d_shadowmap_node->height = 4096;
-            d_shadowmap_node->clearType = SPW::ClearDepth;
-
-            auto pbr_shadow_lighting_node = pbr_with_PDshadow->createRenderNode<SPW::ModelToScreenNode>();
-
-            auto p_shadowmap_output = p_shadowmap_node->addAttachment(SPW::Depth);
-            auto d_shadowmap_output = d_shadowmap_node->addAttachment(SPW::Depth);
-
-            pbr_shadow_lighting_node->bindInputPort(p_shadowmap_output);
-            pbr_shadow_lighting_node->bindInputPort(d_shadowmap_output);
-            
-            auto pbr_shadow_lighting_output = pbr_shadow_lighting_node->addScreenAttachment(SPW::ScreenColorType);
-            // ------ create main render graph ----------------
-
-            // ------ create post processing graph --------------
-            SPW::AttachmentPort screen_color_port = {SPW::SCREEN_PORT, SPW::ScreenColorType};
-            rendersystem->presentNode = rendersystem->postProcessGraph->createRenderNode<SPW::PresentNode>(FXAA_desc(screen_color_port));
-            rendersystem->presentNode->bindInputPort(screen_color_port);
-            rendersystem->presentNode->depthTest = false;
-            // ------ create post processing graph --------------
-
-            // --------------- create shader ---------------
-            SPW::ShaderHandle pbr_light_shadow({
-                                         "pbr_light_shadow",
-                                         "./resources/shaders/simpleVs.vert",
-                                         "./resources/shaders/pbrShadow.frag"
-                                     });
-            SPW::ShaderHandle pbr_ani_light_shadow({
-                                         "pbr_light_shadow",
-                                         "./resources/shaders/ani_model.vert",
-                                         "./resources/shaders/pbrShadow.frag"
-                                     });
-
-            auto p_shadow_desc = SPW::P_shadowmap_desc();
-            auto d_shadow_desc = SPW::D_shadowmap_desc();
-            auto p_ani_shadow_desc = SPW::P_ani_shadowmap_desc();
-            auto d_ani_shadow_desc = SPW::D_ani_shadowmap_desc();
-
-            auto pbr_ani_light_shadow_desc = PBR_ani_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_ani_light_shadow);
-            auto pbr_light_shadow_desc = PBR_light_with_shadow_desc(p_shadowmap_output, d_shadowmap_output, pbr_light_shadow);
-            
-            auto skybox_desc = SPW::SkyBoxShader_desc();
-            auto ui_desc = SPW::UIShader();
-            rendersystem->addShaderDesciptor(pbr_light_shadow_desc);
-            rendersystem->addShaderDesciptor(p_shadow_desc);
-            rendersystem->addShaderDesciptor(d_shadow_desc);
-            rendersystem->addShaderDesciptor(skybox_desc);
-            rendersystem->addShaderDesciptor(p_ani_shadow_desc);
-            rendersystem->addShaderDesciptor(d_ani_shadow_desc);
-            rendersystem->addShaderDesciptor(pbr_ani_light_shadow_desc);
-            rendersystem->addShaderDesciptor(*ui_desc);
-
-            pbrShadowGraphID = pbr_with_PDshadow->graph_id;
-            skyboxGraphID = rendersystem->skyBoxGraph->graph_id;
-
-            pointShadowNodeID = p_shadowmap_node->pass_id;
-            dirShadowNodeID = d_shadowmap_node->pass_id;
-            pbrShadowLightingNodeID = pbr_shadow_lighting_node->pass_id;
-            skyboxNodeID = rendersystem->skyBoxNode->pass_id;
-
-            pbrShadowShaderID = pbr_light_shadow_desc.uuid;
-            pbrShadowAniShaderID = pbr_ani_light_shadow_desc.uuid;
-            pointShadowShaderID = p_shadow_desc.uuid;
-            dirShadowShaderID = d_shadow_desc.uuid;
-            pointShadowAniShaderID = p_ani_shadow_desc.uuid;
-            dirShadowAniShaderID = d_ani_shadow_desc.uuid;
-            skyboxShaderID = skybox_desc.uuid;
-            uiShaderID = ui_desc->uuid;
-=======
         void setUpDefaultRenderGraph(
                 const std::shared_ptr<SPWRenderSystem> &renderSystem,
                 const std::shared_ptr<RenderBackEndI> &backend) {
@@ -171,7 +88,6 @@ namespace SPW {
             RenderGraphManager::getInstance()->forEachShader([this](const ShaderDesc &shader) {
                 m_renderSystem.lock()->addShaderDescriptor(shader);
             });
->>>>>>> main
         }
 
         [[nodiscard]] unsigned int getGraphID(const std::string &name) const {
@@ -221,28 +137,5 @@ namespace SPW {
 
         std::shared_ptr<Scene> m_scene;
         std::weak_ptr<SPWRenderSystem> m_renderSystem;
-<<<<<<< HEAD
-
-        // default render graph
-        unsigned int pbrShadowGraphID = 0;
-        unsigned int skyboxGraphID = 0;
-
-        // default renderNodes
-        unsigned int pointShadowNodeID = 0;
-        unsigned int dirShadowNodeID = 0;
-        unsigned int pbrShadowLightingNodeID = 0;
-        unsigned int skyboxNodeID = 0;
-
-        // default shader id
-        UUID pbrShadowShaderID = UUID::noneID();
-        UUID pbrShadowAniShaderID = UUID::noneID();
-        UUID pointShadowShaderID = UUID::noneID();
-        UUID dirShadowShaderID = UUID::noneID();
-        UUID pointShadowAniShaderID = UUID::noneID();
-        UUID dirShadowAniShaderID = UUID::noneID();
-        UUID skyboxShaderID = UUID::noneID();
-        UUID uiShaderID = UUID::noneID();
-=======
->>>>>>> main
     };
 }
