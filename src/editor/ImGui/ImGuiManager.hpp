@@ -129,7 +129,6 @@ namespace SPW
 
 			e->dispatch<MouseScrollType, MouseEvent>([&io](const MouseEvent* e)
 			{
-
 				io.MouseWheel += (float)(e->scroll_offset);
 
 				return false;
@@ -137,9 +136,6 @@ namespace SPW
 
 			e->dispatch<MouseDownType, MouseEvent>([&io](const MouseEvent* e)
 			{
-				// if (e->button_code == MouseCode::ButtonLeft)
-				// 	io.MouseDown[(int)MouseCode::ButtonLeft] = true;
-				// if (e->button_code == MouseCode::ButtonRight)
 				io.MouseDown[(int)e->button_code] = true;
 				
 				return false;
@@ -147,7 +143,7 @@ namespace SPW
 
 			e->dispatch<MouseReleasedType, MouseEvent>([&io](const MouseEvent* e)
 			{
-				io.MouseDown[(int)MouseCode::ButtonLeft] = false;
+				io.MouseDown[(int)e->button_code] = false;
 
 				return false;
 			});

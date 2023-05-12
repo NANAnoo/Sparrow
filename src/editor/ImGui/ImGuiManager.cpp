@@ -200,21 +200,16 @@ namespace SPW
 		{
 			if (m_FileDialog->IsOk())
 			{
-				// std::string file_path = m_FileDialog->GetFilePathName();
-				// Do something with the file_path
-				std::string filePathName = m_FileDialog->GetFilePathName();
+				std::string filePath = m_FileDialog->GetFilePathName();
 				std::string fileName = m_FileDialog->GetCurrentFileName();
-	//			std::string filecleanName = FileSystem::GetCleanFilename(fileName);
-//				std::cout /*<< *//*file_path << "+" */<< filePathName << "+" << fileName;
 				std::string extension = FileSystem::ToFsPath(fileName).extension().string();
 				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-
 
 				if ( m_Feature == FeatureType::ImportModel )
 				{
 					if (extension == ".gltf" || extension == ".fbx" || extension == ".obj")
 					{
-						if (AssetManager::ImportModel(filePathName))
+						if (AssetManager::ImportModel(filePath))
 						{
 							m_ImportModelMessageBox->trigger_flag = true;
 						}
@@ -232,11 +227,12 @@ namespace SPW
 					// TODO Image Button Set to default script
 					if (extension == ".lua")
 					{
+						FileSystem::ResolveSlash(filePath);
 						// TODO Recevie a path from file dialog, and insert into the table
 						toml::table scriptEntries = toml::table
 						{
 							// get file name | filepath
-							{"Entry", filePathName}
+							{"Entry", filePath}
 						};
 						cfg.insert_or_assign("DefaultScript", scriptEntries);
 						ConfigManager::WriteDefaultScript(cfg);
@@ -252,7 +248,7 @@ namespace SPW
 				{
 					if (extension == ".json" || extension == ".asset")
 					{
-						auto asset_data = AssetManager::LoadAsset(filePathName);
+						auto asset_data = AssetManager::LoadAsset(filePath);
 						ResourceManager::getInstance()->m_AssetDataMap[asset_data.assetName] = asset_data;
 					}
 					else
@@ -266,8 +262,8 @@ namespace SPW
 				{
 					if (extension == ".png" || extension == ".jpg" || extension == ".jepg")
 					{
-						auto data = AssetManager::LoadTextureData(filePathName);
-						if (AssetManager::CompressImage(std::move(data), filePathName))
+						auto data = AssetManager::LoadTextureData(filePath);
+						if (AssetManager::CompressImage(std::move(data), filePath))
 						{
 							m_TextureCompressionMessageBox->trigger_flag = true;
 						}
@@ -284,7 +280,7 @@ namespace SPW
 					if (extension == ".wav" || extension == ".mp3")
 					{
 						// auto data = AssetManager::ImportAudio(filePathName);
-						if (AssetManager::ImportAudio(filePathName))
+						if (AssetManager::ImportAudio(filePath))
 						{
 							m_TextureCompressionMessageBox->trigger_flag = true;
 						}

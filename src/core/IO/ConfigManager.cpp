@@ -73,14 +73,37 @@ namespace SPW
 		if (config.is_open())
 		{
 			config << tbl;
+			config.close();
 			return true;
 		}
-		else
+		std::cerr << "Failed to open config file." << std::endl;
+		return false;
+	}
+
+	std::optional<std::string> ConfigManager::GetScriptPath()
+	{
+		toml::table cfg_tbl = GetConfigContext();
+		auto ret = cfg_tbl["DefaultScript"]["Entry"].as<std::string>();
+		if (ret)		
+			return std::string(*ret);
+
+		// Get a random file
+		std::filesystem::path path = Config::k_WorkingProjectScripts;
+		if (std::filesystem::exists(path))
 		{
-			std::cerr << "Failed to open config file." << std::endl;
-			return false;
+			// TODO To make selected files right
+			auto files = FileSystem::GetFiles(path);
+			std::string scriptPath = Config::k_WorkingProjectScripts + "lua/TestGame.lua";
+			if (!std::filesystem::exists(scriptPath))
+			{
+				std::cout << scriptPath << ":: not exists!" << std::endl;
+				return nullptr;
+			}
+			return scriptPath;
 		}
 
+		std::cout << path << ":: not exists!" << std::endl;
+		return nullptr;
 	}
 
 	bool ConfigManager::ReadConfig()

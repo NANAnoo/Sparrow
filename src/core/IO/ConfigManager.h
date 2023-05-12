@@ -64,6 +64,7 @@ namespace SPW
 
 		static toml::table GetConfigContext();
 		static bool WriteDefaultScript(toml::table& tbl);
+		static std::optional<std::string> GetScriptPath();
 
 		static bool WriteDefaultConfig();
 		static bool WriteConfig(const std::string& curr_path);

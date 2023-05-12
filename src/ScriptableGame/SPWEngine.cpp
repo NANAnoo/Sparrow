@@ -12,6 +12,12 @@ int main(int argc, char **argv) {
     if (SPW::ConfigManager::Boost())
         std::cout << "Successfully read config file" << std::endl;
 
-	auto appProxy = SPW::Application::create<SPW::GameWrapper>("./resources/scripts/lua/TestGame.lua");
+    auto scriptPath = SPW::ConfigManager::GetScriptPath();
+    if (!scriptPath.has_value())
+        return -1;
+
+    std::string path = scriptPath.value();
+
+	auto appProxy = SPW::Application::create<SPW::GameWrapper>(path);
     return appProxy->app->run(argc, argv);
 }
