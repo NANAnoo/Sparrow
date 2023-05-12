@@ -233,7 +233,7 @@ namespace SPW
 			return true;
 		}
 		
-		static bool SaveScene(const std::shared_ptr<Scene>& scene, const std::string& filePath = "")
+		static bool SaveScene(const std::shared_ptr<Scene>& scene, const std::string& filePath, const std::string& username = "")
 		{
 			fs::path savePath;
 			if (filePath.length() > 0)
@@ -242,7 +242,7 @@ namespace SPW
 			}
 			else
 			{
-				savePath = Config::k_WorkingProjectScenes + "/scene.json";
+				savePath = Config::k_WorkingProjectScenes + "/"+ username+".json";
 			}
 		
 			std::unordered_map<std::string, CameraComponent> cameraComponents;
@@ -316,7 +316,7 @@ namespace SPW
 		}
 
 
-		static bool LoadScene(const std::shared_ptr<Scene>& scene, const std::string& path = "")
+		static bool LoadScene(const std::shared_ptr<Scene>& scene, const std::string& path )
 		{
 			// Read from .json
 			std::string new_path = path;

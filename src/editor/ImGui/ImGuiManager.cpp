@@ -212,7 +212,7 @@ namespace SPW
 	}
 
 	// TODO Default Behaviours by ImageButton
-	void ImGuiManager::DisplayDialog() const
+	void ImGuiManager::DisplayDialog()
 	{
 		if (m_FileDialog->Display("Universal_FileDialog"))
 		{
@@ -311,6 +311,7 @@ namespace SPW
 					if (extension == ".json" || extension == ".scene")
 					{
 						m_Scene->clearAllEntity();
+						m_EntityPanel->ClearItems();
 						if (EntitySerializer::LoadScene(m_Scene,filePath))
 						{
 							m_ImportModelMessageBox->trigger_flag = true;
@@ -330,10 +331,26 @@ namespace SPW
 		{
 			if (m_FileDialog->IsOk())
 			{
-				std::string selectedFile = ImGuiFileDialog::Instance()->GetFilePathName();
-				EntitySerializer::SaveScene(m_Scene, selectedFile);
+				selectedFile = ImGuiFileDialog::Instance()->GetFilePathName();
+				showInputBox = true;
 			}
 			m_FileDialog->Close();
+		}
+
+		if (showInputBox)
+		{
+			static char m_PendingName[256] = "";
+			ImGui::Text("Enter the name of the scene: ");
+			ImGui::SameLine();
+			ImGui::InputText("Save Name", m_PendingName, sizeof(m_PendingName));
+
+			if (ImGui::Button("OK"))
+			{
+				std::string saveName = m_PendingName;
+				EntitySerializer::SaveScene(m_Scene, selectedFile, saveName);
+				showInputBox = false;
+				memset(m_PendingName, 0, sizeof(m_PendingName));
+			}
 		}
 	}
 

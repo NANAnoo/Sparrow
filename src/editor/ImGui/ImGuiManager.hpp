@@ -91,7 +91,7 @@ namespace SPW
 		void ImageCompressedCallback();
 		void ImportAudioCallback();
 
-		void DisplayDialog() const;
+		void DisplayDialog() ;
 		void LoadDefaultLayout() const;
 
 		void Render();
@@ -155,6 +155,8 @@ namespace SPW
 
 		const std::shared_ptr<Scene>				    m_Scene;
 		GLFWwindow* m_Window;
+		bool showInputBox = false;
+		std::string selectedFile;
 
 
 		std::unique_ptr<ImGuiMessageBox> m_ImportModelMessageBox;

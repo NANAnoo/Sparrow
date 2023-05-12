@@ -1,0 +1,46 @@
+{
+    "entityNodes": [
+        {
+            "uuid": "2b9081db-c7e1-4a25-bc4e-8840b69153f3",
+            "name": "main camera"
+        }
+    ],
+    "cameraComponents": [
+        {
+            "key": "2b9081db-c7e1-4a25-bc4e-8840b69153f3",
+            "value": {
+                "cameraType": 0,
+                "fov": 60.0,
+                "aspect": 1.7777777910232545,
+                "near": 0.009999999776482582,
+                "far": 100.0
+            }
+        }
+    ],
+    "pointLightComponents": [],
+    "directionalComponents": [],
+    "transformComponents": [
+        {
+            "key": "2b9081db-c7e1-4a25-bc4e-8840b69153f3",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": -2.9600045680999758,
+                    "y": -23.099994659423829,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        }
+    ],
+    "meshComponents": [],
+    "animationComponents": []
+}
