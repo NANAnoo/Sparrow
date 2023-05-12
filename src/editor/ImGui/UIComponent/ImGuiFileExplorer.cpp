@@ -129,13 +129,19 @@ namespace SPW
 					// selected_dir = entryPath.string();
 				}
 
-				if (ImGui::IsItemClicked() && (entryPath.extension() == ".json" || entryPath.extension() == ".lua" ))
+				if (ImGui::IsItemClicked(0) && (entryPath.extension() == ".json" || entryPath.extension() == ".lua" || entryPath.extension() == ".asset"))
 				{
 					std::string command = "code " + entryPath.string();
 
 					if(std::system(command.c_str()))
 						std::cerr << "Error: Failed to open the file in Visual Studio Code" << std::endl;
 				}
+
+				if (ImGui::IsItemClicked(1) && (entryPath.extension() == ".json" || entryPath.extension() == ".lua" || entryPath.extension() == ".asset"))
+				{
+					// TODO Right Button Behaviours
+				}
+
 				if (ImGui::IsItemClicked() && (entryPath.extension() == ".png" || entryPath.extension() == ".jpg" || entryPath.extension() == ".jpeg"))
 				{
 					m_ShowImagePanel = true;

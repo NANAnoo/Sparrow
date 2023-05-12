@@ -137,8 +137,11 @@ namespace SPW
 
 			e->dispatch<MouseDownType, MouseEvent>([&io](const MouseEvent* e)
 			{
-				io.MouseDown[(int)MouseCode::ButtonLeft] = true;
-
+				// if (e->button_code == MouseCode::ButtonLeft)
+				// 	io.MouseDown[(int)MouseCode::ButtonLeft] = true;
+				// if (e->button_code == MouseCode::ButtonRight)
+				io.MouseDown[(int)e->button_code] = true;
+				
 				return false;
 			});
 
