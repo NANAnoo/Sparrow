@@ -1,7 +1,8 @@
 require "luaclass"
-require "PerspectiveCamera"
 require "Scene" 
 require "Entity"
+
+require "Components/PerspectiveCamera"
 require "Components/TransformComponent"
 require "Components/MouseEventHandler"
 require "Components/KeyEventHandler"

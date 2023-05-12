@@ -21,7 +21,7 @@
 namespace SPW
 {
 
-	void FileSystem::MountPath(std::string src, std::string& dst)
+	void FileSystem::MountPath(std::string src, std::string dst)
 	{
 		try
 		{

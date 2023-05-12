@@ -17,7 +17,7 @@ namespace SPW
 	class FileSystem
 	{
 	public:
-		static void MountPath(std::string src, std::string& dst);
+		static void MountPath(std::string src, std::string dst);
 
 		static void RecursiveCopyDirectory(const std::filesystem::path& source, const std::filesystem::path& destination);
 

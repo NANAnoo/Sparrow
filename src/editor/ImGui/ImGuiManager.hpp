@@ -21,6 +21,8 @@
 #include "Asset/Serializer/EntitySerializer.h"
 #include "ImGui/IconsFontAwesome6.h"
 #include "UIComponent/ImGuiLog.h"
+//#include "GameWrapper.hpp"
+// #include ""
 
 namespace SPW
 {
@@ -31,6 +33,8 @@ namespace SPW
 		ImportModel,
 		ImportAudio,
 		ImageCompression,
+
+		SetupScriptEntry,
 
 		SaveAsset,
 		LoadAsset,
@@ -77,6 +81,7 @@ namespace SPW
 		std::shared_ptr<ImGuiEntityPanel>     GetEntityPanel() { return m_EntityPanel; }
 		std::shared_ptr<ImGuiInspectorPanel>  GetInspectorPanel() { return m_InspectorPanel; }
 
+		void SetupScriptEntryCallback();
 		void ImportModelCallback();
 		void LoadAssetCallback();
 		void ImageCompressedCallback();
@@ -103,14 +108,15 @@ namespace SPW
 				m_EntityPanel->AddMenuItem(component_id, component_name, [&, e]()
 				{
 					m_InspectorPanel->SetSelectedGameObject(e);
-					// if(ImGui::Button("xxxx"))
-					// {
-					// 	m_InspectorPanel->SetNoneSelectedGameObject();
-					// }
 				}
 				);
 			});
-
+			ImGui::Begin("Debug");
+			if(ImGui::Button("Lua"))
+			{
+				SetupScriptEntryCallback();
+			}
+			ImGui::End();
 			//----------------------------------------------------------------------------------------
 			End();
 			EnableViewport();

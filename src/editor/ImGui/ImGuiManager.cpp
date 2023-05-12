@@ -163,45 +163,49 @@ namespace SPW
 	// 	m_LogPanel = std::make_shared<ImGuiLog>();
 	// }
 
+	void ImGuiManager::SetupScriptEntryCallback()
+	{
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Import Model", "*.*", ".");
+		m_Feature = FeatureType::SetupScriptEntry;
+	}
+
 	void ImGuiManager::ImportModelCallback()
 	{
 		m_FileDialog->OpenDialog("Universal_FileDialog", "Import Model", "*.*", ".");
 		m_Feature = FeatureType::ImportModel;
-//		m_FileDialogID = 1;
 	}
 
 	void ImGuiManager::LoadAssetCallback()
 	{
 		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
 		m_Feature = FeatureType::LoadAsset;
-		// m_FileDialogID = 2;
 	}
 
 	void ImGuiManager::ImageCompressedCallback()
 	{
 		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
 		m_Feature = FeatureType::ImageCompression;
-//		m_FileDialogID = 3;
 	}
 
 	void ImGuiManager::ImportAudioCallback()
 	{
 		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
 		m_Feature = FeatureType::ImportAudio;
-//		m_FileDialogID = 4;
 	}
 
+	// TODO Default Behaviours by ImageButton
 	void ImGuiManager::DisplayDialog() const
 	{
 		if (m_FileDialog->Display("Universal_FileDialog"))
 		{
 			if (m_FileDialog->IsOk())
 			{
-				std::string file_path = m_FileDialog->GetFilePathName();
+				// std::string file_path = m_FileDialog->GetFilePathName();
 				// Do something with the file_path
 				std::string filePathName = m_FileDialog->GetFilePathName();
 				std::string fileName = m_FileDialog->GetCurrentFileName();
-
+	//			std::string filecleanName = FileSystem::GetCleanFilename(fileName);
+//				std::cout /*<< *//*file_path << "+" */<< filePathName << "+" << fileName;
 				std::string extension = FileSystem::ToFsPath(fileName).extension().string();
 				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
@@ -214,6 +218,29 @@ namespace SPW
 						{
 							m_ImportModelMessageBox->trigger_flag = true;
 						}
+					}
+					else
+					{
+						std::cout << "Not Support ! \n";
+					}
+				}
+
+				if ( m_Feature == FeatureType::SetupScriptEntry)
+				{
+					toml::table cfg = ConfigManager::GetConfigContext();
+
+					// TODO Image Button Set to default script
+					if (extension == ".lua")
+					{
+						// TODO Recevie a path from file dialog, and insert into the table
+						toml::table scriptEntries = toml::table
+						{
+							// get file name | filepath
+							{"Entry", filePathName}
+						};
+						cfg.insert_or_assign("DefaultScript", scriptEntries);
+						ConfigManager::WriteDefaultScript(cfg);
+						// cfg.emplace("Lua Entry", "Values");
 					}
 					else
 					{

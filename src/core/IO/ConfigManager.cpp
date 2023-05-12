@@ -51,6 +51,38 @@ namespace SPW
 		return true;
 	}
 
+	toml::table ConfigManager::GetConfigContext()
+	{
+		toml::table cfg;
+
+		const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
+
+		if (fs::exists(config_path))
+		{
+			// if path exists, directly from sparrow.toml
+			cfg = toml::parse_file(config_path.u8string());
+		}
+
+		return cfg;
+	}
+	bool ConfigManager::WriteSparrowDotTomlFile(toml::table& tbl)
+	{
+		const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
+
+		std::ofstream config{ config_path };
+		if (config.is_open())
+		{
+			config << tbl;
+			return true;
+		}
+		else
+		{
+			std::cerr << "Failed to open config file." << std::endl;
+			return false;
+		}
+
+	}
+
 	bool ConfigManager::ReadConfig()
 	{
 		// std::string orgPath = FileSystem::GetUserHomeDir() + "./.config/ÖÐÎÄ.toml"
@@ -77,7 +109,7 @@ namespace SPW
 			{
 				auto ret = config["Engine"]["RuntimePath"].as<std::string>();
 				if (ret)
-					Config::k_EngineLualib = std::string(*ret) + "/src/LuaLib/";
+					Config::k_EngineLualib = std::string(*ret) + "src/LuaLib/";
 				else
 				{
 					WriteDefaultConfig();
@@ -196,6 +228,11 @@ namespace SPW
 			// project_name, project_path
 			{"SparrowTemplate", absolute_template},
 		};
+
+		// toml::table scripts = toml::table
+		// {
+		// 	{"Key", "Value" }
+		// };
 
 		toml::table config_table = toml::table
 		{

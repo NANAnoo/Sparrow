@@ -29,6 +29,8 @@ target_include_directories(SparrowEditor
         PRIVATE "${SparrowExternalDir}"
         PRIVATE "${SparrowCoreDir}"
         PRIVATE "${SparrowEditorDir}"
+        PRIVATE "${SparrowSRCDir}/ScriptableGame"
+#        PRIVATE "${SparrowSRCDir}/ScriptableGame/LuaAppContext.hpp"
         )
 
 target_link_libraries(SparrowEditor
@@ -43,3 +45,5 @@ target_link_libraries(SparrowEditor
         PUBLIC assimp
         PUBLIC ${OPENGL_LIBRARIES}
         )
+
+link_libraries(ws2_32)
