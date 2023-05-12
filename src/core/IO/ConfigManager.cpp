@@ -65,7 +65,7 @@ namespace SPW
 
 		return cfg;
 	}
-	bool ConfigManager::WriteSparrowDotTomlFile(toml::table& tbl)
+	bool ConfigManager::WriteDefaultScript(toml::table& tbl)
 	{
 		const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
 
