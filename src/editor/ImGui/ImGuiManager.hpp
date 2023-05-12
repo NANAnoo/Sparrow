@@ -82,6 +82,9 @@ namespace SPW
 		std::shared_ptr<ImGuiEntityPanel>     GetEntityPanel() { return m_EntityPanel; }
 		std::shared_ptr<ImGuiInspectorPanel>  GetInspectorPanel() { return m_InspectorPanel; }
 
+		void SaveSceneCallback();
+		void LoadSceneCallback();
+
 		void SetupScriptEntryCallback();
 		void ImportModelCallback();
 		void LoadAssetCallback();
@@ -139,6 +142,7 @@ namespace SPW
 		std::shared_ptr<ImGuiDockSpace>			m_DockspacePanel;
 		// file dialog panel
 		std::shared_ptr<ImGuiFileDialog>		m_FileDialog;
+
 		FeatureType m_Feature = FeatureType::None;
 
 		std::shared_ptr<ImGuiEntityPanel>		m_EntityPanel;
@@ -149,7 +153,7 @@ namespace SPW
 		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
 		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel;
 
-		std::shared_ptr<Scene>				    m_Scene;
+		const std::shared_ptr<Scene>				    m_Scene;
 		GLFWwindow* m_Window;
 
 

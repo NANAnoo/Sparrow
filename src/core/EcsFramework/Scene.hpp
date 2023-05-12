@@ -84,6 +84,17 @@ namespace SPW {
             }
         }
 
+        void clearAllEntity()
+        {
+            for (const auto& entity : all_entities)
+            {
+                if(entity.second->has<CameraComponent>() && entity.second->getUUID() == ResourceManager::getInstance()->activeCameraID)
+					continue;
+            	deleteEntity(entity.second);
+
+            }
+        }
+
         void onEvent(const std::shared_ptr<EventI> &e) override{
             if (isUIMode) {
                 // uiroot.onEvent(e);

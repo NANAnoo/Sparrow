@@ -122,12 +122,15 @@ namespace SPW
 		}
 
 
-		static bool LoadScene(std::shared_ptr<Scene>& scene, const std::string& path = "")
+		static bool LoadScene(const std::shared_ptr<Scene>& scene, const std::string& path = "")
 		{
 			// Read from .json
-			std::ifstream is_Scene(Config::k_WorkingProjectScenes + "/scene.json"); // TODO: Select the asset file to Load by GUI operations
+			std::string new_path = path;
+			FileSystem::ResolveSlash(new_path);
+			//{};
+			std::ifstream is_Scene(new_path); // TODO: Select the asset file to Load by GUI operations
 			cereal::JSONInputArchive ar(is_Scene);
-
+			
 
 			std::unordered_map<std::string, TransformComponent> transformComponents;
 			std::unordered_map<std::string, CameraComponent> cameraComponents;

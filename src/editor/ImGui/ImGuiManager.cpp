@@ -139,8 +139,8 @@ namespace SPW
 		m_MainMenuBar->AddSubMenu("Window");
 		m_MainMenuBar->AddSubMenu("Help");
 		m_MainMenuBar->AddSubMenu("About");
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {EntitySerializer::SaveScene(m_Scene);});
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {EntitySerializer::LoadScene(m_Scene); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {SaveSceneCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {LoadSceneCallback(); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() {ImportModelCallback(); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Audio", [&]() {ImportAudioCallback(); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Asset", [&]() {LoadAssetCallback();  });
@@ -169,9 +169,21 @@ namespace SPW
 	// 	m_LogPanel = std::make_shared<ImGuiLog>();
 	// }
 
+	void ImGuiManager::SaveSceneCallback()
+	{
+		m_FileDialog->OpenDialog("ChooseDirDlgKey", "Save Scene", nullptr, ".");
+		m_Feature = FeatureType::SaveScene;
+	}
+
+	void ImGuiManager::LoadSceneCallback()
+	{
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Load Scene", "*.*", ".");
+		m_Feature = FeatureType::LoadScene;
+	}
+
 	void ImGuiManager::SetupScriptEntryCallback()
 	{
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Import Model", "*.*", ".");
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Script Entry", "*.*", ".");
 		m_Feature = FeatureType::SetupScriptEntry;
 	}
 
@@ -293,7 +305,33 @@ namespace SPW
 						std::cout << "Not Support ! \n";
 					}
 				}
-				
+
+				if (m_Feature == FeatureType::LoadScene)
+				{
+					if (extension == ".json" || extension == ".scene")
+					{
+						m_Scene->clearAllEntity();
+						if (EntitySerializer::LoadScene(m_Scene,filePath))
+						{
+							m_ImportModelMessageBox->trigger_flag = true;
+						}
+					}
+					else
+					{
+						std::cout << "Not Support ! \n";
+					}
+				}
+
+			}
+			m_FileDialog->Close();
+		}
+
+		if (m_FileDialog->Display("ChooseDirDlgKey"))
+		{
+			if (m_FileDialog->IsOk())
+			{
+				std::string selectedFile = ImGuiFileDialog::Instance()->GetFilePathName();
+				EntitySerializer::SaveScene(m_Scene, selectedFile);
 			}
 			m_FileDialog->Close();
 		}
