@@ -9,6 +9,10 @@
 #include <ShlObj.h>
 #include <tchar.h>
 #include <fstream>
+#include <ctime>
+#include <chrono>
+#include <sstream>
+#include <iomanip>
 
 #ifdef CreateDirectory
 #undef CreateDirectory
@@ -112,6 +116,33 @@ namespace SPW
 	std::string FileSystem::ToEningeAbsolutePath(const std::string& reativepath)
 	{
 		return JoinPaths(Config::k_EngineRoot, reativepath);
+	}
+
+	std::vector<FilePath> FileSystem::GetFiles(const FilePath& directory)
+	{
+		std::vector<FilePath> files;
+		for (auto const& directory_entry: fs::recursive_directory_iterator{ directory })
+		{
+			if (directory_entry.is_regular_file())
+			{
+				files.emplace_back(directory_entry);
+			}
+		}
+		return files;
+	}
+
+	std::string FileSystem::GetSystemTime()
+	{
+		auto now = std::chrono::system_clock::now();
+		auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+		std::tm buf = *std::localtime(&in_time_t);
+
+		std::ostringstream os;
+		os << std::put_time(&buf, "%Y-%m-%d-%H-%M-%S");
+		// std::string timestr = os.str();
+
+		return os.str();
 	}
 
 	std::string FileSystem::GetCleanFilename(const std::string& filename)

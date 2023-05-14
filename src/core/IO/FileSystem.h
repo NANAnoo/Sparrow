@@ -33,18 +33,9 @@ namespace SPW
 
 		static std::string ToEningeAbsolutePath(const std::string& reativepath);
 
-		static std::vector<FilePath> GetFiles(const FilePath& directory)
-		{
-			std::vector<FilePath> files;
-			for (auto const& directory_entry: fs::recursive_directory_iterator{ directory })
-			{
-				if (directory_entry.is_regular_file())
-				{
-					files.emplace_back(directory_entry);
-				}
-			}
-			return files;
-		}
+		static std::vector<FilePath> GetFiles(const FilePath& directory);
+
+		static std::string GetSystemTime();
 
 		static std::string GetCleanFilename(const std::string& filename);
 

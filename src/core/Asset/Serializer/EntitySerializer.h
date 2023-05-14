@@ -242,7 +242,12 @@ namespace SPW
 			}
 			else
 			{
-				savePath = Config::k_WorkingProjectScenes + "/"+ username+".json";
+				if(username.empty())
+				{
+					savePath = Config::k_WorkingProjectScenes + "/" + FileSystem::GetSystemTime() + ".json";
+				}
+				else 
+					savePath = Config::k_WorkingProjectScenes + "/"+ username+".json";
 			}
 		
 			std::unordered_map<std::string, CameraComponent> cameraComponents;
