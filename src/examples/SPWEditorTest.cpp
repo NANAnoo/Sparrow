@@ -271,8 +271,7 @@ public:
 		}
 
 		{
-			auto data = SPW::AssetManager::LoadAsset(
-				SPW::Config::k_WorkingProjectAssets + "companion_cube/companion_cube.json");
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "companion_cube/companion_cube.json");
 			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
 		}
 
@@ -406,9 +405,11 @@ public:
 			audioClip->emplace<SPW::TransformComponent>();
 			//= scene->createEntity("audio");
 			std::string flyMeToTheMoon = SPW::Config::k_WorkingProjectSounds + "FlyMeToTheMoon.mp3";
-			std::string edm = SPW::Config::k_WorkingProjectSounds + "EDM.mav";
+			std::string edm = SPW::Config::k_WorkingProjectSounds + "EDM.wav";
 			auto audioCom = audioClip->emplace<SPW::AudioComponent>(std::vector{ flyMeToTheMoon, edm });
-			audioCom->setState(flyMeToTheMoon, SPW::SoundState::Play);
+			audioCom->setState(flyMeToTheMoon, SPW::SoundState::Stop);
+			audioCom->setState(edm, SPW::SoundState::Stop);
+
 			// audioClip.swap();
 			// --------------------------------------------------------------------------------
 			SPW::ResourceManager::getInstance()->m_CameraIDMap["main"] = camera_id;

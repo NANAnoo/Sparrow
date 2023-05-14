@@ -29,7 +29,7 @@ namespace SPW
 	{
 		try
 		{
-			CreateDirectory(dst);
+			SPWCreateDirectory(dst);
 			for (const auto& entry : std::filesystem::directory_iterator(src))
 			{
 				const auto& path = entry.path();
@@ -185,7 +185,7 @@ namespace SPW
 		return fs::exists(filename) ? true : false;
 	}
 
-	bool FileSystem::CreateDirectory(const std::string& dir_name)
+	bool FileSystem::SPWCreateDirectory(const std::string& dir_name)
 	{
 		// Check if the directory already exists.
 		if (fs::exists(dir_name))
@@ -198,7 +198,7 @@ namespace SPW
 		std::error_code err;
 		if (!fs::create_directories(dir_name, err))
 		{
-			std::cout << "CreateDirectory: FAILED to create " << dir_name
+			std::cout << "SPWCreateDirectory: FAILED to create " << dir_name
 				<< " err: " << err.message() << "\n";
 			return false;
 		}
@@ -207,7 +207,7 @@ namespace SPW
 		return true;
 	}
 
-	bool FileSystem::CreateDirectory(const std::filesystem::path& dir_name)
+	bool FileSystem::SPWCreateDirectory(const std::filesystem::path& dir_name)
 	{
 		// Check if the directory already exists.
 		if (fs::exists(dir_name))
@@ -220,7 +220,7 @@ namespace SPW
 		std::error_code err;
 		if (!fs::create_directories(dir_name, err))
 		{
-			std::cout << "CreateDirectory: FAILED to create " << dir_name
+			std::cout << "SPWCreateDirectory: FAILED to create " << dir_name
 				<< " err: " << err.message() << "\n";
 			return false;
 		}

@@ -35,32 +35,18 @@ namespace SPW
 		ImGuiInspectorPanel(std::string title, ImGuiIconManager* iconManager, bool* open = nullptr)
 			: ImGuiPanel(ICON_FA_CIRCLE_EXCLAMATION"  "+std::move(title), open,ImGuiWindowFlags_NoMove )
 			, m_IconManager(iconManager)
+// 			, m_FileDialog(std::make_shared<ImGuiFileDialog>())
 		{
-			m_FileDialog = std::make_shared<ImGuiFileDialog>();
+			// = ;
 		}
 
-		void SetActiveScene(const std::shared_ptr<Scene>& scene)
-		{
-			scene_ptr = scene;
-		}
+		void SetActiveScene(const std::shared_ptr<Scene>& scene) { scene_ptr = scene; }
 
-		void SetNoneSelectedGameObject()
-		{
-			m_Entity = nullptr;
-		}
+		void SetNoneSelectedGameObject() { m_Entity = nullptr; }
 
-		void SetSelectedGameObject(const Entity& e)
-		{
-			m_Entity = std::make_shared<Entity>(e);
+		void SetSelectedGameObject(const Entity& e);
 
-			for (int i = static_cast<int>(ComponentType::IDComponent); i <= static_cast<int>(ComponentType::AudioListener); ++i)
-			{
-				auto componentType = static_cast<ComponentType>(i);
-				componentStatus[componentType] = false;
-			}
-		}
-
-		bool deleteEntity = false;
+		// 		bool deleteEntity = false;
 
 	protected:
 		void Draw() override;
@@ -77,6 +63,8 @@ namespace SPW
 		void DrawHierarchyNode(AnimationComponent* component, const HierarchyNode& node) const;
 		void Loop();
 
+//		void SaveEntityCallback();
+
 	private:
 		std::shared_ptr<Entity> m_Entity = nullptr;
 		std::shared_ptr<Scene> scene_ptr = nullptr;
@@ -86,7 +74,7 @@ namespace SPW
 		ImVec2 k_DefalutImageSize = ImVec2(20, 20);
 		std::unique_ptr<ImGuiMessageBox> msgBox_Inspector;
 
-		std::shared_ptr<ImGuiFileDialog>		m_FileDialog;
+// 		std::shared_ptr<ImGuiFileDialog>		m_FileDialog;
 
 
 		bool show_selectingMesh = false;
@@ -94,12 +82,12 @@ namespace SPW
 		bool show_addcomponent = false;
 		char m_PendingName[256] = "";
 
-		std::string convertToString(char* array)
-		{
-			std::stringstream ss;
-			ss << array;
-			return ss.str();
-		}
+		// std::string convertToString(char* array)
+		// {
+		// 	std::stringstream ss;
+		// 	ss << array;
+		// 	return ss.str();
+		// }
 	};
 
 }

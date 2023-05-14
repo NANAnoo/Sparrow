@@ -23,7 +23,7 @@ namespace SPW
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(nullptr);
 
-		HWND hwnd = (HWND)ImGui::GetIO().ImeWindowHandle;
+		// HWND hwnd = (HWND)ImGui::GetIO().ImeWindowHandle;
 
 		m_Window = window;
 
@@ -96,7 +96,7 @@ namespace SPW
 		if (renderID)
 		{
 			m_ImagePanel = std::make_shared<ImGuiImagePanel>(renderID);
-			m_DockspacePanel->AddPanel(m_ImagePanel);
+			m_Dockspace->AddPanel(m_ImagePanel);
 		}
 		else { std::cout << " Image Panel InValid!\n"; }
 	}
@@ -109,18 +109,26 @@ namespace SPW
 		InitEntityPanel();
 		InitInspectorPanel();
 		InitFileExplorer();
-		//InitLogPanel();
+		InitImagePanel();
+		InitProfilingPanel();
+
+		m_Dockspace = std::make_shared<ImGuiDockSpace>();
+		m_Dockspace->AddPanel(m_MainMenuBar);
+		m_Dockspace->AddPanel(m_EntityPanel);
+		m_Dockspace->AddPanel(m_InspectorPanel);
+		m_Dockspace->AddPanel(m_FileExplorer);
+		m_Dockspace->AddPanel(m_ProfilingPanel);
+		m_Dockspace->AddPanel(m_ImagePanel);
+	}
+
+	void ImGuiManager::InitImagePanel()
+	{
+		m_ImagePanel = std::make_shared<ImGuiImagePanel>(0);
+	}
+
+	void ImGuiManager::InitProfilingPanel()
+	{
 		m_ProfilingPanel = std::make_shared<ImGuiProfilingPanel>();
-
-		m_DockspacePanel = std::make_shared<ImGuiDockSpace>();
-		m_DockspacePanel->AddPanel(m_MainMenuBar);
-		m_DockspacePanel->AddPanel(m_EntityPanel);
-		m_DockspacePanel->AddPanel(m_InspectorPanel);
-		//m_DockspacePanel->AddPanel(m_HierarchyPanel);
-		m_DockspacePanel->AddPanel(m_FileExplorer);
-		m_DockspacePanel->AddPanel(m_ProfilingPanel);
-//		m_DockspacePanel->AddPanel(m_LogPanel);
-
 	}
 
 	void ImGuiManager::InitIconManager()
@@ -133,19 +141,27 @@ namespace SPW
 		m_MainMenuBar = std::make_shared<ImGuiMenuBar>("Main Menu Bar");
 
 		m_MainMenuBar->AddSubMenu("File");
-		m_MainMenuBar->AddSubMenu("Edit");
-		m_MainMenuBar->AddSubMenu("View");
-		m_MainMenuBar->AddSubMenu("Tool");
-		m_MainMenuBar->AddSubMenu("Window");
-		m_MainMenuBar->AddSubMenu("Help");
-		m_MainMenuBar->AddSubMenu("About");
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {SaveSceneCallback(); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {LoadSceneCallback(); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() {ImportModelCallback(); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Audio", [&]() {ImportAudioCallback(); });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Asset", [&]() {LoadAssetCallback();  });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Image Compression", [&]() {ImageCompressedCallback();  });
 		m_MainMenuBar->AddMenuItemToSubMenu("File", "Setup Script Entry", [&]() {SetupScriptEntryCallback();  });
+
+//		m_MainMenuBar->AddSubMenu("Edit");
+//		m_MainMenuBar->AddSubMenu("View");
+
+		m_MainMenuBar->AddSubMenu("Tool");
+		m_MainMenuBar->AddMenuItemToSubMenu("Tool", "Image Compression", [&]() {ImageCompressedCallback();  });
+
+		m_MainMenuBar->AddSubMenu("Window");
+		m_MainMenuBar->AddMenuItemToSubMenu("Window", "Save Editor Layout", [&]() {SaveEditorLayoutCallback(); });
+
+		m_MainMenuBar->AddSubMenu("Help");
+		m_MainMenuBar->AddMenuItemToSubMenu("Help", "People Should Help Themselves", [&]() { });
+
+		m_MainMenuBar->AddSubMenu("About");
+		m_MainMenuBar->AddMenuItemToSubMenu("About", "Open Configuration File", [&]() { OpenConfigCallback();  });
 	}
 
 	void ImGuiManager::InitEntityPanel()
@@ -171,47 +187,80 @@ namespace SPW
 
 	void ImGuiManager::SaveSceneCallback()
 	{
-		m_FileDialog->OpenDialog("ChooseDirDlgKey", "Save Scene", nullptr, ".");
+		if (!fs::exists(Config::k_WorkingProjectScenes))
+			SPW::FileSystem::SPWCreateDirectory(Config::k_WorkingProjectScenes);
+
+		m_FileDialog->OpenDialog("ChooseDirDlgKey", "Save Scene", nullptr, Config::k_WorkingProjectScenes);
 		m_Feature = FeatureType::SaveScene;
 	}
 
 	void ImGuiManager::LoadSceneCallback()
 	{
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Load Scene", "*.*", ".");
+		if (!fs::exists(Config::k_WorkingProjectScenes))
+			FileSystem::SPWCreateDirectory(Config::k_WorkingProjectScenes);
+
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Load Scene", "*.*", Config::k_WorkingProjectScenes);
 		m_Feature = FeatureType::LoadScene;
 	}
 
 	void ImGuiManager::SetupScriptEntryCallback()
 	{
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Script Entry", "*.*", ".");
+		if (!fs::exists(Config::k_WorkingProjectScripts))
+			FileSystem::SPWCreateDirectory(Config::k_WorkingProjectScripts);
+
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Script Entry", "*.*", Config::k_WorkingProjectScripts);
 		m_Feature = FeatureType::SetupScriptEntry;
 	}
 
 	void ImGuiManager::ImportModelCallback()
 	{
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Import Model", "*.*", ".");
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Import Model", "*.*", FileSystem::GetUserHomeDir().string());
 		m_Feature = FeatureType::ImportModel;
 	}
 
 	void ImGuiManager::LoadAssetCallback()
 	{
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		if (!fs::exists(Config::k_WorkingProjectAssets))
+			FileSystem::SPWCreateDirectory(Config::k_WorkingProjectAssets);
+
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Load Asset", "*.*", Config::k_WorkingProjectAssets);
 		m_Feature = FeatureType::LoadAsset;
 	}
 
 	void ImGuiManager::ImageCompressedCallback()
 	{
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		if (!fs::exists(Config::k_WorkingProjectAssets))
+			FileSystem::SPWCreateDirectory(Config::k_WorkingProjectAssets);
+
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Compress Image", "*.*", Config::k_WorkingProjectAssets);
 		m_Feature = FeatureType::ImageCompression;
+	}
+
+	void ImGuiManager::OpenConfigCallback()
+	{
+		const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
+
+		if (!fs::exists(config_path))
+			std::cerr << "Error: Why dont u have the config file ? " << std::endl;
+
+		std::string command = "code " + config_path.string();
+
+		if (std::system(command.c_str()))
+			std::cerr << "Error: Failed to open the file in Visual Studio Code" << std::endl;
 	}
 
 	void ImGuiManager::ImportAudioCallback()
 	{
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Choose File", "*.*", ".");
+		std::string openPath;
+		if (!fs::exists(Config::k_WorkingProjectRoot + "Sounds/"))
+			openPath = Config::k_WorkingProjectRoot;
+		else
+			openPath = Config::k_WorkingProjectRoot + "Sounds/";
+
+		m_FileDialog->OpenDialog("Universal_FileDialog", "Import Audio", "*.*", openPath);
 		m_Feature = FeatureType::ImportAudio;
 	}
 
-	// TODO Default Behaviours by ImageButton
 	void ImGuiManager::DisplayDialog()
 	{
 		if (m_FileDialog->Display("Universal_FileDialog"))
@@ -308,11 +357,11 @@ namespace SPW
 
 				if (m_Feature == FeatureType::LoadScene)
 				{
-					if (extension == ".json" || extension == ".scene")
+					if (extension == Extension::JsonEx || extension == Extension::SceneEx)
 					{
 						m_Scene->clearAllEntity();
 						m_EntityPanel->ClearItems();
-						if (EntitySerializer::LoadScene(m_Scene,filePath))
+						if (EntitySerializer::LoadScene(m_Scene, filePath))
 						{
 							m_ImportModelMessageBox->trigger_flag = true;
 						}
@@ -354,6 +403,33 @@ namespace SPW
 		}
 	}
 
+	void ImGuiManager::SaveEditorLayoutCallback() 
+	{
+		SaveEditorLayout();
+	}
+
+	void ImGuiManager::SaveEditorLayout() const
+	{
+		const std::string editorLayoutPath = Config::k_EngineRoot + "/fonts/EditorLayout.ini";
+		std::ifstream currConfigFile("./imgui.ini");
+		std::ofstream writeConfigFile(editorLayoutPath);
+
+		if (!writeConfigFile.is_open() || !currConfigFile.is_open())
+		{
+			std::cerr << "Error: Could not open ini files." << std::endl;
+			return;
+		}
+
+		std::string line;
+		while (std::getline(currConfigFile, line))
+		{
+			writeConfigFile << line << std::endl;
+		}
+
+		currConfigFile.close();
+		writeConfigFile.close();
+	}
+
 	void ImGuiManager::LoadDefaultLayout() const
 	{
 // 		ImGui::GetIO().IniFilename = Config::k_EngineRoot + "/fonts/EditorLayout.ini";
@@ -382,7 +458,13 @@ namespace SPW
 	{
 		Begin();
 		//----------------------------------------------------------------------------------------
-		CreateImagePanel(m_Scene->m_renderSystem.lock()->getTextureID());
+
+		m_ImagePanel->SetupCurrImageID(m_Scene->m_renderSystem.lock()->getTextureID());
+
+		// m_ImagePanel = std::make_shared<ImGuiImagePanel>(m_Scene->m_renderSystem.lock()->getTextureID());
+		// m_Dockspace->AddPanel(m_ImagePanel);
+
+		// CreateImagePanel(m_Scene->m_renderSystem.lock()->getTextureID());
 
 		RenderAllPanels();
 		//----------------------------------------------------------------------------------------

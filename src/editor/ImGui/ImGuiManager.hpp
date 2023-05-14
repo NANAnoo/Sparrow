@@ -74,7 +74,7 @@ namespace SPW
 
 		void RenderAllPanels() 
 		{
-			m_DockspacePanel->Render();
+			m_Dockspace->Render();
 			DisplayDialog();
 		}
 
@@ -90,8 +90,12 @@ namespace SPW
 		void LoadAssetCallback();
 		void ImageCompressedCallback();
 		void ImportAudioCallback();
+		void SaveEditorLayoutCallback();
+		void OpenConfigCallback();
 
 		void DisplayDialog() ;
+
+		void SaveEditorLayout() const;
 		void LoadDefaultLayout() const;
 
 		void Render();
@@ -132,14 +136,16 @@ namespace SPW
 
 	private:
 		void InitLayout();
+		void InitImagePanel();
 		void InitIconManager();
 		void InitMenuBar();
 		void InitEntityPanel();
 		void InitInspectorPanel();
 		void InitFileExplorer();
+		void InitProfilingPanel();
 
 	private:
-		std::shared_ptr<ImGuiDockSpace>			m_DockspacePanel;
+		std::shared_ptr<ImGuiDockSpace>			m_Dockspace;
 		// file dialog panel
 		std::shared_ptr<ImGuiFileDialog>		m_FileDialog;
 
@@ -153,7 +159,7 @@ namespace SPW
 		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
 		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel;
 
-		const std::shared_ptr<Scene>				    m_Scene;
+		const std::shared_ptr<Scene>			m_Scene;
 		GLFWwindow* m_Window;
 		bool showInputBox = false;
 		std::string selectedFile;

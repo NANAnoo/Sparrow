@@ -23,10 +23,9 @@ namespace SPW
 			dockspace_flags = ImGuiDockNodeFlags_None;
 		}
 
-		void Render()
+		void Begin()
 		{
-			ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar /*|
-				ImGuiWindowFlags_MenuBar*/;
+			ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar /*|ImGuiWindowFlags_MenuBar*/;
 			if (opt_fullscreen)
 			{
 				const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -35,8 +34,7 @@ namespace SPW
 				ImGui::SetNextWindowViewport(viewport->ID);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-				window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-					ImGuiWindowFlags_NoMove;
+				window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 				window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 			}
 			else
@@ -58,12 +56,11 @@ namespace SPW
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
 			ImGui::Begin("DockSpace Demo", &docspace_Open, window_flags);
+		}
 
-			if (!opt_padding)
-				ImGui::PopStyleVar();
-
-			if (opt_fullscreen)
-				ImGui::PopStyleVar(2);
+		void Render()
+		{
+			Begin();
 
 			// Submit the DockSpace
 			ImGuiIO& io = ImGui::GetIO();
@@ -73,30 +70,28 @@ namespace SPW
 				ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 			}
 
-			// if (ImGui::BeginMenuBar())
-			// {
-			// 	if (ImGui::BeginMenu("File"))
-			// 	{
-			// 		// add menu items here
-			// 		ImGui::EndMenu();
-			// 	}
-			//
-			// 	// add more menus here
-			//
-			// 	ImGui::EndMenuBar();  
-			// }
 
-			//---------------------------------------------------
 			for (auto const& p : m_Panels)
 			{
 				p->Render();
 			}
-			//----------------------------------------------------
+
+			End();
+		}
+
+		void End()
+		{
+
+			if (!opt_padding)
+				ImGui::PopStyleVar();
+
+			if (opt_fullscreen)
+				ImGui::PopStyleVar(2);
 
 			ImGui::End();
 		}
 
-		void AddPanel(std::shared_ptr<ImGuiPanel> panel)
+		void AddPanel(const std::shared_ptr<ImGuiPanel>& panel)
 		{
 			m_Panels.emplace_back(panel);
 		}

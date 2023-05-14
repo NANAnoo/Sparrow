@@ -9,6 +9,16 @@
 
 namespace SPW
 {
+	namespace Extension
+	{
+		static std::string JsonEx   = ".json";
+		static std::string BinEx    = ".bin";
+		static std::string MeshEx   = ".mesh";
+		static std::string AnimEx   = ".anim";
+		static std::string AssetEx  = ".json";
+		static std::string SceneEx  = ".scene";
+		static std::string PrefabEx = ".prefab";
+	}
 
 	namespace Config
 	{

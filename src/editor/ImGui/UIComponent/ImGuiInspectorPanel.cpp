@@ -57,6 +57,18 @@ namespace SPW
 			componentStatus.at(ComponentType::MouseComponent) = false;
 	}
 
+
+	void ImGuiInspectorPanel::SetSelectedGameObject(const Entity& e)
+	{
+		m_Entity = std::make_shared<Entity>(e);
+
+		for (int i = static_cast<int>(ComponentType::IDComponent); i <= static_cast<int>(ComponentType::AudioListener); ++i)
+		{
+			auto componentType = static_cast<ComponentType>(i);
+			componentStatus[componentType] = false;
+		}
+	}
+
 	void ImGuiInspectorPanel::Draw()
 	{
 		if (m_Entity != nullptr)
@@ -80,7 +92,7 @@ namespace SPW
 				ImGui::InputText("*", m_PendingName, sizeof(m_PendingName));
 				if (ImGui::Button("Update"))
 				{
-					m_Entity->component<SPW::NameComponent>()->updateName(convertToString(m_PendingName));
+					m_Entity->component<SPW::NameComponent>()->updateName(FileSystem::CharStarToString(m_PendingName));
 					show_naming = false;
 					strcpy(m_PendingName, " ");
 				}
@@ -133,7 +145,8 @@ namespace SPW
 				Loop();
 			}
 
-			if (ImGui::Button("Save Entity"))
+			ImGui::SetCursorPosX((ImGui::GetWindowWidth() * 0.2f));
+			if (ImGui::Button("Save Entity", ImVec2(200, 20)))
 			{
 				EntitySerializer::SaveEntity(m_Entity);
 			}
@@ -203,20 +216,20 @@ namespace SPW
 							else if (componentType == ComponentType::KeyComponent)
 							{
 								std::cout << "Add KeyComponent Component\n";
-								m_Entity->emplace<SPW::KeyComponent>();
+								m_Entity->emplace<KeyComponent>();
 								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::MouseComponent)
 							{
 								//todo
 								std::cout << "Add MouseComponent Component\n";
-								m_Entity->emplace<SPW::MouseComponent>();
+								m_Entity->emplace<MouseComponent>();
 								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::AudioComponent)
 							{
 								std::cout << "Add AudioComponent Component\n";
-								m_Entity->emplace<SPW::AudioComponent>();
+								m_Entity->emplace<AudioComponent>();
 								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::AudioListener)
@@ -408,16 +421,16 @@ namespace SPW
 								{
 									if (m_Entity->has<AnimationComponent>())
 									{
-										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] =
-											GET_SHADER_DESC(kAniDirectionalShadowShader).uuid;
+										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kAniDirectionalShadowShader).uuid;
 									}
 									else
-										component->modelSubPassPrograms[GET_RENDER_NODE(kDirectionalShadowNode)] =
-											GET_SHADER_DESC(kDirectionalShadowShader).uuid;
+										component->modelSubPassPrograms[GET_RENDER_NODE(kDirectionalShadowNode)] = GET_SHADER_DESC(kDirectionalShadowShader).uuid;
 								}
 								else if (nodeKey == kGBufferNode)
-									component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(
-										kGBufferShader).uuid;
+									component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
+								else if (nodeKey == kSkyboxNode)
+									component->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
+
 							}
 							if (is_selected)
 							{
@@ -427,12 +440,28 @@ namespace SPW
 						ImGui::EndCombo();
 					}
 				}
+
 				if (ImGui::Button("Add Render Node!"))
 				{
 					// component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
 					numKeys++;
 				}
 
+				if (ImGui::BeginCombo("Deferred Shaders", "G-Buffer Types"))
+				{
+					// bool is_selected = (currNodeKeys[idx] == nodeKey);
+
+					if (ImGui::Selectable("kGBufferShader"))
+					{
+						component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
+					}
+					if (ImGui::Selectable("kFloorGBufferShader"))
+					{
+						component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kFloorGBufferShader).uuid;
+					}
+						
+					ImGui::EndCombo();
+				}
 				ImGui::EndChild();
 
 				ImGui::TreePop();
@@ -796,6 +825,10 @@ namespace SPW
 		{
 			if (ImGui::Button("delete"))
 			{
+				for(auto&[k,v] : component->allSounds)
+				{
+					v->setState(SoundState::Stop);
+				}
 				m_Entity->remove<AudioComponent>();
 
 				ImGui::TreePop();
@@ -803,29 +836,40 @@ namespace SPW
 				return;
 			}
 
-			const std::string crtpath = component->currentSoundPath;
+// 			const std::string crtpath = component->currentSoundPath;
 			ImGui::Text("Audios: ");
 			ImGui::Separator();
-			const char* previewLabel = component->currentSoundPath.c_str();
-
-			int i = 1, j = 1;
+			// const char* previewLabel = component->currentSoundPath.c_str();
+			//
+			// int i = 1, j = 1;
+			size_t idx = 0;
 			for (const auto& [path, data] : component->allSounds)
 			{
+				ImGui::PushID(path.c_str());
 				ImGui::Text(path.c_str());
+				std::string idxStr = std::to_string(idx);
 				ImGui::Checkbox("is 3D", &data->is3D);
 				ImGui::Checkbox("is Loop", &data->isLoop);
 
-				if (ImGui::Button("Play"))
-					component->setState(component->currentSoundPath, Play);
+				std::string playLabel  = "Play##" + idxStr;
+				std::string stopLabel  = "Stop##" + idxStr;
+				std::string pauseLabel = "Pause##" + idxStr;
+				std::string contiLabel = "Continue##" + idxStr;
+				if (ImGui::Button(playLabel.c_str()))
+					// setState currentSoundPath
+					component->setState(path, Play);
 				ImGui::SameLine();
-				if (ImGui::Button("Stop"))
-					component->setState(component->currentSoundPath, Stop);
+				if (ImGui::Button(stopLabel.c_str()))
+					component->setState(path, Stop);
 				ImGui::SameLine();
-				if (ImGui::Button("Pause"))
-					component->setState(component->currentSoundPath, Pause);
+				if (ImGui::Button(pauseLabel.c_str()))
+					component->setState(path, Pause);
 				ImGui::SameLine();
-				if (ImGui::Button("Continue"))
-					component->setState(component->currentSoundPath, Continue);
+				if (ImGui::Button(contiLabel.c_str()))
+					component->setState(path, Continue);
+
+				ImGui::PopID();
+				idx++;
 			}
 			ImGui::TreePop();
 		}
@@ -884,5 +928,4 @@ namespace SPW
 		}
 		ImGui::PopID();
 	}
-
 }

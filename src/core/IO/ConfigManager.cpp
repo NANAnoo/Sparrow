@@ -192,7 +192,7 @@ namespace SPW
 		}
 		else
 		{
-			//FileSystem::CreateDirectory(config_path.parent_path().string());
+			//FileSystem::SPWCreateDirectory(config_path.parent_path().string());
 
 			std::filesystem::path absolute_engine_path = std::filesystem::absolute("./resources/");
 			std::string absolute_engine = absolute_engine_path.string();
@@ -218,7 +218,7 @@ namespace SPW
 	bool ConfigManager::WriteDefaultConfig()
 	{
 		std::filesystem::path config_file_dir = FileSystem::GetUserHomeDir().append("./.config/");
-		FileSystem::CreateDirectory(config_file_dir);
+		FileSystem::SPWCreateDirectory(config_file_dir);
 
 		toml::table engine_meta = toml::table
 		{
@@ -280,7 +280,7 @@ namespace SPW
 	bool ConfigManager::WriteConfig(const std::string& curr_path)
 	{
 		std::filesystem::path config_file_dir = SPW::FileSystem::GetUserHomeDir().append("./.config/");
-		SPW::FileSystem::CreateDirectory(config_file_dir);
+		SPW::FileSystem::SPWCreateDirectory(config_file_dir);
 
 		toml::table engine_meta = toml::table
 		{

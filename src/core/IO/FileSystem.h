@@ -37,6 +37,13 @@ namespace SPW
 
 		static std::string GetSystemTime();
 
+		static std::string CharStarToString(char* array)
+		{
+			std::stringstream ss;
+			ss << array;
+			return ss.str();
+		}
+
 		static std::string GetCleanFilename(const std::string& filename);
 
 		static void ResolveSlash(std::string& str);
@@ -52,8 +59,8 @@ namespace SPW
 
 		static bool PathExists(const std::string& filename);
 
-		static bool CreateDirectory(const std::string& dir_name);
-		static bool CreateDirectory(const std::filesystem::path& dir_name);
+		static bool SPWCreateDirectory(const std::string& dir_name);
+		static bool SPWCreateDirectory(const std::filesystem::path& dir_name);
 
 		static bool CopyFile(const std::string& src, const std::string& dest);
 	};
