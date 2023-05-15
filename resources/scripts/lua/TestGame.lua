@@ -12,18 +12,25 @@ require "ThirdPersonController"
 
 local scene = {}    
 local MainCamera = {}
+
 local model = {}
+local mantisModel = {}
+
 App({name="Test", width = 1280, height = 720,
     onInit = function ()
         global.app:loadAsset("mantis/mantis.json")
         global.app:loadAsset("skybox/skybox.json")
-        global.app:loadAsset("sand_cube/sand_cube.json")
+        global.app:loadAsset("cube/cube.json")
         scene = Scene.new("LuaTestGame")
         MainCamera = CreateCamera(scene, 1280, 720)
         ThirdPersonController(scene,MainCamera,MainCamera,0.005,true)
         local main_camera_id = MainCamera.id
+
         model = CreateModel(scene,MainCamera, main_camera_id)
         
+
+        mantisModel = CreateMantisModel(scene, main_camera_id)
+
         CreateSkyBox(scene, main_camera_id)
         local floor = CreateFloor(scene, main_camera_id)
         local MainLight = CreateMainLight(scene)
@@ -41,6 +48,8 @@ App({name="Test", width = 1280, height = 720,
     end,
     afterUpdate = function()
         scene:afterUpdate()
+        local com = mantisModel:getComponent(Transform);
+        com:synchronize();
         collectgarbage()
     end,
     onStop = function()

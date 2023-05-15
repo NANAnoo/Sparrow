@@ -22,6 +22,8 @@ uniform int PLightCount;
 uniform vec3 camPos;
 uniform mat4 lightSpaceMatrix[10];
 
+uniform float RandomSeed;
+
 in vec2 TexCoords;
 out vec4 FragColor;
 vec4 FragPosLightSpace[10];

@@ -158,10 +158,13 @@ namespace SPW
 		{
 			for (auto& path: soundPaths)
 			{
+				if (!std::filesystem::exists(std::filesystem::path(path)))
+					std::cout << "Invalid Path\n!";
+				
 				auto sound = std::make_shared<SPWSound>(path);
 				allSounds.insert({ path, sound });
 			}
-		};
+		}
 
 		void AddAudioClip(const std::string& path)
 		{
@@ -275,7 +278,6 @@ namespace SPW
 
 	public:
 		std::unordered_map<std::string, std::shared_ptr<SPWSound>> allSounds;
-		std::string currentSoundPath{};
 	};
 
 }

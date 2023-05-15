@@ -9,6 +9,16 @@
 
 namespace SPW
 {
+	namespace Extension
+	{
+		static std::string JsonEx   = ".json";
+		static std::string BinEx    = ".bin";
+		static std::string MeshEx   = ".mesh";
+		static std::string AnimEx   = ".anim";
+		static std::string AssetEx  = ".json";
+		static std::string SceneEx  = ".scene";
+		static std::string PrefabEx = ".prefab";
+	}
 
 	namespace Config
 	{
@@ -51,13 +61,20 @@ namespace SPW
 		std::string proj_path;
 	};
 
+	struct ScriptEntries
+	{
+		std::string defaultEntry;
+	};
+
 	class ConfigManager
 	{
 	public:
 		static bool Boost();
 		static bool ReadConfig();
 
-
+		static toml::table GetConfigContext();
+		static bool WriteDefaultScript(toml::table& tbl);
+		static std::optional<std::string> GetScriptPath();
 
 		static bool WriteDefaultConfig();
 		static bool WriteConfig(const std::string& curr_path);

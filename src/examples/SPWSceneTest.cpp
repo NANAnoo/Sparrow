@@ -305,7 +305,7 @@ public:
 					rendersystem->addShaderDescriptor(shader);
 					});
 
-				SPW::RenderGraphManager::getInstance()->AddSkyboxGraph(rendersystem->skyBoxGraph, rendersystem->skyBoxNode);
+// 				SPW::RenderGraphManager::getInstance()->AddSkyboxGraph(rendersystem->skyBoxGraph, rendersystem->skyBoxNode);
 
 				// --------------- create shader ---------------
 

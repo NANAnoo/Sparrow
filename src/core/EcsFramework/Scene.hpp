@@ -84,6 +84,17 @@ namespace SPW {
             }
         }
 
+        void clearAllEntity()
+        {
+            for (const auto& entity : all_entities)
+            {
+                if(entity.second->has<CameraComponent>() && entity.second->getUUID() == ResourceManager::getInstance()->activeCameraID)
+					continue;
+            	deleteEntity(entity.second);
+
+            }
+        }
+
         void onEvent(const std::shared_ptr<EventI> &e) override{
             if (isUIMode) {
                 // uiroot.onEvent(e);
@@ -179,7 +190,7 @@ namespace SPW {
         std::shared_ptr<Entity> uiCamera;
 
         bool isUIMode = false;
-
+        std::shared_ptr<entt::registry> registry;
     private:
         // get entity with components
         template<Component ...C>
@@ -190,7 +201,7 @@ namespace SPW {
 
         std::unordered_map<std::string, std::shared_ptr<Entity>> all_entities;
 
-        std::shared_ptr<entt::registry> registry;
+
         std::vector<std::shared_ptr<SystemI>> systems;
         friend Entity;
     };

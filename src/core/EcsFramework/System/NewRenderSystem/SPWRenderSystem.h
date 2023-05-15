@@ -70,7 +70,7 @@ namespace SPW {
         // events
         const char *getName() override {return "SPW_RENDER_SYSTEM";}
 
-        [[nodiscard]] inline GLuint getTextureID() const {
+        [[nodiscard]] inline int64_t getTextureID() const {
             return std::dynamic_pointer_cast<OpenGLAttachmentTexture>(screenTexture)->m_textureID;
         }
 
