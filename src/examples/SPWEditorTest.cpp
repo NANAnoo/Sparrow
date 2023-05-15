@@ -42,6 +42,7 @@
 // io
 #include "IO/FileSystem.h"
 #include "IO/ConfigManager.h"
+#include "IO/LogSystem/LogSystem.hpp"
 // asset
 #include "Asset/Serializer/EntitySerializer.h"
 #include "Asset/ResourceManager/ResourceManager.h"
@@ -577,12 +578,12 @@ public:
 			light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
 
-			std::cout << "ImGui" << IMGUI_VERSION << std::endl;
+			TEST_LOGGER_INFO("ImGui : {}", IMGUI_VERSION)
 #ifdef IMGUI_HAS_VIEWPORT
-			std::cout << " +viewport";
+			TEST_LOGGER_INFO("ImGui : + viewport")
 #endif
 #ifdef IMGUI_HAS_DOCK
-			std::cout << " +docking" << std::endl;
+			TEST_LOGGER_INFO("ImGui : + docking")
 #endif
 
 			// init scene
@@ -666,9 +667,10 @@ public:
 int main(int argc, char** argv)
 {
 	if (SPW::ConfigManager::Boost())
-		std::cout << "Boost" << std::endl;
-	else
-		return -1;
+	{
+		TEST_LOGGER_INFO("Boot Edtior Test")
+	}
+	else return -1;
 
 
 	// app test

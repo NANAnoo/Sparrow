@@ -3,6 +3,7 @@
 //
 
 #include "ConfigManager.h"
+#include "LogSystem/LogSystem.hpp"
 
 namespace SPW
 {
@@ -24,8 +25,12 @@ namespace SPW
 
 	bool ConfigManager::Boost()
 	{
+		LogSystem::LoggerInit();
+
+		
+
 		if (ReadConfig())
-			std::cout << "Successfully read config file" << std::endl;
+			CFG_LOGGER_INFO("Successfully read config file")
 		else 
 			ReadConfig();
 
@@ -46,7 +51,7 @@ namespace SPW
 
 		// reference source code lualib
 		if (std::filesystem::exists(SPW::Config::k_EngineLualib))
-			std::cout << "[CONFIG]::lualib exsits! \n";
+			CFG_LOGGER_INFO("lualib exsits!")
 
 		return true;
 	}
@@ -76,7 +81,7 @@ namespace SPW
 			config.close();
 			return true;
 		}
-		std::cerr << "Failed to open config file." << std::endl;
+		CFG_LOGGER_CRITICAL("Failed to open config file.")
 		return false;
 	}
 
@@ -96,13 +101,14 @@ namespace SPW
 			std::string scriptPath = Config::k_WorkingProjectScripts + "lua/TestGame.lua";
 			if (!std::filesystem::exists(scriptPath))
 			{
-				std::cout << scriptPath << ":: not exists!" << std::endl;
+				CFG_LOGGER_WRAN("scriptPath::{}, not exists!", scriptPath)
 				return nullptr;
 			}
 			return scriptPath;
 		}
 
-		std::cout << path << ":: not exists!" << std::endl;
+		CFG_LOGGER_WRAN("scriptPath::{}, not exists!", path.string())
+
 		return nullptr;
 	}
 
@@ -116,7 +122,15 @@ namespace SPW
 			// if path exists, directly from sparrow.toml
 			toml::table config = toml::parse_file(config_path.u8string());
 
-			std::cout << "Boost Sparrow Eninge: " << config["Sparrow"] << std::endl;
+			{
+				auto ret = config["Sparrow"].as<std::string>();
+				if (ret)
+				{
+					auto version = std::string(*ret);
+					CFG_LOGGER_INFO("Boot Sparrow Eninge: {0}", version)
+				}
+
+			}
 
 			{
 				auto ret = config["Engine"]["RootPath"].as<std::string>();
@@ -182,11 +196,11 @@ namespace SPW
 				Config::k_WorkingProjectUI		= project_paths.begin()->second + "UI/";
 			}
 
-			std::cout << "Engine Root: " << Config::k_EngineRoot << std::endl;
-			std::cout << "Template Root: " << Config::k_TempalteProjectRoot << std::endl;
-			std::cout << "Working Project Root: " << Config::k_WorkingProjectRoot << std::endl;
-			std::cout << "Working Project Assets: " << Config::k_WorkingProjectAssets << std::endl;
-			std::cout << "Working Project Scenes: " << Config::k_WorkingProjectScenes << std::endl;
+			CFG_LOGGER_INFO("Engine Root: {} ", Config::k_EngineRoot)
+			CFG_LOGGER_INFO("Template Root: {}" , Config::k_TempalteProjectRoot)
+			CFG_LOGGER_INFO("Working Project Root: {}", Config::k_WorkingProjectRoot)
+			CFG_LOGGER_INFO("Working Project Assets: {}", Config::k_WorkingProjectAssets)
+			CFG_LOGGER_INFO("Working Project Scenes: {}", Config::k_WorkingProjectScenes)
 
 			return true;
 		}
@@ -252,11 +266,6 @@ namespace SPW
 			{"SparrowTemplate", absolute_template},
 		};
 
-		// toml::table scripts = toml::table
-		// {
-		// 	{"Key", "Value" }
-		// };
-
 		toml::table config_table = toml::table
 		{
 			{"Sparrow", engine_meta},
@@ -272,7 +281,7 @@ namespace SPW
 		}
 		else
 		{
-			std::cerr << "Failed to open config file." << std::endl;
+			CFG_LOGGER_WRAN("Failed to open config file.")
 			return false;
 		}
 	}
@@ -324,7 +333,7 @@ namespace SPW
 		}
 		else
 		{
-			std::cerr << "Failed to open config file." << std::endl;
+			CFG_LOGGER_WRAN("Failed to open config file.")
 			return false;
 		}
 	}

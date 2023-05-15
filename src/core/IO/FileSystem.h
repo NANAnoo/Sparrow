@@ -23,8 +23,6 @@ namespace SPW
 
 		static std::filesystem::path GetUserHomeDir();
 
-		static std::string GetProjectName();
-
 		static FilePath ToFsPath(const std::string& str);
 
 		static std::string ToRelativePath(const std::string& fullpath, const std::string& basepath);
@@ -37,12 +35,7 @@ namespace SPW
 
 		static std::string GetSystemTime();
 
-		static std::string CharStarToString(char* array)
-		{
-			std::stringstream ss;
-			ss << array;
-			return ss.str();
-		}
+		static std::string CharStarToString(char* array);
 
 		static std::string GetCleanFilename(const std::string& filename);
 
