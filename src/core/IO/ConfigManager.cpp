@@ -53,8 +53,10 @@ namespace SPW
 
 	bool ConfigManager::ReadConfig()
 	{
-		// std::string orgPath = FileSystem::GetUserHomeDir() + "./.config/ÖÐÎÄ.toml"
-		const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
+		// std::string orgPath = FileSystem::GetUserHomeDir() + "./.config/ï¿½ï¿½ï¿½ï¿½.toml"
+//        std::string = "./.config/sparrow.toml";
+        // std::filesystem::path  config_path= std::filesystem::path("./.config/sparrow.toml");
+        const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
 
 		if (fs::exists(config_path))
 		{
@@ -219,6 +221,7 @@ namespace SPW
 
 	bool ConfigManager::WriteConfig(const std::string& curr_path)
 	{
+
 		std::filesystem::path config_file_dir = SPW::FileSystem::GetUserHomeDir().append("./.config/");
 		SPW::FileSystem::CreateDirectory(config_file_dir);
 

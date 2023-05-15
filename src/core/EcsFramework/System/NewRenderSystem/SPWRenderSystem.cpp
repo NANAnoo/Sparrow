@@ -12,6 +12,7 @@
 #include "Render/RenderGraphManager.h"
 
 #include <glm/glm/gtx/euler_angles.hpp>
+#include <glm/glm.hpp>
 #include "IO/FileSystem.h"
 
 namespace SPW {
@@ -142,6 +143,7 @@ namespace SPW {
             auto cameraCom = cam.component<CameraComponent>();
             auto transformCom = cam.component<TransformComponent>();
             glm::mat4x4 V, P;
+            
             glm::vec3 camPos = transformCom->position;
             glm::mat4x4 cameraTransform = glm::translate(glm::mat4(1.f), transformCom->position);
             cameraTransform = cameraTransform * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),

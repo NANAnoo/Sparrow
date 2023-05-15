@@ -8,10 +8,10 @@
 // main entrance
 int main(int argc, char **argv) {
     // app test
-    if (SPW::ConfigManager::ReadConfig())
+    if (SPW::ConfigManager::Boost())
         std::cout << "Successfully read config file" << std::endl;
 
-	SPW::FileSystem::MountFromConfig();
+// 	SPW::FileSystem::MountFromConfig();
     auto appProxy = SPW::Application::create<SPW::GameWrapper>();
     return appProxy->app->run(argc, argv);
 }
