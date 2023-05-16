@@ -14,6 +14,7 @@
 #include <glm/glm/gtx/euler_angles.hpp>
 #include <glm/glm.hpp>
 #include "IO/FileSystem.h"
+#include "IO/LogSystem/LogSystem.hpp"
 
 namespace SPW {
     void SPWRenderSystem::initial() {
@@ -174,7 +175,8 @@ namespace SPW {
             for (const auto& mesh_entity : meshes) {
                 auto mesh = mesh_entity.component<MeshComponent>();
             	auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
-                for (auto &[id, uuid] : mesh->modelSubPassPrograms) {
+                for (auto &[id, uuid] : mesh->modelSubPassPrograms) 
+                {
                     model_by_shader[id].push_back(mesh_entity);
                 }
             }
