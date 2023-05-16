@@ -89,8 +89,12 @@ namespace SPW
 	{
 		toml::table cfg_tbl = GetConfigContext();
 		auto ret = cfg_tbl["DefaultScript"]["Entry"].as<std::string>();
-		if (ret)		
-			return std::string(*ret);
+		if (ret)
+		{
+			std::string retPath = std::string(*ret);
+			CFG_LOGGER_INFO("DefaultScript::Entry::scriptPath::{}", retPath)
+			return retPath;
+		}
 
 		// Get a random file
 		std::filesystem::path path = Config::k_WorkingProjectScripts;
@@ -104,6 +108,7 @@ namespace SPW
 				CFG_LOGGER_WRAN("scriptPath::{}, not exists!", scriptPath)
 				return nullptr;
 			}
+			CFG_LOGGER_INFO("scriptPath::{}, exists!", scriptPath)
 			return scriptPath;
 		}
 

@@ -262,7 +262,8 @@ void ValidateDSProcess::Validate(const aiLight *pLight) {
     if (pLight->mAngleInnerCone > pLight->mAngleOuterCone)
         ReportError("aiLight::mAngleInnerCone is larger than aiLight::mAngleOuterCone");
 
-    if (pLight->mColorDiffuse.IsBlack() && pLight->mColorAmbient.IsBlack() && pLight->mColorSpecular.IsBlack()) {
+    if (glm::length(pLight->mColorDiffuse) < 10e-3f)
+    {
         ReportWarning("aiLight::mColorXXX - all are black and won't have any influence");
     }
 }

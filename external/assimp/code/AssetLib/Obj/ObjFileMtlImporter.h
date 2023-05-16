@@ -41,11 +41,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define OBJFILEMTLIMPORTER_H_INC
 
 #include <assimp/defs.h>
+#include <assimp/types.h>
 #include <string>
 #include <vector>
 #include "Common/Maybe.h"
 
-struct aiColor3D;
+// struct aiColor3D;
 struct aiString;
 
 namespace Assimp {

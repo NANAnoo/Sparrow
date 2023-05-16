@@ -75,16 +75,14 @@ inline ::aiVector3t<TReal> max(const ::aiVector3t<TReal> &a, const ::aiVector3t<
     return ::aiVector3t<TReal>(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z));
 }
 
-// std::min for aiVector2t<TReal>
-template <typename TReal>
-inline ::aiVector2t<TReal> min(const ::aiVector2t<TReal> &a, const ::aiVector2t<TReal> &b) {
-    return ::aiVector2t<TReal>(min(a.x, b.x), min(a.y, b.y));
+// std::min for glm::vec2
+inline glm::vec2 min(const glm::vec2 &a, const glm::vec2 &b) {
+    return { min(a.x, b.x), min(a.y, b.y) };
 }
 
-// std::max for aiVector2t<TReal>
-template <typename TReal>
-inline ::aiVector2t<TReal> max(const ::aiVector2t<TReal> &a, const ::aiVector2t<TReal> &b) {
-    return ::aiVector2t<TReal>(max(a.x, b.x), max(a.y, b.y));
+// std::max for glm::vec2
+inline glm::vec2 max(const glm::vec2 &a, const glm::vec2 &b) {
+    return { max(a.x, b.x), max(a.y, b.y) };
 }
 
 // std::min for aiColor4D
@@ -180,11 +178,12 @@ struct MinMaxChooser<aiVector3t<T>> {
         min = aiVector3t<T>(1e10f, 1e10f, 1e10f);
     }
 };
-template <typename T>
-struct MinMaxChooser<aiVector2t<T>> {
-    void operator()(aiVector2t<T> &min, aiVector2t<T> &max) {
-        max = aiVector2t<T>(-1e10f, -1e10f);
-        min = aiVector2t<T>(1e10f, 1e10f);
+
+template <>
+struct MinMaxChooser<glm::vec2> {
+    void operator()(glm::vec2 &min, glm::vec2 &max) {
+        max = glm::vec2(-1e10f, -1e10f);
+        min = glm::vec2(1e10f, 1e10f);
     }
 };
 template <typename T>

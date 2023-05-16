@@ -164,7 +164,7 @@ struct SceneHelper {
         id[0] = 0;
     }
 
-    AI_FORCE_INLINE aiScene *operator->() const {
+    FORCE_INLINE aiScene *operator->() const {
         return scene;
     }
 

@@ -274,23 +274,23 @@ public:
 };
 
 // ------------------------------------------------------------------------------------------------
-AI_FORCE_INLINE Vertex operator + (const Vertex& v0,const Vertex& v1) {
+FORCE_INLINE Vertex operator + (const Vertex& v0,const Vertex& v1) {
     return Vertex::BinaryOp<std::plus>(v0,v1);
 }
 
-AI_FORCE_INLINE Vertex operator - (const Vertex& v0,const Vertex& v1) {
+FORCE_INLINE Vertex operator - (const Vertex& v0,const Vertex& v1) {
     return Vertex::BinaryOp<std::minus>(v0,v1);
 }
 
-AI_FORCE_INLINE Vertex operator * (const Vertex& v0,ai_real f) {
+FORCE_INLINE Vertex operator * (const Vertex& v0,ai_real f) {
     return Vertex::BinaryOp<Intern::multiplies>(v0,f);
 }
 
-AI_FORCE_INLINE Vertex operator / (const Vertex& v0,ai_real f) {
+FORCE_INLINE Vertex operator / (const Vertex& v0,ai_real f) {
     return Vertex::BinaryOp<Intern::multiplies>(v0,1.f/f);
 }
 
-AI_FORCE_INLINE Vertex operator * (ai_real f,const Vertex& v0) {
+FORCE_INLINE Vertex operator * (ai_real f,const Vertex& v0) {
     return Vertex::BinaryOp<Intern::multiplies>(f,v0);
 }
 

@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ------------------------------------------------------------------------------------------------
 /** Transformation of a quaternion by a 4x4 matrix */
 template <typename TReal>
-AI_FORCE_INLINE
+FORCE_INLINE
 aiQuaterniont<TReal> operator * (const aiMatrix4x4t<TReal>& pMatrix, const aiQuaterniont<TReal>& pQuaternion) {
     aiQuaterniont<TReal> res;
     res.x = pMatrix.a1 * pQuaternion.x + pMatrix.a2 * pQuaternion.y + pMatrix.a3 * pQuaternion.z + pMatrix.a4 * pQuaternion.w;
@@ -85,7 +85,7 @@ bool aiQuaterniont<TReal>::operator!= (const aiQuaterniont& o) const
 
 // ------------------------------------------------------------------------------------------------
 template <typename TReal>
-AI_FORCE_INLINE
+FORCE_INLINE
 aiQuaterniont<TReal>& aiQuaterniont<TReal>::operator *= (const aiMatrix4x4t<TReal>& mat){
     return (*this = mat * (*this));
 }

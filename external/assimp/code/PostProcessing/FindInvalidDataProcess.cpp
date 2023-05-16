@@ -208,10 +208,10 @@ inline bool ProcessArray(T *&in, unsigned int num, const char *name,
 
 // ------------------------------------------------------------------------------------------------
 template <typename T>
-AI_FORCE_INLINE bool EpsilonCompare(const T &n, const T &s, ai_real epsilon);
+FORCE_INLINE bool EpsilonCompare(const T &n, const T &s, ai_real epsilon);
 
 // ------------------------------------------------------------------------------------------------
-AI_FORCE_INLINE bool EpsilonCompare(ai_real n, ai_real s, ai_real epsilon) {
+FORCE_INLINE bool EpsilonCompare(ai_real n, ai_real s, ai_real epsilon) {
     return std::fabs(n - s) > epsilon;
 }
 

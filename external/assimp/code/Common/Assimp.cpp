@@ -682,7 +682,7 @@ ASSIMP_API int aiVector2AreEqualEpsilon(
         const float epsilon) {
     ai_assert(nullptr != a);
     ai_assert(nullptr != b);
-    return a->Equal(*b, epsilon);
+    return (*a - *b).x <= epsilon && (*a - *b).y <= epsilon;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -717,7 +717,8 @@ ASSIMP_API void aiVector2SymMul(
         const C_STRUCT aiVector2D *other) {
     ai_assert(nullptr != dst);
     ai_assert(nullptr != other);
-    *dst = dst->SymMul(*other);
+    
+    *dst = *dst * *other;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -741,14 +742,14 @@ ASSIMP_API void aiVector2DivideByVector(
 ASSIMP_API float aiVector2Length(
         const C_STRUCT aiVector2D *v) {
     ai_assert(nullptr != v);
-    return v->Length();
+    return glm::length(*v);
 }
 
 // ------------------------------------------------------------------------------------------------
 ASSIMP_API float aiVector2SquareLength(
         const C_STRUCT aiVector2D *v) {
     ai_assert(nullptr != v);
-    return v->SquareLength();
+    return glm::dot(*v, *v);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -764,14 +765,14 @@ ASSIMP_API float aiVector2DotProduct(
         const C_STRUCT aiVector2D *b) {
     ai_assert(nullptr != a);
     ai_assert(nullptr != b);
-    return (*a) * (*b);
+    return glm::dot(*a, *b);
 }
 
 // ------------------------------------------------------------------------------------------------
 ASSIMP_API void aiVector2Normalize(
         C_STRUCT aiVector2D *v) {
     ai_assert(nullptr != v);
-    v->Normalize();
+    glm::normalize(*v);
 }
 
 // ------------------------------------------------------------------------------------------------

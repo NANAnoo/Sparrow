@@ -529,7 +529,7 @@ void ResolveVertexDataArray(std::vector<T>& data_out, const Scope& source,
 
         data_out.resize(vertex_count);
 
-        const T empty;
+        const T empty{};
         unsigned int next = 0;
         for(int i : uvIndices) {
             if ( -1 == i ) {

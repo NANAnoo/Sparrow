@@ -117,7 +117,7 @@ private:
 };
 
 // ----------------------------------------------------------------------------------
-AI_FORCE_INLINE DefaultIOStream::DefaultIOStream() AI_NO_EXCEPT :
+FORCE_INLINE DefaultIOStream::DefaultIOStream() AI_NO_EXCEPT :
         mFile(nullptr),
         mFilename(),
         mCachedSize(SIZE_MAX) {
@@ -125,7 +125,7 @@ AI_FORCE_INLINE DefaultIOStream::DefaultIOStream() AI_NO_EXCEPT :
 }
 
 // ----------------------------------------------------------------------------------
-AI_FORCE_INLINE DefaultIOStream::DefaultIOStream (FILE* pFile, const std::string &strFilename) :
+FORCE_INLINE DefaultIOStream::DefaultIOStream (FILE* pFile, const std::string &strFilename) :
         mFile(pFile),
         mFilename(strFilename),
         mCachedSize(SIZE_MAX) {

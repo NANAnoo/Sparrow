@@ -25,7 +25,6 @@
 
 namespace SPW
 {
-
 	void FileSystem::MountPath(std::string src, std::string dst)
 	{
 		try
@@ -55,7 +54,7 @@ namespace SPW
 
 	std::filesystem::path FileSystem::GetUserHomeDir()
 	{
-        return "./";
+//        return "./";
 		TCHAR homeDirectory[MAX_PATH];
 		HRESULT result = SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, homeDirectory);
 

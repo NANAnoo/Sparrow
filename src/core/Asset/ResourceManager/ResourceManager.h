@@ -21,11 +21,6 @@ namespace SPW
 		std::unordered_map<std::string, UUID>		m_CameraIDMap;
 		UUID activeCameraID;
 
-		// std::unordered_map<std::string, ShaderDesc> m_ShaderMap;
-		// std::unordered_map<std::string, std::shared_ptr<RenderGraph>> m_RenderGraph;
-		//
-		// std::unordered_map<std::string, std::shared_ptr<ModelRepeatPassNode>> m_ModelRepeatPassNodes;
-		// std::unordered_map<std::string, std::shared_ptr<ModelToScreenNode>>   m_ModelToScreenNodes;
 		std::unordered_map<std::string, Mesh>   m_Skyboxs;
 	};
 }
