@@ -87,6 +87,8 @@ SET( PUBLIC_HEADERS
   ${HEADER_PATH}/metadata.h
   ${HEADER_PATH}/texture.h
   ${HEADER_PATH}/types.h
+  ${HEADER_PATH}/vector2.h
+  ${HEADER_PATH}/vector2.inl
   ${HEADER_PATH}/vector3.h
   ${HEADER_PATH}/vector3.inl
   ${HEADER_PATH}/version.h
@@ -192,6 +194,8 @@ SET( Common_SRCS
   Common/ScenePreprocessor.cpp
   Common/ScenePreprocessor.h
   Common/SkeletonMeshBuilder.cpp
+  Common/StackAllocator.h
+  Common/StackAllocator.inl
   Common/StandardShapes.cpp
   Common/TargetAnimation.cpp
   Common/TargetAnimation.h
@@ -215,6 +219,13 @@ SET( CApi_SRCS
   CApi/CInterfaceIOWrapper.h
 )
 SOURCE_GROUP(CApi FILES ${CApi_SRCS})
+
+SET(Geometry_SRCS
+  Geometry/GeometryUtils.h
+  Geometry/GeometryUtils.cpp
+)
+SOURCE_GROUP(Geometry FILES ${Geometry_SRCS})
+
 
 # if this variable is set to TRUE, the user can manually disable importers by setting
 # ASSIMP_BUILD_XXX_IMPORTER to FALSE for each importer
@@ -286,7 +297,6 @@ SET(ASSIMP_EXPORTER_SRCS "")
 SET(ASSIMP_EXPORTERS_ENABLED "") # list of enabled exporters
 SET(ASSIMP_EXPORTERS_DISABLED "") # disabled exporters list (used to print)
 
-
 ADD_ASSIMP_IMPORTER( AC
   AssetLib/AC/ACLoader.cpp
   AssetLib/AC/ACLoader.h
@@ -296,6 +306,7 @@ ADD_ASSIMP_IMPORTER( BVH
   AssetLib/BVH/BVHLoader.cpp
   AssetLib/BVH/BVHLoader.h
 )
+
 
 SET( MaterialSystem_SRCS
   Material/MaterialSystem.cpp
@@ -312,39 +323,6 @@ ADD_ASSIMP_IMPORTER( OBJ
   AssetLib/Obj/ObjFileParser.cpp
   AssetLib/Obj/ObjFileParser.h
   AssetLib/Obj/ObjTools.h
-)
-
-ADD_ASSIMP_IMPORTER( OGRE
-  AssetLib/Ogre/OgreImporter.h
-  AssetLib/Ogre/OgreStructs.h
-  AssetLib/Ogre/OgreParsingUtils.h
-  AssetLib/Ogre/OgreBinarySerializer.h
-  AssetLib/Ogre/OgreXmlSerializer.h
-  AssetLib/Ogre/OgreImporter.cpp
-  AssetLib/Ogre/OgreStructs.cpp
-  AssetLib/Ogre/OgreBinarySerializer.cpp
-  AssetLib/Ogre/OgreXmlSerializer.cpp
-  AssetLib/Ogre/OgreMaterial.cpp
-)
-
-ADD_ASSIMP_IMPORTER( BLEND
-  AssetLib/Blender/BlenderLoader.cpp
-  AssetLib/Blender/BlenderLoader.h
-  AssetLib/Blender/BlenderDNA.cpp
-  AssetLib/Blender/BlenderDNA.h
-  AssetLib/Blender/BlenderDNA.inl
-  AssetLib/Blender/BlenderScene.cpp
-  AssetLib/Blender/BlenderScene.h
-  AssetLib/Blender/BlenderSceneGen.h
-  AssetLib/Blender/BlenderIntermediate.h
-  AssetLib/Blender/BlenderModifier.h
-  AssetLib/Blender/BlenderModifier.cpp
-  AssetLib/Blender/BlenderBMesh.h
-  AssetLib/Blender/BlenderBMesh.cpp
-  AssetLib/Blender/BlenderTessellator.h
-  AssetLib/Blender/BlenderTessellator.cpp
-  AssetLib/Blender/BlenderCustomData.h
-  AssetLib/Blender/BlenderCustomData.cpp
 )
 
 
@@ -383,6 +361,10 @@ if (NOT ASSIMP_NO_EXPORT)
     AssetLib/Obj/ObjExporter.h
     AssetLib/Obj/ObjExporter.cpp)
 
+  ADD_ASSIMP_EXPORTER( PLY
+    AssetLib/Ply/PlyExporter.cpp
+    AssetLib/Ply/PlyExporter.h)
+
   ADD_ASSIMP_EXPORTER( FBX
     AssetLib/FBX/FBXExporter.h
     AssetLib/FBX/FBXExporter.cpp
@@ -390,7 +372,6 @@ if (NOT ASSIMP_NO_EXPORT)
     AssetLib/FBX/FBXExportNode.cpp
     AssetLib/FBX/FBXExportProperty.h
     AssetLib/FBX/FBXExportProperty.cpp)
-
 
   ADD_ASSIMP_EXPORTER( GLTF
     AssetLib/glTF/glTFExporter.h
@@ -470,14 +451,10 @@ SET( PostProcessing_SRCS
 )
 SOURCE_GROUP( PostProcessing FILES ${PostProcessing_SRCS})
 
+
 ADD_ASSIMP_IMPORTER( RAW
   AssetLib/Raw/RawLoader.cpp
   AssetLib/Raw/RawLoader.h
-)
-
-ADD_ASSIMP_IMPORTER( 3D
-  AssetLib/Unreal/UnrealLoader.cpp
-  AssetLib/Unreal/UnrealLoader.h
 )
 
 ADD_ASSIMP_IMPORTER( GLTF
@@ -765,6 +742,7 @@ SET( assimp_src
   ${Core_SRCS}
   ${CApi_SRCS}
   ${Common_SRCS}
+  ${Geometry_SRCS}
   ${Logging_SRCS}
   ${Exporter_SRCS}
   ${PostProcessing_SRCS}
@@ -824,7 +802,61 @@ TARGET_USE_COMMON_OUTPUT_DIRECTORY(assimp)
 IF (ASSIMP_WARNINGS_AS_ERRORS)
   MESSAGE(STATUS "Treating all warnings as errors (for assimp library only)")
   IF (MSVC)
-    TARGET_COMPILE_OPTIONS(assimp PRIVATE /W4 /WX)
+
+    IF(CMAKE_CXX_COMPILER_ID MATCHES "Clang" ) # clang-cl
+      TARGET_COMPILE_OPTIONS(assimp PRIVATE -Wall -Werror
+        -Wno-unused-function
+        -Wno-microsoft-enum-value
+        -Wno-switch-enum
+        -Wno-covered-switch-default
+        -Wno-reserved-identifier
+        -Wno-c++98-compat-pedantic
+        -Wno-c++98-compat
+        -Wno-documentation
+        -Wno-documentation-unknown-command
+        -Wno-deprecated-dynamic-exception-spec
+        -Wno-undef
+        -Wno-suggest-destructor-override
+        -Wno-suggest-override
+        -Wno-zero-as-null-pointer-constant
+        -Wno-global-constructors
+        -Wno-exit-time-destructors
+        -Wno-extra-semi-stmt
+        -Wno-missing-prototypes
+        -Wno-old-style-cast
+        -Wno-cast-align
+        -Wno-cast-qual
+        -Wno-float-equal
+        -Wno-implicit-int-float-conversion
+        -Wno-sign-conversion
+        -Wno-implicit-float-conversion
+        -Wno-implicit-int-conversion
+        -Wno-float-conversion
+        -Wno-double-promotion
+        -Wno-unused-macros
+        -Wno-disabled-macro-expansion
+        -Wno-shadow-field
+        -Wno-shadow
+        -Wno-language-extension-token
+        -Wno-header-hygiene
+        -Wno-tautological-value-range-compare
+        -Wno-tautological-type-limit-compare
+        -Wno-missing-variable-declarations
+        -Wno-extra-semi
+        -Wno-nonportable-system-include-path
+        -Wno-undefined-reinterpret-cast
+        -Wno-shift-sign-overflow
+        -Wno-deprecated
+        -Wno-format-nonliteral
+        -Wno-comma
+        -Wno-implicit-fallthrough
+        -Wno-unused-template
+        -Wno-undefined-func-template
+        -Wno-declaration-after-statement
+      )
+    ELSE()
+      TARGET_COMPILE_OPTIONS(assimp PRIVATE /W4 /WX)
+    ENDIF()
   ELSE()
     TARGET_COMPILE_OPTIONS(assimp PRIVATE -Wall -Werror)
   ENDIF()

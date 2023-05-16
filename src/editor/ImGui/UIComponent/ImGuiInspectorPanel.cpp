@@ -4,6 +4,7 @@
 #include "IO/ConfigManager.h"
 #include "Render/RenderGraphManager.h"
 #include "Asset/Serializer/EntitySerializer.h"
+#include "IO/LogSystem/LogSystem.hpp"
 
 namespace SPW
 {
@@ -346,8 +347,7 @@ namespace SPW
 				const auto& renderGraphs = RenderGraphManager::getInstance()->GetRenderGraphs();
 				const auto& renderNodes = RenderGraphManager::getInstance()->GetNodes();
 
-				std::optional<std::string> currGraphKeyStr = RenderGraphManager::getInstance()->FindGraphName(
-					component->bindRenderGraph);
+				std::optional<std::string> currGraphKeyStr = RenderGraphManager::getInstance()->FindGraphName(component->bindRenderGraph);
 				static const char* currGraphKey = "";
 				if (currGraphKeyStr.has_value())
 					currGraphKey = currGraphKeyStr.value().c_str();
@@ -356,7 +356,7 @@ namespace SPW
 
 
 				std::vector<std::string> currNodeKeys;
-				static size_t numKeys = component->modelSubPassPrograms.size();
+//				static size_t numKeys = component->modelSubPassPrograms.size();
 				for (const auto& [k,v] : component->modelSubPassPrograms)
 				{
 					std::string tmp;
@@ -393,16 +393,27 @@ namespace SPW
 
 				ImGui::Text("Render Nodes");
 				ImGui::Separator();
-				for (size_t idx = 0; idx < numKeys; ++idx)
+				for (size_t idx = 0; idx < component->modelSubPassPrograms.size(); ++idx)
 				{
-					std::string label = "Node #" + std::to_string(idx);
+					std::string label = "Node " + std::to_string(idx);
 					const char* label_cstr = label.c_str();
 					const char* currNodeKey = currNodeKeys[idx].c_str();
+
+					std::string button_label = "x##" + currNodeKeys[idx];
+					if (ImGui::Button(button_label.c_str()))
+					{
+						component->modelSubPassPrograms.erase(GET_RENDER_NODE(currNodeKeys[idx]));
+						component->ready = false;
+					}
+					ImGui::SameLine();
+
+
 					if (ImGui::BeginCombo(label_cstr, currNodeKey))
 					{
 						for (const auto& [nodeKey, nodePtr] : renderNodes)
 						{
 							bool is_selected = (currNodeKeys[idx] == nodeKey);
+
 							if (ImGui::Selectable(nodeKey.c_str(), is_selected))
 							{
 								currNodeKeys[idx] = nodeKey;
@@ -441,11 +452,10 @@ namespace SPW
 					}
 				}
 
-				if (ImGui::Button("Add Render Node!"))
-				{
-					// component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
-					numKeys++;
-				}
+//				if (ImGui::Button("Add Render Node"))
+//				{
+//					component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferShader)];
+//				}
 
 				if (ImGui::BeginCombo("Deferred Shaders", "G-Buffer Types"))
 				{

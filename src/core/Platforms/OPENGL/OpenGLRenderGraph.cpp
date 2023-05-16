@@ -586,13 +586,49 @@ namespace SPW {
         if (!node || node->ready) {
             return;
         }
+
+        RepeatType type = node->repeat_type;
+        int max_repeat_count = std::min(int(node->repeat_count),
+            int(type == RepeatForPLights ? input.pLights.size() : input.dLights.size()));
+        if (map.empty())
+        {
+            for (unsigned int repeat_id = 0; repeat_id < max_repeat_count; repeat_id++) {
+                auto fb_id = node->frame_buffer_refs[repeat_id];
+                all_frame_buffers[fb_id]->bind();
+                if (node->output_type == ColorType) {
+                    clearHelper(node, input.backend);
+                }
+                else {
+                    // draw on cube map
+                    for (unsigned int face = 0; face < 6; face++) {
+                        // attach one face to the framebuffer
+                        unsigned int attachIndex = 0;
+                        for (int attachID = 0; attachID < node->attachment_formats.size(); attachID++) {
+                            auto& cubeArray = all_attachment_cube_arrays.at({ node->pass_id, attachID });
+                            auto format = node->attachment_formats[attachID];
+                            if (format == Depth) {
+                                cubeArray->attach(0, repeat_id, face);
+                            }
+                            else {
+                                cubeArray->attach(attachIndex++, repeat_id, face);
+                            }
+                        }
+                        // check status
+                        all_frame_buffers[fb_id]->CheckFramebufferStatus();
+                        // clear before draw
+                        clearHelper(node, input.backend);
+                    }
+                    all_frame_buffers[fb_id]->unbind();
+                }
+            }
+	        node->ready = true;
+			return;
+        }
         if (map.find(node->pass_id) == map.end()) {
             node->ready = true;
             return;
         }
-        RepeatType type = node->repeat_type;
-        int max_repeat_count = std::min(int(node->repeat_count),
-                                        int(type == RepeatForPLights ? input.pLights.size() : input.dLights.size()));
+        
         for (unsigned int repeat_id = 0; repeat_id < max_repeat_count; repeat_id++) {
             auto fb_id = node->frame_buffer_refs[repeat_id];
             all_frame_buffers[fb_id]->bind();

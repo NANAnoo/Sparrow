@@ -26,8 +26,6 @@ namespace SPW {
     const RenderNodeKey kGBufferNode = "kGBufferNode";
     const RenderNodeKey kSkyboxNode = "kSkyboxNode";
 
-//    const RenderNodeKey kSkyboxNode = "kSkyboxNode";
-
     // render outputs in deffer shading
     const RenderNodeOutputKey kPointShadowPort = "kPointShadowPort";
     const RenderNodeOutputKey kDirectionalShadowPort = "kDirectionalShadowPort";
