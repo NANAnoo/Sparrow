@@ -1,3 +1,50 @@
+/*
+---------------------------------------------------------------------------
+Open Asset Import Library (assimp)
+---------------------------------------------------------------------------
+
+Copyright (c) 2006-2022, assimp team
+
+
+
+All rights reserved.
+
+Redistribution and use of this software in source and binary forms,
+with or without modification, are permitted provided that the following
+conditions are met:
+
+* Redistributions of source code must retain the above
+  copyright notice, this list of conditions and the
+  following disclaimer.
+
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the
+  following disclaimer in the documentation and/or other
+  materials provided with the distribution.
+
+* Neither the name of the assimp team, nor the names of its
+  contributors may be used to endorse or promote products
+  derived from this software without specific prior
+  written permission of the assimp team.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---------------------------------------------------------------------------
+*/
+
+/** @file Implementation of the post processing step to calculate
+ *  tangents and bitangents for all imported meshes
+ */
+
 // internal headers
 #include "CalcTangentsProcess.h"
 #include "ProcessHelper.h"
@@ -12,10 +59,6 @@ CalcTangentsProcess::CalcTangentsProcess() :
         configMaxAngle(float(AI_DEG_TO_RAD(45.f))), configSourceUV(0) {
     // nothing to do here
 }
-
-// ------------------------------------------------------------------------------------------------
-// Destructor, private as well
-CalcTangentsProcess::~CalcTangentsProcess() = default;
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
@@ -55,10 +98,7 @@ void CalcTangentsProcess::Execute(aiScene *pScene) {
     }
 }
 
-inline glm::vec3 ToGLM3(const aiVector3D& aiVec3D) {
-    return glm::vec3(aiVec3D.x, aiVec3D.y, aiVec3D.z);
-}
-        // ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Calculates tangents and bi-tangents for the given mesh
 bool CalcTangentsProcess::ProcessMesh(aiMesh *pMesh, unsigned int meshIndex) {
     // we assume that the mesh is still in the verbose vertex format where each face has its own set
@@ -141,10 +181,7 @@ bool CalcTangentsProcess::ProcessMesh(aiMesh *pMesh, unsigned int meshIndex) {
 
         // tangent points in the direction where to positive X axis of the texture coord's would point in model space
         // bitangent's points along the positive Y axis of the texture coord's, respectively
-        glm::vec3 tangent{};
-        glm::vec3 bitangent{};
-
-        // aiVector3D tangent, bitangent;
+        aiVector3D tangent, bitangent;
         tangent.x = (w.x * sy - v.x * ty) * dirCorrection;
         tangent.y = (w.y * sy - v.y * ty) * dirCorrection;
         tangent.z = (w.z * sy - v.z * ty) * dirCorrection;
@@ -157,28 +194,27 @@ bool CalcTangentsProcess::ProcessMesh(aiMesh *pMesh, unsigned int meshIndex) {
             unsigned int p = face.mIndices[b];
 
             // project tangent and bitangent into the plane formed by the vertex' normal
-            glm::vec3 localTangent = tangent - ToGLM3(meshNorm[p]) * (tangent * ToGLM3(meshNorm[p]));
-            glm::vec3 localBitangent = bitangent - ToGLM3(meshNorm[p]) * (bitangent * ToGLM3(meshNorm[p])) - localTangent * (bitangent * localTangent);
-
-            glm::normalize(localTangent);
-            glm::normalize(localBitangent);
+            aiVector3D localTangent = tangent - meshNorm[p] * (tangent * meshNorm[p]);
+            aiVector3D localBitangent = bitangent - meshNorm[p] * (bitangent * meshNorm[p]) - localTangent * (bitangent * localTangent);
+            localTangent.NormalizeSafe();
+            localBitangent.NormalizeSafe();
 
             // reconstruct tangent/bitangent according to normal and bitangent/tangent when it's infinite or NaN.
             bool invalid_tangent = is_special_float(localTangent.x) || is_special_float(localTangent.y) || is_special_float(localTangent.z);
             bool invalid_bitangent = is_special_float(localBitangent.x) || is_special_float(localBitangent.y) || is_special_float(localBitangent.z);
             if (invalid_tangent != invalid_bitangent) {
                 if (invalid_tangent) {
-                    localTangent = glm::cross(ToGLM3(meshNorm[p]), localBitangent);
-                    glm::normalize(localTangent);
+                    localTangent = meshNorm[p] ^ localBitangent;
+                    localTangent.NormalizeSafe();
                 } else {
-                    localBitangent = glm::cross(ToGLM3(meshNorm[p]), localTangent);
-                    glm::normalize(localBitangent);
+                    localBitangent = localTangent ^ meshNorm[p];
+                    localBitangent.NormalizeSafe();
                 }
             }
 
             // and write it into the mesh.
-            meshTang[p] = aiVector3D(localTangent);
-            meshBitang[p] = aiVector3D(localBitangent);
+            meshTang[p] = localTangent;
+            meshBitang[p] = localBitangent;
         }
     }
 

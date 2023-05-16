@@ -69,13 +69,16 @@ Geometry::Geometry(uint64_t id, const Element& element, const std::string& name,
         }
         const BlendShape* const bsp = ProcessSimpleConnection<BlendShape>(*con, false, "BlendShape -> Geometry", element);
         if (bsp) {
-            blendShapes.push_back(bsp);
+            auto pr = blendShapes.insert(bsp);
+            if (!pr.second) {
+                FBXImporter::LogWarn("there is the same blendShape id ", bsp->ID());
+            }
         }
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-const std::vector<const BlendShape*>& Geometry::GetBlendShapes() const {
+const std::unordered_set<const BlendShape*>& Geometry::GetBlendShapes() const {
     return blendShapes;
 }
 
@@ -529,7 +532,7 @@ void ResolveVertexDataArray(std::vector<T>& data_out, const Scope& source,
 
         data_out.resize(vertex_count);
 
-        const T empty{};
+        const T empty;
         unsigned int next = 0;
         for(int i : uvIndices) {
             if ( -1 == i ) {

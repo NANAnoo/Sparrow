@@ -1,3 +1,44 @@
+/*
+---------------------------------------------------------------------------
+Open Asset Import Library (assimp)
+---------------------------------------------------------------------------
+
+Copyright (c) 2006-2022, assimp team
+
+All rights reserved.
+
+Redistribution and use of this software in source and binary forms,
+with or without modification, are permitted provided that the following
+conditions are met:
+
+* Redistributions of source code must retain the above
+  copyright notice, this list of conditions and the
+  following disclaimer.
+
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the
+  following disclaimer in the documentation and/or other
+  materials provided with the distribution.
+
+* Neither the name of the assimp team, nor the names of its
+  contributors may be used to endorse or promote products
+  derived from this software without specific prior
+  written permission of the assimp team.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---------------------------------------------------------------------------
+*/
+
 /** @file  Importer.cpp
  *  @brief Implementation of the CPP-API class #Importer
  */
@@ -44,8 +85,6 @@
 
 #include <assimp/DefaultIOStream.h>
 #include <assimp/DefaultIOSystem.h>
-
-#include <filesystem>
 
 #ifndef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
 #   include "PostProcessing/ValidateDataStructure.h"
@@ -587,12 +626,10 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags) {
         // Find an worker class which can handle the file extension.
         // Multiple importers may be able to handle the same extension (.xml!); gather them all.
         SetPropertyInteger("importerIndex", -1);
-
         struct ImporterAndIndex {
             BaseImporter * importer;
             unsigned int   index;
         };
-
         std::vector<ImporterAndIndex> possibleImporters;
         for (unsigned int a = 0; a < pimpl->mImporter.size(); a++)  {
 
@@ -603,15 +640,15 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags) {
             // CAUTION: Do not just search for the extension!
             // GetExtension() returns the part after the *last* dot, but some extensions have dots
             // inside them, e.g. ogre.mesh.xml. Compare the entire end of the string.
-            for (const auto &it : extensions) {
+            for (std::set<std::string>::const_iterator it = extensions.cbegin(); it != extensions.cend(); ++it) {
 
                 // Yay for C++<20 not having std::string::ends_with()
-                std::string extension = "." + it;
+                std::string extension = "." + *it;
                 if (extension.length() <= pFile.length()) {
                     // Possible optimization: Fetch the lowercase filename!
                     if (0 == ASSIMP_stricmp(pFile.c_str() + pFile.length() - extension.length(), extension.c_str())) {
-                        // ImporterAndIndex candidate = { pimpl->mImporter[a], a };
-                        possibleImporters.emplace_back( ImporterAndIndex{ pimpl->mImporter[a], a } );
+                        ImporterAndIndex candidate = { pimpl->mImporter[a], a };
+                        possibleImporters.push_back(candidate);
                         break;
                     }
                 }
@@ -622,15 +659,13 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags) {
 
         // If just one importer supports this extension, pick it and close the case.
         BaseImporter* imp = nullptr;
-        if (1 == possibleImporters.size())
-        {
+        if (1 == possibleImporters.size()) {
             imp = possibleImporters[0].importer;
             SetPropertyInteger("importerIndex", possibleImporters[0].index);
         }
-        else
-        {
-            // If multiple importers claim this file extension, ask them to look at the actual file data to decide.
-            // This can happen e.g. with XML (COLLADA vs. Irrlicht).
+        // If multiple importers claim this file extension, ask them to look at the actual file data to decide.
+        // This can happen e.g. with XML (COLLADA vs. Irrlicht).
+        else {
             for (std::vector<ImporterAndIndex>::const_iterator it = possibleImporters.begin(); it < possibleImporters.end(); ++it) {
                 BaseImporter & importer = *it->importer;
 

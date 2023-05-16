@@ -61,10 +61,6 @@ FindInvalidDataProcess::FindInvalidDataProcess() :
 }
 
 // ------------------------------------------------------------------------------------------------
-// Destructor, private as well
-FindInvalidDataProcess::~FindInvalidDataProcess() = default;
-
-// ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
 bool FindInvalidDataProcess::IsActive(unsigned int pFlags) const {
     return 0 != (pFlags & aiProcess_FindInvalidData);
@@ -208,10 +204,10 @@ inline bool ProcessArray(T *&in, unsigned int num, const char *name,
 
 // ------------------------------------------------------------------------------------------------
 template <typename T>
-FORCE_INLINE bool EpsilonCompare(const T &n, const T &s, ai_real epsilon);
+AI_FORCE_INLINE bool EpsilonCompare(const T &n, const T &s, ai_real epsilon);
 
 // ------------------------------------------------------------------------------------------------
-FORCE_INLINE bool EpsilonCompare(ai_real n, ai_real s, ai_real epsilon) {
+AI_FORCE_INLINE bool EpsilonCompare(ai_real n, ai_real s, ai_real epsilon) {
     return std::fabs(n - s) > epsilon;
 }
 
