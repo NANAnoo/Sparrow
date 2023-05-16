@@ -51,13 +51,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include <assimp/defs.h>
-#include <assimp/types.h>
-#include <glm/glm.hpp>
 
 #ifdef __cplusplus
 
 template <typename T> class aiMatrix4x4t;
-// template <typename T> class aiVector2t;
+template <typename T> class aiVector2t;
 template <typename T> class aiVector3t;
 
 // ---------------------------------------------------------------------------
@@ -145,7 +143,7 @@ public:
      *  @param out Receives the output matrix
      *  @return Reference to the output matrix
      */
-    static aiMatrix3x3t &Translation(const glm::vec2&v, aiMatrix3x3t &out);
+    static aiMatrix3x3t& Translation( const aiVector2t<TReal>& v, aiMatrix3x3t& out);
 
     // -------------------------------------------------------------------
     /** @brief A function for creating a rotation matrix that rotates a

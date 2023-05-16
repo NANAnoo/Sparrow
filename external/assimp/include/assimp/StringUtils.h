@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sstream>
 #include <iomanip>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__clang__)
 #define AI_SIZEFMT "%Iu"
 #else
 #define AI_SIZEFMT "%zu"
@@ -112,7 +112,7 @@ inline int ai_snprintf(char *outBuf, size_t size, const char *format, ...) {
 ///	@return	The value as a std::string
 // ---------------------------------------------------------------------------------
 template <typename T>
-FORCE_INLINE std::string ai_to_string(T value) {
+AI_FORCE_INLINE std::string ai_to_string(T value) {
     std::ostringstream os;
     os << value;
 
@@ -126,7 +126,7 @@ FORCE_INLINE std::string ai_to_string(T value) {
 /// @param  end     The last character
 ///	@return	The float value, 0.0f in case of an error.
 // ---------------------------------------------------------------------------------
-FORCE_INLINE
+AI_FORCE_INLINE
 float ai_strtof(const char *begin, const char *end) {
     if (nullptr == begin) {
         return 0.0f;
@@ -150,7 +150,7 @@ float ai_strtof(const char *begin, const char *end) {
 ///	@return	The hexadecimal string, is empty in case of an error.
 // ---------------------------------------------------------------------------------
 template <class T>
-FORCE_INLINE std::string ai_decimal_to_hexa(T toConvert) {
+AI_FORCE_INLINE std::string ai_decimal_to_hexa(T toConvert) {
     std::string result;
     std::stringstream ss;
     ss << std::hex << toConvert;
@@ -172,7 +172,7 @@ FORCE_INLINE std::string ai_decimal_to_hexa(T toConvert) {
 ///	@param	with_head   #
 ///	@return	The hexadecimal string, is empty in case of an error.
 // ---------------------------------------------------------------------------------
-FORCE_INLINE std::string ai_rgba2hex(int r, int g, int b, int a, bool with_head) {
+AI_FORCE_INLINE std::string ai_rgba2hex(int r, int g, int b, int a, bool with_head) {
     std::stringstream ss;
     if (with_head) {
         ss << "#";
@@ -185,7 +185,7 @@ FORCE_INLINE std::string ai_rgba2hex(int r, int g, int b, int a, bool with_head)
 // ---------------------------------------------------------------------------------
 /// @brief   Performs a trim from start (in place)
 /// @param  s   string to trim.
-FORCE_INLINE void ai_trim_left(std::string &s) {
+AI_FORCE_INLINE void ai_trim_left(std::string &s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
         return !std::isspace(ch);
     }));
@@ -196,7 +196,7 @@ FORCE_INLINE void ai_trim_left(std::string &s) {
 /// @param  s   string to trim.
 // ---------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------
-FORCE_INLINE void ai_trim_right(std::string &s) {
+AI_FORCE_INLINE void ai_trim_right(std::string &s) {
     s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
         return !std::isspace(ch);
     }).base(), s.end());
@@ -206,7 +206,7 @@ FORCE_INLINE void ai_trim_right(std::string &s) {
 /// @brief  Performs a trim from both ends (in place).
 /// @param  s   string to trim.
 // ---------------------------------------------------------------------------------
-FORCE_INLINE std::string ai_trim(std::string &s) {
+AI_FORCE_INLINE std::string ai_trim(std::string &s) {
     std::string out(s);
     ai_trim_left(out);
     ai_trim_right(out);
@@ -216,7 +216,7 @@ FORCE_INLINE std::string ai_trim(std::string &s) {
 
 // ---------------------------------------------------------------------------------
 template <class char_t>
-FORCE_INLINE char_t ai_tolower(char_t in) {
+AI_FORCE_INLINE char_t ai_tolower(char_t in) {
     return (in >= (char_t)'A' && in <= (char_t)'Z') ? (char_t)(in + 0x20) : in;
 }
 
@@ -225,7 +225,7 @@ FORCE_INLINE char_t ai_tolower(char_t in) {
 /// @param  in  The incoming string.
 /// @return The string as lowercase.
 // ---------------------------------------------------------------------------------
-FORCE_INLINE std::string ai_tolower(const std::string &in) {
+AI_FORCE_INLINE std::string ai_tolower(const std::string &in) {
     std::string out(in);
     ai_trim_left(out);
     ai_trim_right(out);
@@ -235,7 +235,7 @@ FORCE_INLINE std::string ai_tolower(const std::string &in) {
 
 // ---------------------------------------------------------------------------------
 template <class char_t>
-FORCE_INLINE char_t ai_toupper(char_t in) {
+AI_FORCE_INLINE char_t ai_toupper(char_t in) {
     return (in >= (char_t)'a' && in <= (char_t)'z') ? (char_t)(in - 0x20) : in;
 }
 
@@ -243,7 +243,7 @@ FORCE_INLINE char_t ai_toupper(char_t in) {
 /// @brief  Performs a ToLower-operation and return the upper-case string.
 /// @param  in  The incoming string.
 /// @return The string as uppercase.
-FORCE_INLINE std::string ai_str_toupper(const std::string &in) {
+AI_FORCE_INLINE std::string ai_str_toupper(const std::string &in) {
     std::string out(in);
     std::transform(out.begin(), out.end(), out.begin(), [](char c) { return ai_toupper(c); });
     return out;
@@ -255,7 +255,7 @@ FORCE_INLINE std::string ai_str_toupper(const std::string &in) {
 /// @param  in  The incoming string.
 /// @param  placeholder  Placeholder character, default is a question mark.
 /// @return The string, with all non-printable characters replaced.
-FORCE_INLINE std::string ai_str_toprintable(const std::string &in, char placeholder = '?') {
+AI_FORCE_INLINE std::string ai_str_toprintable(const std::string &in, char placeholder = '?') {
     std::string out(in);
     std::transform(out.begin(), out.end(), out.begin(), [placeholder] (unsigned char c) {
         return isprint(c) ? (char)c :  placeholder;
@@ -271,7 +271,7 @@ FORCE_INLINE std::string ai_str_toprintable(const std::string &in, char placehol
 /// @param  placeholder  Placeholder character, default is a question mark.
 /// @return The string, with all non-printable characters replaced. Will return an
 ///         empty string if in is null or len is <= 0.
-FORCE_INLINE std::string ai_str_toprintable(const char *in, int len, char placeholder = '?') {
+AI_FORCE_INLINE std::string ai_str_toprintable(const char *in, int len, char placeholder = '?') {
     return (in && len > 0) ? ai_str_toprintable(std::string(in, len), placeholder) : std::string();
 }
 

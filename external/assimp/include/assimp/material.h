@@ -522,13 +522,13 @@ struct aiUVTransform {
      *
      *  The default value is (0|0).
      */
-    aiVector2D mTranslation = aiVector2D(0.f);
+    C_STRUCT aiVector2D mTranslation;
 
     /** Scaling on the u and v axes.
      *
      *  The default value is (1|1).
      */
-    aiVector2D mScaling = aiVector2D(1.f);
+    C_STRUCT aiVector2D mScaling;
 
     /** Rotation - in counter-clockwise direction.
      *

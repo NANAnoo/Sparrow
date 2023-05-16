@@ -1,3 +1,44 @@
+/*
+---------------------------------------------------------------------------
+Open Asset Import Library (assimp)
+---------------------------------------------------------------------------
+
+Copyright (c) 2006-2022, assimp team
+
+All rights reserved.
+
+Redistribution and use of this software in source and binary forms,
+with or without modification, are permitted provided that the following
+conditions are met:
+
+* Redistributions of source code must retain the above
+  copyright notice, this list of conditions and the
+  following disclaimer.
+
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the
+  following disclaimer in the documentation and/or other
+  materials provided with the distribution.
+
+* Neither the name of the assimp team, nor the names of its
+  contributors may be used to endorse or promote products
+  derived from this software without specific prior
+  written permission of the assimp team.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---------------------------------------------------------------------------
+*/
+
 /** @file defs.h
  *  @brief Assimp build configuration setup. See the notes in the comment
  *  blocks to find out how to customize _your_ Assimp build.
@@ -129,7 +170,7 @@
         #pragma warning(disable : 4251)
     #endif
     /* Force the compiler to inline a function, if possible */
-    #define FORCE_INLINE inline
+    #define AI_FORCE_INLINE inline
 
     /* Tells the compiler that a function never returns. Used in code analysis
     * to skip dead paths (e.g. after an assertion evaluated to false). */
@@ -143,6 +184,12 @@
 
 #ifdef __GNUC__
 #   define AI_WONT_RETURN_SUFFIX __attribute__((noreturn))
+#elif _MSC_VER
+#if defined(__clang__)
+#   define AI_WONT_RETURN_SUFFIX __attribute__((noreturn))
+#else
+#   define AI_WONT_RETURN_SUFFIX
+#endif
 #else
 #   define AI_WONT_RETURN_SUFFIX
 #endif // (defined __clang__)
@@ -242,7 +289,11 @@ typedef unsigned int ai_uint;
 #define AI_RAD_TO_DEG(x) ((x) * (ai_real) 57.2957795)
 
 /* Numerical limits */
-static const ai_real ai_epsilon = (ai_real) 1e-6;
+#ifdef __cplusplus
+constexpr ai_real ai_epsilon = (ai_real) 1e-6;
+#else
+const ai_real ai_epsilon = (ai_real) 1e-6;
+#endif
 
 /* Support for big-endian builds */
 #if defined(__BYTE_ORDER__)

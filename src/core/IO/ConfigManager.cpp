@@ -43,7 +43,7 @@ namespace SPW
 		// copy sounds
 		FileSystem::MountPath(Config::k_EngineRoot + "sounds/", SPW::Config::k_WorkingProjectSounds);
 
-		// copy scripts
+		// copy scripts TODO overwrite
 		FileSystem::MountPath(Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
 
 		// copy UI resources TODO ui path

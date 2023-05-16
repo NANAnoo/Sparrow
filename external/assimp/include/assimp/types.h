@@ -1,3 +1,44 @@
+/*
+---------------------------------------------------------------------------
+Open Asset Import Library (assimp)
+---------------------------------------------------------------------------
+
+Copyright (c) 2006-2022, assimp team
+
+All rights reserved.
+
+Redistribution and use of this software in source and binary forms,
+with or without modification, are permitted provided that the following
+conditions are met:
+
+* Redistributions of source code must retain the above
+  copyright notice, this list of conditions and the
+  following disclaimer.
+
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the
+  following disclaimer in the documentation and/or other
+  materials provided with the distribution.
+
+* Neither the name of the assimp team, nor the names of its
+  contributors may be used to endorse or promote products
+  derived from this software without specific prior
+  written permission of the assimp team.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---------------------------------------------------------------------------
+*/
+
 /** @file types.h
  *  Basic data types and primitives, such as vectors or colors.
  */
@@ -20,19 +61,23 @@
 #include <assimp/defs.h>
 
 // Some types moved to separate header due to size of operators
-
+#include <assimp/vector2.h>
 #include <assimp/vector3.h>
 #include <assimp/color4.h>
 #include <assimp/matrix3x3.h>
 #include <assimp/matrix4x4.h>
 #include <assimp/quaternion.h>
-#include <glm/glm.hpp>
 
 typedef int32_t ai_int32;
 typedef uint32_t ai_uint32;
-using aiVector2D = glm::vec2;
 
 #ifdef __cplusplus
+
+#ifdef ASSIMP_USE_HUNTER
+#   include <utf8.h>
+#else
+#   include "../contrib/utf8cpp/source/utf8.h"
+#endif
 
 #include <cstring>
 #include <new> // for std::nothrow_t
@@ -123,7 +168,85 @@ struct aiRay {
 // ----------------------------------------------------------------------------------
 /** Represents a color in Red-Green-Blue space.
 */
-using aiColor3D = glm::vec3;
+struct aiColor3D {
+#ifdef __cplusplus
+    aiColor3D() AI_NO_EXCEPT : r(0.0f), g(0.0f), b(0.0f) {}
+    aiColor3D(ai_real _r, ai_real _g, ai_real _b) :
+            r(_r), g(_g), b(_b) {}
+    explicit aiColor3D(ai_real _r) :
+            r(_r), g(_r), b(_r) {}
+    aiColor3D(const aiColor3D &o) :
+            r(o.r), g(o.g), b(o.b) {}
+
+    aiColor3D &operator=(const aiColor3D &o) {
+        r = o.r;
+        g = o.g;
+        b = o.b;
+        return *this;
+    }
+
+    /** Component-wise comparison */
+    // TODO: add epsilon?
+    bool operator==(const aiColor3D &other) const { return r == other.r && g == other.g && b == other.b; }
+
+    /** Component-wise inverse comparison */
+    // TODO: add epsilon?
+    bool operator!=(const aiColor3D &other) const { return r != other.r || g != other.g || b != other.b; }
+
+    /** Component-wise comparison */
+    // TODO: add epsilon?
+    bool operator<(const aiColor3D &other) const {
+        return r < other.r || (r == other.r && (g < other.g || (g == other.g && b < other.b)));
+    }
+
+    /** Component-wise addition */
+    aiColor3D operator+(const aiColor3D &c) const {
+        return aiColor3D(r + c.r, g + c.g, b + c.b);
+    }
+
+    /** Component-wise subtraction */
+    aiColor3D operator-(const aiColor3D &c) const {
+        return aiColor3D(r - c.r, g - c.g, b - c.b);
+    }
+
+    /** Component-wise multiplication */
+    aiColor3D operator*(const aiColor3D &c) const {
+        return aiColor3D(r * c.r, g * c.g, b * c.b);
+    }
+
+    /** Multiply with a scalar */
+    aiColor3D operator*(ai_real f) const {
+        return aiColor3D(r * f, g * f, b * f);
+    }
+
+    /** Access a specific color component */
+    ai_real operator[](unsigned int i) const {
+        return *(&r + i);
+    }
+
+    /** Access a specific color component */
+    ai_real &operator[](unsigned int i) {
+        if (0 == i) {
+            return r;
+        } else if (1 == i) {
+            return g;
+        } else if (2 == i) {
+            return b;
+        }
+        return r;
+    }
+
+    /** Check whether a color is black */
+    bool IsBlack() const {
+        static const ai_real epsilon = ai_real(10e-3);
+        return std::fabs(r) < epsilon && std::fabs(g) < epsilon && std::fabs(b) < epsilon;
+    }
+
+#endif // !__cplusplus
+
+    //! Red, green and blue color values
+    ai_real r, g, b;
+}; // !struct aiColor3D
 
 // ----------------------------------------------------------------------------------
 /** Represents an UTF-8 string, zero byte terminated.
@@ -410,6 +533,8 @@ struct aiMemoryInfo {
 }
 #endif //!  __cplusplus
 
+// Include implementation files
+#include "vector2.inl"
 #include "vector3.inl"
 #include "color4.inl"
 #include "matrix3x3.inl"

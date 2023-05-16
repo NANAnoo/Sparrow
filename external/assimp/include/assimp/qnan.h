@@ -92,7 +92,7 @@ union _IEEEDouble {
 // ---------------------------------------------------------------------------
 /** Check whether a given float is qNaN.
  *  @param in Input value */
-FORCE_INLINE bool is_qnan(float in) {
+AI_FORCE_INLINE bool is_qnan(float in) {
     // the straightforward solution does not work:
     //   return (in != in);
     // compiler generates code like this
@@ -109,7 +109,7 @@ FORCE_INLINE bool is_qnan(float in) {
 // ---------------------------------------------------------------------------
 /** Check whether a given double is qNaN.
  *  @param in Input value */
-FORCE_INLINE bool is_qnan(double in) {
+AI_FORCE_INLINE bool is_qnan(double in) {
     // the straightforward solution does not work:
     //   return (in != in);
     // compiler generates code like this
@@ -128,7 +128,7 @@ FORCE_INLINE bool is_qnan(double in) {
  *
  *  Denorms return false, they're treated like normal values.
  *  @param in Input value */
-FORCE_INLINE bool is_special_float(float in) {
+AI_FORCE_INLINE bool is_special_float(float in) {
     _IEEESingle temp;
     memcpy(&temp, &in, sizeof(float));
     return (temp.IEEE.Exp == (1u << 8)-1);
@@ -139,7 +139,7 @@ FORCE_INLINE bool is_special_float(float in) {
  *
  *  Denorms return false, they're treated like normal values.
  *  @param in Input value */
-FORCE_INLINE bool is_special_float(double in) {
+AI_FORCE_INLINE bool is_special_float(double in) {
    _IEEESingle temp;
     memcpy(&temp, &in, sizeof(float));
     return (temp.IEEE.Exp == (1u << 11)-1);
@@ -149,13 +149,13 @@ FORCE_INLINE bool is_special_float(double in) {
 /** Check whether a float is NOT qNaN.
  *  @param in Input value */
 template<class TReal>
-FORCE_INLINE bool is_not_qnan(TReal in) {
+AI_FORCE_INLINE bool is_not_qnan(TReal in) {
     return !is_qnan(in);
 }
 
 // ---------------------------------------------------------------------------
 /** @brief Get a fresh qnan.  */
-FORCE_INLINE ai_real get_qnan() {
+AI_FORCE_INLINE ai_real get_qnan() {
     return std::numeric_limits<ai_real>::quiet_NaN();
 }
 

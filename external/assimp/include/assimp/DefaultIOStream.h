@@ -84,7 +84,7 @@ protected:
 
 public:
     /** Destructor public to allow simple deletion to close the file. */
-    ~DefaultIOStream ();
+    ~DefaultIOStream () override;
 
     // -------------------------------------------------------------------
     /// Read from stream
@@ -117,7 +117,7 @@ private:
 };
 
 // ----------------------------------------------------------------------------------
-FORCE_INLINE DefaultIOStream::DefaultIOStream() AI_NO_EXCEPT :
+AI_FORCE_INLINE DefaultIOStream::DefaultIOStream() AI_NO_EXCEPT :
         mFile(nullptr),
         mFilename(),
         mCachedSize(SIZE_MAX) {
@@ -125,7 +125,7 @@ FORCE_INLINE DefaultIOStream::DefaultIOStream() AI_NO_EXCEPT :
 }
 
 // ----------------------------------------------------------------------------------
-FORCE_INLINE DefaultIOStream::DefaultIOStream (FILE* pFile, const std::string &strFilename) :
+AI_FORCE_INLINE DefaultIOStream::DefaultIOStream (FILE* pFile, const std::string &strFilename) :
         mFile(pFile),
         mFilename(strFilename),
         mCachedSize(SIZE_MAX) {
