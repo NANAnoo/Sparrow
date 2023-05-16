@@ -82,6 +82,8 @@ namespace SPW
 		bool show_addcomponent = false;
 		char m_PendingName[256] = "";
 
+
+
 		// std::string convertToString(char* array)
 		// {
 		// 	std::stringstream ss;

@@ -613,30 +613,39 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawAnimationComponent(AnimationComponent* component) const
 	{
 		ImGui::PushID("Animation");
+        static const char* currGraphKey = "";
 
 		if (ImGui::TreeNode(ICON_FA_PERSON_RUNNING"			Animation")) /* TODO: add icon*/
 		{
 			const auto& skeleton = ResourceManager::getInstance()->m_AssetDataMap[component->assetName].skeleton;
 
-			if (ImGui::BeginChild("Animation", ImVec2(0, 120), true))
-			{
-				for (const auto& anim : skeleton.animClips)
-				{
-					const char* anim_name = anim.name.c_str();
-					ImGui::Text("name : %s", anim_name);
-				}
+            if (component->onGoingAnim)
+            {
+                if (ImGui::BeginChild("Animation", ImVec2(0, 120), true))
+                {
+                    const char* anim_name = component->onGoingAnim->name.c_str();
+                    currGraphKey = anim_name;
+                    ImGui::Text("name : %s", anim_name);
 
-				ImGui::Checkbox("onGoingAnim update", &component->onGoingAnim->bUpdate);
+                    if (ImGui::Button("Paused"))
+                    {
+                        component->respondAction(SPW::AnimationAction::Pause);
+                    }
 
-				ImGui::Checkbox("anim ssbo bind", &component->SPW_AnimSSBO->bBinding);
+                    if (ImGui::Button("Resumed"))
+                    {
+                        component->respondAction(SPW::AnimationAction::Resume);
+                    }
 
-				ImGui::Checkbox("anim ssbo Initialized", &component->SPW_AnimSSBO->bInitialized);
+                    if (ImGui::Button("Reset"))
+                    {
+                        component->respondAction(SPW::AnimationAction::Reset);
+                    }
 
-				ImGui::EndChild();
-			}
-
-			DrawHierarchyNode(component, skeleton.hierarchy);
-
+                    ImGui::EndChild();
+                }
+                DrawHierarchyNode(component, skeleton.hierarchy);
+            }
 
 			if (ImGui::Button("delete"))
 			{
@@ -647,6 +656,24 @@ namespace SPW
 			}
 
 			ImGui::TreePop();
+            if (ImGui::BeginCombo("Swap animation",currGraphKey))
+            {
+                for(const auto& clip : component->allAnimations)
+                {
+                    bool is_selected = (currGraphKey == clip.first);
+                    if (ImGui::Selectable(clip.first.c_str(),is_selected))
+                    {
+                        currGraphKey = clip.first.c_str();
+                        component->swapCurrentAnim(clip.first.c_str());
+                    }
+
+                    if (is_selected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+            }
+            ImGui::EndCombo();
 		}
 		ImGui::PopID();
 	}
