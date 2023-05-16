@@ -27,9 +27,6 @@ App({name="Test", width = 1280, height = 720,
 
         model = CreateModel(scene,MainCamera, main_camera_id)
         
-
-        mantisModel = CreateMantisModel(scene, main_camera_id)
-
         CreateSkyBox(scene, main_camera_id)
         local floor = CreateFloor(scene, main_camera_id)
         local MainLight = CreateMainLight(scene)

@@ -9,13 +9,13 @@ function CreateFloor(scene, camera_id)
     local floor = scene:addEntity("Floor")
 
     local trans = floor:addComponent(Transform)
-    trans:setPosition(glm.vec3(0, -0.35, 0))
+    trans:setPosition(glm.vec3(0, -0.05, 0))
     trans:setRotation(glm.vec3(0, 0, 0))
-    trans:setScale(glm.vec3(5.0, 0.05, 5.0))
+    trans:setScale(glm.vec3(50.0, 0.05, 50.0))
 
     local model = floor:addComponent(MeshComponent, camera_id, "cube")
     local floorc = floor:addComponent(RigidStaticComponent,RigidState.Awake)
-    local boxCollider = floor:addComponent(BoxCollider,ColliderState.needAwake,false,glm.vec3(5, 0.05, 5))
+    local boxCollider = floor:addComponent(BoxCollider,ColliderState.needAwake,false,glm.vec3(50, 0.1, 50))
     --local sphereCollider = floor:addComponent(SphereCollider,ColliderState.needAwake,true,100)
     boxCollider:setTriggerEnter(
             function (en)
