@@ -1,12 +1,13 @@
 require "luaclass"
-require "PerspectiveCamera"
+require "Components/PerspectiveCamera"
 require "Scene" 
 require "Entity"
+
+require "Components/PerspectiveCamera"
 require "Components/TransformComponent"
 require "Components/MouseEventHandler"
 require "Components/KeyEventHandler"
 require "Components/AudioListener"
-
 require "Codes/KeyCode"
 require "Codes/MouseCode"
 
@@ -70,16 +71,4 @@ function bindFPSController(scene, entity, speed)
         end
         , scene
     )
-end
-
-function CreateMainCamera(scene, width, height)
-    local MainCamera = scene:addEntity("MainCamera")
-    MainCamera:addComponent(Transform)
-    MainCamera:addComponent(PerspectiveCamera, 60, width / height, 0.1, 100, true)
-    bindFPSController(scene, MainCamera, 0.005)
-
-    MainCamera:addComponent(AudioListener, 0)
-
-    print("MainCamera id : ", MainCamera.id)
-    return MainCamera
 end

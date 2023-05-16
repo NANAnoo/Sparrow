@@ -21,6 +21,8 @@
 #include "Asset/Serializer/EntitySerializer.h"
 #include "ImGui/IconsFontAwesome6.h"
 #include "UIComponent/ImGuiLog.h"
+//#include "GameWrapper.hpp"
+// #include ""
 
 namespace SPW
 {
@@ -31,6 +33,8 @@ namespace SPW
 		ImportModel,
 		ImportAudio,
 		ImageCompression,
+
+		SetupScriptEntry,
 
 		SaveAsset,
 		LoadAsset,
@@ -70,60 +74,39 @@ namespace SPW
 
 		void RenderAllPanels() 
 		{
-			m_DockspacePanel->Render();
+			m_Dockspace->Render();
 			DisplayDialog();
 		}
+
 		void CreateImagePanel(uint64_t renderID);
 		std::shared_ptr<ImGuiEntityPanel>     GetEntityPanel() { return m_EntityPanel; }
 		std::shared_ptr<ImGuiInspectorPanel>  GetInspectorPanel() { return m_InspectorPanel; }
 
+		void SaveSceneCallback();
+		void LoadSceneCallback();
+
+		void SetupScriptEntryCallback();
 		void ImportModelCallback();
 		void LoadAssetCallback();
 		void ImageCompressedCallback();
 		void ImportAudioCallback();
+		void SaveEditorLayoutCallback();
+		void OpenConfigCallback();
 
-		void DisplayDialog() const;
+		void DisplayDialog() ;
+
+		void SaveEditorLayout() const;
 		void LoadDefaultLayout() const;
 
-		void Render()
-		{
-			Begin();
-			//----------------------------------------------------------------------------------------
-			CreateImagePanel(m_Scene->m_renderSystem.lock()->getTextureID());
+		void Render();
 
-			RenderAllPanels();
-			//----------------------------------------------------------------------------------------
-			m_EntityPanel->SetActiveScene(m_Scene);
-			m_InspectorPanel->SetActiveScene(m_Scene);
-
-			m_Scene->forEachEntity<IDComponent>([this](const Entity& e)
-			{
-				const auto component_name = e.component<NameComponent>()->getName();
-				const auto component_id = e.component<IDComponent>()->getID().toString();
-				m_EntityPanel->AddMenuItem(component_id, component_name, [&, e]()
-				{
-					m_InspectorPanel->SetSelectedGameObject(e);
-					// if(ImGui::Button("xxxx"))
-					// {
-					// 	m_InspectorPanel->SetNoneSelectedGameObject();
-					// }
-				}
-				);
-			});
-
-			//----------------------------------------------------------------------------------------
-			End();
-			EnableViewport();
-		}
-
-		void solveEvent(const std::shared_ptr<EventI>& e)
+		void solveEvent(const std::shared_ptr<EventI>& e) override
 		{
 
 			ImGuiIO& io = ImGui::GetIO();
 
 			e->dispatch<MouseScrollType, MouseEvent>([&io](const MouseEvent* e)
 			{
-
 				io.MouseWheel += (float)(e->scroll_offset);
 
 				return false;
@@ -131,14 +114,14 @@ namespace SPW
 
 			e->dispatch<MouseDownType, MouseEvent>([&io](const MouseEvent* e)
 			{
-				io.MouseDown[(int)MouseCode::ButtonLeft] = true;
-
+				io.MouseDown[(int)e->button_code] = true;
+				
 				return false;
 			});
 
 			e->dispatch<MouseReleasedType, MouseEvent>([&io](const MouseEvent* e)
 			{
-				io.MouseDown[(int)MouseCode::ButtonLeft] = false;
+				io.MouseDown[(int)e->button_code] = false;
 
 				return false;
 			});
@@ -153,16 +136,21 @@ namespace SPW
 
 	private:
 		void InitLayout();
+		void InitImagePanel();
 		void InitIconManager();
 		void InitMenuBar();
 		void InitEntityPanel();
 		void InitInspectorPanel();
 		void InitFileExplorer();
-//		void InitLogPanel();
-
+		void InitProfilingPanel();
 
 	private:
-		std::shared_ptr<ImGuiDockSpace>			m_DockspacePanel;
+		std::shared_ptr<ImGuiDockSpace>			m_Dockspace;
+		// file dialog panel
+		std::shared_ptr<ImGuiFileDialog>		m_FileDialog;
+
+		FeatureType m_Feature = FeatureType::None;
+
 		std::shared_ptr<ImGuiEntityPanel>		m_EntityPanel;
 		std::shared_ptr<ImGuiMenuBar>			m_MainMenuBar;
 		std::shared_ptr<ImGuiInspectorPanel>	m_InspectorPanel;
@@ -170,19 +158,15 @@ namespace SPW
 		std::shared_ptr<ImGuiFileExplorer>      m_FileExplorer;
 		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
 		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel;
-		//to do:delete
-//		std::shared_ptr<ImGuiLog>				m_LogPanel;
 
-		std::shared_ptr<Scene>				    m_Scene;
+		const std::shared_ptr<Scene>			m_Scene;
 		GLFWwindow* m_Window;
+		bool showInputBox = false;
+		std::string selectedFile;
 
-		// file dialog panel
-		std::shared_ptr<ImGuiFileDialog> m_FileDialog;
-		FeatureType m_Feature = FeatureType::None;
 
 		std::unique_ptr<ImGuiMessageBox> m_ImportModelMessageBox;
 		std::unique_ptr<ImGuiMessageBox> m_TextureCompressionMessageBox;
-
 		std::unique_ptr<ImGuiIconManager> m_ImguiIconManager;
     };
 

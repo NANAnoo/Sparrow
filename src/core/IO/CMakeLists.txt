@@ -30,6 +30,9 @@ CORE_ADD_SOURCE(
 		SOIL2/stbi_qoi.h
 		SOIL2/wfETC.c
 		SOIL2/wfETC.h
+
+		LogSystem/LogSystem.hpp
+		LogSystem/LogSystem.cpp
 	)
 
 #add_subdirectory(SOIL2)

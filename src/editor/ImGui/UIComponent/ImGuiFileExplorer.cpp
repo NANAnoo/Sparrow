@@ -15,12 +15,12 @@ namespace SPW
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove;
 		bool* p_open = nullptr;
 		ImGui::Begin(ICON_FA_FILE "  Selected Folder",p_open,window_flags);
-		//ImGui::Text("%s", ); // Displays the "fa-camera" icon
 
 		if (!selected_dir.empty())
-		{
 			DisplaySelectedFolder(selected_dir);
-		}
+
+		DisplayLuaSettingMenu();
+
 		ImGui::End();
 
 		const char* icon = ICON_FA_FOLDER"  ";
@@ -36,7 +36,10 @@ namespace SPW
 		DisplayImGuiFileExplorer(icon, Config::k_EngineRoot);
 		ImGui::Separator();
 
+		DisplayImageMenu();
+		DisplayJsonMenu();
 		DisplayImagePanel();
+
 	}
 
 	void ImGuiFileExplorer::DisplayImGuiFileExplorer(const char* icon, const std::string& path)
@@ -69,7 +72,7 @@ namespace SPW
 		}
 	}
 
-	void SPW::ImGuiFileExplorer::DisplaySelectedFolder(const std::string& folderPath)
+	void ImGuiFileExplorer::DisplaySelectedFolder(const std::string& folderPath)
 	{
 		// set row numbers and row width
 		int numColumns = 4;
@@ -124,26 +127,46 @@ namespace SPW
 				else
 					icon_id = m_IconManager->GetLibIcon("file");
 
+				ImGuiStyle& style = ImGui::GetStyle();
+
+				style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
 				if (ImGui::ImageButton(reinterpret_cast<void*>(icon_id), m_DefalutImageSize))
 				{
 					// selected_dir = entryPath.string();
 				}
 
-				if (ImGui::IsItemClicked() && (entryPath.extension() == ".json" || entryPath.extension() == ".lua" ))
+				if (ImGui::IsItemClicked(0) && (entryPath.extension() == ".json" || entryPath.extension() == ".lua" || entryPath.extension() == ".asset"))
 				{
 					std::string command = "code " + entryPath.string();
 
 					if(std::system(command.c_str()))
 						std::cerr << "Error: Failed to open the file in Visual Studio Code" << std::endl;
 				}
-				if (ImGui::IsItemClicked() && (entryPath.extension() == ".png" || entryPath.extension() == ".jpg" || entryPath.extension() == ".jpeg"))
+
+				if (ImGui::IsItemClicked(1) && (entryPath.extension() == ".json" || entryPath.extension() == ".asset"))
 				{
-					m_ShowImagePanel = true;
+					m_ShowJsonMenu = true;
+					m_Path = entryPath.string();
+				}
+
+
+				if (ImGui::IsItemClicked(1) && (entryPath.extension() == ".lua" ))
+				{
+					SetLuaPathCallback(entryPath);
+				}
+
+				if (ImGui::IsItemClicked(1) && (entryPath.extension() == ".png" || entryPath.extension() == ".jpg" || entryPath.extension() == ".jpeg"
+					||  entryPath.extension() == ".dds"))
+				{
+					//m_ShowImagePanel = true;
 
 					//m_OpenGLTexture = static_cast<GLuint>(SPW::AssetManager::LoadRawImage(entryPath.string()));
 					//ImTextureID imgui_texture = LoadImage(entryPath.string());
 					m_OpenGLTexture = AssetManager::LoadRawImage(entryPath.string());
+					m_Path = entryPath.string();
+					m_ShowImageMenu = true;
 				}
+
 			}
 
 			ImGui::Text("%s", fileName.c_str());
@@ -153,6 +176,7 @@ namespace SPW
 		}
 
 		ImGui::Columns(1);
+
 	}
 
 	int64_t SPW::ImGuiFileExplorer::LoadImage(const std::string& file_path) {
@@ -195,7 +219,36 @@ namespace SPW
 		return texture;
 	}
 
-	void SPW::ImGuiFileExplorer::DisplayImagePanel()
+	void SPW::ImGuiFileExplorer::DisplayImageMenu()
+	{
+		if (m_ShowImageMenu)
+		{
+			ImGui::OpenPopup("ImageMenu");
+		}
+
+		if (ImGui::BeginPopup("ImageMenu"))
+		{
+			if (ImGui::MenuItem("image preview"))
+			{
+				m_ShowImagePanel = true;
+			}
+			if (ImGui::MenuItem("compress image"))
+			{
+				auto data = AssetManager::LoadTextureData(m_Path);
+				(AssetManager::CompressImage(std::move(data), m_Path));
+			}
+			if (ImGui::MenuItem("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			m_ShowImageMenu = false;
+			ImGui::EndPopup();
+		}
+		
+	}
+
+	void ImGuiFileExplorer::DisplayImagePanel()
 	{
 		if (m_ShowImagePanel)
 		{
@@ -224,4 +277,62 @@ namespace SPW
 		}
 	}
 
+
+	void SPW::ImGuiFileExplorer::DisplayJsonMenu()
+	{
+		if (m_ShowJsonMenu)
+		{
+			ImGui::OpenPopup("FileContextMenu");
+		}
+
+		if (ImGui::BeginPopup("FileContextMenu"))
+		{
+			if (ImGui::MenuItem("Load"))
+			{
+				auto asset_data = AssetManager::LoadAsset(m_Path);
+				ResourceManager::getInstance()->m_AssetDataMap[asset_data.assetName] = asset_data;
+			}
+			if (ImGui::MenuItem("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			m_ShowJsonMenu = false;
+			ImGui::EndPopup();
+		}
+	}
+
+
+	void ImGuiFileExplorer::SetLuaPathCallback(const std::filesystem::path& path)
+	{
+		// std::cout << path << std::endl;
+		luaPath = path.string();
+		FileSystem::ResolveSlash(luaPath);
+
+		ImGui::OpenPopup("SetLuaPath");
+	}
+
+	void ImGuiFileExplorer::DisplayLuaSettingMenu()
+	{
+		if (ImGui::BeginPopup("SetLuaPath"))
+		{
+			if (ImGui::MenuItem("Set it as default file"))
+			{
+				toml::table cfg = ConfigManager::GetConfigContext();
+
+				toml::table scriptEntries = toml::table
+				{
+					// get file name | filepath
+					{"Entry", luaPath}
+				};
+				cfg.insert_or_assign("DefaultScript", scriptEntries);
+				ConfigManager::WriteDefaultScript(cfg);
+			}
+
+			if (ImGui::MenuItem("Cancel"))
+				ImGui::CloseCurrentPopup();
+
+			ImGui::EndPopup();
+		}
+	}
 }

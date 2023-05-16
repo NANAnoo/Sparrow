@@ -3,6 +3,7 @@
 //
 
 #include "ConfigManager.h"
+#include "LogSystem/LogSystem.hpp"
 
 namespace SPW
 {
@@ -24,8 +25,12 @@ namespace SPW
 
 	bool ConfigManager::Boost()
 	{
+		LogSystem::LoggerInit();
+
+		
+
 		if (ReadConfig())
-			std::cout << "Successfully read config file" << std::endl;
+			CFG_LOGGER_INFO("Successfully read config file")
 		else 
 			ReadConfig();
 
@@ -38,7 +43,7 @@ namespace SPW
 		// copy sounds
 		FileSystem::MountPath(Config::k_EngineRoot + "sounds/", SPW::Config::k_WorkingProjectSounds);
 
-		// copy scripts
+		// copy scripts TODO overwrite
 		FileSystem::MountPath(Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
 
 		// copy UI resources TODO ui path
@@ -46,22 +51,93 @@ namespace SPW
 
 		// reference source code lualib
 		if (std::filesystem::exists(SPW::Config::k_EngineLualib))
-			std::cout << "[CONFIG]::lualib exsits! \n";
+			CFG_LOGGER_INFO("lualib exsits!")
 
 		return true;
 	}
 
+	toml::table ConfigManager::GetConfigContext()
+	{
+		toml::table cfg;
+
+		const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
+
+		if (fs::exists(config_path))
+		{
+			// if path exists, directly from sparrow.toml
+			cfg = toml::parse_file(config_path.u8string());
+		}
+
+		return cfg;
+	}
+	bool ConfigManager::WriteDefaultScript(toml::table& tbl)
+	{
+		const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
+
+		std::ofstream config{ config_path };
+		if (config.is_open())
+		{
+			config << tbl;
+			config.close();
+			return true;
+		}
+		CFG_LOGGER_CRITICAL("Failed to open config file.")
+		return false;
+	}
+
+	std::optional<std::string> ConfigManager::GetScriptPath()
+	{
+		toml::table cfg_tbl = GetConfigContext();
+		auto ret = cfg_tbl["DefaultScript"]["Entry"].as<std::string>();
+		if (ret)
+		{
+			std::string retPath = std::string(*ret);
+			CFG_LOGGER_INFO("DefaultScript::Entry::scriptPath::{}", retPath)
+			return retPath;
+		}
+
+		// Get a random file
+		std::filesystem::path path = Config::k_WorkingProjectScripts;
+		if (std::filesystem::exists(path))
+		{
+			// TODO To make selected files right
+			auto files = FileSystem::GetFiles(path);
+			std::string scriptPath = Config::k_WorkingProjectScripts + "lua/TestGame.lua";
+			if (!std::filesystem::exists(scriptPath))
+			{
+				CFG_LOGGER_WRAN("scriptPath::{}, not exists!", scriptPath)
+				return nullptr;
+			}
+			CFG_LOGGER_INFO("scriptPath::{}, exists!", scriptPath)
+			return scriptPath;
+		}
+
+		CFG_LOGGER_WRAN("scriptPath::{}, not exists!", path.string())
+
+		return nullptr;
+	}
+
 	bool ConfigManager::ReadConfig()
 	{
-		// std::string orgPath = FileSystem::GetUserHomeDir() + "./.config/ÖÐÎÄ.toml"
-		const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
+		// std::string orgPath = FileSystem::GetUserHomeDir() + "./.config/ï¿½ï¿½ï¿½ï¿½.toml"
+//        std::string = "./.config/sparrow.toml";
+        // std::filesystem::path  config_path= std::filesystem::path("./.config/sparrow.toml");
+        const std::filesystem::path config_path = FileSystem::GetUserHomeDir().append("./.config/sparrow.toml");
 
 		if (fs::exists(config_path))
 		{
 			// if path exists, directly from sparrow.toml
 			toml::table config = toml::parse_file(config_path.u8string());
 
-			std::cout << "Boost Sparrow Eninge: " << config["Sparrow"] << std::endl;
+			{
+				auto ret = config["Sparrow"].as<std::string>();
+				if (ret)
+				{
+					auto version = std::string(*ret);
+					CFG_LOGGER_INFO("Boot Sparrow Eninge: {0}", version)
+				}
+
+			}
 
 			{
 				auto ret = config["Engine"]["RootPath"].as<std::string>();
@@ -77,7 +153,7 @@ namespace SPW
 			{
 				auto ret = config["Engine"]["RuntimePath"].as<std::string>();
 				if (ret)
-					Config::k_EngineLualib = std::string(*ret) + "/src/LuaLib/";
+					Config::k_EngineLualib = std::string(*ret) + "src/LuaLib/";
 				else
 				{
 					WriteDefaultConfig();
@@ -127,17 +203,17 @@ namespace SPW
 				Config::k_WorkingProjectUI		= project_paths.begin()->second + "UI/";
 			}
 
-			std::cout << "Engine Root: " << Config::k_EngineRoot << std::endl;
-			std::cout << "Template Root: " << Config::k_TempalteProjectRoot << std::endl;
-			std::cout << "Working Project Root: " << Config::k_WorkingProjectRoot << std::endl;
-			std::cout << "Working Project Assets: " << Config::k_WorkingProjectAssets << std::endl;
-			std::cout << "Working Project Scenes: " << Config::k_WorkingProjectScenes << std::endl;
+			CFG_LOGGER_INFO("Engine Root: {} ", Config::k_EngineRoot)
+			CFG_LOGGER_INFO("Template Root: {}" , Config::k_TempalteProjectRoot)
+			CFG_LOGGER_INFO("Working Project Root: {}", Config::k_WorkingProjectRoot)
+			CFG_LOGGER_INFO("Working Project Assets: {}", Config::k_WorkingProjectAssets)
+			CFG_LOGGER_INFO("Working Project Scenes: {}", Config::k_WorkingProjectScenes)
 
 			return true;
 		}
 		else
 		{
-			//FileSystem::CreateDirectory(config_path.parent_path().string());
+			//FileSystem::SPWCreateDirectory(config_path.parent_path().string());
 
 			std::filesystem::path absolute_engine_path = std::filesystem::absolute("./resources/");
 			std::string absolute_engine = absolute_engine_path.string();
@@ -163,7 +239,7 @@ namespace SPW
 	bool ConfigManager::WriteDefaultConfig()
 	{
 		std::filesystem::path config_file_dir = FileSystem::GetUserHomeDir().append("./.config/");
-		FileSystem::CreateDirectory(config_file_dir);
+		FileSystem::SPWCreateDirectory(config_file_dir);
 
 		toml::table engine_meta = toml::table
 		{
@@ -212,15 +288,16 @@ namespace SPW
 		}
 		else
 		{
-			std::cerr << "Failed to open config file." << std::endl;
+			CFG_LOGGER_WRAN("Failed to open config file.")
 			return false;
 		}
 	}
 
 	bool ConfigManager::WriteConfig(const std::string& curr_path)
 	{
+
 		std::filesystem::path config_file_dir = SPW::FileSystem::GetUserHomeDir().append("./.config/");
-		SPW::FileSystem::CreateDirectory(config_file_dir);
+		SPW::FileSystem::SPWCreateDirectory(config_file_dir);
 
 		toml::table engine_meta = toml::table
 		{
@@ -264,7 +341,7 @@ namespace SPW
 		}
 		else
 		{
-			std::cerr << "Failed to open config file." << std::endl;
+			CFG_LOGGER_WRAN("Failed to open config file.")
 			return false;
 		}
 	}

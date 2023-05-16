@@ -3,6 +3,8 @@
 #include "ImGui/IconsFontAwesome6.h"
 #include "IO/ConfigManager.h"
 #include "Render/RenderGraphManager.h"
+#include "Asset/Serializer/EntitySerializer.h"
+#include "IO/LogSystem/LogSystem.hpp"
 
 namespace SPW
 {
@@ -56,6 +58,18 @@ namespace SPW
 			componentStatus.at(ComponentType::MouseComponent) = false;
 	}
 
+
+	void ImGuiInspectorPanel::SetSelectedGameObject(const Entity& e)
+	{
+		m_Entity = std::make_shared<Entity>(e);
+
+		for (int i = static_cast<int>(ComponentType::IDComponent); i <= static_cast<int>(ComponentType::AudioListener); ++i)
+		{
+			auto componentType = static_cast<ComponentType>(i);
+			componentStatus[componentType] = false;
+		}
+	}
+
 	void ImGuiInspectorPanel::Draw()
 	{
 		if (m_Entity != nullptr)
@@ -79,7 +93,7 @@ namespace SPW
 				ImGui::InputText("*", m_PendingName, sizeof(m_PendingName));
 				if (ImGui::Button("Update"))
 				{
-					m_Entity->component<SPW::NameComponent>()->updateName(convertToString(m_PendingName));
+					m_Entity->component<SPW::NameComponent>()->updateName(FileSystem::CharStarToString(m_PendingName));
 					show_naming = false;
 					strcpy(m_PendingName, " ");
 				}
@@ -130,6 +144,12 @@ namespace SPW
 			{
 				show_addcomponent = true;
 				Loop();
+			}
+
+			ImGui::SetCursorPosX((ImGui::GetWindowWidth() * 0.2f));
+			if (ImGui::Button("Save Entity", ImVec2(200, 20)))
+			{
+				EntitySerializer::SaveEntity(m_Entity);
 			}
 
 			if (show_addcomponent)
@@ -197,20 +217,20 @@ namespace SPW
 							else if (componentType == ComponentType::KeyComponent)
 							{
 								std::cout << "Add KeyComponent Component\n";
-								m_Entity->emplace<SPW::KeyComponent>();
+								m_Entity->emplace<KeyComponent>();
 								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::MouseComponent)
 							{
 								//todo
 								std::cout << "Add MouseComponent Component\n";
-								m_Entity->emplace<SPW::MouseComponent>();
+								m_Entity->emplace<MouseComponent>();
 								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::AudioComponent)
 							{
 								std::cout << "Add AudioComponent Component\n";
-								m_Entity->emplace<SPW::AudioComponent>();
+								m_Entity->emplace<AudioComponent>();
 								show_addcomponent = false;
 							}
 							else if (componentType == ComponentType::AudioListener)
@@ -235,6 +255,7 @@ namespace SPW
 			}
 			// ------------- ADD ANY COMPONENT ------------- 
 		}
+
 	}
 
 	void ImGuiInspectorPanel::DrawTransformComponent(TransformComponent* component)
@@ -326,8 +347,7 @@ namespace SPW
 				const auto& renderGraphs = RenderGraphManager::getInstance()->GetRenderGraphs();
 				const auto& renderNodes = RenderGraphManager::getInstance()->GetNodes();
 
-				std::optional<std::string> currGraphKeyStr = RenderGraphManager::getInstance()->FindGraphName(
-					component->bindRenderGraph);
+				std::optional<std::string> currGraphKeyStr = RenderGraphManager::getInstance()->FindGraphName(component->bindRenderGraph);
 				static const char* currGraphKey = "";
 				if (currGraphKeyStr.has_value())
 					currGraphKey = currGraphKeyStr.value().c_str();
@@ -336,7 +356,7 @@ namespace SPW
 
 
 				std::vector<std::string> currNodeKeys;
-				static size_t numKeys = component->modelSubPassPrograms.size();
+//				static size_t numKeys = component->modelSubPassPrograms.size();
 				for (const auto& [k,v] : component->modelSubPassPrograms)
 				{
 					std::string tmp;
@@ -373,16 +393,27 @@ namespace SPW
 
 				ImGui::Text("Render Nodes");
 				ImGui::Separator();
-				for (size_t idx = 0; idx < numKeys; ++idx)
+				for (size_t idx = 0; idx < component->modelSubPassPrograms.size(); ++idx)
 				{
-					std::string label = "Node #" + std::to_string(idx);
+					std::string label = "Node " + std::to_string(idx);
 					const char* label_cstr = label.c_str();
 					const char* currNodeKey = currNodeKeys[idx].c_str();
+
+					std::string button_label = "x##" + currNodeKeys[idx];
+					if (ImGui::Button(button_label.c_str()))
+					{
+						component->modelSubPassPrograms.erase(GET_RENDER_NODE(currNodeKeys[idx]));
+						component->ready = false;
+					}
+					ImGui::SameLine();
+
+
 					if (ImGui::BeginCombo(label_cstr, currNodeKey))
 					{
 						for (const auto& [nodeKey, nodePtr] : renderNodes)
 						{
 							bool is_selected = (currNodeKeys[idx] == nodeKey);
+
 							if (ImGui::Selectable(nodeKey.c_str(), is_selected))
 							{
 								currNodeKeys[idx] = nodeKey;
@@ -401,16 +432,16 @@ namespace SPW
 								{
 									if (m_Entity->has<AnimationComponent>())
 									{
-										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] =
-											GET_SHADER_DESC(kAniDirectionalShadowShader).uuid;
+										component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kAniDirectionalShadowShader).uuid;
 									}
 									else
-										component->modelSubPassPrograms[GET_RENDER_NODE(kDirectionalShadowNode)] =
-											GET_SHADER_DESC(kDirectionalShadowShader).uuid;
+										component->modelSubPassPrograms[GET_RENDER_NODE(kDirectionalShadowNode)] = GET_SHADER_DESC(kDirectionalShadowShader).uuid;
 								}
 								else if (nodeKey == kGBufferNode)
-									component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(
-										kGBufferShader).uuid;
+									component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
+								else if (nodeKey == kSkyboxNode)
+									component->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
+
 							}
 							if (is_selected)
 							{
@@ -420,44 +451,32 @@ namespace SPW
 						ImGui::EndCombo();
 					}
 				}
-				if (ImGui::Button("Add Render Node!"))
-				{
-					// component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
-					numKeys++;
-				}
 
+//				if (ImGui::Button("Add Render Node"))
+//				{
+//					component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferShader)];
+//				}
+
+				if (ImGui::BeginCombo("Deferred Shaders", "G-Buffer Types"))
+				{
+					// bool is_selected = (currNodeKeys[idx] == nodeKey);
+
+					if (ImGui::Selectable("kGBufferShader"))
+					{
+						component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
+					}
+					if (ImGui::Selectable("kFloorGBufferShader"))
+					{
+						component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kFloorGBufferShader).uuid;
+					}
+						
+					ImGui::EndCombo();
+				}
 				ImGui::EndChild();
 
 				ImGui::TreePop();
 			}
 			ImGui::PopID();
-
-
-			// if (ImGui::BeginCombo("G-Buffer Render Node", kGBufferNode.c_str()))
-			// {
-			// 	for (const auto& [nodeKey, nodePtr] : renderNodes					)
-			// 	{
-			// 		bool is_selected = (currNodeKey == nodeKey.c_str());
-			// 		if (ImGui::Selectable(nodeKey.c_str(), is_selected))
-			// 		{
-			// 			currNodeKey = nodeKey.c_str();
-			// 			if(nodeKey == kPointShadowNode)
-			// 				component->modelSubPassPrograms[GET_RENDER_NODE(kPointShadowNode)] = GET_SHADER_DESC(kPointShadowShader).uuid;
-			// 			else if(nodeKey == kDirectionalShadowNode)
-			// 				component->modelSubPassPrograms[GET_RENDER_NODE(kDirectionalShadowNode)] = GET_SHADER_DESC(kDirectionalShadowShader).uuid;
-			// 			else if (nodeKey == kGBufferNode)
-			// 				component->modelSubPassPrograms[GET_RENDER_NODE(kGBufferNode)] = GET_SHADER_DESC(kGBufferShader).uuid;
-			// 		}
-			// 		if (is_selected) 
-			// 		{
-			// 			ImGui::SetItemDefaultFocus();
-			// 		}
-			// 	}
-			// 	ImGui::EndCombo();
-			// }
-
-			ImGui::PopID();
-
 
 			ImGui::PushID("Asset Meta");
 			std::string label = ICON_FA_DATABASE"			Asset Meta : " + component->assetName;
@@ -523,32 +542,38 @@ namespace SPW
 									{
 										ImGui::Text("Albedo");
 										ImGui::SameLine();
-										ImGui::Image(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
+										ImGui::ImageButton(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
 									}
 									else if (k == TextureMapType::Normal)
 									{
 										ImGui::Text("Normal");
 										ImGui::SameLine();
-										ImGui::Image(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
+										ImGui::ImageButton(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
 									}
 									else if (k == TextureMapType::Metalness)
 									{
 										ImGui::Text("Metalness");
 										ImGui::SameLine();
-										ImGui::Image(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
+										ImGui::ImageButton(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
 									}
 									else if (k == TextureMapType::Roughness)
 									{
 										ImGui::Text("Roughness");
 										ImGui::SameLine();
-										ImGui::Image(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
+										ImGui::ImageButton(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
 									}
 									else if (k == TextureMapType::AmbientOcclusion)
 									{
 										ImGui::Text("AO");
 										ImGui::SameLine();
-										ImGui::Image(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
+										ImGui::ImageButton(reinterpret_cast<void*>(icon_id), ImVec2(24, 24));
 									}
+
+									if (ImGui::IsItemClicked(0))
+									{
+										std::cout << "Clicked" << std::endl;
+									}
+
 								}
 
 								auto& curr_props = active_asset_data.materials[i].m_Properties;
@@ -588,30 +613,39 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawAnimationComponent(AnimationComponent* component) const
 	{
 		ImGui::PushID("Animation");
+        static const char* currGraphKey = "";
 
 		if (ImGui::TreeNode(ICON_FA_PERSON_RUNNING"			Animation")) /* TODO: add icon*/
 		{
 			const auto& skeleton = ResourceManager::getInstance()->m_AssetDataMap[component->assetName].skeleton;
 
-			if (ImGui::BeginChild("Animation", ImVec2(0, 120), true))
-			{
-				for (const auto& anim : skeleton.animClips)
-				{
-					const char* anim_name = anim.name.c_str();
-					ImGui::Text("name : %s", anim_name);
-				}
+            if (component->onGoingAnim)
+            {
+                if (ImGui::BeginChild("Animation", ImVec2(0, 120), true))
+                {
+                    const char* anim_name = component->onGoingAnim->name.c_str();
+                    currGraphKey = anim_name;
+                    ImGui::Text("name : %s", anim_name);
 
-				ImGui::Checkbox("onGoingAnim update", &component->onGoingAnim->bUpdate);
+                    if (ImGui::Button("Paused"))
+                    {
+                        component->respondAction(SPW::AnimationAction::Pause);
+                    }
 
-				ImGui::Checkbox("anim ssbo bind", &component->SPW_AnimSSBO->bBinding);
+                    if (ImGui::Button("Resumed"))
+                    {
+                        component->respondAction(SPW::AnimationAction::Resume);
+                    }
 
-				ImGui::Checkbox("anim ssbo Initialized", &component->SPW_AnimSSBO->bInitialized);
+                    if (ImGui::Button("Reset"))
+                    {
+                        component->respondAction(SPW::AnimationAction::Reset);
+                    }
 
-				ImGui::EndChild();
-			}
-
-			DrawHierarchyNode(component, skeleton.hierarchy);
-
+                    ImGui::EndChild();
+                }
+                DrawHierarchyNode(component, skeleton.hierarchy);
+            }
 
 			if (ImGui::Button("delete"))
 			{
@@ -622,6 +656,24 @@ namespace SPW
 			}
 
 			ImGui::TreePop();
+            if (ImGui::BeginCombo("Swap animation",currGraphKey))
+            {
+                for(const auto& clip : component->allAnimations)
+                {
+                    bool is_selected = (currGraphKey == clip.first);
+                    if (ImGui::Selectable(clip.first.c_str(),is_selected))
+                    {
+                        currGraphKey = clip.first.c_str();
+                        component->swapCurrentAnim(clip.first.c_str());
+                    }
+
+                    if (is_selected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+            }
+            ImGui::EndCombo();
 		}
 		ImGui::PopID();
 	}
@@ -810,6 +862,10 @@ namespace SPW
 		{
 			if (ImGui::Button("delete"))
 			{
+				for(auto&[k,v] : component->allSounds)
+				{
+					v->setState(SoundState::Stop);
+				}
 				m_Entity->remove<AudioComponent>();
 
 				ImGui::TreePop();
@@ -817,29 +873,40 @@ namespace SPW
 				return;
 			}
 
-			const std::string crtpath = component->currentSoundPath;
+// 			const std::string crtpath = component->currentSoundPath;
 			ImGui::Text("Audios: ");
 			ImGui::Separator();
-			const char* previewLabel = component->currentSoundPath.c_str();
-
-			int i = 1, j = 1;
+			// const char* previewLabel = component->currentSoundPath.c_str();
+			//
+			// int i = 1, j = 1;
+			size_t idx = 0;
 			for (const auto& [path, data] : component->allSounds)
 			{
+				ImGui::PushID(path.c_str());
 				ImGui::Text(path.c_str());
+				std::string idxStr = std::to_string(idx);
 				ImGui::Checkbox("is 3D", &data->is3D);
 				ImGui::Checkbox("is Loop", &data->isLoop);
 
-				if (ImGui::Button("Play"))
-					component->setState(component->currentSoundPath, Play);
+				std::string playLabel  = "Play##" + idxStr;
+				std::string stopLabel  = "Stop##" + idxStr;
+				std::string pauseLabel = "Pause##" + idxStr;
+				std::string contiLabel = "Continue##" + idxStr;
+				if (ImGui::Button(playLabel.c_str()))
+					// setState currentSoundPath
+					component->setState(path, Play);
 				ImGui::SameLine();
-				if (ImGui::Button("Stop"))
-					component->setState(component->currentSoundPath, Stop);
+				if (ImGui::Button(stopLabel.c_str()))
+					component->setState(path, Stop);
 				ImGui::SameLine();
-				if (ImGui::Button("Pause"))
-					component->setState(component->currentSoundPath, Pause);
+				if (ImGui::Button(pauseLabel.c_str()))
+					component->setState(path, Pause);
 				ImGui::SameLine();
-				if (ImGui::Button("Continue"))
-					component->setState(component->currentSoundPath, Continue);
+				if (ImGui::Button(contiLabel.c_str()))
+					component->setState(path, Continue);
+
+				ImGui::PopID();
+				idx++;
 			}
 			ImGui::TreePop();
 		}

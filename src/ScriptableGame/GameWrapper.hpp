@@ -46,9 +46,9 @@ extern "C"{
 namespace SPW {
     class GameWrapper : public SPW::AppDelegateI {
     public:
-        explicit GameWrapper(std::shared_ptr<SPW::EventResponderI> &app) :
-                SPW::AppDelegateI(app) {
-        }
+        explicit GameWrapper(std::shared_ptr<SPW::EventResponderI> &app, std::string script_path = "")
+    		: AppDelegateI(app), activePath(script_path)
+    	{ }
         void onAppInit() final {
             auto window = std::make_shared<SPW::GlfwWindow>();
             app->window = window;
@@ -73,7 +73,10 @@ namespace SPW {
             // load lua script
             context.init(8818);
             // TODO : load entry file
-            context.loadEntryScript("./resources/scripts/lua/TestGame.lua");
+            if (activePath.empty())
+                return;
+            context.loadEntryScript(activePath);
+//            context.loadEntryScript("./resources/scripts/lua/TestGame.lua");
 
             window->setSize(context.app_width, context.app_height);
             window->setTitle(context.app_name);
@@ -177,5 +180,6 @@ namespace SPW {
         std::string m_name;
         LuaAppContext context;
         std::shared_ptr<RenderBackEndI> renderBackEnd;
+        std::string activePath;
     };
 }

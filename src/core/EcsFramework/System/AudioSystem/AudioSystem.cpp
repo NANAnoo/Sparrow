@@ -92,7 +92,6 @@ namespace SPW {
                         if (sound->needUpdate()) {
                             switch (sound->state) {
                                 case SoundState::Play:
-                                    sc->currentSoundPath = path;
                                     sound->play(this);
                                     break;
                                 case SoundState::Pause:

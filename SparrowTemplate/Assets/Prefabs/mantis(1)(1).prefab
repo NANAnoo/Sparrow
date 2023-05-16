@@ -1,0 +1,42 @@
+{
+    "EntityNode": {
+        "uuid": "bc7ce24b-4b20-4367-9a1b-3affb5b9984d",
+        "name": "mantis"
+    },
+    "mask": [
+        {
+            "key": "TransformComponent",
+            "value": true
+        },
+        {
+            "key": "MeshComponent",
+            "value": true
+        }
+    ],
+    "TransformComponent": {
+        "position": {
+            "x": 0.06678282469511032,
+            "y": -0.2489999681711197,
+            "z": -0.0003019078285433352
+        },
+        "rotation": {
+            "x": 0.0000012254890862095636,
+            "y": -0.0004824929346796125,
+            "z": -0.0009647691622376442
+        },
+        "scale": {
+            "x": 0.10000000149011612,
+            "y": 0.10000000149011612,
+            "z": 0.10000000149011612
+        }
+    },
+    "MeshComponent": {
+        "bindCamera": "5bc7d784-6812-44a3-9c2f-e96aa578048b",
+        "bindRenderPass": 0,
+        "bindRenderGraph": 0,
+        "ready": true,
+        "assetID": "8594c362-fbad-49d4-b186-2ff41f2e9a0b",
+        "assetName": "mantis",
+        "assetPath": "Assets/mantis/mantis.json"
+    }
+}
