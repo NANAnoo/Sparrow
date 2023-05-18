@@ -83,10 +83,16 @@ namespace SPW{
 
         void setBackgroundImage(const char* img_path){
             bg_img = img_path;
+            if (!isHovered) {
+                updateBgImage(bg_img);
+            }
         }
 
         void setHoveredImage(const char* img_path){
             hovered_img = img_path;
+            if (isHovered) {
+                updateBgImage(hovered_img);
+            }
         }
 
     private:
@@ -145,7 +151,7 @@ namespace SPW{
         std::shared_ptr<SPW::Entity> button;
         std::string name_;
         std::string bg_img = "/UI/button.jpg";
-        std::string hovered_img= "/UI/hovered.jpg";
+        std::string hovered_img= "/UI/hovered.png";
         std::function<void()> onClick_;
         std::function<void()> onHover_;
         std::function<void()> noHover_;

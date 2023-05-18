@@ -391,8 +391,8 @@ public:
             light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
             auto test_button2 = new SPW::UIButton(scene->getUIResponder(), scene, "test2");
-            test_button2->setButtonOnClick([](){
-                std::cout << "Button 2 Clicked" << std::endl;
+            test_button2->setButtonOnClick([&](){
+                app->stop();
             });
             test_button2->setButtonOnHover([](){
                 std::cout << "Button 2 Hovered" << std::endl;
@@ -401,11 +401,7 @@ public:
                 std::cout << "Button 2 No Hover" << std::endl;
             });
             test_button2->setPosition(50,50);
-            test_button2->setSize(100,50);
-
-            auto test_label = new SPW::UILabel(scene->getUIResponder(), scene, "test");
-            test_label->setPosition(200,200);
-            test_label->setSize(200,100);
+            test_button2->setSize(100,100);
 
             // init scene
             scene->initUIResponder(weak_window.lock()->width(), weak_window.lock()->height());
