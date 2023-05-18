@@ -47,6 +47,7 @@
 #include "IO/ConfigManager.h"
 #include "UI/UIButton.hpp"
 #include "UI/UILabel.hpp"
+#include "EcsFramework/Component/Lights/PointLightComponent.hpp"
 
 
 const SPW::UUID& CreateACamera(const std::shared_ptr<SPW::Scene>& scene, float width, float height, bool main = true)
@@ -153,8 +154,12 @@ public:
         }
 
         {
-            auto data = SPW::AssetManager::LoadAsset(
-                    SPW::Config::k_WorkingProjectAssets + "sand_cube/sand_cube.json");
+            auto data = SPW::AssetManager::LoadAsset( SPW::Config::k_WorkingProjectAssets + "sand_cube/sand_cube.json");
+            SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
+        }
+
+		{
+            auto data = SPW::AssetManager::LoadAsset( SPW::Config::k_WorkingProjectAssets + "dragon/dragon.json");
             SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
         }
 
@@ -480,31 +485,12 @@ public:
 };
 
 // main entrance
-int main(int argc, char **argv) {
-    if (SPW::ConfigManager::ReadConfig())
-        std::cout << "Successfully read config file" << std::endl;
+int main(int argc, char** argv)
+{
+	if (SPW::ConfigManager::Boost())
+		std::cout << "Successfully Boost" << std::endl;
 
-	// copy engine shaders
-	SPW::FileSystem::MountPath(SPW::Config::k_EngineShaderLib, SPW::Config::k_WorkingProjectShaders);
-
-	// copy template project root with default asset
-	SPW::FileSystem::MountPath(SPW::Config::k_TempalteProjectRoot, SPW::Config::k_WorkingProjectRoot);
-
-	// copy sounds
-	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "sounds/", SPW::Config::k_WorkingProjectSounds);
-
-	// copy scripts
-	SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "scripts/", SPW::Config::k_WorkingProjectScripts);
-
-    // copy ui
-    SPW::FileSystem::MountPath(SPW::Config::k_EngineRoot + "UI/", SPW::Config::k_WorkingProjectUI);
-
-	// reference source code lualib
-	if (std::filesystem::exists(SPW::Config::k_EngineLualib))
-		std::cout << "\033[31m [CONFIG]::lualib exsits! \033[31m \n";
-
-    // app test
-    auto appProxy =
-            SPW::Application::create<SPWTestApp>("SPWTestApp");
-    return appProxy->app->run(argc, argv);
+	// app test
+	auto appProxy = SPW::Application::create<SPWTestApp>("SPWTestApp");
+	return appProxy->app->run(argc, argv);
 }

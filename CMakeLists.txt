@@ -25,6 +25,7 @@ if (NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
     set(IS_WIN_64 TRUE)
 endif ()
 
+
 if ("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
     set(IS_WIN_64 TRUE)
 endif ()

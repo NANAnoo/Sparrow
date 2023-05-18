@@ -57,7 +57,7 @@ namespace SPW
 	bool AssetManager::SaveAsset(std::unique_ptr<AssetData>&& model_data, std::string org_path)
 	{
 		std::string absolute_modelDir = FileSystem::JoinPaths(Config::k_WorkingProjectAssets, model_data->assetName);
-		FileSystem::CreateDirectory(absolute_modelDir);
+		FileSystem::SPWCreateDirectory(absolute_modelDir);
 
 		// Update Model Path
 		model_data->path = FileSystem::JoinPaths(absolute_modelDir, model_data->assetName) + ".json";
@@ -71,7 +71,7 @@ namespace SPW
 		if (!model_data->textures.empty())
 		{
 			std::string textureDir = FileSystem::JoinPaths(absolute_modelDir, "Textures/");
-			FileSystem::CreateDirectory(textureDir);
+			FileSystem::SPWCreateDirectory(textureDir);
 
 			// 2. Loop Textures and Copy Files into Texture Directory
 			for (auto& [k, v] : model_data->textures)

@@ -17,13 +17,11 @@ namespace SPW
 	class FileSystem
 	{
 	public:
-		static void MountPath(std::string src, std::string& dst);
+		static void MountPath(std::string src, std::string dst);
 
 		static void RecursiveCopyDirectory(const std::filesystem::path& source, const std::filesystem::path& destination);
 
 		static std::filesystem::path GetUserHomeDir();
-
-		static std::string GetProjectName();
 
 		static FilePath ToFsPath(const std::string& str);
 
@@ -33,18 +31,11 @@ namespace SPW
 
 		static std::string ToEningeAbsolutePath(const std::string& reativepath);
 
-		static std::vector<FilePath> GetFiles(const FilePath& directory)
-		{
-			std::vector<FilePath> files;
-			for (auto const& directory_entry: fs::recursive_directory_iterator{ directory })
-			{
-				if (directory_entry.is_regular_file())
-				{
-					files.emplace_back(directory_entry);
-				}
-			}
-			return files;
-		}
+		static std::vector<FilePath> GetFiles(const FilePath& directory);
+
+		static std::string GetSystemTime();
+
+		static std::string CharStarToString(char* array);
 
 		static std::string GetCleanFilename(const std::string& filename);
 
@@ -61,8 +52,8 @@ namespace SPW
 
 		static bool PathExists(const std::string& filename);
 
-		static bool CreateDirectory(const std::string& dir_name);
-		static bool CreateDirectory(const std::filesystem::path& dir_name);
+		static bool SPWCreateDirectory(const std::string& dir_name);
+		static bool SPWCreateDirectory(const std::filesystem::path& dir_name);
 
 		static bool CopyFile(const std::string& src, const std::string& dest);
 	};

@@ -30,32 +30,34 @@ namespace SPW
 	public:
 		SPWAnimSSBO() = default;
 
-		explicit SPWAnimSSBO(const VertBoneMap& SPW_VertexMap)
+		explicit SPWAnimSSBO(const VertBoneMap* SPW_VertexMap)
 		{
 			starts = std::make_shared<StorageBuffer>(
 				"WeightDictStart",
-				SPW_VertexMap.startIndex.size() * sizeof(int),
+				SPW_VertexMap->startIndex.size() * sizeof(int),
 				0);
 
 			sizes = std::make_shared<StorageBuffer>(
 				"WeightDictSize",
-				SPW_VertexMap.count.size() * sizeof(int),
+				SPW_VertexMap->count.size() * sizeof(int),
 				1);
 
 			boneIndices = std::make_shared<StorageBuffer>(
 				"WeightDictKey",
-				SPW_VertexMap.boneID.size() * sizeof(int),
+				SPW_VertexMap->boneID.size() * sizeof(int),
 				2);
 
 			weights = std::make_shared<StorageBuffer>(
 				"WeightDictValue",
-				SPW_VertexMap.weights.size() * sizeof(float),
+				SPW_VertexMap->weights.size() * sizeof(float),
 				3);
 
 			mats = std::make_shared<StorageBuffer>(
 				"WeightMatries",
-				SPW_VertexMap.boneCount * sizeof(glm::mat4),
+				SPW_VertexMap->boneCount * sizeof(glm::mat4),
 				4);
+
+            boneCout = SPW_VertexMap->boneCount;
 			bInitialized = true;
 		}
 
@@ -92,7 +94,16 @@ namespace SPW
 						onGoingAnim->boneMatrices.size() * sizeof(glm::mat4)
 					);
 				}
-			}
+			}else
+            {
+                std::vector<glm::mat4> temp;
+                temp.resize(this->boneCout,glm::mat4(1.0));
+                mats->updateSubData(
+                        temp.data(),
+                        0,
+                        temp.size() * sizeof(glm::mat4)
+                );
+            }
 		}
 
 		void bindingBuffer(MeshComponent* mesh)
@@ -135,6 +146,8 @@ namespace SPW
 		std::shared_ptr<StorageBuffer> boneIndices;
 		std::shared_ptr<StorageBuffer> weights;
 		std::shared_ptr<StorageBuffer> mats;
+        int boneCout = 0;
+
 		bool bBinding = false;
 		bool bInitialized = false;
 	};
@@ -156,19 +169,16 @@ namespace SPW
 				allAnimations.insert({animClip.name , animClip});
 			}
 
-			SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(skeleton.vertexWeightMap);
+            SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(&skeleton.vertexWeightMap);
 		}
 
 		~AnimationComponent() { onGoingAnim = nullptr; }
 
 		//Take action on current Anim
-		void respondAction(SPW::AnimationAction action, std::string animationName)
+		void respondAction(SPW::AnimationAction action)
 		{
 			switch (action)
 			{
-			case AnimationAction::Swap:
-				swapCurrentAnim(animationName);
-				break;
 			case AnimationAction::Pause:
 				if (onGoingAnim)
 					onGoingAnim->pause();
@@ -184,7 +194,6 @@ namespace SPW
 			}
 		}
 
-
         void setState(AnimationState state)
         {
             if (onGoingAnim)
@@ -192,7 +201,6 @@ namespace SPW
                 onGoingAnim->setState(state);
             }
         }
-
 
 		//swap animation
 		void swapCurrentAnim(const std::string& name)
@@ -216,24 +224,11 @@ namespace SPW
 			}
 		}
 
-		void addAnimation(AnimationClip clip)
-		{
-			// if (!skeleton && !clip.name.empty())
-			// {
-			// 	allAnimations.insert({clip.name, clip});
-			// }
-		}
-
 		void setLoop(bool enable)
-		{
-			if (onGoingAnim)
-				onGoingAnim->isLoop = enable;
-		}
-
-		void SetAnimation(AnimationClip* anim)
-		{
-			onGoingAnim = anim;
-		}
+        {
+            if (onGoingAnim)
+                onGoingAnim->isLoop = enable;
+        }
 
 		template <class Archive>
 		void serialize(Archive& ar)
@@ -256,7 +251,8 @@ namespace SPW
             {
                 allAnimations.insert({animClip.name , animClip});
             }
-            SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(skeleton.vertexWeightMap);
+
+            SPW_AnimSSBO = std::make_shared<SPWAnimSSBO>(&skeleton.vertexWeightMap);
         }
 
 

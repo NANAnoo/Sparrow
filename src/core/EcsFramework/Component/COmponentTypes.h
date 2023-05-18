@@ -33,6 +33,8 @@ namespace SPW
 		AudioComponent,
 		AudioListener,
 	};
+	
+	using ComponentMask = int;
 
 	inline std::string ComponentTypeToString(ComponentType componentType) {
 		switch (static_cast<int>(componentType)) {

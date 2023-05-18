@@ -9,6 +9,11 @@
 #include <ShlObj.h>
 #include <tchar.h>
 #include <fstream>
+#include <ctime>
+#include <chrono>
+#include <sstream>
+#include <iomanip>
+#include "LogSystem/LogSystem.hpp"
 
 #ifdef CreateDirectory
 #undef CreateDirectory
@@ -20,12 +25,11 @@
 
 namespace SPW
 {
-
-	void FileSystem::MountPath(std::string src, std::string& dst)
+	void FileSystem::MountPath(std::string src, std::string dst)
 	{
 		try
 		{
-			CreateDirectory(dst);
+			SPWCreateDirectory(dst);
 			for (const auto& entry : std::filesystem::directory_iterator(src))
 			{
 				const auto& path = entry.path();
@@ -43,13 +47,14 @@ namespace SPW
 		}
 		catch (std::exception& e)
 		{
-			std::cerr << "Error: " << e.what() << std::endl;
+			FS_LOGGER_WRAN("Unable to mount path: {0}", e.what())
 		}
 	}
 
 
 	std::filesystem::path FileSystem::GetUserHomeDir()
 	{
+//        return "./";
 		TCHAR homeDirectory[MAX_PATH];
 		HRESULT result = SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, homeDirectory);
 
@@ -57,11 +62,10 @@ namespace SPW
 		{
 			return std::filesystem::u8path(std::string(homeDirectory));
 		}
-		else
-		{
-			std::cerr << "Error: Unable to retrieve the user home directory." << std::endl;
-			return std::string();
-		}
+
+		FS_LOGGER_CRITICAL("Unable to retrieve the user home directory")
+
+		return std::string();
 	}
 
 	void FileSystem::RecursiveCopyDirectory(const std::filesystem::path& source, const std::filesystem::path& destination)
@@ -87,7 +91,7 @@ namespace SPW
 		}
 		catch (std::exception& e)
 		{
-			std::cerr << "Error: " << e.what() << std::endl;
+			FS_LOGGER_INFO("{0}", e.what())
 		}
 	}
 
@@ -112,6 +116,39 @@ namespace SPW
 	std::string FileSystem::ToEningeAbsolutePath(const std::string& reativepath)
 	{
 		return JoinPaths(Config::k_EngineRoot, reativepath);
+	}
+
+	std::vector<FilePath> FileSystem::GetFiles(const FilePath& directory)
+	{
+		std::vector<FilePath> files;
+		for (auto const& directory_entry: fs::recursive_directory_iterator{ directory })
+		{
+			if (directory_entry.is_regular_file())
+			{
+				files.emplace_back(directory_entry);
+			}
+		}
+		return files;
+	}
+
+	std::string FileSystem::GetSystemTime()
+	{
+		auto now = std::chrono::system_clock::now();
+		auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+		std::tm buf = *std::localtime(&in_time_t);
+
+		std::ostringstream os;
+		os << std::put_time(&buf, "%Y-%m-%d-%H-%M-%S");
+
+		return os.str();
+	}
+
+	std::string FileSystem::CharStarToString(char* array)
+	{
+		std::stringstream ss;
+		ss << array;
+		return ss.str();
 	}
 
 	std::string FileSystem::GetCleanFilename(const std::string& filename)
@@ -154,12 +191,12 @@ namespace SPW
 		return fs::exists(filename) ? true : false;
 	}
 
-	bool FileSystem::CreateDirectory(const std::string& dir_name)
+	bool FileSystem::SPWCreateDirectory(const std::string& dir_name)
 	{
 		// Check if the directory already exists.
 		if (fs::exists(dir_name))
 		{
-			std::cout << "The directory " << dir_name << " already exists.\n";
+			FS_LOGGER_INFO("The directory {} already exists.", dir_name)
 			return true;
 		}
 
@@ -167,21 +204,22 @@ namespace SPW
 		std::error_code err;
 		if (!fs::create_directories(dir_name, err))
 		{
-			std::cout << "CreateDirectory: FAILED to create " << dir_name
-				<< " err: " << err.message() << "\n";
+			FS_LOGGER_WRAN("FAILED to create the directory {}, {}", dir_name, err.message())
 			return false;
 		}
+
 
 		// Directory created successfully.
 		return true;
 	}
 
-	bool FileSystem::CreateDirectory(const std::filesystem::path& dir_name)
+	bool FileSystem::SPWCreateDirectory(const std::filesystem::path& dir_name)
 	{
 		// Check if the directory already exists.
 		if (fs::exists(dir_name))
 		{
-			std::cout << "The directory " << dir_name << " already exists.\n";
+			FS_LOGGER_INFO("The directory {0} already exists.", dir_name.string())
+
 			return true;
 		}
 
@@ -189,8 +227,8 @@ namespace SPW
 		std::error_code err;
 		if (!fs::create_directories(dir_name, err))
 		{
-			std::cout << "CreateDirectory: FAILED to create " << dir_name
-				<< " err: " << err.message() << "\n";
+			FS_LOGGER_WRAN("FAILED to create the directory {0}, {1}", dir_name.string(), err.message())
+
 			return false;
 		}
 
@@ -205,17 +243,18 @@ namespace SPW
 			// Check if the destination file already exists
 			if (fs::exists(dest))
 			{
-				std::cout << "File " << dest << " already exists. Skipping copy operation.\n";
+				FS_LOGGER_INFO("The directory {0} already exists. Skipping copy operation.", dest);
+
 				return true;
 			}
 			// Copy the source file to the destination
 			fs::copy_file(fs::path(src), fs::path(dest), std::filesystem::copy_options::overwrite_existing);
-			std::cout << "File copied successfully from " << src << " to " << dest << std::endl;
+			FS_LOGGER_INFO("copied successfully from {0}  to {1}", src, dest);
 			return true;
 		}
 		catch (const std::filesystem::filesystem_error& e)
 		{
-			std::cerr << "Error: " << e.what() << std::endl;
+			FS_LOGGER_INFO("copy error: {0}", e.what())
 			return false;
 		}
 	}

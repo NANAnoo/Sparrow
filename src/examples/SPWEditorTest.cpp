@@ -42,6 +42,7 @@
 // io
 #include "IO/FileSystem.h"
 #include "IO/ConfigManager.h"
+#include "IO/LogSystem/LogSystem.hpp"
 // asset
 #include "Asset/Serializer/EntitySerializer.h"
 #include "Asset/ResourceManager/ResourceManager.h"
@@ -271,8 +272,7 @@ public:
 		}
 
 		{
-			auto data = SPW::AssetManager::LoadAsset(
-				SPW::Config::k_WorkingProjectAssets + "companion_cube/companion_cube.json");
+			auto data = SPW::AssetManager::LoadAsset(SPW::Config::k_WorkingProjectAssets + "companion_cube/companion_cube.json");
 			SPW::ResourceManager::getInstance()->m_AssetDataMap.emplace(data.assetName, data);
 		}
 
@@ -406,9 +406,11 @@ public:
 			audioClip->emplace<SPW::TransformComponent>();
 			//= scene->createEntity("audio");
 			std::string flyMeToTheMoon = SPW::Config::k_WorkingProjectSounds + "FlyMeToTheMoon.mp3";
-			std::string edm = SPW::Config::k_WorkingProjectSounds + "EDM.mav";
+			std::string edm = SPW::Config::k_WorkingProjectSounds + "EDM.wav";
 			auto audioCom = audioClip->emplace<SPW::AudioComponent>(std::vector{ flyMeToTheMoon, edm });
-			audioCom->setState(flyMeToTheMoon, SPW::SoundState::Play);
+			audioCom->setState(flyMeToTheMoon, SPW::SoundState::Stop);
+			audioCom->setState(edm, SPW::SoundState::Stop);
+
 			// audioClip.swap();
 			// --------------------------------------------------------------------------------
 			SPW::ResourceManager::getInstance()->m_CameraIDMap["main"] = camera_id;
@@ -576,12 +578,12 @@ public:
 			light4->emplace<SPW::KeyComponent>()->onKeyHeldCallBack = light_controller(3);
 
 
-			std::cout << "ImGui" << IMGUI_VERSION << std::endl;
+			TEST_LOGGER_INFO("ImGui : {}", IMGUI_VERSION)
 #ifdef IMGUI_HAS_VIEWPORT
-			std::cout << " +viewport";
+			TEST_LOGGER_INFO("ImGui : + viewport")
 #endif
 #ifdef IMGUI_HAS_DOCK
-			std::cout << " +docking" << std::endl;
+			TEST_LOGGER_INFO("ImGui : + docking")
 #endif
 
 			// init scene
@@ -665,9 +667,10 @@ public:
 int main(int argc, char** argv)
 {
 	if (SPW::ConfigManager::Boost())
-		std::cout << "Boost" << std::endl;
-	else
-		return -1;
+	{
+		TEST_LOGGER_INFO("Boot Edtior Test")
+	}
+	else return -1;
 
 
 	// app test

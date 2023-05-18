@@ -12,7 +12,9 @@
 #include "Render/RenderGraphManager.h"
 
 #include <glm/glm/gtx/euler_angles.hpp>
+#include <glm/glm.hpp>
 #include "IO/FileSystem.h"
+#include "IO/LogSystem/LogSystem.hpp"
 
 namespace SPW {
     void SPWRenderSystem::initial() {
@@ -142,6 +144,7 @@ namespace SPW {
             auto cameraCom = cam.component<CameraComponent>();
             auto transformCom = cam.component<TransformComponent>();
             glm::mat4x4 V, P;
+            
             glm::vec3 camPos = transformCom->position;
             glm::mat4x4 cameraTransform = glm::translate(glm::mat4(1.f), transformCom->position);
             cameraTransform = cameraTransform * glm::eulerAngleYXZ(glm::radians(transformCom->rotation.y),
@@ -172,7 +175,8 @@ namespace SPW {
             for (const auto& mesh_entity : meshes) {
                 auto mesh = mesh_entity.component<MeshComponent>();
             	auto &model_by_shader = model_by_pass[mesh->bindRenderGraph];
-                for (auto &[id, uuid] : mesh->modelSubPassPrograms) {
+                for (auto &[id, uuid] : mesh->modelSubPassPrograms) 
+                {
                     model_by_shader[id].push_back(mesh_entity);
                 }
             }

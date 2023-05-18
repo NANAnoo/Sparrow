@@ -69,6 +69,7 @@ namespace SPW
 
 	struct Skeleton
 	{
+    public:
 		std::vector<AnimationClip> animClips;
 		std::unordered_map<std::string, BoneInfo> boneMap;
 		HierarchyNode hierarchy;

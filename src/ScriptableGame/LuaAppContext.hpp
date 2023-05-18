@@ -36,7 +36,15 @@ namespace SPW {
                                 sol::lib::utf8);
 
             std::string x = m_state["package"]["path"];
-            m_state["package"]["path"] = x + ";./LuaLib/?.lua;./resources/scripts/lua/?.lua";
+
+        	std::string engineLib = Config::k_EngineLualib + "?.lua";
+            // std::cout << " engineLib" << engineLib << std::endl;
+        	std::string userLib = Config::k_WorkingProjectScripts + "lua/?.lua";
+            // FileSystem::MountPath(Config::k_WorkingProjectScripts + "lua", "./lua");
+            // std::cout << " userLib" << userLib << std::endl;
+            // std::cout << x + ";" + engineLib + ";" + userLib;
+
+        	m_state["package"]["path"] = x + ";" + engineLib + ";" + userLib;
 
             // glm::vec3
             {
@@ -114,6 +122,22 @@ namespace SPW {
                 glm_ns_table.set_function("cross",sol::overload(
                     [] (const glm::vec3* v_a,const glm::vec3* v_b) {
                         return glm::cross(*v_a,*v_b);
+                        }));
+                glm_ns_table.set_function("dot",sol::overload(
+                        [] (const glm::vec3* v_a,const glm::vec3* v_b) {
+                            return glm::dot(*v_a,*v_b);
+                        }));
+                glm_ns_table.set_function("normalize",sol::overload(
+                        [] (const glm::vec3* v_a) {
+                            return glm::normalize(*v_a);
+                        }));
+                glm_ns_table.set_function("angleAxis",sol::overload(
+                    [] (const float angle,const glm::vec3 axis) {
+                        return glm::angleAxis(angle,axis);
+                        }));
+                glm_ns_table.set_function("eulerAngles",sol::overload(
+                        [] (const glm::quat axis) {
+                            return glm::eulerAngles(axis);
                         }));
             }
 

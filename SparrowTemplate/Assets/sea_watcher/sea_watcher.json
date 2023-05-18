@@ -1,0 +1,402 @@
+{
+    "assetID": "9010aec6-b6e8-49ee-b058-b86415be152b",
+    "assetName": "sea_watcher",
+    "assetPath": "Assets/sea_watcher/sea_watcher.json",
+    "meshURI": "63df16f0-9230-4d48-a2df-41f9115afba2",
+    "materials": [
+        {
+            "id": "e4ddb188-137b-4812-940e-45f5ce9a159d",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "562f1795-2c8f-41a1-99a7-fec4cffe8eb5"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 159.99998474121095,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "dd136cfc-46e9-4aaf-921b-430a5451f810",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "27db61c9-b385-4752-82c4-312bfc95b60e"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 159.99998474121095,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "55e22119-2248-450b-95ef-e8721516f582",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "53d78531-d342-4fb7-9c35-8db1b4535eda"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 159.99998474121095,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "f441ca35-d205-4540-8927-99e685556829",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "c5cb795e-8ab5-4070-b2f2-d76cf0d48fdf"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 159.99998474121095,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "0f8b7d8b-58b9-443e-aeb8-07d3ce7d1cb5",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "3667097b-a491-4925-a728-d999d4cc2cbc"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 159.99998474121095,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "54f07946-3fea-4b1c-9ff0-c630691bbb4a",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "6c50f6c1-6b34-447d-aaf8-b4a23bdf1a70"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 159.99998474121095,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        },
+        {
+            "id": "52ac4b1e-bf44-4c89-99ff-c421d32a2b49",
+            "textureMap": [
+                {
+                    "key": "Albedo",
+                    "value": "cc02991b-782a-47d2-8d94-793a740eecbb"
+                }
+            ],
+            "property": {
+                "albedoConstant": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "metallicConstant": 0.0,
+                "AOConstant": 0.0,
+                "diffuse": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissive": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "transparent": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "refection": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "emissiveIntensity": 0.0,
+                "specularPower": 159.99998474121095,
+                "transparentIntensity": 0.0,
+                "refractionIntensity": 0.0
+            }
+        }
+    ],
+    "textures": [
+        {
+            "key": "562f1795-2c8f-41a1-99a7-fec4cffe8eb5",
+            "value": "Assets/sea_watcher/Textures/Fortress_baseColor.png"
+        },
+        {
+            "key": "cc02991b-782a-47d2-8d94-793a740eecbb",
+            "value": "Assets/sea_watcher/Textures/material_4_baseColor.jpeg"
+        },
+        {
+            "key": "6c50f6c1-6b34-447d-aaf8-b4a23bdf1a70",
+            "value": "Assets/sea_watcher/Textures/material_baseColor.png"
+        },
+        {
+            "key": "27db61c9-b385-4752-82c4-312bfc95b60e",
+            "value": "Assets/sea_watcher/Textures/Fortress_baseColor.png"
+        },
+        {
+            "key": "53d78531-d342-4fb7-9c35-8db1b4535eda",
+            "value": "Assets/sea_watcher/Textures/Fortress_baseColor.png"
+        },
+        {
+            "key": "3667097b-a491-4925-a728-d999d4cc2cbc",
+            "value": "Assets/sea_watcher/Textures/Sand_baseColor.jpeg"
+        },
+        {
+            "key": "c5cb795e-8ab5-4070-b2f2-d76cf0d48fdf",
+            "value": "Assets/sea_watcher/Textures/Environment_baseColor.png"
+        }
+    ]
+}

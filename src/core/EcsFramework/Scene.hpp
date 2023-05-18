@@ -83,7 +83,16 @@ namespace SPW {
                 deleteEntity(all_entities[uuid]);
             }
         }
+        void clearAllEntity()
+        {
+            for (const auto& entity : all_entities)
+            {
+                if(entity.second->has<CameraComponent>() && entity.second->getUUID() == ResourceManager::getInstance()->activeCameraID)
+					continue;
+            	deleteEntity(entity.second);
 
+            }
+        }
         // for each
         // iterate components of every entity that has required components
         //

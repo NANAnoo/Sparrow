@@ -7,8 +7,13 @@ namespace SPW
 	public:
 		ImGuiImagePanel(int64_t tid)
 			: ImGuiPanel(ICON_FA_IMAGE"  Image Panel",nullptr, ImGuiWindowFlags_NoMove )
-			  , texture_id(tid)
+			, texture_id(tid)
 		{
+		}
+
+		void SetupCurrImageID(int64_t tid)
+		{
+			texture_id = tid;
 		}
 
 	protected:

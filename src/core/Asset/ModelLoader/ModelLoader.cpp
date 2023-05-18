@@ -609,7 +609,7 @@ namespace SPW
 			{
 				ret_skeleton.animClips[clip].boneMatrices.resize(ret_skeleton.boneMap.size(), glm::mat4(1.0f));
 
-				int frameCount = 60;
+				int frameCount = 144;
 				ret_skeleton.animClips[clip].matrixPerFrames.resize(frameCount);
 				for (int i = 0; i < frameCount; ++i)
 				{

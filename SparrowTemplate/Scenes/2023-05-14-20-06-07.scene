@@ -1,0 +1,474 @@
+{
+    "entityNodes": [
+        {
+            "uuid": "9fd14cef-5116-444b-8f36-c6bc3501e273",
+            "name": "light"
+        },
+        {
+            "uuid": "7d16ea28-5d59-46a7-ad22-50b61f18b06b",
+            "name": "light"
+        },
+        {
+            "uuid": "e176dd0f-6803-478c-9ade-6351e48b4420",
+            "name": "light"
+        },
+        {
+            "uuid": "0e7735fb-4e43-41e3-93af-8f66f3386e2d",
+            "name": "light"
+        },
+        {
+            "uuid": "c23963ed-a2af-410e-bc3e-c2dcb9816008",
+            "name": "skybox"
+        },
+        {
+            "uuid": "ef425467-c404-4793-99b6-ce7bcff7cc23",
+            "name": "floor"
+        },
+        {
+            "uuid": "ac922a22-8897-4578-9e58-be71e473c0b7",
+            "name": "mantis"
+        },
+        {
+            "uuid": "30adebcf-4652-4b14-b8d6-ed5cae5c5e0e",
+            "name": "anim dragon"
+        },
+        {
+            "uuid": "236d0a5b-d512-4599-bcc4-33a97a4dfd04",
+            "name": "audio"
+        },
+        {
+            "uuid": "53709cad-77ae-4f99-b22b-766798331c89",
+            "name": "not main camera"
+        },
+        {
+            "uuid": "6d6b1fc2-1b12-4683-86e7-1585c20081df",
+            "name": "main camera"
+        },
+        {
+            "uuid": "6a37c0c7-9d5f-4c4a-b2a9-ffcabc8e10e0",
+            "name": "ui_camera"
+        }
+    ],
+    "cameraComponents": [
+        {
+            "key": "6d6b1fc2-1b12-4683-86e7-1585c20081df",
+            "value": {
+                "cameraType": 0,
+                "fov": 60.0,
+                "aspect": 1.7777777910232545,
+                "near": 0.009999999776482582,
+                "far": 100.0
+            }
+        },
+        {
+            "key": "53709cad-77ae-4f99-b22b-766798331c89",
+            "value": {
+                "cameraType": 0,
+                "fov": 60.0,
+                "aspect": 1.7777777910232545,
+                "near": 0.009999999776482582,
+                "far": 50.0
+            }
+        },
+        {
+            "key": "6a37c0c7-9d5f-4c4a-b2a9-ffcabc8e10e0",
+            "value": {
+                "cameraType": 2,
+                "left": 0.0,
+                "right": 1280.0,
+                "bottom": 0.0,
+                "top": 720.0
+            }
+        }
+    ],
+    "pointLightComponents": [
+        {
+            "key": "e176dd0f-6803-478c-9ade-6351e48b4420",
+            "value": {
+                "constant": 0.0,
+                "linear": 0.0,
+                "quadratic": 0.0,
+                "ambient": {
+                    "x": 0.0,
+                    "y": 0.5,
+                    "z": 1.0
+                },
+                "diffuse": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            }
+        },
+        {
+            "key": "0e7735fb-4e43-41e3-93af-8f66f3386e2d",
+            "value": {
+                "constant": 0.0,
+                "linear": 0.0,
+                "quadratic": 0.0,
+                "ambient": {
+                    "x": 1.0,
+                    "y": 0.5,
+                    "z": 0.0
+                },
+                "diffuse": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            }
+        }
+    ],
+    "directionalComponents": [
+        {
+            "key": "9fd14cef-5116-444b-8f36-c6bc3501e273",
+            "value": {
+                "ambient": {
+                    "x": 0.5,
+                    "y": 1.0,
+                    "z": 0.0
+                },
+                "diffuse": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            }
+        },
+        {
+            "key": "7d16ea28-5d59-46a7-ad22-50b61f18b06b",
+            "value": {
+                "ambient": {
+                    "x": 0.5,
+                    "y": 0.0,
+                    "z": 1.0
+                },
+                "diffuse": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "specular": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            }
+        }
+    ],
+    "transformComponents": [
+        {
+            "key": "c23963ed-a2af-410e-bc3e-c2dcb9816008",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "236d0a5b-d512-4599-bcc4-33a97a4dfd04",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "9fd14cef-5116-444b-8f36-c6bc3501e273",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 30.0,
+                    "y": -60.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "ac922a22-8897-4578-9e58-be71e473c0b7",
+            "value": {
+                "position": {
+                    "x": 0.1584465354681015,
+                    "y": -0.2489999681711197,
+                    "z": -0.00019926042295992374
+                },
+                "rotation": {
+                    "x": 0.000001068048504748731,
+                    "y": -0.00040221604285761714,
+                    "z": -0.0008042509434744716
+                },
+                "scale": {
+                    "x": 0.10000000149011612,
+                    "y": 0.10000000149011612,
+                    "z": 0.10000000149011612
+                }
+            }
+        },
+        {
+            "key": "7d16ea28-5d59-46a7-ad22-50b61f18b06b",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 30.0,
+                    "y": 60.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "e176dd0f-6803-478c-9ade-6351e48b4420",
+            "value": {
+                "position": {
+                    "x": -1.0,
+                    "y": 1.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "ef425467-c404-4793-99b6-ce7bcff7cc23",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": -0.3499999940395355,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 5.0,
+                    "y": 0.05000000074505806,
+                    "z": 5.0
+                }
+            }
+        },
+        {
+            "key": "0e7735fb-4e43-41e3-93af-8f66f3386e2d",
+            "value": {
+                "position": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "30adebcf-4652-4b14-b8d6-ed5cae5c5e0e",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": -0.30000001192092898,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 90.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 0.05000000074505806,
+                    "y": 0.05000000074505806,
+                    "z": 0.05000000074505806
+                }
+            }
+        },
+        {
+            "key": "53709cad-77ae-4f99-b22b-766798331c89",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "6d6b1fc2-1b12-4683-86e7-1585c20081df",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": -1.840000867843628,
+                    "y": -8.599980354309082,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "key": "6a37c0c7-9d5f-4c4a-b2a9-ffcabc8e10e0",
+            "value": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": -1.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        }
+    ],
+    "meshComponents": [
+        {
+            "key": "c23963ed-a2af-410e-bc3e-c2dcb9816008",
+            "value": {
+                "bindCamera": "6d6b1fc2-1b12-4683-86e7-1585c20081df",
+                "bindRenderPass": 0,
+                "bindRenderGraph": 1,
+                "ready": true,
+                "assetID": "74b862ed-05b6-4576-852c-5cf548cf7604",
+                "assetName": "skybox",
+                "assetPath": "Assets/skybox/skybox.json"
+            }
+        },
+        {
+            "key": "ef425467-c404-4793-99b6-ce7bcff7cc23",
+            "value": {
+                "bindCamera": "6d6b1fc2-1b12-4683-86e7-1585c20081df",
+                "bindRenderPass": 0,
+                "bindRenderGraph": 0,
+                "ready": true,
+                "assetID": "cbd0b6e9-90e6-4e60-abf0-9ad820c7ce72",
+                "assetName": "sand_cube",
+                "assetPath": "Assets/sand_cube/sand_cube.json"
+            }
+        },
+        {
+            "key": "ac922a22-8897-4578-9e58-be71e473c0b7",
+            "value": {
+                "bindCamera": "6d6b1fc2-1b12-4683-86e7-1585c20081df",
+                "bindRenderPass": 0,
+                "bindRenderGraph": 0,
+                "ready": true,
+                "assetID": "8594c362-fbad-49d4-b186-2ff41f2e9a0b",
+                "assetName": "mantis",
+                "assetPath": "Assets/mantis/mantis.json"
+            }
+        },
+        {
+            "key": "30adebcf-4652-4b14-b8d6-ed5cae5c5e0e",
+            "value": {
+                "bindCamera": "6d6b1fc2-1b12-4683-86e7-1585c20081df",
+                "bindRenderPass": 0,
+                "bindRenderGraph": 0,
+                "ready": true,
+                "assetID": "eaa2997c-9f63-4345-959b-524a771a6f5d",
+                "assetName": "dragon",
+                "assetPath": "Assets/dragon/dragon.json"
+            }
+        }
+    ],
+    "animationComponents": [
+        {
+            "key": "30adebcf-4652-4b14-b8d6-ed5cae5c5e0e",
+            "value": {
+                "assetName": "dragon"
+            }
+        }
+    ]
+}
