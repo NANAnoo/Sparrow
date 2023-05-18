@@ -92,8 +92,8 @@ vec3 SSR(float roughness,vec3 albedo,float metallic, sampler2D Screen)
            continue;
         }
         vec3 rayEndPositionView = positionView.xyz + reflectionView * maxRayDistance;
-        eps = 0.000005;
-        eps = max(eps* (1.0 - abs(dot(reflectionView,normalView))) * 50,eps);
+        eps = 0.0005;
+        eps *= 1.0 - min(0.999, 1.5 * abs(dot(reflectionView,normalView)));
 
         //Texture Space ray calculation
         vec4 rayEndPositionTexture = P * vec4(rayEndPositionView,1);

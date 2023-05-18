@@ -322,9 +322,9 @@ public:
 			auto cubeTrans = cubeObj->emplace<SPW::TransformComponent>();
 			cubeTrans->scale = {50.0, 0.05, 50.0};
 			auto floorModel = cubeObj->emplace<SPW::MeshComponent>(camera_id);
-            floorModel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetID;
-            floorModel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].assetName;
-            floorModel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["cube"].path;
+            floorModel->assetID = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetID;
+            floorModel->assetName = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].assetName;
+            floorModel->assetPath = SPW::ResourceManager::getInstance()->m_AssetDataMap["sand_cube"].path;
 
             floorModel->bindRenderGraph = GET_RENDER_GRAPH(SPW::kDefferShadingGraph);
             floorModel->modelSubPassPrograms[GET_RENDER_NODE(SPW::kGBufferNode)] = GET_SHADER_DESC(
@@ -358,8 +358,8 @@ public:
             skyMesh->bindRenderGraph = GET_RENDER_GRAPH(SPW::kSkyBoxRenderGraph);
             skyMesh->modelSubPassPrograms[GET_RENDER_NODE(SPW::kSkyboxNode)] = GET_SHADER_DESC(SPW::kSkyBoxShader).uuid;
 
-            auto light1 = createPlight(scene, {5, 2, 2}, {10, 5, 0});
-            auto light2 = createPlight(scene, {5, 2, -2}, {0, 5, 10});
+            auto light1 = createPlight(scene, {5, 2, 2}, {100, 50, 0});
+            auto light2 = createPlight(scene, {5, 2, -2}, {0, 50, 100});
             auto light3 = createDirectionalLight(scene, {30, 60, 0}, {0.5, 0, 1});
             auto light4 = createDirectionalLight(scene, {30, -60, 0}, {0.5, 1, 0});
             static int control_id = 0;
