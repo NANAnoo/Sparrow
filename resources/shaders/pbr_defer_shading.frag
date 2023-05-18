@@ -81,8 +81,6 @@ float ShadowCalculation(int slot)
 vec3 PBR(vec3 N,vec3 position)
 {
     vec3 lighting = vec3(0, 0, 0);
-
-    float ao        = getAO(N,position,-texture(gPosition, TexCoords).w,V,P);
     for (int i = 0; i < PLightCount && i < 10; i ++) {
         float shadow = ShadowCalculation(i);
         lighting += PBR_P(albedo,metallic,roughness,N,VDir,position,camPos,PLights[i],shadow);
@@ -99,7 +97,7 @@ vec3 PBR(vec3 N,vec3 position)
         }
         lighting += PBR_D(albedo,metallic,roughness,N,VDir,vec3(position),camPos,DLights[i], shadow);
     }
-    return (lighting + vec3(0.03) * albedo) * ao;
+    return lighting + vec3(0.03) * albedo;
 }
 
 void main()
@@ -111,6 +109,7 @@ void main()
     }
     gl_FragDepth = texture(gDepth, TexCoords).r;
     vec3 PBRColor = PBR(normal,position);
+    float ao        = getAO(normal,position,-texture(gPosition, TexCoords).w,V,P);
 
-    FragColor = vec4(PBRColor,1.0f);
+    FragColor = vec4(PBRColor,ao);
 }

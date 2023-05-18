@@ -30,13 +30,15 @@ void main()
     );
 
     vec3 reflect_color = vec3(0);
+    float ao = 0;
     for(int i = 0; i < 9; i++)
     {
         reflect_color += vec3(texture(reflection, TexCoords.st + pixel_size * offsets[i])) * kernel[i];
+        ao += texture(Screen, TexCoords.st + pixel_size * offsets[i] * 2).a * kernel[i];
     }
-    vec3 color = texture(Screen, TexCoords).rgb + reflect_color;
+    vec3 color = texture(Screen, TexCoords).rgb  + reflect_color;
     color = color / (color + 1.0);
     color = pow(color, vec3(1.0/2.2));
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color* ao, 1.0);
     gl_FragDepth = texture(gDepth, TexCoords).r;
 }

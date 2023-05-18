@@ -276,6 +276,15 @@ public:
                     SPW::ResourceManager::getInstance()->m_AssetDataMap["dragon"].assetName);
             dragon_anim->swapCurrentAnim("dragon_idle");
 
+            dragon->emplace<SPW::KeyComponent>()->onKeyDownCallBack
+            = [](const SPW::Entity &e, SPW::KeyCode keycode) {
+                if (keycode == SPW::KeyCode::D9) {
+                    e.component<SPW::TransformComponent>()->position.y += 0.01;
+                } else if (keycode == SPW::KeyCode::D6) {
+                    e.component<SPW::TransformComponent>()->position.y -= 0.01;
+                }
+            };
+
             // --------------------------------------------------------------------------------
             auto mantis = scene->createEntity("mantis");
             auto transform = mantis->emplace<SPW::TransformComponent>();
