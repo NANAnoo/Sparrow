@@ -79,7 +79,6 @@ namespace SPW {
         void onStop() const {
             m_scene->onStop();
         }
-
         void setUpDefaultRenderGraph(
                 const std::shared_ptr<SPWRenderSystem> &renderSystem,
                 const std::shared_ptr<RenderBackEndI> &backend) {

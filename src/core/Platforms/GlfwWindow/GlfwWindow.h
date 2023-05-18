@@ -57,6 +57,7 @@ namespace SPW {
 
         std::function<void(GLFWwindow *handle)> windowCreatedCallback;
         std::unordered_set<int> downKeys;
+
     };
 }
 

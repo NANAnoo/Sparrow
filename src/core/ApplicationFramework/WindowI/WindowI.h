@@ -7,6 +7,8 @@
 
 #include "Event/Event.h"
 #include "Render/GraphicsContext.h"
+#include "Control/KeyCodes.h"
+
 
 namespace SPW {
     struct WindowMeta {

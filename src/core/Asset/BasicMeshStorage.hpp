@@ -34,7 +34,7 @@ namespace SPW {
             };
             builder.addTexture = [this, key](const std::string &path, const UUID &id){
                 auto &textures = all_textures[key];
-                textures.insert({id.toString(), path});
+                textures[id.toString()] = path;
             };
             return builder;
         }

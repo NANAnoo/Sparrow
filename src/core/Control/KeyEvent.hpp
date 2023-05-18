@@ -35,6 +35,10 @@ namespace SPW {
             return KeyCategory;
         }
 
+        const char *getName() override {
+            return "SPWKeyEvent";
+        }
+
         // interfaces for responding key events:
         // key down
         virtual bool onKeyDown(KeyEvent *e) { return false;};

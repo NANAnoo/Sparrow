@@ -2,7 +2,7 @@
 // Created by NANAnoo on 2/11/2023.
 // define event structure , producer and consumer interface
 //
-
+#pragma once
 #ifndef SPARROW_EVENT_H
 #define SPARROW_EVENT_H
 
@@ -20,6 +20,7 @@
 
 namespace SPW {
     class Application;
+    class Scene;
     class EventResponderI;
 #define EVENT_RESPONDER(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
@@ -50,6 +51,7 @@ namespace SPW {
                 this->consumed = func(te);
             }
         }
+        //static bool isUIMode;
     private:
         bool consumed = false;
         DEBUG_PROPERTY(std::vector<std::string> processChain = {})
@@ -83,16 +85,19 @@ namespace SPW {
 
         virtual EventCategory listeningCategory() {return AllCategory;}
     private:
-        std::unordered_set<EventResponderI*> subResponders;
         std::weak_ptr<EventResponderI> parent;
+        std::unordered_set<EventResponderI*> subResponders;
         void dispatchEvent(const std::shared_ptr<EventI> &e) {
             // track event processing chain in debug mode
-            DEBUG_EXPRESSION(e->processChain.emplace_back(getName());)
+            //DEBUG_EXPRESSION(e->processChain.emplace_back(getName());)
             // try to consume event
             solveEvent(e);
-            DEBUG_EXPRESSION(if (e->consumed)std::cout << e << std::endl;)
+            //DEBUG_EXPRESSION(if (e->consumed)std::cout << e << std::endl;)
         }
+
     protected:
+        friend Application;
+        friend Scene;
         virtual void onEvent(const std::shared_ptr<EventI> &e) {
             if (e->consumed || !canRespondTo(e)) return;
             // pass event to children nodes
@@ -104,7 +109,6 @@ namespace SPW {
             if (!e->consumed)
                 dispatchEvent(e);
         }
-    friend Application;
     };
 }
 
