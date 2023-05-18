@@ -56,8 +56,24 @@ float ShadowCalculation(int slot)
     // now get current linear depth as the length between the fragment and light position
     float currentDepth = length(fragToLight);
     // now test for shadows
+    float shadow = 0.0;
     float bias = 0.01;
-    float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
+    float samples = 4.0;
+    float offset = 0.1;
+    for(float x = -offset; x < offset; x += offset / (samples * 0.5))
+    {
+        for(float y = -offset; y < offset; y += offset / (samples * 0.5))
+        {
+            for(float z = -offset; z < offset; z += offset / (samples * 0.5))
+            {
+                float closestDepth = texture(P_shadowMap, vec4(fragToLight + vec3(x, y, z),float(slot))).r;
+                closestDepth *= 100.0f;   // Undo mapping [0;1]
+                if(currentDepth - bias > closestDepth)
+                    shadow += 1.0;
+            }
+        }
+    }
+    shadow /= (samples * samples * samples);
 
     return shadow;
 }
