@@ -168,7 +168,7 @@ function CreateModel(scene,camera, camera_id)
     local MantisModel = scene:addEntity("Model")
     local trans = MantisModel:addComponent(Transform)
 
-    trans:setPosition(glm.vec3(0, -0.3, 0))
+    trans:setPosition(glm.vec3(0, 5, 0))
     trans:setRotation(glm.vec3(0, 180, 0))
     trans:setScale(glm.vec3(0.05, 0.05, 0.05))
     ThirdPersonController(scene,MantisModel,camera,0.005,false)

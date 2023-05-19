@@ -9,11 +9,9 @@
 // main entrance
 int main(int argc, char **argv) {
 
-	if (SPW::ConfigManager::Boost())
-    {
+    if (SPW::ConfigManager::Boost()) {
         TEST_LOGGER_INFO("Boot Lua Test")
-    }
-    else return -1;
+    } else { return -1; }
 
 
     auto scriptPath = SPW::ConfigManager::GetScriptPath();

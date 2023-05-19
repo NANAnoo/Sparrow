@@ -97,7 +97,7 @@ vec3 PBR(vec3 N,vec3 position)
         }
         lighting += PBR_D(albedo,metallic,roughness,N,VDir,vec3(position),camPos,DLights[i], shadow);
     }
-    return lighting + vec3(0.03) * albedo;
+    return lighting;// + vec3(0.03) * albedo;
 }
 
 void main()

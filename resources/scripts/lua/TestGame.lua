@@ -8,7 +8,6 @@ require "MantisModel"
 require "MainLight"
 require "FloorModel"
 require "SkyBox"
-require "ThirdPersonController"
 
 local scene = {}    
 local MainCamera = {}
@@ -23,11 +22,11 @@ App({name="Test", width = 1280, height = 720,
         global.app:loadAsset("cube/cube.json")
         scene = Scene.new("LuaTestGame")
         MainCamera = CreateCamera(scene, 1280, 720)
-        ThirdPersonController(scene,MainCamera,MainCamera,0.005,true)
+--         ThirdPersonController(scene,MainCamera,MainCamera,0.005,true)
         local main_camera_id = MainCamera.id
-
-        model = CreateModel(scene,MainCamera, main_camera_id)
-        
+--
+--         model = CreateModel(scene,MainCamera, main_camera_id)
+--
 
         mantisModel = CreateMantisModel(scene, main_camera_id)
 

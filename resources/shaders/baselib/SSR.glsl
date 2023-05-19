@@ -59,7 +59,7 @@ vec3 TraceRay(vec3 rayPos, vec3 dir, sampler2D Screen, int iterationCount)
 
 vec3 SSR(float roughness,vec3 albedo,float metallic, sampler2D Screen)
 {
-    if(roughness>0.3) return vec3(0);
+    if(roughness>0.5) return vec3(0);
 
     vec3 outColor = vec3(0.0);
 

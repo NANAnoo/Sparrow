@@ -52,6 +52,10 @@ vec3 getNormalFromMap()
 
 void main()
 {
+    vec4 baseColor = texture(albedoMap, TexCoords).rgba;
+    if (baseColor.a < 0.5) {
+        discard;
+    }
     gPosition.xyz = FragPos;
     gPosition.w = -LinearizeDepth(gl_FragCoord.z);
     if(length(texture(normalMap, TexCoords).xyz)>0.0f)
@@ -59,7 +63,7 @@ void main()
     else
         gNormal = normalize(Normal);
 
-    gAlbedo.rgb = texture(albedoMap, TexCoords).rgb;
+    gAlbedo.rgb = baseColor.rgb;
 
     gMetalRognessAO.r = texture(metallicMap, TexCoords).r;
     gMetalRognessAO.g = texture(roughnessMap, TexCoords).g;
