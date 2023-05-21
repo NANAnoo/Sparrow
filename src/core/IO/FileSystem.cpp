@@ -236,7 +236,7 @@ namespace SPW
 		return true;
 	}
 
-	bool FileSystem::CopyFile(const std::string& src, const std::string& dest)
+	bool FileSystem::SPWCopyFile(const std::string& src, const std::string& dest)
 	{
 		try
 		{
@@ -257,5 +257,32 @@ namespace SPW
 			FS_LOGGER_INFO("copy error: {0}", e.what())
 			return false;
 		}
+	}
+
+	bool FileSystem::IsDirectoryCanBeOpened(const std::string& name)
+	{
+		bool bExists = false;
+
+		if (!name.empty())
+		{
+			namespace fs = std::filesystem;
+			fs::path pathName = fs::path(name);
+			try
+			{
+				// interesting, in the case of a protected dir or for any reason the dir cant be opened
+				// this func will work but will say nothing more . not like the dirent version
+				bExists = fs::is_directory(pathName);
+				// test if can be opened, this function can thrown an exception if there is an issue with this dir
+				// here, the dir_iter is need else not exception is thrown..
+				const auto dir_iter = std::filesystem::directory_iterator(pathName);
+				(void)dir_iter; // for avoid unused warnings
+			}
+			catch (const std::exception& /*ex*/)
+			{
+				// fail so this dir cant be opened
+				bExists = false;
+			}
+		}
+		return bExists;    // this is not a directory!
 	}
 }

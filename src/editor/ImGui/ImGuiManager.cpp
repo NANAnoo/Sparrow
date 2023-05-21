@@ -7,6 +7,8 @@
 
 #include "Asset/Serializer/EntitySerializer.h"
 #include "dirent/dirent.h"
+#include "ImGuiFileDialog.h"
+#include "IO/LogSystem/LogSystem.hpp"
 
 namespace SPW
 {
@@ -28,31 +30,32 @@ namespace SPW
 		m_Window = window;
 
 		ImFont* default_font = io.Fonts->AddFontDefault();
-		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
 		ImFontConfig icons_config;
-		icons_config.MergeMode = true;  // This is important for merging the fonts
+		icons_config.MergeMode = true; // This is important for merging the fonts
 		icons_config.PixelSnapH = true;
 		icons_config.OversampleH = icons_config.OversampleV = 1;
 		icons_config.GlyphMinAdvanceX = 4.0f;
 		icons_config.SizePixels = 16.f;
-		icons_config.GlyphOffset = ImVec2(0.0f,3.0f);
+		icons_config.GlyphOffset = ImVec2(0.0f, 3.0f);
 
 		std::string fontPath = Config::k_EngineRoot + "fonts/fa-solid-900.ttf";
 		const char* fontPath_cstr = fontPath.c_str();
 		io.Fonts->AddFontFromFileTTF(fontPath_cstr, 16.0f, &icons_config, icons_ranges);
 
 		//file dialog panel
-		m_FileDialog = std::make_shared<ImGuiFileDialog>();
+		// m_FileDialog = std::make_shared<ImGuiFileDialog>();
 
-		m_ImportModelMessageBox = std::make_unique<ImGuiMessageBox>("Import Model", "file", "Import Model Sucessed!", std::vector{ "OK" }, false);
-		m_TextureCompressionMessageBox = std::make_unique<ImGuiMessageBox>("m_TextureCompressionMessageBox Model", "file", "m_TextureCompressionMessageBox Model Sucessed!", std::vector{ "OK" }, false);
+		m_ImportModelMessageBox = std::make_unique<ImGuiMessageBox>("Import Model", "file", "Import Model Sucessed!",
+		                                                            std::vector{"OK"}, false);
+		m_TextureCompressionMessageBox = std::make_unique<ImGuiMessageBox>(
+			"m_TextureCompressionMessageBox Model", "file", "m_TextureCompressionMessageBox Model Sucessed!",
+			std::vector{"OK"}, false);
 
-// 		m_FileDialogID = -1;
+		// 		m_FileDialogID = -1;
 
 		InitLayout();
-
 	}
-
 
 
 	void ImGuiManager::Begin()
@@ -82,8 +85,9 @@ namespace SPW
 
 	void ImGuiManager::EnableViewport() const
 	{
-		ImGuiIO &io = ImGui::GetIO(); (void)io;
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) 
+		ImGuiIO& io = ImGui::GetIO();
+		(void)io;
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
@@ -98,7 +102,8 @@ namespace SPW
 			m_ImagePanel = std::make_shared<ImGuiImagePanel>(renderID);
 			m_Dockspace->AddPanel(m_ImagePanel);
 		}
-		else { std::cout << " Image Panel InValid!\n"; }
+		else
+			EDI_LOGGER_CRITICAL(" renderID {0} Panel InValid!", std::to_string(renderID))
 	}
 
 	void ImGuiManager::InitLayout()
@@ -141,27 +146,30 @@ namespace SPW
 		m_MainMenuBar = std::make_shared<ImGuiMenuBar>("Main Menu Bar");
 
 		m_MainMenuBar->AddSubMenu("File");
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() {SaveSceneCallback(); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() {LoadSceneCallback(); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() {ImportModelCallback(); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Audio", [&]() {ImportAudioCallback(); });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Asset", [&]() {LoadAssetCallback();  });
-		m_MainMenuBar->AddMenuItemToSubMenu("File", "Setup Script Entry", [&]() {SetupScriptEntryCallback();  });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Save Scene", [&]() { SaveSceneCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Scene", [&]() { LoadSceneCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Model", [&]() { ImportModelCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Import Audio", [&]() { ImportAudioCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Load Asset", [&]() { LoadAssetCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("File", "Setup Script Entry", [&]() { SetupScriptEntryCallback(); });
 
-//		m_MainMenuBar->AddSubMenu("Edit");
-//		m_MainMenuBar->AddSubMenu("View");
+		//		m_MainMenuBar->AddSubMenu("Edit");
+		//		m_MainMenuBar->AddSubMenu("View");
 
 		m_MainMenuBar->AddSubMenu("Tool");
-		m_MainMenuBar->AddMenuItemToSubMenu("Tool", "Image Compression", [&]() {ImageCompressedCallback();  });
+		m_MainMenuBar->AddMenuItemToSubMenu("Tool", "Run Lua Script", [&]() { RunLua(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("Tool", "Image Compression", [&]() { ImageCompressedCallback(); });
 
 		m_MainMenuBar->AddSubMenu("Window");
-		m_MainMenuBar->AddMenuItemToSubMenu("Window", "Save Editor Layout", [&]() {SaveEditorLayoutCallback(); });
+		m_MainMenuBar->AddMenuItemToSubMenu("Window", "Save Editor Layout", [&]() { SaveEditorLayoutCallback(); });
 
 		m_MainMenuBar->AddSubMenu("Help");
-		m_MainMenuBar->AddMenuItemToSubMenu("Help", "People Should Help Themselves", [&]() { });
+		m_MainMenuBar->AddMenuItemToSubMenu("Help", "People Should Help Themselves", [&]()
+		{
+		});
 
 		m_MainMenuBar->AddSubMenu("About");
-		m_MainMenuBar->AddMenuItemToSubMenu("About", "Open Configuration File", [&]() { OpenConfigCallback();  });
+		m_MainMenuBar->AddMenuItemToSubMenu("About", "Open Configuration File", [&]() { OpenConfigCallback(); });
 	}
 
 	void ImGuiManager::InitEntityPanel()
@@ -180,17 +188,13 @@ namespace SPW
 		m_FileExplorer = std::make_shared<ImGuiFileExplorer>(m_ImguiIconManager.get());
 	}
 
-	// void ImGuiManager::InitLogPanel()
-	// {
-	// 	m_LogPanel = std::make_shared<ImGuiLog>();
-	// }
-
 	void ImGuiManager::SaveSceneCallback()
 	{
 		if (!fs::exists(Config::k_WorkingProjectScenes))
 			SPW::FileSystem::SPWCreateDirectory(Config::k_WorkingProjectScenes);
 
-		m_FileDialog->OpenDialog("ChooseDirDlgKey", "Save Scene", nullptr, Config::k_WorkingProjectScenes);
+		ImGuiFileDialog::Instance()->OpenDialog("ChooseDirDlgKey", "Save Scene", nullptr,
+		                                        Config::k_WorkingProjectScenes);
 		m_Feature = FeatureType::SaveScene;
 	}
 
@@ -199,7 +203,8 @@ namespace SPW
 		if (!fs::exists(Config::k_WorkingProjectScenes))
 			FileSystem::SPWCreateDirectory(Config::k_WorkingProjectScenes);
 
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Load Scene", "*.*", Config::k_WorkingProjectScenes);
+		ImGuiFileDialog::Instance()->OpenDialog("Universal_FileDialog", "Load Scene", "*.*",
+		                                        Config::k_WorkingProjectScenes);
 		m_Feature = FeatureType::LoadScene;
 	}
 
@@ -208,13 +213,15 @@ namespace SPW
 		if (!fs::exists(Config::k_WorkingProjectScripts))
 			FileSystem::SPWCreateDirectory(Config::k_WorkingProjectScripts);
 
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Script Entry", "*.*", Config::k_WorkingProjectScripts);
+		ImGuiFileDialog::Instance()->OpenDialog("Universal_FileDialog", "Script Entry", "*.*",
+		                                        Config::k_WorkingProjectScripts);
 		m_Feature = FeatureType::SetupScriptEntry;
 	}
 
 	void ImGuiManager::ImportModelCallback()
 	{
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Import Model", "*.*", FileSystem::GetUserHomeDir().string());
+		ImGuiFileDialog::Instance()->OpenDialog("Universal_FileDialog", "Import Model", "*.*",
+		                                        FileSystem::GetUserHomeDir().string());
 		m_Feature = FeatureType::ImportModel;
 	}
 
@@ -223,8 +230,17 @@ namespace SPW
 		if (!fs::exists(Config::k_WorkingProjectAssets))
 			FileSystem::SPWCreateDirectory(Config::k_WorkingProjectAssets);
 
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Load Asset", "*.*", Config::k_WorkingProjectAssets);
+		ImGuiFileDialog::Instance()->OpenDialog("Universal_FileDialog", "Load Asset", "*.*",
+		                                        Config::k_WorkingProjectAssets);
 		m_Feature = FeatureType::LoadAsset;
+	}
+
+	void ImGuiManager::RunLua()
+	{
+		std::string command = "C:/Dev/Sparrow-Engine/build2/bin/RelWithDebInfo/SPWEngine.exe";
+
+		if (std::system(command.c_str()))
+			std::cerr << "Error: Failed to open the file in Visual Studio Code" << std::endl;
 	}
 
 	void ImGuiManager::ImageCompressedCallback()
@@ -232,7 +248,8 @@ namespace SPW
 		if (!fs::exists(Config::k_WorkingProjectAssets))
 			FileSystem::SPWCreateDirectory(Config::k_WorkingProjectAssets);
 
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Compress Image", "*.*", Config::k_WorkingProjectAssets);
+		ImGuiFileDialog::Instance()->OpenDialog("Universal_FileDialog", "Compress Image", "*.*",
+		                                        Config::k_WorkingProjectAssets);
 		m_Feature = FeatureType::ImageCompression;
 	}
 
@@ -257,22 +274,22 @@ namespace SPW
 		else
 			openPath = Config::k_WorkingProjectRoot + "Sounds/";
 
-		m_FileDialog->OpenDialog("Universal_FileDialog", "Import Audio", "*.*", openPath);
+		ImGuiFileDialog::Instance()->OpenDialog("Universal_FileDialog", "Import Audio", "*.*", openPath);
 		m_Feature = FeatureType::ImportAudio;
 	}
 
 	void ImGuiManager::DisplayDialog()
 	{
-		if (m_FileDialog->Display("Universal_FileDialog"))
+		if (ImGuiFileDialog::Instance()->Display("Universal_FileDialog"))
 		{
-			if (m_FileDialog->IsOk())
+			if (ImGuiFileDialog::Instance()->IsOk())
 			{
-				std::string filePath = m_FileDialog->GetFilePathName();
-				std::string fileName = m_FileDialog->GetCurrentFileName();
+				std::string filePath = ImGuiFileDialog::Instance()->GetFilePathName();
+				std::string fileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
 				std::string extension = FileSystem::ToFsPath(fileName).extension().string();
 				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
-				if ( m_Feature == FeatureType::ImportModel )
+				if (m_Feature == FeatureType::ImportModel)
 				{
 					if (extension == ".gltf" || extension == ".fbx" || extension == ".obj")
 					{
@@ -283,11 +300,11 @@ namespace SPW
 					}
 					else
 					{
-						std::cout << "Not Support ! \n";
+						EDI_LOGGER_WRAN("This file format {0} is not supported !", filePath)
 					}
 				}
 
-				if ( m_Feature == FeatureType::SetupScriptEntry)
+				if (m_Feature == FeatureType::SetupScriptEntry)
 				{
 					toml::table cfg = ConfigManager::GetConfigContext();
 
@@ -303,12 +320,10 @@ namespace SPW
 						ConfigManager::WriteDefaultScript(cfg);
 					}
 					else
-					{
-						std::cout << "Not Support ! \n";
-					}
+						EDI_LOGGER_WRAN("This file format {0} is not supported !", filePath)
 				}
 
-				if ( m_Feature == FeatureType::LoadAsset )
+				if (m_Feature == FeatureType::LoadAsset)
 				{
 					if (extension == ".json" || extension == ".asset")
 					{
@@ -316,13 +331,10 @@ namespace SPW
 						ResourceManager::getInstance()->m_AssetDataMap[asset_data.assetName] = asset_data;
 					}
 					else
-					{
-						std::cout << "Not Support ! \n";
-					}
-
+						EDI_LOGGER_WRAN("This file format {0} is not supported !", filePath)
 				}
 
-				if (m_Feature == FeatureType::ImageCompression )
+				if (m_Feature == FeatureType::ImageCompression)
 				{
 					if (extension == ".png" || extension == ".jpg" || extension == ".jepg")
 					{
@@ -333,10 +345,7 @@ namespace SPW
 						}
 					}
 					else
-					{
-						std::cout << "Not Support ! \n";
-					}
-
+						EDI_LOGGER_WRAN("This file format {0} is not supported !", filePath)
 				}
 
 				if (m_Feature == FeatureType::ImportAudio)
@@ -350,9 +359,7 @@ namespace SPW
 						}
 					}
 					else
-					{
-						std::cout << "Not Support ! \n";
-					}
+						EDI_LOGGER_WRAN("This file format {0} is not supported !", filePath)
 				}
 
 				if (m_Feature == FeatureType::LoadScene)
@@ -367,23 +374,21 @@ namespace SPW
 						}
 					}
 					else
-					{
-						std::cout << "Not Support ! \n";
-					}
+						EDI_LOGGER_WRAN("This file format {0} is not supported !", filePath)
 				}
-
 			}
-			m_FileDialog->Close();
+			ImGuiFileDialog::Instance()->Close();
 		}
 
-		if (m_FileDialog->Display("ChooseDirDlgKey"))
+		if (ImGuiFileDialog::Instance()->Display("ChooseDirDlgKey"))
 		{
-			if (m_FileDialog->IsOk())
+			if (ImGuiFileDialog::Instance()->IsOk())
 			{
 				selectedFile = ImGuiFileDialog::Instance()->GetFilePathName();
+				FS_LOGGER_INFO(selectedFile)
 				showInputBox = true;
 			}
-			m_FileDialog->Close();
+			ImGuiFileDialog::Instance()->Close();
 		}
 
 		if (showInputBox)
@@ -403,7 +408,7 @@ namespace SPW
 		}
 	}
 
-	void ImGuiManager::SaveEditorLayoutCallback() 
+	void ImGuiManager::SaveEditorLayoutCallback()
 	{
 		SaveEditorLayout();
 	}
@@ -432,20 +437,20 @@ namespace SPW
 
 	void ImGuiManager::LoadDefaultLayout() const
 	{
-// 		ImGui::GetIO().IniFilename = Config::k_EngineRoot + "/fonts/EditorLayout.ini";
 		const std::string editorLayoutPath = Config::k_EngineRoot + "/fonts/EditorLayout.ini";
 
 		std::ifstream default_ini(editorLayoutPath);
 		std::ofstream imgui_ini("./imgui.ini");
 
-		if (!default_ini.is_open() || !imgui_ini.is_open()) 
+		if (!default_ini.is_open() || !imgui_ini.is_open())
 		{
-			std::cerr << "Error: Could not open ini files." << std::endl;
+			EDI_LOGGER_WRAN("Could not open this {0} ini file", editorLayoutPath)
+
 			return;
 		}
 
 		std::string line;
-		while (std::getline(default_ini, line)) 
+		while (std::getline(default_ini, line))
 		{
 			imgui_ini << line << std::endl;
 		}
@@ -461,29 +466,23 @@ namespace SPW
 
 		m_ImagePanel->SetupCurrImageID(m_Scene->m_renderSystem.lock()->getTextureID());
 
-		// m_ImagePanel = std::make_shared<ImGuiImagePanel>(m_Scene->m_renderSystem.lock()->getTextureID());
-		// m_Dockspace->AddPanel(m_ImagePanel);
-
-		// CreateImagePanel(m_Scene->m_renderSystem.lock()->getTextureID());
-
 		RenderAllPanels();
 		//----------------------------------------------------------------------------------------
 		m_EntityPanel->SetActiveScene(m_Scene);
 		m_InspectorPanel->SetActiveScene(m_Scene);
 
 		m_Scene->forEachEntity<IDComponent>([this](const Entity& e)
-			{
-				const auto component_name = e.component<NameComponent>()->getName();
-				const auto component_id = e.component<IDComponent>()->getID().toString();
-				m_EntityPanel->AddMenuItem(component_id, component_name, [&, e]()
-					{
-						m_InspectorPanel->SetSelectedGameObject(e);
-					}
-				);
-			});
+		{
+			const auto component_name = e.component<NameComponent>()->getName();
+			const auto component_id = e.component<IDComponent>()->getID().toString();
+			m_EntityPanel->AddMenuItem(component_id, component_name, [&, e]()
+			                           {
+				                           m_InspectorPanel->SetSelectedGameObject(e);
+			                           }
+			);
+		});
 		//----------------------------------------------------------------------------------------
 		End();
 		EnableViewport();
 	}
-
 }

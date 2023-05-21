@@ -17,6 +17,11 @@ namespace SPW
 #define TEST_LOGGER_WRAN(...) SPW::LogSystem::GetTestLogger()->warn(__VA_ARGS__);
 #define TEST_LOGGER_CRITICAL(...) SPW::LogSystem::GetTestLogger()->critical(__VA_ARGS__);
 
+#define EDI_LOGGER_INFO(...) SPW::LogSystem::GetEditorLogger()->info(__VA_ARGS__);
+#define EDI_LOGGER_WRAN(...) SPW::LogSystem::GetEditorLogger()->warn(__VA_ARGS__);
+#define EDI_LOGGER_CRITICAL(...) SPW::LogSystem::GetEditorLogger()->critical(__VA_ARGS__);
+
+
 #ifdef near
 #undef near
 #endif
@@ -33,10 +38,12 @@ namespace SPW
 		inline static std::shared_ptr<spdlog::logger>& GetIOLogger() { return ioLogger; }
 		inline static std::shared_ptr<spdlog::logger>& GetConfigLogger() { return cfgLogger; }
 		inline static std::shared_ptr<spdlog::logger>& GetTestLogger() { return testLogger; }
+		inline static std::shared_ptr<spdlog::logger>& GetEditorLogger() { return editorLogger; }
 	private:
 		static std::shared_ptr<spdlog::logger> ioLogger;
 		static std::shared_ptr<spdlog::logger> cfgLogger;
 		static std::shared_ptr<spdlog::logger> testLogger;
+		static std::shared_ptr<spdlog::logger> editorLogger;
 	};
 
 }

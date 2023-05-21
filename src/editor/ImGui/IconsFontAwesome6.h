@@ -279,7 +279,7 @@
 #define ICON_FA_CHESS_BISHOP "\xef\x90\xba"	// U+f43a
 #define ICON_FA_CHESS_BOARD "\xef\x90\xbc"	// U+f43c
 #define ICON_FA_CHESS_KING "\xef\x90\xbf"	// U+f43f
-#define ICON_FA_CHESS_KNIGHT "\xef\x91\x81"	// U+f441
+#define ICON_FA_CHESS_KNIGHT "\xef\x91\x81"	// U+f441f0c7
 #define ICON_FA_CHESS_PAWN "\xef\x91\x83"	// U+f443
 #define ICON_FA_CHESS_QUEEN "\xef\x91\x85"	// U+f445
 #define ICON_FA_CHESS_ROOK "\xef\x91\x87"	// U+f447

@@ -294,39 +294,40 @@ namespace SPW
 	void ImGuiInspectorPanel::DrawMeshComponent(MeshComponent* component)
 	{
 		// ------------------------- SWITCH&UPDATE LOGIC -------------------------
-		std::vector<const char*> captions;
-
-		if (ImGui::Button("Select Mesh!"))
+		std::string labelStr = "";
+		if (!component->assetName.empty())
 		{
-			show_selectingMesh = true;
+			labelStr = component->assetName;
+		}
+		else
+		{
+			labelStr = "Select Mesh!";
 		}
 
-		if (show_selectingMesh)
+		ImGui::Text(ICON_FA_CUBE" Mesh Selecter");
+		ImGui::SameLine();
+		if (ImGui::BeginCombo("*##", labelStr.c_str()))
 		{
-			ImGui::Begin("Select Your Mesh", &show_selectingMesh, ImGuiWindowFlags_AlwaysAutoResize);
-			ImGui::Separator();
-			// if (!component->assetName.empty())
+			for (const auto& [assetName, assetData] : ResourceManager::getInstance()->m_AssetDataMap)
 			{
-				for (const auto& [k, v] : ResourceManager::getInstance()->m_AssetDataMap)
+				bool is_selected = (labelStr.c_str() == assetName.c_str());
+				if (ImGui::Selectable(assetName.c_str(), is_selected))
 				{
-					if (!k.empty())
-					{
-						if (ImGui::Button(k.c_str()))
-						{
-							component->bindCamera = ResourceManager::getInstance()->activeCameraID;
-							component->assetID = v.assetID;
-							component->assetName = v.assetName;
-							component->assetPath = v.path;
-							component->ready = false;
-							show_selectingMesh = false;
-						}
-					}
+					labelStr = assetName;
+
+					component->bindCamera = ResourceManager::getInstance()->activeCameraID;
+					component->assetID = assetData.assetID;
+					component->assetName = assetData.assetName;
+					component->assetPath = assetData.path;
+					component->ready = false;
+					show_selectingMesh = false;
+				}
+				if (is_selected)
+				{
+					ImGui::SetItemDefaultFocus();
 				}
 			}
-			// else
-			// 	ImGui::Text("dude, It is not a valid mesh Component");
-
-			ImGui::End();
+			ImGui::EndCombo();
 		}
 
 

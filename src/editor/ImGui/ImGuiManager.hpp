@@ -10,7 +10,6 @@
 #include "UIComponent/ImGuiPanel.h"
 #include "UIComponent/ImGuiMenuBar.h"
 #include "UIComponent/ImGuiEntityPanel.h"
-#include "UIComponent/ImGuiFileDialogPanel.h"
 #include "UIComponent/ImGuiInspectorPanel.h"
 #include "UIComponent/ImGuiTreeNodePanel.h"
 #include "UIComponent/ImGuiImagePanel.h"
@@ -21,8 +20,6 @@
 #include "Asset/Serializer/EntitySerializer.h"
 #include "ImGui/IconsFontAwesome6.h"
 #include "UIComponent/ImGuiLog.h"
-//#include "GameWrapper.hpp"
-// #include ""
 
 namespace SPW
 {
@@ -32,6 +29,8 @@ namespace SPW
 
 		ImportModel,
 		ImportAudio,
+
+		RunLuaScript,
 		ImageCompression,
 
 		SetupScriptEntry,
@@ -51,9 +50,9 @@ namespace SPW
 	{
 	public:
 		ImGuiManager(GLFWwindow* window, const std::shared_ptr<Scene>& scene, const std::shared_ptr<EventResponderI>& eventResponder)
-					: m_Window(window)
-			        , m_Scene (scene)
-					, EventResponderI(eventResponder)
+			: m_Window(window)
+			, m_Scene(scene)
+			, EventResponderI(eventResponder)
 		{
 			Init(m_Window);
 		}
@@ -70,9 +69,9 @@ namespace SPW
 		void CleanUp();
 		void ShowDemoWindow(bool show_demo_window);
 		void EnableViewport() const;
-		GLFWwindow* GetWindowHandle() const {return m_Window;}
+		GLFWwindow* GetWindowHandle() const { return m_Window; }
 
-		void RenderAllPanels() 
+		void RenderAllPanels()
 		{
 			m_Dockspace->Render();
 			DisplayDialog();
@@ -92,8 +91,9 @@ namespace SPW
 		void ImportAudioCallback();
 		void SaveEditorLayoutCallback();
 		void OpenConfigCallback();
+		void RunLua();
 
-		void DisplayDialog() ;
+		void DisplayDialog();
 
 		void SaveEditorLayout() const;
 		void LoadDefaultLayout() const;
@@ -106,32 +106,32 @@ namespace SPW
 			ImGuiIO& io = ImGui::GetIO();
 
 			e->dispatch<MouseScrollType, MouseEvent>([&io](const MouseEvent* e)
-			{
-				io.MouseWheel += (float)(e->scroll_offset);
+				{
+					io.MouseWheel += (float)(e->scroll_offset);
 
-				return false;
-			});
+					return false;
+				});
 
 			e->dispatch<MouseDownType, MouseEvent>([&io](const MouseEvent* e)
-			{
-				io.MouseDown[(int)e->button_code] = true;
-				
-				return false;
-			});
+				{
+					io.MouseDown[(int)e->button_code] = true;
+
+					return false;
+				});
 
 			e->dispatch<MouseReleasedType, MouseEvent>([&io](const MouseEvent* e)
-			{
-				io.MouseDown[(int)e->button_code] = false;
+				{
+					io.MouseDown[(int)e->button_code] = false;
 
-				return false;
-			});
+					return false;
+				});
 
 			e->dispatch<KeyInputType, KeyEvent>([&io](const KeyEvent* e)
-			{
-				io.AddInputCharacter((int)e->keycode);
+				{
+					io.AddInputCharacter((int)e->keycode);
 
-				return false;
-			});
+					return false;
+				});
 		}
 
 	private:
@@ -146,8 +146,6 @@ namespace SPW
 
 	private:
 		std::shared_ptr<ImGuiDockSpace>			m_Dockspace;
-		// file dialog panel
-		std::shared_ptr<ImGuiFileDialog>		m_FileDialog;
 
 		FeatureType m_Feature = FeatureType::None;
 
@@ -156,7 +154,6 @@ namespace SPW
 		std::shared_ptr<ImGuiInspectorPanel>	m_InspectorPanel;
 		std::shared_ptr<ImGuiImagePanel>	    m_ImagePanel;
 		std::shared_ptr<ImGuiFileExplorer>      m_FileExplorer;
-		std::shared_ptr<ImGuiFileDialogPanel>   m_FileDialogPanel;
 		std::shared_ptr<ImGuiProfilingPanel>    m_ProfilingPanel;
 
 		const std::shared_ptr<Scene>			m_Scene;
@@ -168,6 +165,6 @@ namespace SPW
 		std::unique_ptr<ImGuiMessageBox> m_ImportModelMessageBox;
 		std::unique_ptr<ImGuiMessageBox> m_TextureCompressionMessageBox;
 		std::unique_ptr<ImGuiIconManager> m_ImguiIconManager;
-    };
+	};
 
 }

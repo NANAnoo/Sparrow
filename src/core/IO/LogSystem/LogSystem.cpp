@@ -12,6 +12,7 @@ namespace SPW
 	std::shared_ptr<spdlog::logger> LogSystem::ioLogger;
 	std::shared_ptr<spdlog::logger> LogSystem::cfgLogger;
 	std::shared_ptr<spdlog::logger> LogSystem::testLogger;
+	std::shared_ptr<spdlog::logger> LogSystem::editorLogger;
 
 	// std::shared_ptr<spdlog::logger> ioLogger;
 
@@ -22,6 +23,7 @@ namespace SPW
 		ioLogger = spdlog::stdout_color_mt("IO");
 		cfgLogger = spdlog::stdout_color_mt("Config");
 		testLogger = spdlog::stdout_color_mt("Test");
+		editorLogger = spdlog::stdout_color_mt("Editor");
 //		ioLogger->set_level(spdlog::level::info);
 	}
 }

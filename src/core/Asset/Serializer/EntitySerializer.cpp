@@ -12,6 +12,7 @@
 #include "EcsFramework/Component/AnimationComponent/AnimationComponent.h"
 #include "IO/FileSystem.h"
 #include "Asset/ResourceManager/ResourceManager.h"
+#include "IO/LogSystem/LogSystem.hpp"
 
 
 namespace SPW {
@@ -216,19 +217,24 @@ namespace SPW {
 	                                 const std::string& username)
 	{
 		fs::path savePath;
-		if (filePath.length() > 0)
+		if (filePath.empty())
 		{
-			savePath = filePath;
+			savePath = Config::k_WorkingProjectScenes + "/" + FileSystem::GetSystemTime() + Extension::SceneEx;
 		}
 		else
 		{
-			if(username.empty())
+			if (username.empty())
 			{
-				savePath = Config::k_WorkingProjectScenes + "/" + FileSystem::GetSystemTime() + Extension::SceneEx;
+				savePath = filePath + "/" + FileSystem::GetSystemTime() + Extension::SceneEx;
 			}
-			else 
-				savePath = Config::k_WorkingProjectScenes + "/"+ username + Extension::SceneEx;
+			else
+			{
+				savePath = filePath + "/" + username + Extension::SceneEx;
+			}
+
 		}
+
+		FS_LOGGER_INFO("scene save to file -> {0}", savePath.string())
 		
 		std::unordered_map<std::string, CameraComponent> cameraComponents;
 		std::unordered_map<std::string, PointLightComponent> pointLightComponents;

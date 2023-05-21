@@ -82,7 +82,7 @@ namespace SPW
 				
 				std::string sourceFilePath = src + v;
 				std::string destinationFilePath(textureDir + FileSystem::ToFsPath(v).filename().string());
-				FileSystem::CopyFile(sourceFilePath, destinationFilePath);
+				FileSystem::SPWCopyFile(sourceFilePath, destinationFilePath);
 
 				// 3. Update Texture Path To Relative
 				v = FileSystem::ToRelativePath(destinationFilePath, Config::k_WorkingProjectRoot);
